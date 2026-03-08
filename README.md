@@ -150,12 +150,15 @@ Use `.github/workflows/parity-gate.yml` to enforce no parity drift in PRs:
 - Runs Python parity snapshot on the pinned corpus manifest.
 - Compares current snapshot to `data/corpus/parity_baseline/v3.4.1/parity_snapshot.json`.
 - Fails on mismatch growth, new mismatch families, match-rate drop, or missing files.
+- Supports temporary, expiring waivers via `data/corpus/parity_baseline/v3.4.1/waivers.json`.
 
 Because corpus files are not committed, the gate expects a compressed corpus archive via repository variable:
 
 - `PARITY_CORPUS_ARCHIVE_URL`: HTTPS URL to a `.tar.zst` archive that extracts to a top-level `files/` directory.
 
 `workflow_dispatch` supports overriding this URL with `corpus_archive_url`.
+
+Parity contract and waiver rules are documented in `docs/parity_contract.md`.
 
 ## GitHub Actions Validation
 

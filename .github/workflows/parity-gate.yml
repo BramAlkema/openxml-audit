@@ -27,6 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASELINE_SNAPSHOT: data/corpus/parity_baseline/v3.4.1/parity_snapshot.json
+      WAIVERS_FILE: data/corpus/parity_baseline/v3.4.1/waivers.json
       CURRENT_SNAPSHOT: reports/parity_current.json
       COMPARE_REPORT: reports/parity_compare.json
       SUMMARY_REPORT: /tmp/parity_compare.md
@@ -94,6 +95,7 @@ jobs:
           python scripts/corpus/compare_to_baseline.py \
             --baseline "$BASELINE_SNAPSHOT" \
             --current "$CURRENT_SNAPSHOT" \
+            --waivers "$WAIVERS_FILE" \
             --output "$COMPARE_REPORT" \
             --summary "$SUMMARY_REPORT" \
             --max-mismatch-growth 0 \

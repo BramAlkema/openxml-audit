@@ -32,12 +32,12 @@
 - [x] Add `scripts/corpus/compare_to_baseline.py`
 - [x] Add PR CI gate using Python-only baseline compare
 - [x] Add nightly optional SDK calibration workflow
-- [ ] Document SDK as optional/manual-only in developer workflow
-- [ ] Enforce no parity-drift policy in PR CI
+- [x] Document SDK as optional/manual-only in developer workflow
+- [x] Enforce no parity-drift policy in PR CI
 
 ## Operational Tasks
 
-- [ ] Create `docs/parity_contract.md`
+- [x] Create `docs/parity_contract.md`
 - [x] Pin calibration target to Open XML SDK `v3.4.1`
-- [ ] Add mismatch waiver process (owner + rationale + expiry)
+- [x] Add mismatch waiver process (owner + rationale + expiry)
 - [ ] Add performance regression guard for parity workloads
