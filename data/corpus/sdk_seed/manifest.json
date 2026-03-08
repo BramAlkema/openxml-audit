@@ -1788,7 +1788,22 @@
       "size_bytes": 81314,
       "sha256": "805e18445073b0b61679bc8764a5a5bd793b6e2eb2adbf5e92c7b17833e30dc8",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "assert_empty_single_version",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "CommentExTest.cs",
+              "name": "CommentExInvalidFormat",
+              "line": 20
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestDataStorage/O15Conformance/XL/WebExtension/Bing.xlsx",
@@ -1812,7 +1827,22 @@
       "size_bytes": 15065,
       "sha256": "8133833e89fe67052c9929fd360cd70abf0600971fad6f110322a251a86966ba",
       "extension": ".xlsx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "Robustness.cs",
+              "name": "OFCATFull",
+              "line": 24
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestDataStorage/Robustness/OFCAT/00a5835d-d770-438a-aa36-c7cdcd4e61d1.xlsx",
@@ -1820,7 +1850,22 @@
       "size_bytes": 8340,
       "sha256": "11abdd74b810e8b52820ed612e80b79cc7535513cca3ac0e47a27f01c56e97a2",
       "extension": ".xlsx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "Robustness.cs",
+              "name": "OFCATFull",
+              "line": 24
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestDataStorage/Robustness/OFCAT/00a5888d-6d63-4643-acbb-35c6f317cd75.xlsx",
@@ -1828,7 +1873,22 @@
       "size_bytes": 15654,
       "sha256": "0bfa534018bcb1290fd70f3b0beb5b6d2e8e86fb709a4abe5b324e84567ea517",
       "extension": ".xlsx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "Robustness.cs",
+              "name": "OFCATFull",
+              "line": 24
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestDataStorage/Robustness/OFCAT/00bd6e64-896c-4ad0-980c-e7abdd4b0a52.xlsx",
@@ -1836,7 +1896,22 @@
       "size_bytes": 18033,
       "sha256": "f150a4e5205e505a630a526b04135be5736b8569668cac6033aa19137a9f61bd",
       "extension": ".xlsx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "Robustness.cs",
+              "name": "OFCATFull",
+              "line": 24
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestDataStorage/Robustness/OFCAT/00c6a24e-a99f-42c1-a26b-a086b273f3f4.xlsx",
@@ -1844,7 +1919,22 @@
       "size_bytes": 34769,
       "sha256": "0dfb5ee5b2a6a53e632d571e49b6864f5da677f85d37b07e428aa0472e12c92e",
       "extension": ".xlsx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "Robustness.cs",
+              "name": "OFCATFull",
+              "line": 24
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestDataStorage/Robustness/OFCAT/00cb49ed-f996-4a3b-9bad-8676e765c4b2.xlsx",
@@ -1852,7 +1942,22 @@
       "size_bytes": 20825,
       "sha256": "de6255ddd3600e06bea6a03ac1cbc65ab356f16e36520835a8ceef93bd5d4eaa",
       "extension": ".xlsx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "Robustness.cs",
+              "name": "OFCATFull",
+              "line": 24
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestDataStorage/Robustness/OFCAT/00d43c8b-890a-4b6c-a101-0fe55f2dd917.xlsx",
@@ -1860,7 +1965,22 @@
       "size_bytes": 10209,
       "sha256": "3a9a063b26fa51d780b1e2664d78ae609990e5d281b530d7ad8f4a3a6ffae583",
       "extension": ".xlsx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "Robustness.cs",
+              "name": "OFCATFull",
+              "line": 24
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestDataStorage/Robustness/OFCAT/00d63cdd-ee44-4e6a-99af-a7966ffbdda0.xlsx",
@@ -1868,7 +1988,22 @@
       "size_bytes": 9265,
       "sha256": "2a2a032f97c4c249cb5643d2493de2fa4489d26fe1ac763a155d7f236de2e65e",
       "extension": ".xlsx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "Robustness.cs",
+              "name": "OFCATFull",
+              "line": 24
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestDataStorage/Robustness/OFCAT/00df219f-f99a-4e93-b049-a666df53894c.xlsx",
@@ -1876,7 +2011,22 @@
       "size_bytes": 15690,
       "sha256": "bb214d3a9f87496f03fb166f4819f09959617bf92ab4a0681845ba70d8a39e21",
       "extension": ".xlsx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "Robustness.cs",
+              "name": "OFCATFull",
+              "line": 24
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestDataStorage/v2FxTestFiles/ForTestCase/Bug201775_testfile.docx",
@@ -6615,11 +6765,14 @@
       "expectations": [
         {
           "kind": "assert_empty_single_version",
-          "file_format_version": "Office2013",
+          "validator_versions": [
+            "Office2013"
+          ],
           "expected_error_count": 0,
           "source_tests": [
             {
-              "name": "DocxTests01.cs::W007_GetPartById_DeleteParts",
+              "file": "DocxTests01.cs",
+              "name": "W007_GetPartById_DeleteParts",
               "line": 1113
             }
           ]
@@ -6659,11 +6812,14 @@
       "expectations": [
         {
           "kind": "assert_empty_single_version",
-          "file_format_version": "Office2013",
+          "validator_versions": [
+            "Office2013"
+          ],
           "expected_error_count": 0,
           "source_tests": [
             {
-              "name": "DocxTests01.cs::W055_Load_Save_Data_Bound_Content_Controls",
+              "file": "DocxTests01.cs",
+              "name": "W055_Load_Save_Data_Bound_Content_Controls",
               "line": 26
             }
           ]
@@ -6687,33 +6843,42 @@
       "expectations": [
         {
           "kind": "inline_version_count",
-          "file_format_version": "Office2007",
+          "validator_versions": [
+            "Office2007"
+          ],
           "expected_error_count": 415,
           "source_tests": [
             {
-              "name": "DocxTests01.cs::W003_DocxValidation",
+              "file": "DocxTests01.cs",
+              "name": "W003_DocxValidation",
               "line": 1224
             }
           ]
         },
         {
           "kind": "inline_version_count",
-          "file_format_version": "Office2010",
+          "validator_versions": [
+            "Office2010"
+          ],
           "expected_error_count": 0,
           "source_tests": [
             {
-              "name": "DocxTests01.cs::W003_DocxValidation",
+              "file": "DocxTests01.cs",
+              "name": "W003_DocxValidation",
               "line": 1224
             }
           ]
         },
         {
           "kind": "inline_version_count",
-          "file_format_version": "Office2013",
+          "validator_versions": [
+            "Office2013"
+          ],
           "expected_error_count": 1,
           "source_tests": [
             {
-              "name": "DocxTests01.cs::W003_DocxValidation",
+              "file": "DocxTests01.cs",
+              "name": "W003_DocxValidation",
               "line": 1224
             }
           ]
@@ -6761,51 +6926,64 @@
       "expectations": [
         {
           "kind": "assert_empty_single_version",
-          "file_format_version": "Office2013",
+          "validator_versions": [
+            "Office2013"
+          ],
           "expected_error_count": 0,
           "source_tests": [
             {
-              "name": "DocxTests01.cs::W051_AddNewPart_ToOpenXmlPackage",
+              "file": "DocxTests01.cs",
+              "name": "W051_AddNewPart_ToOpenXmlPackage",
               "line": 135
             },
             {
-              "name": "DocxTests01.cs::W050_DeleteAdd_CoreExtendedProperties",
+              "file": "DocxTests01.cs",
+              "name": "W050_DeleteAdd_CoreExtendedProperties",
               "line": 150
             },
             {
-              "name": "DocxTests01.cs::W049_AddNewPart_ToPackage",
+              "file": "DocxTests01.cs",
+              "name": "W049_AddNewPart_ToPackage",
               "line": 190
             },
             {
-              "name": "DocxTests01.cs::W047_AddNewPart_ToPackage",
+              "file": "DocxTests01.cs",
+              "name": "W047_AddNewPart_ToPackage",
               "line": 218
             },
             {
-              "name": "DocxTests01.cs::W045_AddNewPart_ToPart",
+              "file": "DocxTests01.cs",
+              "name": "W045_AddNewPart_ToPart",
               "line": 251
             },
             {
-              "name": "DocxTests01.cs::W043_AddNewPart",
+              "file": "DocxTests01.cs",
+              "name": "W043_AddNewPart",
               "line": 279
             },
             {
-              "name": "DocxTests01.cs::W042_AddNewPart",
+              "file": "DocxTests01.cs",
+              "name": "W042_AddNewPart",
               "line": 294
             },
             {
-              "name": "DocxTests01.cs::W041_AddAlternativeFormatImportPart",
+              "file": "DocxTests01.cs",
+              "name": "W041_AddAlternativeFormatImportPart",
               "line": 309
             },
             {
-              "name": "DocxTests01.cs::W040_AddExternalRelationship",
+              "file": "DocxTests01.cs",
+              "name": "W040_AddExternalRelationship",
               "line": 324
             },
             {
-              "name": "DocxTests01.cs::W013_MarkupCompat_ProcessLoadedPartsOnly",
+              "file": "DocxTests01.cs",
+              "name": "W013_MarkupCompat_ProcessLoadedPartsOnly",
               "line": 841
             },
             {
-              "name": "DocxTests01.cs::W010_HyperlinkRelationships",
+              "file": "DocxTests01.cs",
+              "name": "W010_HyperlinkRelationships",
               "line": 906
             }
           ]
@@ -6842,7 +7020,22 @@
       "size_bytes": 77977,
       "sha256": "ec3517121984d86836ad2766c0c4103d2ab2a270fca4e679607351ac25df8948",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "assert_empty_single_version",
+          "validator_versions": [
+            "Office2007"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "OpenXmlPartTest.cs",
+              "name": "HyperlinkRelationshipTest",
+              "line": 70
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/MoreDocProps.docx",
@@ -6874,7 +7067,36 @@
       "size_bytes": 35577,
       "sha256": "264d4df8c3b582989c44e8c4d711635cb5aaac564a13e6dcb07dda5322c7a4d1",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_003_ValidateDocx_2013",
+              "line": 107
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_001_ValidateDocx_2016",
+              "line": 146
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-01.pptx",
@@ -6882,7 +7104,36 @@
       "size_bytes": 58675,
       "sha256": "563b633c6a696faa6efe058b15a6bd6f3fa955c2286e4fe0160ef8a7e998e976",
       "extension": ".pptx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_004_ValidatePptx_2013",
+              "line": 85
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_002_ValidatePptx_2016",
+              "line": 124
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-02.docx",
@@ -6890,7 +7141,36 @@
       "size_bytes": 30313,
       "sha256": "b3a6e8a5b16abe9e7812e0c32c6a194729c391e7e5ecdd9ac338e200bddf2097",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_003_ValidateDocx_2013",
+              "line": 107
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_001_ValidateDocx_2016",
+              "line": 146
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-02.pptx",
@@ -6898,7 +7178,36 @@
       "size_bytes": 51740,
       "sha256": "70d0ac69333b86bb6a3c6e489664c9e4298b9cb62440d287d54c5fc7cd79197e",
       "extension": ".pptx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_004_ValidatePptx_2013",
+              "line": 85
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_002_ValidatePptx_2016",
+              "line": 124
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-03.docx",
@@ -6906,7 +7215,36 @@
       "size_bytes": 58205,
       "sha256": "0105b38ce76181cdb1512f343336637c2eb04f07a802dd2da9e8ea67457220b1",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_003_ValidateDocx_2013",
+              "line": 107
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_001_ValidateDocx_2016",
+              "line": 146
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-03.pptx",
@@ -6914,7 +7252,36 @@
       "size_bytes": 116897,
       "sha256": "80612aaea3651cc405035c5e4bb675d18819830ee2c7ea79f9b5b4ecf563ab9c",
       "extension": ".pptx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_004_ValidatePptx_2013",
+              "line": 85
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_002_ValidatePptx_2016",
+              "line": 124
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-04.docx",
@@ -6922,7 +7289,36 @@
       "size_bytes": 31535,
       "sha256": "22e98d2395500dda1b5b19a8ca6f855bb70588a70c7378c54d6f7ce0159d79d4",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_003_ValidateDocx_2013",
+              "line": 107
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_001_ValidateDocx_2016",
+              "line": 146
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-05.docx",
@@ -6930,7 +7326,36 @@
       "size_bytes": 102645,
       "sha256": "00b0985b9cddd514115c19e8c720e2781003dab45d7c3426f51219974b7ac72a",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_003_ValidateDocx_2013",
+              "line": 107
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_001_ValidateDocx_2016",
+              "line": 146
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-06.docx",
@@ -6938,7 +7363,36 @@
       "size_bytes": 33469,
       "sha256": "e580e14753c0dfc20b7e6f4a47b7d72b048bfca23361b841aa2194df53e50df0",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_003_ValidateDocx_2013",
+              "line": 107
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_001_ValidateDocx_2016",
+              "line": 146
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-07.docx",
@@ -6946,7 +7400,36 @@
       "size_bytes": 31152,
       "sha256": "e6b30b8f3df45e7d4d1043bb67262125f9b7517944c86cc08ef829c656bed26b",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_003_ValidateDocx_2013",
+              "line": 107
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_001_ValidateDocx_2016",
+              "line": 146
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-08.docx",
@@ -6954,7 +7437,36 @@
       "size_bytes": 24216,
       "sha256": "0488ecc6ca4db396915374f530e45ad78d57b1c42a4a1267c5f1ee8b049ca745",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_003_ValidateDocx_2013",
+              "line": 107
+            }
+          ]
+        },
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_001_ValidateDocx_2016",
+              "line": 146
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Of16-09-UnknownElement.docx",
@@ -6970,7 +7482,22 @@
       "size_bytes": 11353,
       "sha256": "b87c4ee02a461cb29db5b18e1931aa32654d00e98bd8802cad333dc7c6cec68e",
       "extension": ".docx",
-      "expectations": []
+      "expectations": [
+        {
+          "kind": "inline_file_assert_empty",
+          "validator_versions": [
+            "Office2016"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "TestOffice2016.cs",
+              "name": "OF16_007_SymEx",
+              "line": 18
+            }
+          ]
+        }
+      ]
     },
     {
       "source_relpath": "TestFiles/Plain.docx",
@@ -6981,12 +7508,57 @@
       "expectations": [
         {
           "kind": "assert_empty_single_version",
-          "file_format_version": "Office2013",
+          "validator_versions": [
+            "Office2013"
+          ],
           "expected_error_count": 0,
           "source_tests": [
             {
-              "name": "DocxTests01.cs::W005_AddCommentsPart",
+              "file": "DocxTests01.cs",
+              "name": "W005_AddCommentsPart",
               "line": 1145
+            }
+          ]
+        },
+        {
+          "kind": "inline_version_assert_empty",
+          "validator_versions": [
+            "Office2007"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "DocxTests01.cs",
+              "name": "W002_PlainDocxValidation",
+              "line": 1239
+            }
+          ]
+        },
+        {
+          "kind": "inline_version_assert_empty",
+          "validator_versions": [
+            "Office2010"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "DocxTests01.cs",
+              "name": "W002_PlainDocxValidation",
+              "line": 1239
+            }
+          ]
+        },
+        {
+          "kind": "inline_version_assert_empty",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "DocxTests01.cs",
+              "name": "W002_PlainDocxValidation",
+              "line": 1239
             }
           ]
         }
@@ -7009,42 +7581,50 @@
       "expectations": [
         {
           "kind": "assert_empty_single_version",
-          "file_format_version": "Office2013",
+          "validator_versions": [
+            "Office2013"
+          ],
           "expected_error_count": 0,
           "source_tests": [
             {
-              "name": "PptxTests01.cs::P007_PptxCreation_Package_Settings",
+              "file": "PptxTests01.cs",
+              "name": "P007_PptxCreation_Package_Settings",
               "line": 21
             },
             {
-              "name": "PptxTests01.cs::P006_PresentationDocument_Open",
+              "file": "PptxTests01.cs",
+              "name": "P006_PresentationDocument_Open",
               "line": 41
             },
             {
-              "name": "PptxTests01.cs::P005_PptxCreation_Package_Settings",
+              "file": "PptxTests01.cs",
+              "name": "P005_PptxCreation_Package_Settings",
               "line": 58
             },
             {
-              "name": "PptxTests01.cs::P004_SpreadsheetDocument_Open",
+              "file": "PptxTests01.cs",
+              "name": "P004_SpreadsheetDocument_Open",
               "line": 78
             },
             {
-              "name": "PptxTests01.cs::P002_Pptx_DeleteAdd_CoreExtendedProperties",
+              "file": "PptxTests01.cs",
+              "name": "P002_Pptx_DeleteAdd_CoreExtendedProperties",
               "line": 384
             }
           ]
         },
         {
-          "kind": "inline_testfile_count",
-          "expected_error_count": 0,
+          "kind": "inline_file_count",
           "validator_versions": [
             "Office2007",
             "Office2010",
             "Office2013"
           ],
+          "expected_error_count": 0,
           "source_tests": [
             {
-              "name": "PptxTests01.cs::PptxValidation",
+              "file": "PptxTests01.cs",
+              "name": "PptxValidation",
               "line": 508
             }
           ]
@@ -7067,15 +7647,57 @@
       "extension": ".xlsx",
       "expectations": [
         {
+          "kind": "assert_true_allowed_counts",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "expected_error_counts": [
+            0,
+            1
+          ],
+          "source_tests": [
+            {
+              "file": "XlsxTests01.cs",
+              "name": "X008_XlsxCreation_Package_Settings",
+              "line": 20
+            },
+            {
+              "file": "XlsxTests01.cs",
+              "name": "X007_SpreadsheetDocument_Open",
+              "line": 42
+            },
+            {
+              "file": "XlsxTests01.cs",
+              "name": "X006_Xlsx_DeleteAdd_CoreExtendedProperties",
+              "line": 61
+            },
+            {
+              "file": "XlsxTests01.cs",
+              "name": "X005_XlsxCreation_Package_Settings",
+              "line": 157
+            },
+            {
+              "file": "XlsxTests01.cs",
+              "name": "X004_SpreadsheetDocument_Open",
+              "line": 177
+            }
+          ]
+        },
+        {
           "kind": "helper_allowed_counts",
+          "validator_versions": [
+            "Office2007",
+            "Office2010",
+            "Office2013"
+          ],
           "expected_error_counts": [
             1,
             2
           ],
-          "notes": "From XlsxValidationHelper(stream, a, b) invocation.",
           "source_tests": [
             {
-              "name": "XlsxTests01.cs::X001_XlsxValidation",
+              "file": "XlsxTests01.cs",
+              "name": "X001_XlsxValidation",
               "line": 257
             }
           ]
@@ -7285,11 +7907,9 @@
   ],
   "expectation_stats": {
     "methods_scanned": 867,
-    "expectations_found": 24,
-    "missing_constants": 0,
-    "ambiguous_versioned_methods": 0,
-    "assert_empty_methods": 19,
-    "helper_methods": 1
+    "raw_expectations": 66,
+    "resolved_expectations": 48,
+    "files_with_expectations": 30
   },
   "settings": {
     "include_dirs": [],
@@ -7314,5 +7934,10 @@
     "manifest_only": false,
     "dry_run": false
   },
-  "matched_expectation_files": 7
+  "matched_expectation_files": 30,
+  "expectation_extraction": {
+    "generated_at_utc": "2026-03-08T21:16:01.247721+00:00",
+    "sdk_root": "/private/tmp/openxml-sdk-upstream",
+    "script": "scripts/corpus/extract_sdk_expectations.py"
+  }
 }
