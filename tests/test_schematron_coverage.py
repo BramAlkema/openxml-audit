@@ -8,11 +8,21 @@ from __future__ import annotations
 
 import pytest
 
-from openxml_audit.codegen.schematron_bridge import get_sdk_constraint_stats
+from openxml_audit.codegen.schematron_bridge import (
+    create_constraint_from_schematron,
+    get_sdk_constraint_stats,
+)
 from openxml_audit.codegen.schematron_loader import (
     SchematronRegistry,
     SchematronType,
     get_registry,
+    parse_schematron,
+)
+from openxml_audit.semantic.constraints import (
+    AndConstraint,
+    AttributeEqualsConstraint,
+    AttributeNotEqualConstraint,
+    OrConstraint,
 )
 
 
@@ -146,6 +156,58 @@ class TestSchematronRuleTypes:
         for rule in conditional_rules:
             assert rule.attribute is not None, f"Missing trigger attribute: {rule.test}"
             assert len(rule.sub_rules) == 1, f"Should have exactly 1 sub-rule: {rule.test}"
+
+    def test_nested_and_or_expression_parsing(self) -> None:
+        """Test nested AND/OR expression parses into recursive sub-rules."""
+        rule = parse_schematron(
+            {
+                "Context": "w:compatSetting",
+                "Test": (
+                    "((@w:val = 11 or @w:val = 12 or @w:val = 14 or @w:val = 15) "
+                    "and @w:name = compatibilityMode) or @w:name != compatibilityMode"
+                ),
+            }
+        )
+
+        assert rule.rule_type == SchematronType.OR_CONDITION
+        assert len(rule.sub_rules) == 2
+
+        and_branch = rule.sub_rules[0]
+        assert and_branch.rule_type == SchematronType.AND_CONDITION
+        assert len(and_branch.sub_rules) == 2
+        assert and_branch.sub_rules[0].rule_type == SchematronType.OR_CONDITION
+        assert and_branch.sub_rules[1].rule_type == SchematronType.ATTRIBUTE_EQUALS
+
+        not_equal_branch = rule.sub_rules[1]
+        assert not_equal_branch.rule_type == SchematronType.ATTRIBUTE_NOT_EQUAL
+
+    def test_nested_and_or_expression_conversion(self) -> None:
+        """Test nested AND/OR expression converts into compound constraints."""
+        rule = parse_schematron(
+            {
+                "Context": "w:compatSetting",
+                "Test": (
+                    "((@w:val = 11 or @w:val = 12 or @w:val = 14 or @w:val = 15) "
+                    "and @w:name = compatibilityMode) or @w:name != compatibilityMode"
+                ),
+            }
+        )
+
+        constraint = create_constraint_from_schematron(
+            rule,
+            namespace_map={"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"},
+        )
+
+        assert isinstance(constraint, OrConstraint)
+        assert len(constraint.constraints) == 2
+        assert isinstance(constraint.constraints[0], AndConstraint)
+        assert isinstance(constraint.constraints[1], AttributeNotEqualConstraint)
+
+        and_constraint = constraint.constraints[0]
+        assert isinstance(and_constraint, AndConstraint)
+        assert len(and_constraint.constraints) == 2
+        assert isinstance(and_constraint.constraints[0], OrConstraint)
+        assert isinstance(and_constraint.constraints[1], AttributeEqualsConstraint)
 
 
 class TestSchematronRegistry:

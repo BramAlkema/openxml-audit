@@ -115,6 +115,21 @@ def _is_or_condition(test: str) -> bool:
     return False
 
 
+def _is_and_condition(test: str) -> bool:
+    """Check if test contains a top-level 'and' (not inside parentheses)."""
+    depth = 0
+    i = 0
+    while i < len(test):
+        if test[i] == "(":
+            depth += 1
+        elif test[i] == ")":
+            depth -= 1
+        elif depth == 0 and test[i : i + 5] == " and ":
+            return True
+        i += 1
+    return False
+
+
 def _split_or_conditions(test: str) -> list[str]:
     """Split test by top-level 'or' (not inside parentheses)."""
     parts: list[str] = []
@@ -140,9 +155,57 @@ def _split_or_conditions(test: str) -> list[str]:
     return parts
 
 
+def _split_and_conditions(test: str) -> list[str]:
+    """Split test by top-level 'and' (not inside parentheses)."""
+    parts: list[str] = []
+    depth = 0
+    current = ""
+    i = 0
+    while i < len(test):
+        if test[i] == "(":
+            depth += 1
+            current += test[i]
+        elif test[i] == ")":
+            depth -= 1
+            current += test[i]
+        elif depth == 0 and test[i : i + 5] == " and ":
+            parts.append(current.strip())
+            current = ""
+            i += 4  # Skip " and"
+        else:
+            current += test[i]
+        i += 1
+    if current.strip():
+        parts.append(current.strip())
+    return parts
+
+
+def _strip_wrapping_parentheses(test: str) -> str:
+    """Remove wrapping parentheses around the full expression."""
+    stripped = test.strip()
+    while stripped.startswith("(") and stripped.endswith(")"):
+        depth = 0
+        has_outer_wrapping = True
+        for idx, char in enumerate(stripped):
+            if char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+                if depth < 0:
+                    return stripped
+                # If depth reaches zero before the end, outer parens do not wrap all
+                if depth == 0 and idx < len(stripped) - 1:
+                    has_outer_wrapping = False
+                    break
+        if not has_outer_wrapping or depth != 0:
+            break
+        stripped = stripped[1:-1].strip()
+    return stripped
+
+
 def _classify_rule(rule: ParsedSchematron) -> None:
     """Classify a schematron rule and extract parameters."""
-    test = rule.test
+    test = _strip_wrapping_parentheses(rule.test)
 
     # Pattern for attribute names (including prefixed and hyphenated names)
     # Matches: attr, prefix:attr, prefix:attr-name
@@ -241,6 +304,22 @@ def _classify_rule(rule: ParsedSchematron) -> None:
         rule.rule_type = SchematronType.ELEMENT_REFERENCE
         return
 
+    # Pattern: (cond1) or (cond2) (OR condition)
+    # Look for " or " as a top-level connector (not inside parentheses)
+    if _is_or_condition(test):
+        rule.rule_type = SchematronType.OR_CONDITION
+        # Parse sub-conditions
+        sub_tests = _split_or_conditions(test)
+        for sub_test in sub_tests:
+            sub_rule = ParsedSchematron(
+                context=rule.context,
+                test=_strip_wrapping_parentheses(sub_test),
+                app=rule.app,
+            )
+            _classify_rule(sub_rule)
+            rule.sub_rules.append(sub_rule)
+        return
+
     # Pattern: @attr != value (attribute not equal)
     not_equal_match = re.match(r"@(\w+:?\w*)\s*!=\s*['\"]?([^'\"]+)['\"]?$", test)
     if not_equal_match:
@@ -267,20 +346,6 @@ def _classify_rule(rule: ParsedSchematron) -> None:
         rule.attribute = comparison_match.group(1)
         rule.comparison_operator = comparison_match.group(2)
         rule.other_attribute = comparison_match.group(3)
-        return
-
-    # Pattern: (cond1) or (cond2) (OR condition)
-    # Look for " or " as a top-level connector (not inside parentheses)
-    if _is_or_condition(test):
-        rule.rule_type = SchematronType.OR_CONDITION
-        # Parse sub-conditions
-        sub_tests = _split_or_conditions(test)
-        for sub_test in sub_tests:
-            sub_rule = ParsedSchematron(
-                context=rule.context, test=sub_test.strip(), app=rule.app
-            )
-            _classify_rule(sub_rule)
-            rule.sub_rules.append(sub_rule)
         return
 
     # Pattern: @a != X and @a != Y (multi-AND with same attribute)
@@ -325,12 +390,26 @@ def _classify_rule(rule: ParsedSchematron) -> None:
         rule.rule_type = SchematronType.CONDITIONAL_VALUE
         rule.attribute = conditional_match.group(1)
         # Parse the condition as a sub-rule
-        condition_test = conditional_match.group(2)
+        condition_test = _strip_wrapping_parentheses(conditional_match.group(2))
         sub_rule = ParsedSchematron(
             context=rule.context, test=condition_test.strip(), app=rule.app
         )
         _classify_rule(sub_rule)
         rule.sub_rules.append(sub_rule)
+        return
+
+    # Pattern: cond1 and cond2 (general top-level AND condition)
+    if _is_and_condition(test):
+        rule.rule_type = SchematronType.AND_CONDITION
+        and_parts = _split_and_conditions(test)
+        for part in and_parts:
+            sub_rule = ParsedSchematron(
+                context=rule.context,
+                test=_strip_wrapping_parentheses(part),
+                app=rule.app,
+            )
+            _classify_rule(sub_rule)
+            rule.sub_rules.append(sub_rule)
         return
 
     # Pattern: @attr < count(document('Part:...')//xpath) + N (cross-part count)
