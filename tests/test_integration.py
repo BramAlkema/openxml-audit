@@ -74,6 +74,33 @@ class TestFullValidationPipeline:
 
         assert result.file_path == str(minimal_pptx)
 
+    def test_relationship_integrity_checks_non_main_part_rels(
+        self, minimal_pptx: Path, tmp_path: Path
+    ) -> None:
+        """Broken relationships in non-main parts should still be reported."""
+        broken_path = tmp_path / "broken-non-main-rel.pptx"
+        buffer = io.BytesIO()
+
+        with zipfile.ZipFile(minimal_pptx, "r") as src, zipfile.ZipFile(
+            buffer, "w", zipfile.ZIP_DEFLATED
+        ) as dst:
+            for name in src.namelist():
+                if name == "ppt/slideLayouts/slideLayout1.xml":
+                    continue
+                dst.writestr(name, src.read(name))
+
+        broken_path.write_bytes(buffer.getvalue())
+
+        validator = OpenXmlValidator(schema_validation=False, semantic_validation=False)
+        result = validator.validate(broken_path)
+
+        assert any(
+            error.error_type == ValidationErrorType.RELATIONSHIP
+            and error.part_uri == "/ppt/slides/_rels/slide1.xml.rels"
+            and "slideLayout1.xml" in error.description
+            for error in result.errors
+        )
+
 
 class TestInvalidPPTXFiles:
     """Tests with various invalid PPTX files."""

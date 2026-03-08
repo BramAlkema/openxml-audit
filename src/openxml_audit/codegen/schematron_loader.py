@@ -300,8 +300,16 @@ def _classify_rule(rule: ParsedSchematron) -> None:
         return
 
     # Pattern: Index-of(document(...), @id) (reference check)
-    if "Index-of(document(" in test or "index-of(document(" in test.lower():
+    element_reference = re.match(
+        rf"[Ii]ndex-of\(document\(['\"]Part:([^'\"]+)['\"]\)//(.+?)/@({ATTR}),\s*@({ATTR})\)",
+        test,
+    )
+    if element_reference:
         rule.rule_type = SchematronType.ELEMENT_REFERENCE
+        rule.part_path = element_reference.group(1)
+        rule.element_xpath = element_reference.group(2)
+        rule.other_attribute = element_reference.group(3)
+        rule.attribute = element_reference.group(4)
         return
 
     # Pattern: (cond1) or (cond2) (OR condition)

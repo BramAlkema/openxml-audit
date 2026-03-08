@@ -134,6 +134,15 @@ class TestRelationshipCollection:
         rels = RelationshipCollection.from_xml(xml)
         assert len(rels) == 0
 
+    def test_malformed_relationships_reports_parse_error(self) -> None:
+        """Malformed .rels XML should surface a parse error."""
+        xml = b"<Relationships><Relationship></Relationships>"
+
+        rels = RelationshipCollection.from_xml(xml, source_uri="/ppt/presentation.xml")
+
+        assert len(rels) == 0
+        assert rels.parse_error is not None
+
 
 class TestGetRelsPath:
     """Tests for get_rels_path function."""

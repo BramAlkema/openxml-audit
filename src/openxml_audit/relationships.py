@@ -66,9 +66,15 @@ class Relationship:
 class RelationshipCollection:
     """Collection of relationships for a part or package."""
 
-    def __init__(self, source_uri: str = "/"):
+    def __init__(self, source_uri: str = "/", parse_error: str | None = None):
         self._relationships: dict[str, Relationship] = {}
         self._source_uri = source_uri
+        self._parse_error = parse_error
+
+    @property
+    def parse_error(self) -> str | None:
+        """XML parsing error for the .rels part, if parsing failed."""
+        return self._parse_error
 
     def add(self, rel: Relationship) -> None:
         """Add a relationship to the collection."""
@@ -119,8 +125,8 @@ class RelationshipCollection:
 
         try:
             root = etree.fromstring(xml_content)
-        except etree.XMLSyntaxError:
-            return collection
+        except etree.XMLSyntaxError as exc:
+            return cls(source_uri, parse_error=str(exc))
 
         # Handle namespace
         ns = {"r": RELATIONSHIPS}

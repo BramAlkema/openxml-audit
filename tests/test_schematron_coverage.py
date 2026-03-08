@@ -22,8 +22,10 @@ from openxml_audit.semantic.constraints import (
     AndConstraint,
     AttributeEqualsConstraint,
     AttributeNotEqualConstraint,
+    CrossPartReferenceConstraint,
     OrConstraint,
 )
+from openxml_audit.semantic.relationships import RelationshipExistConstraint
 
 
 class TestSchematronCoverage:
@@ -208,6 +210,47 @@ class TestSchematronRuleTypes:
         assert len(and_constraint.constraints) == 2
         assert isinstance(and_constraint.constraints[0], OrConstraint)
         assert isinstance(and_constraint.constraints[1], AttributeEqualsConstraint)
+
+    def test_relationship_type_without_expected_type_uses_existence_constraint(self) -> None:
+        """Relationship rules without @Type should still validate relationship existence."""
+        rule = parse_schematron(
+            {
+                "Context": "a:blip",
+                "Test": "document(rels)//r:Relationship[@Id = current()/@r:embed]",
+            }
+        )
+
+        constraint = create_constraint_from_schematron(
+            rule,
+            namespace_map={
+                "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
+                "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+            },
+        )
+
+        assert isinstance(constraint, RelationshipExistConstraint)
+        assert constraint.attribute == "embed"
+
+    def test_index_of_document_rule_converts_to_cross_part_reference_constraint(self) -> None:
+        """Index-of(document(...)) rules should convert to cross-part reference constraints."""
+        rule = parse_schematron(
+            {
+                "Context": "w:footnoteReference",
+                "Test": (
+                    "Index-of(document('Part:FootnotesPart')//w:footnotes/w:footnote/@w:id, @w:id)"
+                ),
+            }
+        )
+
+        constraint = create_constraint_from_schematron(
+            rule,
+            namespace_map={"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"},
+        )
+
+        assert isinstance(constraint, CrossPartReferenceConstraint)
+        assert constraint.part_path == "FootnotesPart"
+        assert constraint.element_xpath == "w:footnotes/w:footnote"
+        assert constraint.target_attribute == "id"
 
 
 class TestSchematronRegistry:

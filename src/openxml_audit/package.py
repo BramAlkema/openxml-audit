@@ -92,6 +92,7 @@ class OpenXmlPackage(ZipPackage):
         super().__init__(path)
         self._content_types: ContentTypes | None = None
         self._relationships: RelationshipCollection | None = None
+        self._reported_relationship_parse_errors: set[str] = set()
 
     @property
     def content_types(self) -> ContentTypes:
@@ -150,7 +151,19 @@ class OpenXmlPackage(ZipPackage):
                 )
             return RelationshipCollection(source_uri)
 
-        return RelationshipCollection.from_xml(content, source_uri)
+        rels = RelationshipCollection.from_xml(content, source_uri)
+        if rels.parse_error and rels_path not in self._reported_relationship_parse_errors:
+            self._reported_relationship_parse_errors.add(rels_path)
+            self._errors.append(
+                ValidationError(
+                    error_type=ValidationErrorType.RELATIONSHIP,
+                    description=f"Malformed relationships XML: {rels.parse_error}",
+                    part_uri=rels_path,
+                    severity=ValidationSeverity.ERROR,
+                )
+            )
+
+        return rels
 
     def get_part_relationships(self, part_uri: str) -> RelationshipCollection:
         """Get the relationships for a specific part."""
@@ -183,10 +196,16 @@ class OpenXmlPackage(ZipPackage):
 
         # Check content types
         _ = self.content_types
-        errors.extend(self._errors)
 
         # Check package relationships
         _ = self.relationships
+
+        # Surface parse errors for all relationship parts, not just package-level.
+        for part_uri in self.list_parts():
+            _ = self.get_part_relationships(part_uri)
+
+        # Include all accumulated package/relationship load errors.
+        errors.extend(self._errors)
 
         # Check for main document relationship
         main_doc = self.get_main_document_uri()

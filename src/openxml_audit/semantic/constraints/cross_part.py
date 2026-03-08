@@ -22,6 +22,90 @@ _MAIN_PART_ALIASES = {
 }
 
 
+def _build_xpath(element_xpath: str) -> str:
+    xpath = element_xpath.lstrip("/")
+    return f"//{xpath}" if xpath else "//"
+
+
+def _qualified_attr_name(local_name: str, namespace: str | None) -> str:
+    return f"{{{namespace}}}{local_name}" if namespace else local_name
+
+
+def _part_keywords(part_name: str) -> list[str]:
+    name = part_name
+    if name.endswith("Part"):
+        name = name[:-4]
+
+    tokens = re.findall(r"[A-Z][a-z0-9]*|[a-z0-9]+", name)
+    if not tokens:
+        return []
+
+    keywords = [tokens[-1].lower()]
+    keywords.append("".join(token.lower() for token in tokens))
+    return list(dict.fromkeys(keywords))
+
+
+def _match_parts_by_name(package: OpenXmlPackage, part_name: str) -> list[str]:
+    keywords = _part_keywords(part_name)
+    if not keywords:
+        return []
+
+    matches = []
+    for part_uri in package.list_parts():
+        uri_lower = part_uri.lower()
+        if any(keyword in uri_lower for keyword in keywords):
+            matches.append(part_uri)
+    return matches
+
+
+def _resolve_part_uris(
+    part_path: str,
+    context: ValidationContext,
+    package: OpenXmlPackage,
+) -> list[str]:
+    if part_path == ".":
+        if context.part is None:
+            return []
+        return [context.part.uri]
+
+    if part_path == "..":
+        if context.part is None:
+            return []
+        parent = context.part.uri.rsplit("/", 1)[0]
+        return [part_uri for part_uri in package.list_parts() if part_uri.startswith(f"{parent}/")]
+
+    if part_path.startswith("/") and package.has_part(part_path):
+        return [part_path]
+
+    if not part_path.startswith("/"):
+        candidate = f"/{part_path}"
+        if package.has_part(candidate):
+            return [candidate]
+
+    normalized = part_path.lstrip("/")
+    if normalized in _MAIN_PART_ALIASES:
+        main_uri = package.get_main_document_uri()
+        return [main_uri] if main_uri else []
+
+    segments = normalized.split("/") if normalized else []
+    if segments:
+        last_segment = segments[-1]
+        matched = _match_parts_by_name(package, last_segment)
+        if len(matched) == 1:
+            return matched
+
+    return []
+
+
+def _cache_key(context: ValidationContext, part_path: str, part_uris: list[str]) -> tuple[int, str]:
+    package_id = id(context.package)
+    if part_uris:
+        return (package_id, ",".join(sorted(part_uris)))
+    if part_path == "." and context.part is not None:
+        return (package_id, context.part.uri)
+    return (package_id, part_path)
+
+
 @dataclass
 class CrossPartCountConstraint(SemanticConstraint):
     """Validates an attribute against a count from another part.
@@ -42,15 +126,10 @@ class CrossPartCountConstraint(SemanticConstraint):
     _xpath: str = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        xpath = self.element_xpath.lstrip("/")
-        self._xpath = f"//{xpath}" if xpath else "//"
+        self._xpath = _build_xpath(self.element_xpath)
 
     def validate(self, element: etree._Element, context: ValidationContext) -> bool:
-        attr_name = (
-            f"{{{self.attribute_namespace}}}{self.attribute}"
-            if self.attribute_namespace
-            else self.attribute
-        )
+        attr_name = _qualified_attr_name(self.attribute, self.attribute_namespace)
         if attr_name not in element.attrib:
             return True
 
@@ -92,8 +171,8 @@ class CrossPartCountConstraint(SemanticConstraint):
         if package is None:
             return None
 
-        part_uris = self._resolve_part_uris(context, package)
-        cache_key = self._cache_key(context, part_uris)
+        part_uris = _resolve_part_uris(self.part_path, context, package)
+        cache_key = _cache_key(context, self.part_path, part_uris)
         if cache_key in self._count_cache:
             return self._count_cache[cache_key]
 
@@ -104,72 +183,6 @@ class CrossPartCountConstraint(SemanticConstraint):
 
         self._count_cache[cache_key] = count
         return count
-
-    def _cache_key(self, context: ValidationContext, part_uris: list[str]) -> tuple[int, str]:
-        package_id = id(context.package)
-        if part_uris:
-            return (package_id, ",".join(sorted(part_uris)))
-        if self.part_path == "." and context.part is not None:
-            return (package_id, context.part.uri)
-        return (package_id, self.part_path)
-
-    def _resolve_part_uris(
-        self, context: ValidationContext, package: OpenXmlPackage
-    ) -> list[str]:
-        if self.part_path == ".":
-            if context.part is None:
-                return []
-            return [context.part.uri]
-
-        if self.part_path.startswith("/") and package.has_part(self.part_path):
-            return [self.part_path]
-
-        if not self.part_path.startswith("/"):
-            candidate = f"/{self.part_path}"
-            if package.has_part(candidate):
-                return [candidate]
-
-        normalized = self.part_path.lstrip("/")
-        if normalized in _MAIN_PART_ALIASES:
-            main_uri = package.get_main_document_uri()
-            return [main_uri] if main_uri else []
-
-        segments = normalized.split("/") if normalized else []
-        if segments:
-            last_segment = segments[-1]
-            matched = self._match_parts_by_name(package, last_segment)
-            if len(matched) == 1:
-                return matched
-
-        return []
-
-    def _match_parts_by_name(
-        self, package: OpenXmlPackage, part_name: str
-    ) -> list[str]:
-        keywords = self._part_keywords(part_name)
-        if not keywords:
-            return []
-
-        matches = []
-        for part_uri in package.list_parts():
-            uri_lower = part_uri.lower()
-            if any(keyword in uri_lower for keyword in keywords):
-                matches.append(part_uri)
-
-        return matches
-
-    def _part_keywords(self, part_name: str) -> list[str]:
-        name = part_name
-        if name.endswith("Part"):
-            name = name[:-4]
-
-        tokens = re.findall(r"[A-Z][a-z0-9]*|[a-z0-9]+", name)
-        if not tokens:
-            return []
-
-        keywords = [tokens[-1].lower()]
-        keywords.append("".join(token.lower() for token in tokens))
-        return list(dict.fromkeys(keywords))
 
     def _count_by_xpath_scan(self, package: OpenXmlPackage) -> int | None:
         total = 0
@@ -191,3 +204,84 @@ class CrossPartCountConstraint(SemanticConstraint):
             return len(xml.xpath(self._xpath, namespaces=self.namespace_map))
         except etree.XPathEvalError:
             return 0
+
+
+@dataclass
+class CrossPartReferenceConstraint(SemanticConstraint):
+    """Validates that an attribute value exists in a referenced part XPath set."""
+
+    attribute: str
+    part_path: str
+    element_xpath: str
+    target_attribute: str
+    namespace_map: dict[str, str] = field(default_factory=dict)
+    attribute_namespace: str | None = None
+    target_attribute_namespace: str | None = None
+    _value_cache: dict[tuple[int, str], set[str] | None] = field(
+        default_factory=dict, init=False, repr=False
+    )
+    _xpath: str = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        self._xpath = _build_xpath(self.element_xpath)
+
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
+        attr_name = _qualified_attr_name(self.attribute, self.attribute_namespace)
+        if attr_name not in element.attrib:
+            return True
+
+        value = element.attrib[attr_name]
+        valid_values = self._get_reference_values(context)
+        if valid_values is None:
+            return True
+        if value in valid_values:
+            return True
+
+        context.add_semantic_error(
+            f"Attribute '{self.attribute}' value '{value}' was not found in "
+            f"Part:{self.part_path} xpath='{self._xpath}'/@{self.target_attribute}",
+            node=self.attribute,
+        )
+        return False
+
+    def _get_reference_values(self, context: ValidationContext) -> set[str] | None:
+        package = context.package
+        if package is None:
+            return None
+
+        part_uris = _resolve_part_uris(self.part_path, context, package)
+        cache_key = _cache_key(context, self.part_path, part_uris)
+        if cache_key in self._value_cache:
+            return self._value_cache[cache_key]
+
+        values: set[str] = set()
+        if part_uris:
+            for part_uri in part_uris:
+                values.update(self._extract_values_from_part(package, part_uri))
+        else:
+            for part_uri in package.list_parts():
+                values.update(self._extract_values_from_part(package, part_uri))
+
+        cached = values if values else None
+        self._value_cache[cache_key] = cached
+        return cached
+
+    def _extract_values_from_part(self, package: OpenXmlPackage, part_uri: str) -> set[str]:
+        xml = package.get_part_xml(part_uri)
+        if xml is None:
+            return set()
+
+        try:
+            nodes = xml.xpath(self._xpath, namespaces=self.namespace_map)
+        except etree.XPathEvalError:
+            return set()
+
+        attr_name = _qualified_attr_name(self.target_attribute, self.target_attribute_namespace)
+        values: set[str] = set()
+        for node in nodes:
+            if not isinstance(node, etree._Element):
+                continue
+            value = node.get(attr_name)
+            if value:
+                values.add(value)
+        return values

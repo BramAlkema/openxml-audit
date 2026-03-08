@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from openxml_audit import ValidationErrorType
 from openxml_audit.errors import PackageValidationError
 from openxml_audit.package import ContentTypes, OpenXmlPackage
 from tests.fixture_loader import load_fixture_bytes
@@ -127,3 +128,23 @@ class TestOpenXmlPackage:
 
         # Should detect missing main document or missing officeDocument relationship
         assert len(errors) > 0
+
+    def test_malformed_package_relationships_are_reported(self, tmp_path: Path) -> None:
+        """Malformed /_rels/.rels should produce an explicit parsing error."""
+        package_path = tmp_path / "malformed-rels.pptx"
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            content_types = load_fixture_bytes("integration", "invalid_xml", "content_types.xml")
+            zf.writestr("[Content_Types].xml", content_types)
+            zf.writestr("_rels/.rels", b"<Relationships><Relationship></Relationships>")
+        package_path.write_bytes(buffer.getvalue())
+
+        with OpenXmlPackage(package_path) as package:
+            errors = package.validate_structure()
+
+        assert any(
+            error.error_type == ValidationErrorType.RELATIONSHIP
+            and error.part_uri == "/_rels/.rels"
+            and "Malformed relationships XML" in error.description
+            for error in errors
+        )

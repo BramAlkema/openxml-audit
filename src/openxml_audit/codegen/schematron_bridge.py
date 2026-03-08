@@ -26,11 +26,15 @@ from openxml_audit.semantic.constraints import (
     AttributesPresentConstraint,
     ConditionalConstraint,
     CrossPartCountConstraint,
+    CrossPartReferenceConstraint,
     OrConstraint,
 )
 from openxml_audit.semantic.constraints.equality import AttributeComparisonConstraint
 from openxml_audit.semantic.references import UniqueAttributeValueConstraint
-from openxml_audit.semantic.relationships import RelationshipTypeConstraint
+from openxml_audit.semantic.relationships import (
+    RelationshipExistConstraint,
+    RelationshipTypeConstraint,
+)
 
 if TYPE_CHECKING:
     pass
@@ -40,7 +44,11 @@ def _get_namespace_map() -> dict[str, str]:
     """Get prefix -> namespace URI map."""
     registry = get_schema_registry()
     registry.load()
-    return dict(registry._prefixes)
+    namespace_map = dict(registry._prefixes)
+    # SDK schematron sometimes uses ovml alias for the VML namespace.
+    if "ovml" not in namespace_map and "v" in namespace_map:
+        namespace_map["ovml"] = namespace_map["v"]
+    return namespace_map
 
 
 def _resolve_context_to_tag(context: str, namespace_map: dict[str, str]) -> str | None:
@@ -189,8 +197,13 @@ def create_constraint_from_schematron(
             )
 
         case SchematronType.RELATIONSHIP_TYPE:
-            if attr_local is None or rule.relationship_type is None:
+            if attr_local is None:
                 return None
+            if rule.relationship_type is None:
+                return RelationshipExistConstraint(
+                    attribute=attr_local,
+                    namespace=attr_namespace,
+                )
             return RelationshipTypeConstraint(
                 relationship_id_attribute=attr_local,
                 expected_type=rule.relationship_type,
@@ -198,8 +211,25 @@ def create_constraint_from_schematron(
             )
 
         case SchematronType.ELEMENT_REFERENCE:
-            # Element references need more context - skip for now
-            return None
+            if (
+                attr_local is None
+                or rule.part_path is None
+                or rule.element_xpath is None
+                or rule.other_attribute is None
+            ):
+                return None
+            target_attr_local, target_attr_namespace = _split_attribute_name(
+                rule.other_attribute, namespace_map
+            )
+            return CrossPartReferenceConstraint(
+                attribute=attr_local,
+                attribute_namespace=attr_namespace,
+                part_path=rule.part_path,
+                element_xpath=rule.element_xpath,
+                target_attribute=target_attr_local,
+                target_attribute_namespace=target_attr_namespace,
+                namespace_map=namespace_map,
+            )
 
         case SchematronType.ATTRIBUTE_NOT_EQUAL:
             if attr_local is None or rule.forbidden_value is None:

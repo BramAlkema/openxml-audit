@@ -8,7 +8,6 @@ from pathlib import Path
 
 import click
 from rich.console import Console
-from rich.table import Table
 
 from openxml_audit.errors import FileFormat, ValidationSeverity
 from openxml_audit.odf import OdfValidator
@@ -235,52 +234,24 @@ def main(
 
 
 def _output_text(results: list, quiet: bool) -> None:
-    """Output results as formatted text."""
+    """Output results in SDK-style plain text."""
+    multi_file = len(results) > 1
     for result in results:
-        if result.is_valid:
-            if not quiet:
-                console.print(f"[green]✓[/green] {result.file_path} - Valid")
-        else:
-            console.print(f"[red]✗[/red] {result.file_path} - Invalid")
+        errors = [e for e in result.errors if e.severity == ValidationSeverity.ERROR]
+        if quiet and not errors:
+            continue
 
-            # Create error table
-            table = Table(show_header=True, header_style="bold")
-            table.add_column("Type", style="dim", width=12)
-            table.add_column("Severity", width=8)
-            table.add_column("Location", width=30)
-            table.add_column("Description")
+        if multi_file:
+            console.print(f"File: {result.file_path}")
 
-            for error in result.errors:
-                severity_style = {
-                    ValidationSeverity.ERROR: "red",
-                    ValidationSeverity.WARNING: "yellow",
-                    ValidationSeverity.INFO: "blue",
-                }.get(error.severity, "white")
+        for idx, error in enumerate(errors, start=1):
+            console.print(f"{idx}. {error.description}")
+            console.print(f"   Part: {error.part_uri}")
+            console.print(f"   Path: {error.path}")
+            console.print(f"   Node: {error.node or ''}")
 
-                location = error.part_uri
-                if error.path:
-                    location = f"{location}:{error.path}"
-
-                table.add_row(
-                    error.error_type.value,
-                    f"[{severity_style}]{error.severity.value}[/{severity_style}]",
-                    location,
-                    error.description,
-                )
-
-            console.print(table)
-            console.print()
-
-    # Summary
-    total = len(results)
-    valid = sum(1 for r in results if r.is_valid)
-    invalid = total - valid
-
-    if total > 1:
-        console.print(f"\n[bold]Summary:[/bold] {valid}/{total} files valid", end="")
-        if invalid > 0:
-            console.print(f", [red]{invalid} invalid[/red]")
-        else:
+        console.print(f"Errors: {len(errors)}")
+        if multi_file:
             console.print()
 
 

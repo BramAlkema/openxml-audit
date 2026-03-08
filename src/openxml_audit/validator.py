@@ -467,39 +467,31 @@ class OpenXmlValidator:
     def _validate_relationships(self, package: OpenXmlPackage) -> list[ValidationError]:
         """Validate that all internal relationships point to existing parts."""
         errors: list[ValidationError] = []
+        relationship_sources = ["/", *package.list_parts()]
 
-        # Check package relationships
-        for rel in package.relationships:
-            if not rel.is_external:
-                target = rel.resolve_target("/")
-                if not package.has_part(target):
-                    errors.append(
-                        ValidationError(
-                            error_type=ValidationErrorType.RELATIONSHIP,
-                            description=f"Relationship target not found: {target}",
-                            part_uri="/_rels/.rels",
-                            node=rel.id,
-                            severity=ValidationSeverity.ERROR,
-                        )
+        for source_uri in relationship_sources:
+            relationships = (
+                package.relationships
+                if source_uri == "/"
+                else package.get_part_relationships(source_uri)
+            )
+            rels_part_uri = get_rels_path(source_uri)
+
+            for rel in relationships:
+                if rel.is_external:
+                    continue
+                target = rel.resolve_target(source_uri)
+                if package.has_part(target):
+                    continue
+                errors.append(
+                    ValidationError(
+                        error_type=ValidationErrorType.RELATIONSHIP,
+                        description=f"Relationship target not found: {target}",
+                        part_uri=rels_part_uri,
+                        node=rel.id,
+                        severity=ValidationSeverity.ERROR,
                     )
-
-        # Check main document relationships
-        main_doc_uri = package.get_main_document_uri()
-        if main_doc_uri:
-            main_part = OpenXmlPart(package, main_doc_uri)
-            for rel in main_part.relationships:
-                if not rel.is_external:
-                    target = rel.resolve_target(main_doc_uri)
-                    if not package.has_part(target):
-                        errors.append(
-                            ValidationError(
-                                error_type=ValidationErrorType.RELATIONSHIP,
-                                description=f"Relationship target not found: {target}",
-                                part_uri=main_doc_uri,
-                                node=rel.id,
-                                severity=ValidationSeverity.ERROR,
-                            )
-                        )
+                )
 
         return errors
 

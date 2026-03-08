@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from lxml import etree
 
+from openxml_audit.codegen.schema_loader import get_registry as get_schema_registry
 from openxml_audit.context import ElementContext, ValidationContext
 from openxml_audit.errors import ValidationError
 from openxml_audit.namespaces import MC
@@ -71,6 +72,9 @@ class SchemaValidator:
                                        without known constraints.
         """
         self._validate_unknown = validate_unknown_elements
+        self._schema_registry = get_schema_registry()
+        self._schema_registry.load()
+        self._known_namespaces = self._build_known_namespaces()
 
     def validate_part(
         self, part: OpenXmlPart, context: ValidationContext
@@ -158,6 +162,34 @@ class SchemaValidator:
                             node=attr_constraint.local_name,
                         )
 
+        # Check undeclared attributes only when SDK metadata is unambiguous.
+        if not self._should_validate_undeclared_attributes(element, constraint):
+            return
+
+        declared = {attr.qualified_name for attr in constraint.attributes}
+        element_ns = self._extract_namespace(element.tag)
+        for attr_name in element.attrib:
+            if attr_name in declared:
+                continue
+
+            attr_ns = self._extract_namespace(attr_name)
+            attr_local = self._extract_local_name(attr_name)
+
+            # Markup compatibility and xml:* attributes are handled separately.
+            if attr_ns == MC:
+                continue
+            if attr_ns == "http://www.w3.org/XML/1998/namespace":
+                continue
+
+            # Foreign-namespace extension attributes are generally allowed.
+            if attr_ns is not None and attr_ns != element_ns:
+                continue
+
+            context.add_schema_error(
+                f"The '{attr_local}' attribute is not declared.",
+                node=attr_local,
+            )
+
 
     def _validate_content_model(
         self,
@@ -189,12 +221,63 @@ class SchemaValidator:
 
     def _resolve_alternate_content(self, alt: etree._Element) -> list[etree._Element]:
         ns = {"mc": MC}
-        chosen = alt.find("mc:Fallback", ns)
+        chosen = self._select_alternate_content_choice(alt, ns)
         if chosen is None:
-            chosen = alt.find("mc:Choice", ns)
+            chosen = alt.find("mc:Fallback", ns)
         if chosen is None:
             return []
         return [c for c in chosen if isinstance(c.tag, str)]
+
+    def _select_alternate_content_choice(
+        self, alt: etree._Element, namespaces: dict[str, str]
+    ) -> etree._Element | None:
+        for choice in alt.findall("mc:Choice", namespaces):
+            requires = choice.get("Requires", "").split()
+            if not requires:
+                return choice
+            if self._choice_is_understood(choice, requires):
+                return choice
+        return None
+
+    def _choice_is_understood(
+        self, choice: etree._Element, required_prefixes: list[str]
+    ) -> bool:
+        nsmap = choice.nsmap or {}
+        for prefix in required_prefixes:
+            namespace = nsmap.get(prefix)
+            if namespace is None:
+                return False
+            if namespace not in self._known_namespaces:
+                return False
+        return True
+
+    def _build_known_namespaces(self) -> set[str]:
+        known = {MC}
+        known.update(self._schema_registry._prefixes.values())
+        return known
+
+    def _extract_namespace(self, qname: str) -> str | None:
+        if qname.startswith("{") and "}" in qname:
+            return qname[1:].split("}", 1)[0]
+        return None
+
+    def _extract_local_name(self, qname: str) -> str:
+        if qname.startswith("{") and "}" in qname:
+            return qname.split("}", 1)[1]
+        return qname
+
+    def _should_validate_undeclared_attributes(
+        self,
+        element: etree._Element,
+        constraint: "ElementConstraint",
+    ) -> bool:
+        # SDK metadata currently omits inherited attributes for a subset of elements.
+        # Restrict undeclared checks to elements with explicit attribute declarations.
+        if not constraint.attributes:
+            return False
+
+        candidates = self._schema_registry.get_element_type_candidates(element.tag)
+        return len(candidates) == 1
 
 
 # Import for type hints only

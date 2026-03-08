@@ -290,28 +290,39 @@ class ChoiceParticleValidator(ParticleValidator):
                 return False
             return True
 
-        # Check that first child matches one of the choices
-        child = children[0]
-        for particle in constraint.children:
-            if self._matches(particle, child):
-                return True
+        valid = True
+        choice_count = 0
+        expected = self._expected_names(constraint)
 
-        # No match found
-        tag = child.tag
-        if tag.startswith("{"):
-            tag = tag.split("}")[-1]
+        for child in children:
+            if any(self._matches(particle, child) for particle in constraint.children):
+                choice_count += 1
+                continue
 
-        expected = []
-        for p in constraint.children:
-            if isinstance(p, ElementParticle):
-                expected.append(p.local_name or "")
+            tag = child.tag
+            if tag.startswith("{"):
+                tag = tag.split("}")[-1]
 
-        context.add_schema_error(
-            f"Element '{tag}' is not a valid choice. "
-            f"Expected one of: {', '.join(expected)}",
-            node=tag,
-        )
-        return False
+            context.add_schema_error(
+                f"Element '{tag}' is not a valid choice. "
+                f"Expected one of: {', '.join(expected)}",
+                node=tag,
+            )
+            valid = False
+
+        if choice_count < constraint.min_occurs:
+            context.add_schema_error(
+                f"Choice requires at least {constraint.min_occurs} occurrence(s), found {choice_count}",
+            )
+            valid = False
+
+        if constraint.max_occurs != -1 and choice_count > constraint.max_occurs:
+            context.add_schema_error(
+                f"Choice allows at most {constraint.max_occurs} occurrence(s), found {choice_count}",
+            )
+            valid = False
+
+        return valid
 
     def _matches(self, particle: ParticleConstraint, element: etree._Element) -> bool:
         """Check if an element matches a particle."""
@@ -338,6 +349,13 @@ class ChoiceParticleValidator(ParticleValidator):
         else:
             return element.tag.startswith(f"{{{ns_constraint}}}")
 
+    def _expected_names(self, constraint: ChoiceParticle) -> list[str]:
+        expected = []
+        for particle in constraint.children:
+            if isinstance(particle, ElementParticle):
+                expected.append(particle.local_name or "")
+        return expected
+
 
 class AllParticleValidator(ParticleValidator):
     """Validates all particles (all elements required, any order)."""
@@ -352,33 +370,70 @@ class AllParticleValidator(ParticleValidator):
             return False
 
         valid = True
-        found: set[str] = set()
+        counts: list[int] = [0] * len(constraint.children)
 
-        # Track which elements we found
         for child in children:
-            for particle in constraint.children:
-                if isinstance(particle, ElementParticle):
-                    if child.tag == particle.qualified_name:
-                        if particle.qualified_name in found and particle.max_occurs == 1:
-                            context.add_schema_error(
-                                f"Duplicate element '{particle.local_name}' not allowed",
-                                node=particle.local_name,
-                            )
-                            valid = False
-                        found.add(particle.qualified_name)
-                        break
-
-        # Check all required elements present
-        for particle in constraint.children:
-            if isinstance(particle, ElementParticle):
-                if particle.min_occurs > 0 and particle.qualified_name not in found:
+            matched = False
+            for idx, particle in enumerate(constraint.children):
+                if not self._matches(particle, child):
+                    continue
+                matched = True
+                counts[idx] += 1
+                if particle.max_occurs != -1 and counts[idx] > particle.max_occurs:
                     context.add_schema_error(
-                        f"Required element '{particle.local_name}' is missing",
-                        node=particle.local_name,
+                        f"Element '{self._particle_name(particle)}' exceeds maxOccurs={particle.max_occurs}",
+                        node=self._particle_name(particle),
                     )
                     valid = False
+                break
+
+            if not matched:
+                tag = child.tag
+                if tag.startswith("{"):
+                    tag = tag.split("}")[-1]
+                context.add_schema_error(
+                    f"Unexpected element '{tag}' found",
+                    node=tag,
+                )
+                valid = False
+
+        for idx, particle in enumerate(constraint.children):
+            if counts[idx] < particle.min_occurs:
+                context.add_schema_error(
+                    f"Required element '{self._particle_name(particle)}' is missing "
+                    f"(minOccurs={particle.min_occurs}, found={counts[idx]})",
+                    node=self._particle_name(particle),
+                )
+                valid = False
 
         return valid
+
+    def _matches(self, particle: ParticleConstraint, element: etree._Element) -> bool:
+        if isinstance(particle, ElementParticle):
+            return element.tag == particle.qualified_name
+        if isinstance(particle, AnyParticle):
+            return self._matches_any(particle, element)
+        if isinstance(particle, CompositeParticle):
+            return any(self._matches(child, element) for child in particle.children)
+        return False
+
+    def _matches_any(self, particle: AnyParticle, element: etree._Element) -> bool:
+        ns_constraint = particle.namespace_constraint
+
+        if ns_constraint == "##any":
+            return True
+        if ns_constraint == "##local":
+            return not element.tag.startswith("{")
+        if ns_constraint == "##other":
+            return True
+        return element.tag.startswith(f"{{{ns_constraint}}}")
+
+    def _particle_name(self, particle: ParticleConstraint) -> str:
+        if isinstance(particle, ElementParticle):
+            return particle.local_name or "element"
+        if isinstance(particle, AnyParticle):
+            return "any"
+        return particle.particle_type.value
 
 
 def get_validator(particle_type: ParticleType) -> ParticleValidator | None:

@@ -5,7 +5,10 @@ from openxml_audit.semantic.constraints.compound import (
     ConditionalConstraint,
     OrConstraint,
 )
-from openxml_audit.semantic.constraints.cross_part import CrossPartCountConstraint
+from openxml_audit.semantic.constraints.cross_part import (
+    CrossPartCountConstraint,
+    CrossPartReferenceConstraint,
+)
 from openxml_audit.semantic.constraints.equality import (
     AttributeComparisonConstraint,
     AttributeEqualsConstraint,
@@ -18,6 +21,7 @@ __all__ = [
     "ConditionalConstraint",
     "OrConstraint",
     "CrossPartCountConstraint",
+    "CrossPartReferenceConstraint",
     "AttributeComparisonConstraint",
     "AttributeEqualsConstraint",
     "AttributeNotEqualConstraint",
