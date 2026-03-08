@@ -92,6 +92,7 @@ class OpenXmlPackage(ZipPackage):
         super().__init__(path)
         self._content_types: ContentTypes | None = None
         self._relationships: RelationshipCollection | None = None
+        self._part_relationships_cache: dict[str, RelationshipCollection] = {}
         self._reported_relationship_parse_errors: set[str] = set()
 
     @property
@@ -167,7 +168,18 @@ class OpenXmlPackage(ZipPackage):
 
     def get_part_relationships(self, part_uri: str) -> RelationshipCollection:
         """Get the relationships for a specific part."""
-        return self._load_relationships(part_uri)
+        normalized = part_uri if part_uri.startswith("/") else f"/{part_uri}"
+        if normalized == "/":
+            return self.relationships
+        if normalized not in self._part_relationships_cache:
+            self._part_relationships_cache[normalized] = self._load_relationships(normalized)
+        return self._part_relationships_cache[normalized]
+
+    def close(self) -> None:
+        """Close package and reset per-open caches."""
+        super().close()
+        self._part_relationships_cache.clear()
+        self._reported_relationship_parse_errors.clear()
 
     def list_parts(self) -> Iterator[str]:
         """List all parts in the package."""

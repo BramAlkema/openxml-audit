@@ -101,6 +101,13 @@ class TestOpenXmlPackage:
             office_doc_rels = [r for r in rels if "officeDocument" in r.type]
             assert len(office_doc_rels) == 1
 
+    def test_part_relationships_are_cached(self, minimal_pptx: Path) -> None:
+        """Repeated part relationship lookups should reuse cached collections."""
+        with OpenXmlPackage(minimal_pptx) as package:
+            rels1 = package.get_part_relationships("/ppt/presentation.xml")
+            rels2 = package.get_part_relationships("/ppt/presentation.xml")
+            assert rels1 is rels2
+
     def test_validate_structure(self, minimal_pptx: Path) -> None:
         """Test structure validation on valid package."""
         with OpenXmlPackage(minimal_pptx) as package:

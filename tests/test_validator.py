@@ -102,6 +102,26 @@ class TestOpenXmlValidator:
         result = validator.validate(minimal_pptx)
         assert isinstance(result, ValidationResult)
 
+    def test_validate_with_timings_returns_phase_metrics(self, minimal_pptx: Path) -> None:
+        """Timing-enabled validation should return per-phase durations."""
+        validator = OpenXmlValidator()
+        result, timings = validator.validate_with_timings(minimal_pptx)
+
+        assert isinstance(result, ValidationResult)
+        expected_phases = {
+            "package_structure",
+            "profile_detection",
+            "structure",
+            "relationships",
+            "binary",
+            "schema",
+            "semantic",
+            "specific",
+            "total",
+        }
+        assert set(timings.keys()) == expected_phases
+        assert all(duration >= 0.0 for duration in timings.values())
+
 
 class TestValidationResult:
     """Tests for ValidationResult."""

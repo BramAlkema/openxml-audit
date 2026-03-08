@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from time import perf_counter
 from typing import TYPE_CHECKING, Callable
 
 from lxml import etree
@@ -188,63 +189,102 @@ class OpenXmlValidator:
         Returns:
             ValidationResult containing validation status and any errors.
         """
+        result, _timings = self.validate_with_timings(path)
+        return result
+
+    def validate_with_timings(
+        self, path: str | Path
+    ) -> tuple[ValidationResult, dict[str, float]]:
+        """Validate an Open XML file and return per-phase timing metrics."""
         path = Path(path)
         errors: list[ValidationError] = []
+        timings: dict[str, float] = {
+            "package_structure": 0.0,
+            "profile_detection": 0.0,
+            "structure": 0.0,
+            "relationships": 0.0,
+            "binary": 0.0,
+            "schema": 0.0,
+            "semantic": 0.0,
+            "specific": 0.0,
+            "total": 0.0,
+        }
+        total_start = perf_counter()
+
+        def finish() -> tuple[ValidationResult, dict[str, float]]:
+            timings["total"] = perf_counter() - total_start
+            return self._create_result(path, errors), timings
 
         try:
             with OpenXmlPackage(path) as package:
                 # Phase 1: Package structure validation
+                phase_start = perf_counter()
                 errors.extend(self._validate_package_structure(package))
+                timings["package_structure"] += perf_counter() - phase_start
 
                 if self._should_stop(errors):
-                    return self._create_result(path, errors)
+                    return finish()
 
+                phase_start = perf_counter()
                 doc_kind = self._detect_document_type(package)
                 profile = self._profiles.get(
                     doc_kind,
                     self._profiles[DocumentKind.UNKNOWN],
                 )
+                timings["profile_detection"] += perf_counter() - phase_start
 
                 for validator in profile.structure_validators:
+                    phase_start = perf_counter()
                     errors.extend(validator(package))
+                    timings["structure"] += perf_counter() - phase_start
 
                     if self._should_stop(errors):
-                        return self._create_result(path, errors)
+                        return finish()
 
                 # Phase 4: Relationship integrity
+                phase_start = perf_counter()
                 errors.extend(self._validate_relationships(package))
+                timings["relationships"] += perf_counter() - phase_start
 
                 if self._should_stop(errors):
-                    return self._create_result(path, errors)
+                    return finish()
 
                 # Phase 4.5: Binary payload validation
+                phase_start = perf_counter()
                 errors.extend(self._validate_binary_parts(package))
+                timings["binary"] += perf_counter() - phase_start
 
                 if self._should_stop(errors):
-                    return self._create_result(path, errors)
+                    return finish()
 
                 # Phase 5: Schema validation
                 if self._schema_validator is not None:
+                    phase_start = perf_counter()
                     errors.extend(self._validate_schema(package))
+                    timings["schema"] += perf_counter() - phase_start
 
                 if self._should_stop(errors):
-                    return self._create_result(path, errors)
+                    return finish()
 
                 # Phase 6: Semantic validation
                 if profile.semantic_validator is not None:
+                    phase_start = perf_counter()
                     errors.extend(profile.semantic_validator(package))
+                    timings["semantic"] += perf_counter() - phase_start
 
                 if self._should_stop(errors):
-                    return self._create_result(path, errors)
+                    return finish()
 
                 # Phase 7: Document-specific validation
                 if profile.specific_validator is not None:
+                    phase_start = perf_counter()
                     errors.extend(profile.specific_validator(package))
+                    timings["specific"] += perf_counter() - phase_start
 
         except PackageValidationError as e:
             errors.extend(e.errors)
 
-        return self._create_result(path, errors)
+        return finish()
 
     def is_valid(self, path: str | Path) -> bool:
         """Quick check if a file is valid.
