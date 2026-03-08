@@ -43,7 +43,10 @@ def main() -> int:
     phase_timings: dict[str, list[float]] = {}
     for _ in range(args.iterations):
         start = time.perf_counter()
-        _result, phases = validator.validate_with_timings(args.pptx_path)
+        _result, phases = validator.validate_with_timings(
+            args.pptx_path,
+            include_schema_breakdown=True,
+        )
         measured_total = time.perf_counter() - start
         total_timings.append(measured_total)
         for phase, duration in phases.items():
@@ -71,6 +74,8 @@ def main() -> int:
         "specific",
         "total",
     ]
+    extras = sorted(name for name in phase_timings if name not in phase_order)
+    phase_order.extend(extras)
     for phase in phase_order:
         samples = phase_timings.get(phase)
         if not samples:

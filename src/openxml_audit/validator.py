@@ -129,6 +129,7 @@ class OpenXmlValidator:
         self._schema_validation = schema_validation
         self._semantic_validation = semantic_validation
         self._schema_validator = SchemaValidator() if schema_validation else None
+        self._last_schema_hot_path_metrics: dict[str, float] = {}
         self._semantic_validator_pptx = (
             create_pptx_semantic_validator() if semantic_validation else None
         )
@@ -193,7 +194,9 @@ class OpenXmlValidator:
         return result
 
     def validate_with_timings(
-        self, path: str | Path
+        self,
+        path: str | Path,
+        include_schema_breakdown: bool = False,
     ) -> tuple[ValidationResult, dict[str, float]]:
         """Validate an Open XML file and return per-phase timing metrics."""
         path = Path(path)
@@ -260,8 +263,16 @@ class OpenXmlValidator:
                 # Phase 5: Schema validation
                 if self._schema_validator is not None:
                     phase_start = perf_counter()
-                    errors.extend(self._validate_schema(package))
+                    errors.extend(
+                        self._validate_schema(
+                            package,
+                            collect_hot_path_metrics=include_schema_breakdown,
+                        )
+                    )
                     timings["schema"] += perf_counter() - phase_start
+                    if include_schema_breakdown:
+                        for name, duration in self._last_schema_hot_path_metrics.items():
+                            timings[f"schema.{name}"] = duration
 
                 if self._should_stop(errors):
                     return finish()
@@ -614,7 +625,11 @@ class OpenXmlValidator:
             return DocumentKind.SPREADSHEET
         return DocumentKind.UNKNOWN
 
-    def _validate_schema(self, package: OpenXmlPackage) -> list[ValidationError]:
+    def _validate_schema(
+        self,
+        package: OpenXmlPackage,
+        collect_hot_path_metrics: bool = False,
+    ) -> list[ValidationError]:
         """Validate XML content against schema constraints."""
         errors: list[ValidationError] = []
 
@@ -627,6 +642,10 @@ class OpenXmlValidator:
             max_errors=self._max_errors,
             strict=self._strict,
         )
+        self._last_schema_hot_path_metrics = {}
+        self._schema_validator.set_metric_collection(collect_hot_path_metrics)
+        if collect_hot_path_metrics:
+            self._schema_validator.reset_metrics()
 
         def is_xml_content_type(content_type: str | None) -> bool:
             return bool(content_type and "xml" in content_type)
@@ -640,6 +659,10 @@ class OpenXmlValidator:
 
             if context.should_stop:
                 break
+
+        if collect_hot_path_metrics:
+            self._last_schema_hot_path_metrics = self._schema_validator.get_metrics()
+        self._schema_validator.set_metric_collection(False)
 
         errors.extend(context.errors)
         return errors

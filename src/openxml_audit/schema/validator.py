@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from time import perf_counter
 from typing import TYPE_CHECKING
 
 from lxml import etree
@@ -75,6 +76,31 @@ class SchemaValidator:
         self._schema_registry = get_schema_registry()
         self._schema_registry.load()
         self._known_namespaces = self._build_known_namespaces()
+        self._undeclared_validation_cache: dict[str, bool] = {}
+        self._collect_metrics = False
+        self._metrics: dict[str, float] = self._new_metrics()
+
+    def _new_metrics(self) -> dict[str, float]:
+        return {
+            "elements": 0.0,
+            "constraint_lookup": 0.0,
+            "children_expand": 0.0,
+            "attributes": 0.0,
+            "content_model": 0.0,
+            "recursion": 0.0,
+        }
+
+    def set_metric_collection(self, enabled: bool) -> None:
+        """Enable/disable metric collection for schema hot paths."""
+        self._collect_metrics = enabled
+
+    def reset_metrics(self) -> None:
+        """Reset collected schema hot-path metrics."""
+        self._metrics = self._new_metrics()
+
+    def get_metrics(self) -> dict[str, float]:
+        """Get collected schema hot-path metrics."""
+        return dict(self._metrics)
 
     def validate_part(
         self, part: OpenXmlPart, context: ValidationContext
@@ -94,7 +120,10 @@ class SchemaValidator:
         if xml is None:
             return context.errors
 
-        self._validate_element(xml, context)
+        if self._collect_metrics:
+            self._validate_element_with_metrics(xml, context)
+        else:
+            self._validate_element(xml, context)
 
         return context.errors
 
@@ -109,17 +138,53 @@ class SchemaValidator:
             # Get constraint for this element
             constraint = get_constraint_for_tag(tag, element)
 
+            children = self._get_validation_children(element)
+
             if constraint is not None:
                 # Validate attributes
                 self._validate_attributes(element, constraint, context)
 
                 # Validate content model
                 if constraint.content_model is not None:
-                    self._validate_content_model(element, constraint.content_model, context)
+                    self._validate_content_model(constraint.content_model, children, context)
 
             # Recursively validate children
-            for child in self._get_validation_children(element):
+            for child in children:
                 self._validate_element(child, context)
+
+    def _validate_element_with_metrics(
+        self, element: etree._Element, context: ValidationContext
+    ) -> None:
+        """Validate an element recursively while collecting hot-path timings."""
+        if context.should_stop:
+            return
+
+        with ElementContext(context, element):
+            self._metrics["elements"] += 1.0
+            tag = element.tag
+
+            lookup_start = perf_counter()
+            constraint = get_constraint_for_tag(tag, element)
+            self._metrics["constraint_lookup"] += perf_counter() - lookup_start
+
+            children_start = perf_counter()
+            children = self._get_validation_children(element)
+            self._metrics["children_expand"] += perf_counter() - children_start
+
+            if constraint is not None:
+                attr_start = perf_counter()
+                self._validate_attributes(element, constraint, context)
+                self._metrics["attributes"] += perf_counter() - attr_start
+
+                if constraint.content_model is not None:
+                    model_start = perf_counter()
+                    self._validate_content_model(constraint.content_model, children, context)
+                    self._metrics["content_model"] += perf_counter() - model_start
+
+            recurse_start = perf_counter()
+            for child in children:
+                self._validate_element_with_metrics(child, context)
+            self._metrics["recursion"] += perf_counter() - recurse_start
 
     def _validate_attributes(
         self,
@@ -129,7 +194,7 @@ class SchemaValidator:
     ) -> None:
         """Validate element attributes."""
         # Check required attributes
-        for attr_constraint in constraint.get_required_attributes():
+        for attr_constraint in self._get_required_attributes(constraint):
             attr_name = attr_constraint.qualified_name
             if attr_name not in element.attrib:
                 context.add_schema_error(
@@ -166,7 +231,7 @@ class SchemaValidator:
         if not self._should_validate_undeclared_attributes(element, constraint):
             return
 
-        declared = {attr.qualified_name for attr in constraint.attributes}
+        declared = self._get_declared_attributes(constraint)
         element_ns = self._extract_namespace(element.tag)
         for attr_name in element.attrib:
             if attr_name in declared:
@@ -193,14 +258,11 @@ class SchemaValidator:
 
     def _validate_content_model(
         self,
-        element: etree._Element,
         content_model: "ParticleConstraint",  # type: ignore
+        children: list[etree._Element],
         context: ValidationContext,
     ) -> None:
         """Validate element children against content model."""
-        # Get non-comment children, with AlternateContent expanded
-        children = self._get_validation_children(element)
-
         if isinstance(content_model, CompositeParticle):
             validator = get_validator(content_model.particle_type)
             if validator is not None:
@@ -276,10 +338,29 @@ class SchemaValidator:
         if not constraint.attributes:
             return False
 
-        candidates = self._schema_registry.get_element_type_candidates(element.tag)
-        return len(candidates) == 1
+        tag = element.tag
+        if tag not in self._undeclared_validation_cache:
+            candidates = self._schema_registry.get_element_type_candidates(tag)
+            self._undeclared_validation_cache[tag] = len(candidates) == 1
+        return self._undeclared_validation_cache[tag]
+
+    def _get_required_attributes(
+        self, constraint: "ElementConstraint"
+    ) -> tuple["AttributeConstraint", ...]:
+        cached = getattr(constraint, "_oa_required_attrs_cache", None)
+        if cached is None:
+            cached = tuple(constraint.get_required_attributes())
+            setattr(constraint, "_oa_required_attrs_cache", cached)
+        return cached
+
+    def _get_declared_attributes(self, constraint: "ElementConstraint") -> frozenset[str]:
+        cached = getattr(constraint, "_oa_declared_attrs_cache", None)
+        if cached is None:
+            cached = frozenset(attr.qualified_name for attr in constraint.attributes)
+            setattr(constraint, "_oa_declared_attrs_cache", cached)
+        return cached
 
 
 # Import for type hints only
-from openxml_audit.schema.constraints import ElementConstraint  # noqa: E402
+from openxml_audit.schema.constraints import AttributeConstraint, ElementConstraint  # noqa: E402
 from openxml_audit.schema.particle import ParticleConstraint  # noqa: E402

@@ -263,6 +263,20 @@ def get_element_constraint_for_element(
 
 
 def convert_element_type(elem_type: SdkElementType) -> ElementConstraint:
+    """Convert an SDK element type to an ElementConstraint."""
+    return _convert_element_type_by_name(elem_type.name)
+
+
+@lru_cache(maxsize=8192)
+def _convert_element_type_by_name(elem_type_name: str) -> ElementConstraint:
+    registry = get_registry()
+    elem_type = registry.get_type(elem_type_name)
+    if elem_type is None:
+        raise ValueError(f"Unknown SDK element type: {elem_type_name}")
+    return _convert_element_type_uncached(elem_type)
+
+
+def _convert_element_type_uncached(elem_type: SdkElementType) -> ElementConstraint:
     """Convert an SDK element type to an ElementConstraint.
 
     Args:

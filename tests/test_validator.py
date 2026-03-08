@@ -122,6 +122,24 @@ class TestOpenXmlValidator:
         assert set(timings.keys()) == expected_phases
         assert all(duration >= 0.0 for duration in timings.values())
 
+    def test_validate_with_timings_schema_breakdown(self, minimal_pptx: Path) -> None:
+        """Schema breakdown should be available when requested."""
+        validator = OpenXmlValidator()
+        _result, timings = validator.validate_with_timings(
+            minimal_pptx,
+            include_schema_breakdown=True,
+        )
+
+        expected_breakdown = {
+            "schema.elements",
+            "schema.constraint_lookup",
+            "schema.children_expand",
+            "schema.attributes",
+            "schema.content_model",
+            "schema.recursion",
+        }
+        assert expected_breakdown.issubset(timings.keys())
+
 
 class TestValidationResult:
     """Tests for ValidationResult."""
