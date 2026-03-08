@@ -110,6 +110,26 @@ docker run --rm -v "$PWD:/work" -w /work mcr.microsoft.com/dotnet/sdk:8.0 \
 
 For JSON output, swap the project to `scripts/sdk_compare/OpenXmlSdkValidator.csproj`.
 
+## Seed Corpus From SDK Tests
+
+Use the SDK test-assets importer to build a local parity corpus manifest (and optionally copy files):
+
+```bash
+# Preview selection and extracted expectations from SDK test code
+python scripts/corpus/import_sdk_assets.py --sdk-root /tmp/openxml-sdk-upstream --dry-run
+
+# Write manifest only (no file copies)
+python scripts/corpus/import_sdk_assets.py --sdk-root /tmp/openxml-sdk-upstream --manifest-only
+
+# Copy selected files plus manifest
+python scripts/corpus/import_sdk_assets.py \
+  --sdk-root /tmp/openxml-sdk-upstream \
+  --include-dir TestFiles \
+  --include-dir TestDataStorage/O14ISOStrict
+```
+
+Output defaults to `data/corpus/sdk_seed/manifest.json`.
+
 ## GitHub Actions Validation
 
 Drop files into `inputs/` and push to GitHub. The workflow will:
