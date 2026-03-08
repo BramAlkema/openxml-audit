@@ -29,8 +29,8 @@
 
 ## Phase 3 (April 13-17, 2026): SDK Exit for Daily CI
 
-- [ ] Add `scripts/corpus/compare_to_baseline.py`
-- [ ] Add PR CI gate using Python-only baseline compare
+- [x] Add `scripts/corpus/compare_to_baseline.py`
+- [x] Add PR CI gate using Python-only baseline compare
 - [x] Add nightly optional SDK calibration workflow
 - [ ] Document SDK as optional/manual-only in developer workflow
 - [ ] Enforce no parity-drift policy in PR CI

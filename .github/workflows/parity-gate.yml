@@ -1,0 +1,118 @@
+name: Parity gate
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/corpus/**"
+      - "data/corpus/**"
+      - ".github/workflows/parity-gate.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - "scripts/corpus/**"
+      - "data/corpus/**"
+      - ".github/workflows/parity-gate.yml"
+  workflow_dispatch:
+    inputs:
+      corpus_archive_url:
+        description: "Optional URL for parity corpus tar.zst (overrides repo variable)."
+        required: false
+        default: ""
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    env:
+      BASELINE_SNAPSHOT: data/corpus/parity_baseline/v3.4.1/parity_snapshot.json
+      CURRENT_SNAPSHOT: reports/parity_current.json
+      COMPARE_REPORT: reports/parity_compare.json
+      SUMMARY_REPORT: /tmp/parity_compare.md
+      CORPUS_ARCHIVE_URL: ${{ github.event.inputs.corpus_archive_url || vars.PARITY_CORPUS_ARCHIVE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Prepare reports directory
+        run: mkdir -p reports
+
+      - name: Resolve corpus files root
+        id: corpus
+        run: |
+          set -euo pipefail
+
+          local_root="$GITHUB_WORKSPACE/data/corpus/sdk_seed/files"
+          if [ -d "$local_root" ]; then
+            echo "Using local corpus files at $local_root"
+            echo "files_root=$local_root" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -z "${CORPUS_ARCHIVE_URL:-}" ]; then
+            echo "::error::Parity corpus is unavailable. Set repository variable PARITY_CORPUS_ARCHIVE_URL (tar.zst containing a top-level 'files/' directory)."
+            exit 2
+          fi
+
+          work_root="/tmp/openxml-parity-corpus"
+          archive_path="/tmp/openxml-parity-corpus.tar.zst"
+          rm -rf "$work_root"
+          mkdir -p "$work_root"
+
+          echo "Downloading corpus archive from configured URL"
+          curl -fsSL "$CORPUS_ARCHIVE_URL" -o "$archive_path"
+          tar --zstd -xf "$archive_path" -C "$work_root"
+
+          files_root="$work_root/files"
+          if [ ! -d "$files_root" ]; then
+            echo "::error::Corpus archive does not contain expected 'files/' directory."
+            exit 2
+          fi
+
+          echo "files_root=$files_root" >> "$GITHUB_OUTPUT"
+
+      - name: Run parity snapshot
+        run: |
+          python scripts/corpus/run_parity_snapshot.py \
+            --manifest data/corpus/sdk_seed/manifest.json \
+            --files-root "${{ steps.corpus.outputs.files_root }}" \
+            --output "$CURRENT_SNAPSHOT"
+
+      - name: Compare against baseline
+        run: |
+          python scripts/corpus/compare_to_baseline.py \
+            --baseline "$BASELINE_SNAPSHOT" \
+            --current "$CURRENT_SNAPSHOT" \
+            --output "$COMPARE_REPORT" \
+            --summary "$SUMMARY_REPORT" \
+            --max-mismatch-growth 0 \
+            --max-new-families 0 \
+            --max-match-rate-drop 0.0 \
+            --max-missing-files 0
+
+      - name: Upload parity reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-gate-reports
+          path: reports
+
+      - name: Workflow summary
+        if: always()
+        run: |
+          if [ -f "$SUMMARY_REPORT" ]; then
+            cat "$SUMMARY_REPORT" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No parity summary produced." >> "$GITHUB_STEP_SUMMARY"
+          fi

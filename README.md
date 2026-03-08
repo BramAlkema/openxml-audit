@@ -143,6 +143,20 @@ Use `.github/workflows/calibrate-parity.yml` to run SDK-backed calibration in CI
 
 This keeps day-to-day repository size small while preserving repeatable parity calibration.
 
+## PR Parity Gate
+
+Use `.github/workflows/parity-gate.yml` to enforce no parity drift in PRs:
+
+- Runs Python parity snapshot on the pinned corpus manifest.
+- Compares current snapshot to `data/corpus/parity_baseline/v3.4.1/parity_snapshot.json`.
+- Fails on mismatch growth, new mismatch families, match-rate drop, or missing files.
+
+Because corpus files are not committed, the gate expects a compressed corpus archive via repository variable:
+
+- `PARITY_CORPUS_ARCHIVE_URL`: HTTPS URL to a `.tar.zst` archive that extracts to a top-level `files/` directory.
+
+`workflow_dispatch` supports overriding this URL with `corpus_archive_url`.
+
 ## GitHub Actions Validation
 
 Drop files into `inputs/` and push to GitHub. The workflow will:

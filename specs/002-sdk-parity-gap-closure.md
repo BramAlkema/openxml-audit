@@ -92,7 +92,7 @@ On SDK-valid files (for example `TestFiles/Plain.docx`), Python reports large sc
 
 ### Operational Targets
 
-1. PR CI runs SDK-free parity gate against frozen baseline.
+1. PR CI runs SDK-free parity gate against frozen baseline (using a pinned corpus archive).
 2. Nightly job runs optional SDK calibration and reports drift.
 3. Regression policy: no growth in mismatch count on protected corpus tiers.
 
@@ -161,10 +161,10 @@ Acceptance Criteria:
 
 - `scripts/corpus/extract_sdk_expectations.py` (added)
 - `scripts/corpus/run_parity_snapshot.py` (added)
-- `scripts/corpus/compare_to_baseline.py`
+- `scripts/corpus/compare_to_baseline.py` (added)
 - `data/corpus/parity_baseline/v3.4.1/` (initial snapshot added)
 - `docs/parity_contract.md` (field normalization, severity mapping, ID mapping policy)
-- CI workflow updates for parity gate (calibration workflow added).
+- CI workflow updates for parity gate (calibration + PR parity-gate workflows added).
 
 ## Risk Register
 
