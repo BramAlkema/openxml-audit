@@ -112,7 +112,7 @@ For JSON output, swap the project to `scripts/sdk_compare/OpenXmlSdkValidator.cs
 
 ## Seed Corpus From SDK Tests
 
-Use the SDK test-assets importer to build a local parity corpus manifest (and optionally copy files):
+Use the SDK test-assets importer to build a parity manifest and optionally materialize files locally:
 
 ```bash
 # Preview selection and extracted expectations from SDK test code
@@ -124,11 +124,24 @@ python scripts/corpus/import_sdk_assets.py --sdk-root /tmp/openxml-sdk-upstream 
 # Copy selected files plus manifest
 python scripts/corpus/import_sdk_assets.py \
   --sdk-root /tmp/openxml-sdk-upstream \
+  --output-root /tmp/openxml-sdk-seed \
   --include-dir TestFiles \
   --include-dir TestDataStorage/O14ISOStrict
 ```
 
-Output defaults to `data/corpus/sdk_seed/manifest.json`.
+Manifest output defaults to `data/corpus/sdk_seed/manifest.json`.
+Corpus files are intentionally not tracked in git (`data/corpus/sdk_seed/files/` is ignored).
+
+## Parity Calibration Workflow
+
+Use `.github/workflows/calibrate-parity.yml` to run SDK-backed calibration in CI:
+
+- Clones Open XML SDK at a pinned or manually selected ref (default `v3.4.1`)
+- Materializes corpus files under `/tmp` at runtime
+- Re-extracts SDK expectations into a runtime manifest
+- Runs parity snapshot and uploads artifacts (`parity_snapshot.json`, runtime manifest)
+
+This keeps day-to-day repository size small while preserving repeatable parity calibration.
 
 ## GitHub Actions Validation
 

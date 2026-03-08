@@ -1,0 +1,112 @@
+name: Calibrate parity
+
+on:
+  workflow_dispatch:
+    inputs:
+      sdk_ref:
+        description: "Open XML SDK tag/branch to calibrate against"
+        required: true
+        default: "v3.4.1"
+  schedule:
+    - cron: "17 2 * * 1"
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    env:
+      SDK_REF: ${{ inputs.sdk_ref || 'v3.4.1' }}
+      SDK_REPO: https://github.com/dotnet/Open-XML-SDK.git
+      SDK_ROOT: /tmp/openxml-sdk-upstream
+      CORPUS_ROOT: /tmp/openxml-sdk-seed
+      RUNTIME_MANIFEST: /tmp/openxml-runtime-manifest.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Fetch Open XML SDK
+        run: |
+          rm -rf "$SDK_ROOT"
+          git clone --depth 1 --branch "$SDK_REF" "$SDK_REPO" "$SDK_ROOT"
+          git -C "$SDK_ROOT" rev-parse HEAD | tee /tmp/openxml-sdk-commit.txt
+          printf '%s\n' "$SDK_REF" > /tmp/openxml-sdk-ref.txt
+
+      - name: Materialize SDK corpus (runtime only)
+        run: |
+          rm -rf "$CORPUS_ROOT"
+          python scripts/corpus/import_sdk_assets.py \
+            --sdk-root "$SDK_ROOT" \
+            --output-root "$CORPUS_ROOT"
+
+      - name: Build runtime manifest with extracted expectations
+        run: |
+          cp data/corpus/sdk_seed/manifest.json "$RUNTIME_MANIFEST"
+          python scripts/corpus/extract_sdk_expectations.py \
+            --sdk-root "$SDK_ROOT" \
+            --manifest "$RUNTIME_MANIFEST" \
+            --output "$RUNTIME_MANIFEST"
+
+      - name: Run parity snapshot
+        run: |
+          mkdir -p reports
+          python scripts/corpus/run_parity_snapshot.py \
+            --manifest "$RUNTIME_MANIFEST" \
+            --files-root "$CORPUS_ROOT/files" \
+            --output reports/parity_snapshot.json
+
+      - name: Upload parity artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-calibration
+          path: |
+            reports/parity_snapshot.json
+            /tmp/openxml-runtime-manifest.json
+
+      - name: Workflow summary
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = Path("reports/parity_snapshot.json")
+          if not report.exists():
+              print("No parity snapshot produced.")
+              raise SystemExit(0)
+
+          data = json.loads(report.read_text(encoding="utf-8"))
+          lines = [
+              "# Parity Calibration Summary",
+              f"- SDK ref: {Path('/tmp/openxml-sdk-ref.txt').read_text(encoding='utf-8').strip()}",
+              f"- SDK commit: {Path('/tmp/openxml-sdk-commit.txt').read_text(encoding='utf-8').strip()}",
+              f"- Checks total: {data.get('checks_total', 0)}",
+              f"- Matched: {data.get('checks_matched', 0)}",
+              f"- Mismatched: {data.get('checks_mismatched', 0)}",
+              f"- Match rate: {data.get('match_rate_percent', 0)}%",
+          ]
+
+          families = data.get("mismatch_families") or []
+          if families:
+              lines.append("")
+              lines.append("## Top mismatch families")
+              for row in families[:10]:
+                  lines.append(f"- {row.get('count', 0)}x {row.get('description', '')}")
+
+          Path("/tmp/parity_summary.md").write_text("\n".join(lines), encoding="utf-8")
+          PY
+          cat /tmp/parity_summary.md >> "$GITHUB_STEP_SUMMARY"
