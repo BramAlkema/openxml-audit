@@ -40,4 +40,4 @@
 - [x] Create `docs/parity_contract.md`
 - [x] Pin calibration target to Open XML SDK `v3.4.1`
 - [x] Add mismatch waiver process (owner + rationale + expiry)
-- [ ] Add performance regression guard for parity workloads
+- [x] Add performance regression guard for parity workloads

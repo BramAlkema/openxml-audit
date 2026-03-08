@@ -9,12 +9,16 @@ This document defines the comparison contract and CI gate behavior used by parit
 - Baseline artifacts:
   - `data/corpus/sdk_seed/manifest.json`
   - `data/corpus/parity_baseline/v3.4.1/parity_snapshot.json`
+  - `data/corpus/parity_baseline/v3.4.1/perf_budget.json`
   - `data/corpus/parity_baseline/v3.4.1/waivers.json`
 
 ## Snapshot Schema
 
 Current snapshots are produced by `scripts/corpus/run_parity_snapshot.py` and include:
 
+- `duration_seconds`
+- `validation_runs`
+- `checks_collected`
 - `checks_total`
 - `checks_matched`
 - `checks_mismatched`
@@ -49,6 +53,7 @@ Workflow: `.github/workflows/parity-gate.yml`
 
 - Runs snapshot with current code.
 - Compares to baseline via `compare_to_baseline.py`.
+- Enforces runtime budget via `check_perf_budget.py`.
 - Uploads reports and step summary.
 - Fails PR on policy violations.
 
@@ -60,6 +65,19 @@ Corpus source for gate:
 Archive requirement:
 
 - Compressed `.tar.zst` that extracts a top-level `files/` directory.
+
+## Performance Guard
+
+Performance budget is defined in `data/corpus/parity_baseline/v3.4.1/perf_budget.json`.
+
+`scripts/corpus/check_perf_budget.py` validates:
+
+- max total snapshot duration (`max_duration_seconds`)
+- max duration per evaluated check (`max_seconds_per_check`)
+- max duration per validator run (`max_seconds_per_validation`)
+- minimum evaluated checks (`min_checks_total`)
+
+Default policy is fail-on-regression against these limits in PR CI.
 
 ## Waiver Process
 

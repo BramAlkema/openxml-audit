@@ -1,0 +1,9 @@
+{
+  "profile": "parity_snapshot_v3.4.1",
+  "limits": {
+    "max_duration_seconds": 20.0,
+    "max_seconds_per_check": 0.4,
+    "max_seconds_per_validation": 0.4,
+    "min_checks_total": 40
+  }
+}

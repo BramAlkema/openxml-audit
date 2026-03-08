@@ -11,6 +11,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -130,6 +131,7 @@ def _collect_checks(
 
 
 def main() -> int:
+    wall_start = perf_counter()
     parser = argparse.ArgumentParser(description="Run parity snapshot from manifest expectations.")
     parser.add_argument(
         "--manifest",
@@ -292,6 +294,7 @@ def main() -> int:
     total = evaluated_checks
     mismatch_count = mismatched_checks
     match_rate = 100.0 * matched / total if total else 0.0
+    duration_seconds = perf_counter() - wall_start
 
     report = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -299,11 +302,14 @@ def main() -> int:
         "files_root": str(files_root),
         "strict": args.strict,
         "allow_missing_files": args.allow_missing_files,
+        "duration_seconds": round(duration_seconds, 6),
+        "checks_collected": len(checks),
         "checks_total": total,
         "checks_matched": matched,
         "checks_mismatched": mismatch_count,
         "checks_missing_files": missing_file_checks,
         "match_rate_percent": round(match_rate, 2),
+        "validation_runs": len(cache),
         "by_kind": dict(sorted(by_kind.items())),
         "by_version": dict(sorted(by_version.items())),
         "mismatch_examples": mismatch_examples,
@@ -319,6 +325,8 @@ def main() -> int:
     if missing_file_checks:
         print(f"Missing files: {missing_file_checks}")
     print(f"Match rate: {report['match_rate_percent']}%")
+    print(f"Duration: {report['duration_seconds']}s")
+    print(f"Validation runs: {report['validation_runs']}")
     if report["mismatch_families"]:
         top = report["mismatch_families"][0]
         print(f"Top mismatch family: {top['count']}x {top['description']}")

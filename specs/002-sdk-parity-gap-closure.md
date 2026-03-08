@@ -162,7 +162,9 @@ Acceptance Criteria:
 - `scripts/corpus/extract_sdk_expectations.py` (added)
 - `scripts/corpus/run_parity_snapshot.py` (added)
 - `scripts/corpus/compare_to_baseline.py` (added)
+- `scripts/corpus/check_perf_budget.py` (added)
 - `data/corpus/parity_baseline/v3.4.1/` (initial snapshot added)
+- `data/corpus/parity_baseline/v3.4.1/perf_budget.json` (added)
 - `docs/parity_contract.md` (field normalization, severity mapping, ID mapping policy) (added)
 - CI workflow updates for parity gate (calibration + PR parity-gate workflows added).
 
