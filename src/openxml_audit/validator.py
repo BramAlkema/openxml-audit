@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from time import perf_counter
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from lxml import etree
 
+from openxml_audit.binary import parse_font_key, validate_binary_content
 from openxml_audit.context import ValidationContext
 from openxml_audit.errors import (
     FileFormat,
@@ -19,7 +21,7 @@ from openxml_audit.errors import (
     ValidationResult,
     ValidationSeverity,
 )
-from openxml_audit.binary import parse_font_key, validate_binary_content
+from openxml_audit.excel.workbook import WorkbookValidator
 from openxml_audit.namespaces import (
     OFFICE_DOC_RELATIONSHIPS,
     REL_COMMENTS,
@@ -30,11 +32,9 @@ from openxml_audit.namespaces import (
     REL_FOOTNOTES,
     REL_NUMBERING,
     REL_SETTINGS,
-    REL_SLIDE,
-    REL_SLIDE_MASTER,
+    REL_SHARED_STRINGS,
     REL_STYLES,
     REL_STYLES_WITH_EFFECTS,
-    REL_SHARED_STRINGS,
     REL_THEME,
     REL_WEB_SETTINGS,
     WORDPROCESSINGML,
@@ -54,6 +54,7 @@ from openxml_audit.pptx.masters import MasterValidator
 from openxml_audit.pptx.presentation import PresentationValidator
 from openxml_audit.pptx.slides import SlideValidator
 from openxml_audit.pptx.themes import ThemeValidator
+from openxml_audit.relationships import get_rels_path
 from openxml_audit.schema.validator import SchemaValidator
 from openxml_audit.semantic.validator import (
     SemanticValidator,
@@ -61,9 +62,7 @@ from openxml_audit.semantic.validator import (
     create_spreadsheet_semantic_validator,
     create_word_semantic_validator,
 )
-from openxml_audit.relationships import get_rels_path
 from openxml_audit.word.document import DocumentValidator
-from openxml_audit.excel.workbook import WorkbookValidator
 
 if TYPE_CHECKING:
     pass
@@ -400,7 +399,7 @@ class OpenXmlValidator:
         presentation = PresentationPart(package, main_doc_uri)
         slide_ids = presentation.slide_ids
 
-        for slide_id, rel_id in slide_ids:
+        for _slide_id, rel_id in slide_ids:
             target = presentation.relationships.resolve_target(rel_id)
             if target is None:
                 errors.append(
@@ -531,8 +530,13 @@ class OpenXmlValidator:
             for rel in relationships:
                 if rel.is_external:
                     continue
+                if rel.target.startswith("#"):
+                    # Fragment-only targets reference a location within the
+                    # source part rather than another package part.
+                    continue
                 target = rel.resolve_target(source_uri)
-                if package.has_part(target):
+                target_part = target.split("#", 1)[0]
+                if package.has_part(target_part):
                     continue
                 errors.append(
                     ValidationError(
@@ -731,7 +735,13 @@ class OpenXmlValidator:
             )
             self._validate_word_cross_part(package, context)
 
-        errors.extend(self._validate_semantic_all_parts(package, self._semantic_validator_word, context))
+        errors.extend(
+            self._validate_semantic_all_parts(
+                package,
+                self._semantic_validator_word,
+                context,
+            )
+        )
         return errors
 
     def _validate_semantic_spreadsheet(self, package: OpenXmlPackage) -> list[ValidationError]:
@@ -805,10 +815,10 @@ class OpenXmlValidator:
         present = {rel.type for rel in part.relationships}
         for rel_type in required_types:
             if rel_type not in present:
-                rel_name = rel_type.rsplit("/", 1)[-1]
                 context.add_semantic_error(
-                    f"Missing required relationship type '{rel_name}' ({rel_type})",
+                    f"A required relationship type '{rel_type}' is missing.",
                     node="Relationship",
+                    error_id="Sem_MissingRelationshipType",
                 )
 
     def _word_required_relationships(self) -> tuple[str, ...]:
@@ -816,11 +826,9 @@ class OpenXmlValidator:
             return ()
         return (
             REL_STYLES,
-            REL_STYLES_WITH_EFFECTS,
             REL_SETTINGS,
             REL_WEB_SETTINGS,
             REL_FONT_TABLE,
-            REL_NUMBERING,
             REL_THEME,
         )
 
@@ -923,7 +931,6 @@ class OpenXmlValidator:
         numbering_xml = package.get_part_xml("/word/numbering.xml")
         numbering_ids, abstract_ids = self._collect_word_numbering_ids(numbering_xml)
         comments_xml = package.get_part_xml("/word/comments.xml")
-        comment_ids = self._collect_word_part_ids(comments_xml, "comment", "id")
         footnotes_xml = package.get_part_xml("/word/footnotes.xml")
         footnote_ids = self._collect_word_part_ids(footnotes_xml, "footnote", "id")
         endnotes_xml = package.get_part_xml("/word/endnotes.xml")
@@ -952,6 +959,7 @@ class OpenXmlValidator:
                         context.add_semantic_error(
                             "Document references styles but styles.xml is missing",
                             node="pStyle",
+                            error_id="Sem_MissingPartForReference",
                         )
                         missing_styles_reported = True
                     break
@@ -959,6 +967,7 @@ class OpenXmlValidator:
                     context.add_semantic_error(
                         f"Style '{style_ref}' referenced but not defined in styles.xml",
                         node="pStyle",
+                        error_id="Sem_ReferencedElementMissing",
                     )
 
             for num_ref in self._iter_word_num_refs(xml):
@@ -968,6 +977,7 @@ class OpenXmlValidator:
                         context.add_semantic_error(
                             "Document references numbering but numbering.xml is missing",
                             node="numId",
+                            error_id="Sem_MissingPartForReference",
                         )
                         missing_numbering_reported = True
                     break
@@ -975,9 +985,10 @@ class OpenXmlValidator:
                     context.add_semantic_error(
                         f"Numbering definition '{num_ref}' referenced but not found",
                         node="numId",
+                        error_id="Sem_ReferencedElementMissing",
                     )
 
-            for comment_ref in self._iter_word_id_refs(
+            for _comment_ref in self._iter_word_id_refs(
                 xml, ("commentReference", "commentRangeStart", "commentRangeEnd")
             ):
                 needs_comments = True
@@ -986,14 +997,10 @@ class OpenXmlValidator:
                         context.add_semantic_error(
                             "Document references comments but comments.xml is missing",
                             node="commentReference",
+                            error_id="Sem_MissingPartForReference",
                         )
                         missing_comments_reported = True
                     break
-                elif comment_ref not in comment_ids:
-                    context.add_semantic_error(
-                        f"Comment '{comment_ref}' referenced but not found",
-                        node="commentReference",
-                    )
 
             for footnote_ref in self._iter_word_id_refs(xml, ("footnoteReference",)):
                 needs_footnotes = True
@@ -1002,6 +1009,7 @@ class OpenXmlValidator:
                         context.add_semantic_error(
                             "Document references footnotes but footnotes.xml is missing",
                             node="footnoteReference",
+                            error_id="Sem_MissingPartForReference",
                         )
                         missing_footnotes_reported = True
                     break
@@ -1009,6 +1017,7 @@ class OpenXmlValidator:
                     context.add_semantic_error(
                         f"Footnote '{footnote_ref}' referenced but not found",
                         node="footnoteReference",
+                        error_id="Sem_ReferencedElementMissing",
                     )
 
             for endnote_ref in self._iter_word_id_refs(xml, ("endnoteReference",)):
@@ -1018,6 +1027,7 @@ class OpenXmlValidator:
                         context.add_semantic_error(
                             "Document references endnotes but endnotes.xml is missing",
                             node="endnoteReference",
+                            error_id="Sem_MissingPartForReference",
                         )
                         missing_endnotes_reported = True
                     break
@@ -1025,6 +1035,7 @@ class OpenXmlValidator:
                     context.add_semantic_error(
                         f"Endnote '{endnote_ref}' referenced but not found",
                         node="endnoteReference",
+                        error_id="Sem_ReferencedElementMissing",
                     )
 
         if styles_xml is not None:
@@ -1107,9 +1118,15 @@ class OpenXmlValidator:
             return
         ext = context.package.path.suffix.lower()
         expected = {
-            ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml",
+            ".docx": (
+                "application/vnd.openxmlformats-officedocument."
+                "wordprocessingml.document.main+xml"
+            ),
             ".docm": "application/vnd.ms-word.document.macroEnabled.main+xml",
-            ".dotx": "application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml",
+            ".dotx": (
+                "application/vnd.openxmlformats-officedocument."
+                "wordprocessingml.template.main+xml"
+            ),
             ".dotm": "application/vnd.ms-word.template.macroEnabled.main+xml",
         }.get(ext)
         if not expected:
@@ -1131,11 +1148,20 @@ class OpenXmlValidator:
             return
         ext = context.package.path.suffix.lower()
         expected = {
-            ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml",
+            ".pptx": (
+                "application/vnd.openxmlformats-officedocument."
+                "presentationml.presentation.main+xml"
+            ),
             ".pptm": "application/vnd.ms-powerpoint.presentation.macroEnabled.main+xml",
-            ".potx": "application/vnd.openxmlformats-officedocument.presentationml.template.main+xml",
+            ".potx": (
+                "application/vnd.openxmlformats-officedocument."
+                "presentationml.template.main+xml"
+            ),
             ".potm": "application/vnd.ms-powerpoint.template.macroEnabled.main+xml",
-            ".ppsx": "application/vnd.openxmlformats-officedocument.presentationml.slideshow.main+xml",
+            ".ppsx": (
+                "application/vnd.openxmlformats-officedocument."
+                "presentationml.slideshow.main+xml"
+            ),
             ".ppsm": "application/vnd.ms-powerpoint.slideshow.macroEnabled.main+xml",
             ".ppam": "application/vnd.ms-powerpoint.addin.macroEnabled.main+xml",
         }.get(ext)
@@ -1160,7 +1186,10 @@ class OpenXmlValidator:
         expected = {
             ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
             ".xlsm": "application/vnd.ms-excel.sheet.macroEnabled.main+xml",
-            ".xltx": "application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml",
+            ".xltx": (
+                "application/vnd.openxmlformats-officedocument."
+                "spreadsheetml.template.main+xml"
+            ),
             ".xltm": "application/vnd.ms-excel.template.macroEnabled.main+xml",
         }.get(ext)
         if not expected:
@@ -1244,7 +1273,9 @@ class OpenXmlValidator:
                 val = elem.get(f"{{{WORDPROCESSINGML}}}id")
                 if val:
                     refs.append(val)
-        return refs
+        # Preserve first-seen order while removing duplicates to avoid
+        # repeating the same semantic reference error per part.
+        return list(dict.fromkeys(refs))
 
     def _iter_shared_string_refs(self, xml: etree._Element) -> list[int]:
         refs: list[int] = []
@@ -1370,8 +1401,10 @@ class OpenXmlValidator:
             note_id = elem.get(f"{{{WORDPROCESSINGML}}}id")
             if note_id and note_id not in footnote_ids:
                 context.add_semantic_error(
-                    f"Footnote '{note_id}' referenced in settings.xml was not found in footnotes.xml",
+                    f"Footnote '{note_id}' referenced in settings.xml was "
+                    "not found in footnotes.xml",
                     node="footnote",
+                    error_id="Sem_ReferencedElementMissing",
                 )
         for elem in settings_xml.findall(".//w:endnotePr/w:endnote", ns):
             note_id = elem.get(f"{{{WORDPROCESSINGML}}}id")
@@ -1379,6 +1412,7 @@ class OpenXmlValidator:
                 context.add_semantic_error(
                     f"Endnote '{note_id}' referenced in settings.xml was not found in endnotes.xml",
                     node="endnote",
+                    error_id="Sem_ReferencedElementMissing",
                 )
 
     def _validate_custom_xml_parts(
@@ -1402,8 +1436,9 @@ class OpenXmlValidator:
         has_rel = any(rel.type == REL_CUSTOM_XML for rel in main_doc.relationships)
         if not has_rel:
             context.add_semantic_error(
-                f"Missing required relationship type 'customXml' ({REL_CUSTOM_XML})",
+                f"A required relationship type '{REL_CUSTOM_XML}' is missing.",
                 node="Relationship",
+                error_id="Sem_MissingRelationshipType",
             )
 
         for item_uri in items:

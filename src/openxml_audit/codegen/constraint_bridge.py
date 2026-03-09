@@ -17,6 +17,7 @@ from openxml_audit.codegen.schema_loader import (
     get_registry,
     get_xsd_type_name,
 )
+from openxml_audit.namespaces import SPREADSHEETML
 from openxml_audit.schema.constraints import (
     AttributeConstraint,
     ElementConstraint,
@@ -25,15 +26,12 @@ from openxml_audit.schema.particle import (
     AllParticle,
     AnyParticle,
     ChoiceParticle,
-    ElementParticle,
     CompositeParticle,
+    ElementParticle,
     ParticleConstraint,
     SequenceParticle,
 )
-from openxml_audit.schema.types import (
-    XsdTypeValidator,
-    get_type_validator,
-)
+from openxml_audit.schema.types import get_type_validator
 
 if TYPE_CHECKING:
     pass
@@ -202,6 +200,38 @@ def _convert_particle(
     return None
 
 
+def _apply_particle_compat_overrides(
+    elem_type_name: str,
+    content_model: ParticleConstraint | None,
+) -> ParticleConstraint | None:
+    """Apply targeted schema-model compatibility fixes for SDK parity."""
+    if content_model is None:
+        return None
+
+    # SDK metadata currently models w:cols child w:col as required (min=1),
+    # but SDK validator accepts empty w:cols in equal-width/default scenarios.
+    if (
+        elem_type_name == "w:CT_Columns/w:cols"
+        and isinstance(content_model, SequenceParticle)
+        and len(content_model.children) == 1
+        and isinstance(content_model.children[0], ElementParticle)
+        and content_model.children[0].local_name == "col"
+        and content_model.children[0].min_occurs == 1
+    ):
+        content_model.children[0].min_occurs = 0
+
+    if (
+        elem_type_name in {"w:CT_Footnotes/w:footnotes", "w:CT_Endnotes/w:endnotes"}
+        and isinstance(content_model, SequenceParticle)
+        and len(content_model.children) == 1
+        and isinstance(content_model.children[0], ElementParticle)
+        and content_model.children[0].max_occurs == 1
+    ):
+        content_model.children[0].max_occurs = -1
+
+    return content_model
+
+
 def _build_namespace_map() -> dict[str, str]:
     """Build prefix -> namespace URI map from registry."""
     registry = get_registry()
@@ -242,15 +272,20 @@ def get_element_constraint_for_element(
     if len(candidates) == 1:
         return convert_element_type(candidates[0])
 
+    selected_by_context = _select_candidate_by_context(tag, element, candidates)
+    if selected_by_context is not None:
+        return convert_element_type(selected_by_context)
+
     children = [c for c in element if isinstance(c.tag, str)]
+    attribute_names = tuple(element.attrib.keys())
     best: ElementConstraint | None = None
-    best_score: tuple[int, int] | None = None
+    best_score: tuple[int, int, int, int, int, int] | None = None
 
     for candidate in candidates:
         constraint = convert_element_type(candidate)
         if _missing_required_attributes(constraint, element):
             continue
-        score = _score_candidate(constraint, children)
+        score = _score_candidate(constraint, children, attribute_names)
         if best_score is None or score > best_score:
             best = constraint
             best_score = score
@@ -260,6 +295,32 @@ def get_element_constraint_for_element(
 
     elem_type = registry.get_element_type_by_tag(tag)
     return convert_element_type(elem_type) if elem_type else None
+
+
+def _select_candidate_by_context(
+    tag: str,
+    element: etree._Element,
+    candidates: list[SdkElementType],
+) -> SdkElementType | None:
+    if tag != f"{{{SPREADSHEETML}}}c":
+        return None
+
+    parent = element.getparent()
+    parent_local = None
+    if parent is not None and isinstance(parent.tag, str):
+        parent_local = parent.tag.split("}", 1)[-1] if parent.tag.startswith("{") else parent.tag
+    in_calc_chain = parent_local == "calcChain"
+
+    def is_calc_candidate(candidate: SdkElementType) -> bool:
+        return candidate.class_name == "CalculationCell" or "CT_CalcCell" in candidate.name
+
+    for candidate in candidates:
+        if in_calc_chain and is_calc_candidate(candidate):
+            return candidate
+        if not in_calc_chain and not is_calc_candidate(candidate):
+            return candidate
+
+    return None
 
 
 def convert_element_type(elem_type: SdkElementType) -> ElementConstraint:
@@ -290,7 +351,7 @@ def _convert_element_type_uncached(elem_type: SdkElementType) -> ElementConstrai
 
     # Get schema for target namespace
     schema = None
-    for ns, s in registry._schemas.items():
+    for _ns, s in registry._schemas.items():
         if elem_type in s.types:
             schema = s
             break
@@ -311,6 +372,7 @@ def _convert_element_type_uncached(elem_type: SdkElementType) -> ElementConstrai
             target_namespace,
             namespace_map,
         )
+    content_model = _apply_particle_compat_overrides(elem_type.name, content_model)
 
     # Determine namespace from element name
     if elem_type.element_prefix:
@@ -340,17 +402,36 @@ def _missing_required_attributes(
 def _score_candidate(
     constraint: ElementConstraint,
     children: list[etree._Element],
-) -> tuple[int, int]:
+    attribute_names: tuple[str, ...],
+) -> tuple[int, int, int, int, int, int]:
     if constraint.content_model is None or not children:
-        return (0, 0)
-
-    allowed, has_any = _collect_allowed_tags(constraint.content_model)
-    if has_any:
-        total_matches = len(children)
+        specific_matches = 0
+        total_matches = 0
     else:
-        total_matches = sum(1 for child in children if child.tag in allowed)
-    specific_matches = sum(1 for child in children if child.tag in allowed)
-    return (specific_matches, total_matches)
+        allowed, has_any = _collect_allowed_tags(constraint.content_model)
+        specific_matches = sum(1 for child in children if child.tag in allowed)
+        total_matches = len(children) if has_any else specific_matches
+
+    declared_attrs = {attr.qualified_name for attr in constraint.attributes}
+    matched_attrs = 0
+    for attr_name in attribute_names:
+        if attr_name in declared_attrs:
+            matched_attrs += 1
+    undeclared_attrs = len(attribute_names) - matched_attrs
+
+    if children:
+        shape_fit = 1 if constraint.content_model is not None else 0
+    else:
+        shape_fit = 1 if constraint.content_model is None else 0
+
+    return (
+        specific_matches,
+        total_matches,
+        shape_fit,
+        matched_attrs,
+        -undeclared_attrs,
+        len(constraint.attributes),
+    )
 
 
 def _collect_allowed_tags(

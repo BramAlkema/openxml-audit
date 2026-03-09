@@ -32,6 +32,7 @@ class AttributeConstraint:
     required: bool = False
     default_value: str | None = None
     fixed_value: str | None = None
+    introduced_version: str | None = None
 
     @property
     def qualified_name(self) -> str:
@@ -50,6 +51,7 @@ class ElementConstraint:
     attributes: list[AttributeConstraint] = field(default_factory=list)
     content_model: ParticleConstraint | None = None
     allows_text: bool = False
+    introduced_version: str | None = None
 
     @property
     def qualified_name(self) -> str:

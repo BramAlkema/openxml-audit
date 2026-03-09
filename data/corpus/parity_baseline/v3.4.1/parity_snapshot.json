@@ -1,170 +1,48 @@
 {
-  "generated_at_utc": "2026-03-08T21:17:02.333806+00:00",
+  "generated_at_utc": "2026-03-09T00:31:55.843993+00:00",
   "manifest": "/Users/ynse/projects/openxml-audit/data/corpus/sdk_seed/manifest.json",
-  "files_root": "/Users/ynse/projects/openxml-audit/data/corpus/sdk_seed/files",
+  "files_root": "/private/tmp/openxml-sdk-seed/files",
   "strict": true,
-  "checks_total": 48,
-  "checks_matched": 0,
-  "checks_mismatched": 48,
-  "match_rate_percent": 0.0,
+  "allow_missing_files": false,
+  "include_mutation_expectations": false,
+  "skipped_mutation_expectations": 33,
+  "duration_seconds": 3.803789,
+  "checks_collected": 112,
+  "checks_total": 77,
+  "checks_matched": 72,
+  "checks_mismatched": 5,
+  "checks_missing_files": 0,
+  "match_rate_percent": 93.51,
+  "validation_runs": 55,
   "by_kind": {
-    "assert_empty_single_version": 7,
-    "assert_true_allowed_counts": 1,
+    "assert_empty_single_version": 3,
+    "assert_empty_validator": 29,
+    "assert_equal_validator_count": 1,
+    "assert_single_validator": 4,
     "helper_allowed_counts": 1,
     "inline_file_assert_empty": 32,
     "inline_file_count": 1,
     "inline_version_assert_empty": 3,
-    "inline_version_count": 3
+    "inline_version_count": 3,
+    "validate_invocation": 35
   },
   "by_version": {
-    "Office2007": 5,
-    "Office2010": 4,
-    "Office2013": 31,
-    "Office2016": 12
+    "Office2007": 15,
+    "Office2010": 12,
+    "Office2013": 53,
+    "Office2016": 36
   },
   "mismatch_examples": [
     {
-      "source_relpath": "TestDataStorage/O15Conformance/WD/CommentExTest/Invalid_Word15Comments.docx",
-      "kind": "assert_empty_single_version",
+      "source_relpath": "TestFiles/Document.docx",
+      "kind": "assert_single_validator",
       "validator_versions": [
         "Office2013"
       ],
-      "expected": 0,
-      "actual_sum": 329,
+      "expected": 1,
+      "actual_sum": 0,
       "actual_by_version": {
-        "Office2013": 329
-      }
-    },
-    {
-      "source_relpath": "TestDataStorage/Robustness/OFCAT/00D4EE78301DA16F3BF92631CA9B68E6.xlsx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 363,
-      "actual_by_version": {
-        "Office2013": 363
-      }
-    },
-    {
-      "source_relpath": "TestDataStorage/Robustness/OFCAT/00a5835d-d770-438a-aa36-c7cdcd4e61d1.xlsx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 174,
-      "actual_by_version": {
-        "Office2013": 174
-      }
-    },
-    {
-      "source_relpath": "TestDataStorage/Robustness/OFCAT/00a5888d-6d63-4643-acbb-35c6f317cd75.xlsx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 181,
-      "actual_by_version": {
-        "Office2013": 181
-      }
-    },
-    {
-      "source_relpath": "TestDataStorage/Robustness/OFCAT/00bd6e64-896c-4ad0-980c-e7abdd4b0a52.xlsx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 180,
-      "actual_by_version": {
-        "Office2013": 180
-      }
-    },
-    {
-      "source_relpath": "TestDataStorage/Robustness/OFCAT/00c6a24e-a99f-42c1-a26b-a086b273f3f4.xlsx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 174,
-      "actual_by_version": {
-        "Office2013": 174
-      }
-    },
-    {
-      "source_relpath": "TestDataStorage/Robustness/OFCAT/00cb49ed-f996-4a3b-9bad-8676e765c4b2.xlsx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 176,
-      "actual_by_version": {
-        "Office2013": 176
-      }
-    },
-    {
-      "source_relpath": "TestDataStorage/Robustness/OFCAT/00d43c8b-890a-4b6c-a101-0fe55f2dd917.xlsx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 174,
-      "actual_by_version": {
-        "Office2013": 174
-      }
-    },
-    {
-      "source_relpath": "TestDataStorage/Robustness/OFCAT/00d63cdd-ee44-4e6a-99af-a7966ffbdda0.xlsx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 174,
-      "actual_by_version": {
-        "Office2013": 174
-      }
-    },
-    {
-      "source_relpath": "TestDataStorage/Robustness/OFCAT/00df219f-f99a-4e93-b049-a666df53894c.xlsx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 181,
-      "actual_by_version": {
-        "Office2013": 181
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Comments.docx",
-      "kind": "assert_empty_single_version",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 188,
-      "actual_by_version": {
-        "Office2013": 188
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Data-Bound-Content-Controls.docx",
-      "kind": "assert_empty_single_version",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 177,
-      "actual_by_version": {
-        "Office2013": 177
+        "Office2013": 0
       }
     },
     {
@@ -174,21 +52,9 @@
         "Office2007"
       ],
       "expected": 415,
-      "actual_sum": 627,
+      "actual_sum": 0,
       "actual_by_version": {
-        "Office2007": 627
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Document.docx",
-      "kind": "inline_version_count",
-      "validator_versions": [
-        "Office2010"
-      ],
-      "expected": 0,
-      "actual_sum": 627,
-      "actual_by_version": {
-        "Office2010": 627
+        "Office2007": 0
       }
     },
     {
@@ -198,400 +64,9 @@
         "Office2013"
       ],
       "expected": 1,
-      "actual_sum": 627,
+      "actual_sum": 0,
       "actual_by_version": {
-        "Office2013": 627
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Hyperlink.docx",
-      "kind": "assert_empty_single_version",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 183,
-      "actual_by_version": {
-        "Office2013": 183
-      }
-    },
-    {
-      "source_relpath": "TestFiles/May_12_04.docx",
-      "kind": "assert_empty_single_version",
-      "validator_versions": [
-        "Office2007"
-      ],
-      "expected": 0,
-      "actual_sum": 221,
-      "actual_by_version": {
-        "Office2007": 221
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-01.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 185,
-      "actual_by_version": {
-        "Office2013": 185
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-01.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 185,
-      "actual_by_version": {
-        "Office2016": 185
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-01.pptx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 183,
-      "actual_by_version": {
-        "Office2013": 183
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-01.pptx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 183,
-      "actual_by_version": {
-        "Office2016": 183
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-02.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 192,
-      "actual_by_version": {
-        "Office2013": 192
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-02.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 192,
-      "actual_by_version": {
-        "Office2016": 192
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-02.pptx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 190,
-      "actual_by_version": {
-        "Office2013": 190
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-02.pptx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 190,
-      "actual_by_version": {
-        "Office2016": 190
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-03.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 186,
-      "actual_by_version": {
-        "Office2013": 186
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-03.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 186,
-      "actual_by_version": {
-        "Office2016": 186
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-03.pptx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 184,
-      "actual_by_version": {
-        "Office2013": 184
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-03.pptx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 184,
-      "actual_by_version": {
-        "Office2016": 184
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-04.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 186,
-      "actual_by_version": {
-        "Office2013": 186
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-04.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 186,
-      "actual_by_version": {
-        "Office2016": 186
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-05.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 185,
-      "actual_by_version": {
-        "Office2013": 185
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-05.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 185,
-      "actual_by_version": {
-        "Office2016": 185
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-06.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 185,
-      "actual_by_version": {
-        "Office2013": 185
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-06.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 185,
-      "actual_by_version": {
-        "Office2016": 185
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-07.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 185,
-      "actual_by_version": {
-        "Office2013": 185
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-07.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 185,
-      "actual_by_version": {
-        "Office2016": 185
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-08.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 184,
-      "actual_by_version": {
-        "Office2013": 184
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-08.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 184,
-      "actual_by_version": {
-        "Office2016": 184
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Of16-10-SymEx.docx",
-      "kind": "inline_file_assert_empty",
-      "validator_versions": [
-        "Office2016"
-      ],
-      "expected": 0,
-      "actual_sum": 184,
-      "actual_by_version": {
-        "Office2016": 184
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Plain.docx",
-      "kind": "assert_empty_single_version",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 183,
-      "actual_by_version": {
-        "Office2013": 183
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Plain.docx",
-      "kind": "inline_version_assert_empty",
-      "validator_versions": [
-        "Office2007"
-      ],
-      "expected": 0,
-      "actual_sum": 183,
-      "actual_by_version": {
-        "Office2007": 183
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Plain.docx",
-      "kind": "inline_version_assert_empty",
-      "validator_versions": [
-        "Office2010"
-      ],
-      "expected": 0,
-      "actual_sum": 183,
-      "actual_by_version": {
-        "Office2010": 183
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Plain.docx",
-      "kind": "inline_version_assert_empty",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 183,
-      "actual_by_version": {
-        "Office2013": 183
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Presentation.pptx",
-      "kind": "assert_empty_single_version",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 187,
-      "actual_by_version": {
-        "Office2013": 187
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Presentation.pptx",
-      "kind": "inline_file_count",
-      "validator_versions": [
-        "Office2007",
-        "Office2010",
-        "Office2013"
-      ],
-      "expected": 0,
-      "actual_sum": 561,
-      "actual_by_version": {
-        "Office2007": 187,
-        "Office2010": 187,
-        "Office2013": 187
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Spreadsheet.xlsx",
-      "kind": "assert_true_allowed_counts",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": [
-        0,
-        1
-      ],
-      "actual_sum": 187,
-      "actual_by_version": {
-        "Office2013": 187
+        "Office2013": 0
       }
     },
     {
@@ -606,34 +81,35 @@
         1,
         2
       ],
-      "actual_sum": 561,
+      "actual_sum": 0,
       "actual_by_version": {
-        "Office2007": 187,
-        "Office2010": 187,
-        "Office2013": 187
+        "Office2007": 0,
+        "Office2010": 0,
+        "Office2013": 0
+      }
+    },
+    {
+      "source_relpath": "TestFiles/complex2010.docx",
+      "kind": "assert_equal_validator_count",
+      "validator_versions": [
+        "Office2007"
+      ],
+      "expected": 34,
+      "actual_sum": 1,
+      "actual_by_version": {
+        "Office2007": 1
       }
     }
   ],
   "mismatch_families": [
     {
-      "description": "Required element '<value>' is missing (minOccurs=<n>, found=<n>)",
-      "count": 911
-    },
-    {
-      "description": "Required choice element is missing",
-      "count": 73
-    },
-    {
-      "description": "Choice allows at most <n> occurrence(s), found <n>",
-      "count": 46
-    },
-    {
-      "description": "Relationship target not found: /word/#_THIS_WEEK_IN",
-      "count": 7
-    },
-    {
+      "id": "Sch_UnexpectedElementContentExpectingComplex",
+      "error_type": "schema",
+      "part": "/word/settings.xml",
+      "path": "/settings[1]",
       "description": "Unexpected element '<value>' found",
-      "count": 3
+      "family_key": "Sch_UnexpectedElementContentExpectingComplex|schema|/word/settings.xml|/settings[1]|Unexpected element '<value>' found",
+      "count": 1
     }
   ]
 }

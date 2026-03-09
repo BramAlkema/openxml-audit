@@ -5,12 +5,15 @@ Converts ParsedSchematron rules into SemanticConstraint instances.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterator
+from collections.abc import Iterator
+from typing import TYPE_CHECKING
 
 from openxml_audit.codegen.schema_loader import get_registry as get_schema_registry
 from openxml_audit.codegen.schematron_loader import (
     ParsedSchematron,
     SchematronType,
+)
+from openxml_audit.codegen.schematron_loader import (
     get_registry as get_schematron_registry,
 )
 from openxml_audit.semantic.attributes import (
@@ -113,11 +116,18 @@ def _convert_xpath_pattern(pattern: str) -> str:
 
     result = pattern
 
-    # XPath uses \p{L} for Unicode letters, Python uses different syntax
-    # For now, replace with approximate equivalents
+    # Replace common XML/XPath unicode classes with Python-compatible ranges.
+    # Note: this is intentionally conservative and best-effort.
+    result = result.replace(r"\p{IsBasicLatin}", r"\x00-\x7F")
+    result = result.replace(r"\P{IsBasicLatin}", r"\u0080-\uffff")
+
+    # XPath uses \p{L} for Unicode letters, Python uses different syntax.
     result = re.sub(r'\\p\{L\}', r'\\w', result)
     result = re.sub(r'\\p\{N\}', r'\\d', result)
+    result = re.sub(r'\\P\{L\}', r'\\W', result)
+    result = re.sub(r'\\P\{N\}', r'\\D', result)
     result = re.sub(r'\\p\{[^}]+\}', r'.', result)  # Fallback for other Unicode categories
+    result = re.sub(r'\\P\{[^}]+\}', r'.', result)  # Fallback for negative Unicode categories
 
     # XPath uses \i for XML initial name char, \c for XML name char
     result = re.sub(r'\\i', r'[a-zA-Z_:]', result)

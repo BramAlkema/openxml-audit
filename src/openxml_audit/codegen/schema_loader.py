@@ -7,13 +7,13 @@ code generation. The JSON files are the single source of truth.
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
 from dataclasses import dataclass, field
-from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from openxml_audit.schema.types import XsdTypeValidator
+    pass
 
 # Path to SDK data files
 DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "openxml"
@@ -258,7 +258,11 @@ class SchemaRegistry:
                             # Index concrete elements by qualified name
                             if not t.is_abstract and t.element_name:
                                 prefix = t.element_prefix
-                                ns = self._prefixes.get(prefix, "") if prefix else schema.target_namespace
+                                ns = (
+                                    self._prefixes.get(prefix, "")
+                                    if prefix
+                                    else schema.target_namespace
+                                )
                                 qname = f"{{{ns}}}{t.element_name}"
                                 self._elements_by_tag.setdefault(qname, []).append(t)
 
@@ -366,8 +370,8 @@ SDK_TYPE_MAP: dict[str, str] = {
     "UInt16Value": "unsignedShort",
     "UInt32Value": "unsignedInt",
     "UInt64Value": "unsignedLong",
-    "ByteValue": "byte",
-    "SByteValue": "unsignedByte",
+    "ByteValue": "unsignedByte",
+    "SByteValue": "byte",
     "SingleValue": "float",
     "DoubleValue": "double",
     "DecimalValue": "decimal",

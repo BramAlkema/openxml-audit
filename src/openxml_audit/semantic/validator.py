@@ -8,9 +8,9 @@ from lxml import etree
 
 from openxml_audit.context import ElementContext
 from openxml_audit.errors import ValidationError
+from openxml_audit.namespaces import MC, OFFICE_DOC_RELATIONSHIPS
 from openxml_audit.semantic.attributes import SemanticConstraint
 from openxml_audit.semantic.references import IdTracker, validate_unique_ids
-from openxml_audit.namespaces import MC, OFFICE_DOC_RELATIONSHIPS
 from openxml_audit.semantic.relationships import validate_part_relationships
 
 if TYPE_CHECKING:
@@ -115,8 +115,10 @@ class SemanticValidator:
             if rel is None:
                 local_attr = attr_name.split("}")[-1] if attr_name.startswith("{") else attr_name
                 context.add_semantic_error(
-                    f"Relationship '{value}' referenced by '{local_attr}' does not exist",
+                    f"The relationship '{value}' referenced by attribute "
+                    f"'{local_attr}' does not exist.",
                     node=local_attr,
+                    error_id="Sem_MissingRelationshipReference",
                 )
 
     def _validate_mc_ignorable(
@@ -127,10 +129,6 @@ class SemanticValidator:
             return
         prefixes = [prefix for prefix in ignorable.split() if prefix]
         if not prefixes:
-            context.add_semantic_error(
-                "Ignorable attribute is empty",
-                node="Ignorable",
-            )
             return
         nsmap = element.nsmap or {}
         for prefix in prefixes:
@@ -150,14 +148,13 @@ def create_pptx_semantic_validator(load_sdk_rules: bool = True) -> SemanticValid
     Returns:
         A SemanticValidator configured for PPTX validation.
     """
-    from openxml_audit.namespaces import DRAWINGML, PRESENTATIONML
-    from openxml_audit.semantic.attributes import (
-        AttributeMinMaxConstraint,
-        AttributeValueLessEqualToAnother,
-    )
+    from openxml_audit.namespaces import PRESENTATIONML
     from openxml_audit.semantic.relationships import RelationshipExistConstraint
 
-    validator = SemanticValidator(validate_unique_ids=True)
+    # SDK schematron rules already cover PPT ID-uniqueness semantics with
+    # narrower scopes. The generic @id scan is too broad and causes false
+    # positives on valid presentations.
+    validator = SemanticValidator(validate_unique_ids=False)
 
     # Load SDK schematron rules
     if load_sdk_rules:
@@ -223,21 +220,6 @@ def create_word_semantic_validator(load_sdk_rules: bool = True) -> SemanticValid
             pass
 
     zoom_values = ("none", "fullPage", "bestFit", "textFit")
-    theme_colors = (
-        "dark1",
-        "light1",
-        "dark2",
-        "light2",
-        "accent1",
-        "accent2",
-        "accent3",
-        "accent4",
-        "accent5",
-        "accent6",
-        "hyperlink",
-        "followedHyperlink",
-    )
-
     validator.register_constraint(
         f"{{{WORDPROCESSINGML}}}zoom",
         AttributeValueInSetConstraint(
@@ -246,16 +228,11 @@ def create_word_semantic_validator(load_sdk_rules: bool = True) -> SemanticValid
             allowed_values=zoom_values,
         ),
     )
-    validator.register_constraint(
-        f"{{{WORDPROCESSINGML}}}color",
-        AttributeValueInSetConstraint(
-            attribute="themeColor",
-            namespace=WORDPROCESSINGML,
-            allowed_values=theme_colors,
-        ),
-    )
 
-    font_key_pattern = r"^\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\}$"
+    font_key_pattern = (
+        r"^\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-"
+        r"[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\}$"
+    )
     for tag in ("embedRegular", "embedBold", "embedItalic", "embedBoldItalic"):
         element_tag = f"{{{WORDPROCESSINGML}}}{tag}"
         validator.register_constraint(

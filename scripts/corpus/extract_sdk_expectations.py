@@ -39,13 +39,66 @@ INLINE_VERSION_COUNT_RE = re.compile(
 )
 INLINE_FILE_ONLY_RE = re.compile(r"\[InlineData\(\s*([A-Za-z0-9_\.]+)\s*\)\]")
 INLINE_VERSION_ONLY_RE = re.compile(r"\[InlineData\(\s*FileFormatVersions\.([A-Za-z0-9_]+)\s*\)\]")
+INLINE_FIRST_ARG_RE = re.compile(r"\[InlineData\(\s*([A-Za-z0-9_\.]+)")
+VALIDATE_CALL_RE = re.compile(r"\.Validate\s*\(")
+PACKAGE_OPEN_RE = re.compile(
+    r"\b(?:var|[A-Za-z_][A-Za-z0-9_<>,\.\?]*)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"
+    r"(?:[A-Za-z_][A-Za-z0-9_\.]*Document|OpenXmlPackage)\.(?:Open|Create)\s*\("
+)
+MAX_ERRORS_SIGNAL_RE = re.compile(r"\bMaxNumberOfErrors\b")
 ASSERT_TRUE_ALLOWED_COUNTS_RE = re.compile(
     r"Assert\.True\(\s*cnt\s*==\s*(-?\d+)\s*\|\|\s*cnt\s*==\s*(-?\d+)\s*\)"
 )
 XLSX_HELPER_CALL_RE = re.compile(
     r"XlsxValidationHelper\(\s*stream\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*\)"
 )
+VALIDATOR_ALIAS_VERSION_RE = re.compile(
+    r"\b([A-Za-z_][A-Za-z0-9_]*)\s*=\s*new\s+OpenXmlValidator\(\s*FileFormatVersions\.([A-Za-z0-9_]+)\s*\)"
+)
+VALIDATOR_ALIAS_DEFAULT_RE = re.compile(
+    r"\b([A-Za-z_][A-Za-z0-9_]*)\s*=\s*new\s+OpenXmlValidator\(\s*\)"
+)
+ASSIGN_VALIDATE_RE = re.compile(
+    r"\b([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([A-Za-z_][A-Za-z0-9_]*)\s*\.Validate\s*\("
+)
+ASSERT_EMPTY_VAR_RE = re.compile(r"Assert\.Empty\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)")
+ASSERT_SINGLE_VAR_RE = re.compile(r"Assert\.Single\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)")
+ASSERT_EQUAL_VAR_COUNT_RE = re.compile(
+    r"Assert\.Equal\(\s*(-?\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\.Count\(\)\s*\)"
+)
+ASSERT_NOTNULL_VAR_RE = re.compile(r"Assert\.NotNull\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)")
+ASSERT_EMPTY_DIRECT_RE = re.compile(
+    r"Assert\.Empty\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\.Validate\s*\("
+)
+ASSERT_SINGLE_DIRECT_RE = re.compile(
+    r"Assert\.Single\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\.Validate\s*\("
+)
+ASSERT_NOTNULL_DIRECT_RE = re.compile(
+    r"Assert\.NotNull\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\.Validate\s*\("
+)
+ASSERT_EQUAL_DIRECT_COUNT_RE = re.compile(
+    r"Assert\.Equal\(\s*(-?\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\.Validate\s*\("
+)
+MUTATION_NAME_RE = re.compile(
+    r"(Add|Remove|Delete|Insert|Replace|Clear|Change|Create|Set|Update|Modify|Annotation)"
+)
+MUTATION_SIGNAL_RE = re.compile(
+    r"(\.DeletePart\(|\.Add(?:New)?Part\(|\.AddImagePart\(|\.AddPart\(|\.RemovePart\(|"
+    r"\.RemoveAllChildren\(|\.Replace(?:Child|All)\(|\.Insert(?:Before|After|At|BeforeSelf|AfterSelf)\(|"
+    r"\.SetAttributes?\(|\.RemoveAttributes?\(|\.ClearAllAttributes\(|"
+    r"\.InnerXml\s*=|\.InnerText\s*=|\.OuterXml\s*=|"
+    r"\bOpen\s*\([^)]*,\s*true\s*\)|\.Save\s*\(|"
+    r"\bMarkupCompatibilityProcessSettings\b|\bOpenSettings\b)",
+    re.IGNORECASE,
+)
 VALID_VERSIONS = {"Office2007", "Office2010", "Office2013", "Office2016", "Office2019"}
+VALIDATOR_NAME_VERSION_MAP = {
+    "12": "Office2007",
+    "14": "Office2010",
+    "15": "Office2013",
+    "16": "Office2016",
+    "19": "Office2019",
+}
 
 
 @dataclass(frozen=True)
@@ -66,6 +119,7 @@ class ExtractedExpectation:
     relpath: str
     kind: str
     validator_versions: tuple[str, ...]
+    scenario: str
     expected_error_count: int | None
     expected_error_counts: tuple[int, ...]
     source_file: str
@@ -270,10 +324,37 @@ def _resolve_symbol(
     return None
 
 
+def _parse_validator_aliases(test_path: Path) -> dict[str, str]:
+    text = test_path.read_text(encoding="utf-8")
+    aliases: dict[str, str] = {}
+
+    for match in VALIDATOR_ALIAS_VERSION_RE.finditer(text):
+        alias = match.group(1)
+        version = match.group(2)
+        if version in VALID_VERSIONS:
+            aliases[alias] = version
+
+    for match in VALIDATOR_ALIAS_DEFAULT_RE.finditer(text):
+        alias = match.group(1)
+        aliases.setdefault(alias, "Office2007")
+
+    return aliases
+
+
+def _infer_version_from_validator_name(name: str) -> str | None:
+    if name in VALID_VERSIONS:
+        return name
+    match = re.search(r"^O(\d{2})", name)
+    if match is None:
+        return None
+    return VALIDATOR_NAME_VERSION_MAP.get(match.group(1))
+
+
 def _build_expectation(
     relpath: str,
     kind: str,
     versions: tuple[str, ...],
+    scenario: str,
     source: MethodBlock,
     expected_count: int | None = None,
     expected_counts: tuple[int, ...] = (),
@@ -282,6 +363,7 @@ def _build_expectation(
         relpath=relpath,
         kind=kind,
         validator_versions=versions,
+        scenario=scenario,
         expected_error_count=expected_count,
         expected_error_counts=expected_counts,
         source_file=Path(source.source).name,
@@ -290,13 +372,71 @@ def _build_expectation(
     )
 
 
+def _classify_method_scenario(method: MethodBlock) -> str:
+    """Classify whether expectations come from base-file validation or a mutated scenario."""
+    if MAX_ERRORS_SIGNAL_RE.search(method.body):
+        return "mutation"
+
+    if MUTATION_NAME_RE.search(method.name):
+        return "mutation"
+
+    validate_match = VALIDATE_CALL_RE.search(method.body)
+    prefix = method.body if validate_match is None else method.body[: validate_match.start()]
+    if MUTATION_SIGNAL_RE.search(prefix):
+        return "mutation"
+    return "base"
+
+
+def _collect_package_variables(method_body: str) -> set[str]:
+    return {match.group(1) for match in PACKAGE_OPEN_RE.finditer(method_body)}
+
+
+def _extract_first_argument(call_source: str, start_index: int) -> tuple[str, int]:
+    depth = 0
+    idx = start_index
+    while idx < len(call_source):
+        ch = call_source[idx]
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            if depth == 0:
+                break
+            depth -= 1
+        elif ch == "," and depth == 0:
+            break
+        idx += 1
+    return call_source[start_index:idx].strip(), idx
+
+
+def _normalize_validate_target(expression: str) -> str:
+    compact = "".join(expression.split())
+    while compact.startswith("("):
+        close = compact.find(")")
+        if close <= 0:
+            break
+        compact = compact[close + 1 :]
+    return compact.lstrip("!")
+
+
+def _is_package_validate_target(expression: str, package_variables: set[str]) -> bool:
+    target = _normalize_validate_target(expression)
+    if not target:
+        return False
+    if "." in target or "[" in target or "(" in target:
+        return False
+    return target in package_variables
+
+
 def _extract_from_method(
     method: MethodBlock,
     symbol_to_resource: dict[str, str],
     dotted_exact: dict[str, str],
     dotted_lower: dict[str, str],
+    validator_aliases: dict[str, str],
 ) -> list[ExtractedExpectation]:
     results: list[ExtractedExpectation] = []
+    scenario = _classify_method_scenario(method)
+    package_variables = _collect_package_variables(method.body)
 
     file_symbols = sorted(set(GET_STREAM_RE.findall(method.body)))
     resolved_files = [
@@ -305,12 +445,56 @@ def _extract_from_method(
     ]
     resolved_files = [path for path in resolved_files if path is not None]
     single_file = resolved_files[0] if len(resolved_files) == 1 else None
+    inline_files = []
+    for match in INLINE_FIRST_ARG_RE.finditer(method.attributes):
+        symbol = match.group(1)
+        if symbol.startswith("FileFormatVersions."):
+            continue
+        relpath = _resolve_symbol(symbol, symbol_to_resource, dotted_exact, dotted_lower)
+        if relpath is not None:
+            inline_files.append(relpath)
+    inline_files = list(dict.fromkeys(inline_files))
 
     versions = list(VALIDATOR_VERSION_RE.findall(method.body))
     if VALIDATOR_DEFAULT_RE.search(method.body):
         versions.append("Office2007")
     normalized_versions = _normalize_versions(versions)
     has_empty_validate = "Assert.Empty(" in method.body and "Validate(" in method.body
+    seen_rows: set[tuple[str, str, tuple[str, ...], str, int | None, tuple[int, ...]]] = set()
+
+    def add_expectation(
+        relpath: str,
+        *,
+        kind: str,
+        versions_payload: tuple[str, ...],
+        expected_count: int | None = None,
+        expected_counts: tuple[int, ...] = (),
+    ) -> None:
+        key = (relpath, kind, versions_payload, scenario, expected_count, expected_counts)
+        if key in seen_rows:
+            return
+        seen_rows.add(key)
+        results.append(
+            _build_expectation(
+                relpath=relpath,
+                kind=kind,
+                versions=versions_payload,
+                scenario=scenario,
+                expected_count=expected_count,
+                expected_counts=expected_counts,
+                source=method,
+            )
+        )
+
+    def resolve_validator_versions(validator_name: str) -> tuple[str, ...]:
+        if validator_name in validator_aliases:
+            return (validator_aliases[validator_name],)
+        inferred = _infer_version_from_validator_name(validator_name)
+        if inferred is not None:
+            return (inferred,)
+        if len(normalized_versions) == 1:
+            return normalized_versions
+        return ()
 
     for match in INLINE_FILE_COUNT_RE.finditer(method.attributes):
         symbol = match.group(1)
@@ -318,14 +502,11 @@ def _extract_from_method(
         relpath = _resolve_symbol(symbol, symbol_to_resource, dotted_exact, dotted_lower)
         if relpath is None:
             continue
-        results.append(
-            _build_expectation(
-                relpath=relpath,
-                kind="inline_file_count",
-                versions=normalized_versions,
-                expected_count=expected,
-                source=method,
-            )
+        add_expectation(
+            relpath,
+            kind="inline_file_count",
+            versions_payload=normalized_versions,
+            expected_count=expected,
         )
 
     for match in INLINE_FILE_ONLY_RE.finditer(method.attributes):
@@ -336,14 +517,11 @@ def _extract_from_method(
         if relpath is None:
             continue
         if has_empty_validate and len(normalized_versions) == 1:
-            results.append(
-                _build_expectation(
-                    relpath=relpath,
-                    kind="inline_file_assert_empty",
-                    versions=normalized_versions,
-                    expected_count=0,
-                    source=method,
-                )
+            add_expectation(
+                relpath,
+                kind="inline_file_assert_empty",
+                versions_payload=normalized_versions,
+                expected_count=0,
             )
 
     for match in INLINE_VERSION_COUNT_RE.finditer(method.attributes):
@@ -351,28 +529,22 @@ def _extract_from_method(
         expected = int(match.group(2))
         if single_file is None:
             continue
-        results.append(
-            _build_expectation(
-                relpath=single_file,
-                kind="inline_version_count",
-                versions=(version,),
-                expected_count=expected,
-                source=method,
-            )
+        add_expectation(
+            single_file,
+            kind="inline_version_count",
+            versions_payload=(version,),
+            expected_count=expected,
         )
 
     for match in INLINE_VERSION_ONLY_RE.finditer(method.attributes):
         if single_file is None or not has_empty_validate:
             continue
         version = match.group(1)
-        results.append(
-            _build_expectation(
-                relpath=single_file,
-                kind="inline_version_assert_empty",
-                versions=(version,),
-                expected_count=0,
-                source=method,
-            )
+        add_expectation(
+            single_file,
+            kind="inline_version_assert_empty",
+            versions_payload=(version,),
+            expected_count=0,
         )
 
     if (
@@ -380,14 +552,11 @@ def _extract_from_method(
         and single_file is not None
         and len(normalized_versions) == 1
     ):
-        results.append(
-            _build_expectation(
-                relpath=single_file,
-                kind="assert_empty_single_version",
-                versions=normalized_versions,
-                expected_count=0,
-                source=method,
-            )
+        add_expectation(
+            single_file,
+            kind="assert_empty_single_version",
+            versions_payload=normalized_versions,
+            expected_count=0,
         )
 
     allowed_match = ASSERT_TRUE_ALLOWED_COUNTS_RE.search(method.body)
@@ -398,29 +567,199 @@ def _extract_from_method(
     ):
         a = int(allowed_match.group(1))
         b = int(allowed_match.group(2))
-        results.append(
-            _build_expectation(
-                relpath=single_file,
-                kind="assert_true_allowed_counts",
-                versions=normalized_versions,
-                expected_counts=tuple(sorted({a, b})),
-                source=method,
-            )
+        add_expectation(
+            single_file,
+            kind="assert_true_allowed_counts",
+            versions_payload=normalized_versions,
+            expected_counts=tuple(sorted({a, b})),
         )
 
     helper_match = XLSX_HELPER_CALL_RE.search(method.body)
     if helper_match is not None and single_file is not None:
         a = int(helper_match.group(1))
         b = int(helper_match.group(2))
-        results.append(
-            _build_expectation(
-                relpath=single_file,
-                kind="helper_allowed_counts",
-                versions=("Office2007", "Office2010", "Office2013"),
-                expected_counts=tuple(sorted({a, b})),
-                source=method,
-            )
+        add_expectation(
+            single_file,
+            kind="helper_allowed_counts",
+            versions_payload=("Office2007", "Office2010", "Office2013"),
+            expected_counts=tuple(sorted({a, b})),
         )
+
+    target_files = [single_file] if single_file is not None else inline_files
+    if target_files:
+        package_invocation_versions: list[str] = []
+        assignments: dict[str, list[tuple[int, str, bool]]] = defaultdict(list)
+        for match in ASSIGN_VALIDATE_RE.finditer(method.body):
+            var_name = match.group(1)
+            validator_name = match.group(2)
+            arg_expression, _ = _extract_first_argument(method.body, match.end())
+            is_package_target = _is_package_validate_target(arg_expression, package_variables)
+            assignments[var_name].append((match.start(), validator_name, is_package_target))
+            if is_package_target:
+                package_invocation_versions.extend(resolve_validator_versions(validator_name))
+
+        def latest_assignment(var_name: str, before_pos: int) -> tuple[str, bool] | None:
+            entries = assignments.get(var_name)
+            if not entries:
+                return None
+            latest: tuple[str, bool] | None = None
+            for pos, validator_name, is_package_target in entries:
+                if pos >= before_pos:
+                    break
+                latest = (validator_name, is_package_target)
+            return latest
+
+        for match in ASSERT_EMPTY_DIRECT_RE.finditer(method.body):
+            arg_expression, _ = _extract_first_argument(method.body, match.end())
+            if not _is_package_validate_target(arg_expression, package_variables):
+                continue
+            versions_payload = resolve_validator_versions(match.group(1))
+            if not versions_payload:
+                continue
+            package_invocation_versions.extend(versions_payload)
+            for relpath in target_files:
+                add_expectation(
+                    relpath,
+                    kind="assert_empty_validator",
+                    versions_payload=versions_payload,
+                    expected_count=0,
+                )
+
+        for match in ASSERT_SINGLE_DIRECT_RE.finditer(method.body):
+            arg_expression, _ = _extract_first_argument(method.body, match.end())
+            if not _is_package_validate_target(arg_expression, package_variables):
+                continue
+            versions_payload = resolve_validator_versions(match.group(1))
+            if not versions_payload:
+                continue
+            package_invocation_versions.extend(versions_payload)
+            for relpath in target_files:
+                add_expectation(
+                    relpath,
+                    kind="assert_single_validator",
+                    versions_payload=versions_payload,
+                    expected_count=1,
+                )
+
+        for match in ASSERT_EQUAL_DIRECT_COUNT_RE.finditer(method.body):
+            arg_expression, arg_end = _extract_first_argument(method.body, match.end())
+            if not _is_package_validate_target(arg_expression, package_variables):
+                continue
+            if re.match(r"\s*\)\s*\.Count\s*\(", method.body[arg_end:]) is None:
+                continue
+            versions_payload = resolve_validator_versions(match.group(2))
+            if not versions_payload:
+                continue
+            package_invocation_versions.extend(versions_payload)
+            expected = int(match.group(1))
+            for relpath in target_files:
+                add_expectation(
+                    relpath,
+                    kind="assert_equal_validator_count",
+                    versions_payload=versions_payload,
+                    expected_count=expected,
+                )
+
+        for match in ASSERT_NOTNULL_DIRECT_RE.finditer(method.body):
+            arg_expression, _ = _extract_first_argument(method.body, match.end())
+            if not _is_package_validate_target(arg_expression, package_variables):
+                continue
+            versions_payload = resolve_validator_versions(match.group(1))
+            if not versions_payload:
+                continue
+            package_invocation_versions.extend(versions_payload)
+            for relpath in target_files:
+                add_expectation(
+                    relpath,
+                    kind="assert_not_null_validator",
+                    versions_payload=versions_payload,
+                )
+
+        for match in ASSERT_EMPTY_VAR_RE.finditer(method.body):
+            var_name = match.group(1)
+            assignment = latest_assignment(var_name, match.start())
+            if assignment is None:
+                continue
+            validator_name, is_package_target = assignment
+            if not is_package_target:
+                continue
+            versions_payload = resolve_validator_versions(validator_name)
+            if not versions_payload:
+                continue
+            for relpath in target_files:
+                add_expectation(
+                    relpath,
+                    kind="assert_empty_validator",
+                    versions_payload=versions_payload,
+                    expected_count=0,
+                )
+
+        for match in ASSERT_SINGLE_VAR_RE.finditer(method.body):
+            var_name = match.group(1)
+            assignment = latest_assignment(var_name, match.start())
+            if assignment is None:
+                continue
+            validator_name, is_package_target = assignment
+            if not is_package_target:
+                continue
+            versions_payload = resolve_validator_versions(validator_name)
+            if not versions_payload:
+                continue
+            for relpath in target_files:
+                add_expectation(
+                    relpath,
+                    kind="assert_single_validator",
+                    versions_payload=versions_payload,
+                    expected_count=1,
+                )
+
+        for match in ASSERT_EQUAL_VAR_COUNT_RE.finditer(method.body):
+            var_name = match.group(2)
+            assignment = latest_assignment(var_name, match.start())
+            if assignment is None:
+                continue
+            validator_name, is_package_target = assignment
+            if not is_package_target:
+                continue
+            versions_payload = resolve_validator_versions(validator_name)
+            if not versions_payload:
+                continue
+            expected = int(match.group(1))
+            for relpath in target_files:
+                add_expectation(
+                    relpath,
+                    kind="assert_equal_validator_count",
+                    versions_payload=versions_payload,
+                    expected_count=expected,
+                )
+
+        for match in ASSERT_NOTNULL_VAR_RE.finditer(method.body):
+            var_name = match.group(1)
+            assignment = latest_assignment(var_name, match.start())
+            if assignment is None:
+                continue
+            validator_name, is_package_target = assignment
+            if not is_package_target:
+                continue
+            versions_payload = resolve_validator_versions(validator_name)
+            if not versions_payload:
+                continue
+            for relpath in target_files:
+                add_expectation(
+                    relpath,
+                    kind="assert_not_null_validator",
+                    versions_payload=versions_payload,
+                )
+
+        if package_invocation_versions:
+            deduped_versions = _normalize_versions(package_invocation_versions)
+            for version in deduped_versions:
+                for relpath in target_files:
+                    add_expectation(
+                        relpath,
+                        kind="validate_invocation",
+                        versions_payload=(version,),
+                    )
 
     return results
 
@@ -431,6 +770,7 @@ def _aggregate_expectations(items: list[ExtractedExpectation]) -> dict[str, list
         key_payload = {
             "kind": item.kind,
             "validator_versions": list(item.validator_versions),
+            "scenario": item.scenario,
         }
         if item.expected_error_count is not None:
             key_payload["expected_error_count"] = item.expected_error_count
@@ -467,6 +807,7 @@ def _aggregate_expectations(items: list[ExtractedExpectation]) -> dict[str, list
         values = list(grouped.values())
         values.sort(
             key=lambda row: (
+                str(row.get("scenario", "base")),
                 str(row.get("kind", "")),
                 ",".join(row.get("validator_versions", [])),
                 int(row.get("expected_error_count", -1)),
@@ -490,20 +831,47 @@ def _collect_expectations(
     stats = {
         "methods_scanned": 0,
         "raw_expectations": 0,
+        "raw_expectations_base": 0,
+        "raw_expectations_mutation": 0,
         "resolved_expectations": 0,
+        "resolved_expectations_base": 0,
+        "resolved_expectations_mutation": 0,
         "files_with_expectations": 0,
     }
     tests_root = sdk_root / TESTS_DIR
     for test_file in sorted(tests_root.rglob("*.cs")):
         methods = _iter_methods(test_file)
+        validator_aliases = _parse_validator_aliases(test_file)
         stats["methods_scanned"] += len(methods)
         for method in methods:
-            extracted = _extract_from_method(method, symbol_to_resource, dotted_exact, dotted_lower)
+            extracted = _extract_from_method(
+                method,
+                symbol_to_resource,
+                dotted_exact,
+                dotted_lower,
+                validator_aliases,
+            )
             stats["raw_expectations"] += len(extracted)
+            stats["raw_expectations_base"] += sum(1 for item in extracted if item.scenario == "base")
+            stats["raw_expectations_mutation"] += sum(
+                1 for item in extracted if item.scenario == "mutation"
+            )
             all_items.extend(extracted)
 
     aggregated = _aggregate_expectations(all_items)
     stats["resolved_expectations"] = sum(len(values) for values in aggregated.values())
+    stats["resolved_expectations_base"] = sum(
+        1
+        for values in aggregated.values()
+        for row in values
+        if row.get("scenario", "base") == "base"
+    )
+    stats["resolved_expectations_mutation"] = sum(
+        1
+        for values in aggregated.values()
+        for row in values
+        if row.get("scenario", "base") == "mutation"
+    )
     stats["files_with_expectations"] = len(aggregated)
     return aggregated, stats
 
@@ -582,7 +950,11 @@ def main() -> int:
     print(f"Manifest: {manifest_path}")
     print(f"Methods scanned: {stats['methods_scanned']}")
     print(f"Raw expectations: {stats['raw_expectations']}")
+    print(f"Raw expectations (base): {stats['raw_expectations_base']}")
+    print(f"Raw expectations (mutation): {stats['raw_expectations_mutation']}")
     print(f"Resolved expectations: {stats['resolved_expectations']}")
+    print(f"Resolved expectations (base): {stats['resolved_expectations_base']}")
+    print(f"Resolved expectations (mutation): {stats['resolved_expectations_mutation']}")
     print(f"Files with expectations: {stats['files_with_expectations']}")
 
     if args.dry_run:

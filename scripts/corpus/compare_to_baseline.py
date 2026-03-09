@@ -86,13 +86,15 @@ def _extract_families(payload: dict[str, Any]) -> dict[str, int]:
     for row in rows:
         if not isinstance(row, dict):
             continue
-        description = row.get("description")
+        key = row.get("family_key")
+        if not isinstance(key, str) or not key:
+            key = row.get("description")
         count = row.get("count")
-        if not isinstance(description, str):
+        if not isinstance(key, str):
             continue
         if not isinstance(count, int):
             continue
-        output[description] = count
+        output[key] = count
     return output
 
 

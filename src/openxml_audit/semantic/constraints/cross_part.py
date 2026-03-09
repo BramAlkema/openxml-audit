@@ -140,6 +140,7 @@ class CrossPartCountConstraint(SemanticConstraint):
             context.add_semantic_error(
                 f"Attribute '{self.attribute}' must be numeric",
                 node=self.attribute,
+                error_id="Sem_NumericAttribute",
             )
             return False
 
@@ -154,16 +155,14 @@ class CrossPartCountConstraint(SemanticConstraint):
                 f"Attribute '{self.attribute}' value {raw_value} must be < {limit} "
                 f"(count {count} from {target})",
                 node=self.attribute,
+                error_id="Sem_CrossPartCountViolation",
             )
             return False
 
         return True
 
     def _describe_target(self) -> str:
-        if self.part_path == ".":
-            part_desc = "current part"
-        else:
-            part_desc = f"Part:{self.part_path}"
+        part_desc = "current part" if self.part_path == "." else f"Part:{self.part_path}"
         return f"{part_desc} xpath='{self._xpath}'"
 
     def _get_count(self, context: ValidationContext) -> int | None:
@@ -241,6 +240,7 @@ class CrossPartReferenceConstraint(SemanticConstraint):
             f"Attribute '{self.attribute}' value '{value}' was not found in "
             f"Part:{self.part_path} xpath='{self._xpath}'/@{self.target_attribute}",
             node=self.attribute,
+            error_id="Sem_CrossPartReferenceMissing",
         )
         return False
 

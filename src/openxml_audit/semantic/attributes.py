@@ -65,20 +65,25 @@ class AttributeMinMaxConstraint(SemanticConstraint):
             context.add_semantic_error(
                 f"Attribute '{self.attribute}' must be numeric",
                 node=self.attribute,
+                error_id="Sem_NumericAttribute",
             )
             return False
 
         if self.min_value is not None:
             if self.min_inclusive and value < self.min_value:
                 context.add_semantic_error(
-                    f"Attribute '{self.attribute}' value {value} is less than minimum {self.min_value}",
+                    f"Attribute '{self.attribute}' value {value} is less than "
+                    f"minimum {self.min_value}",
                     node=self.attribute,
+                    error_id="Sem_AttributeRangeViolation",
                 )
                 return False
             if not self.min_inclusive and value <= self.min_value:
                 context.add_semantic_error(
-                    f"Attribute '{self.attribute}' value {value} must be greater than {self.min_value}",
+                    f"Attribute '{self.attribute}' value {value} must be "
+                    f"greater than {self.min_value}",
                     node=self.attribute,
+                    error_id="Sem_AttributeRangeViolation",
                 )
                 return False
 
@@ -87,12 +92,15 @@ class AttributeMinMaxConstraint(SemanticConstraint):
                 context.add_semantic_error(
                     f"Attribute '{self.attribute}' value {value} exceeds maximum {self.max_value}",
                     node=self.attribute,
+                    error_id="Sem_AttributeRangeViolation",
                 )
                 return False
             if not self.max_inclusive and value >= self.max_value:
                 context.add_semantic_error(
-                    f"Attribute '{self.attribute}' value {value} must be less than {self.max_value}",
+                    f"Attribute '{self.attribute}' value {value} must be less "
+                    f"than {self.max_value}",
                     node=self.attribute,
+                    error_id="Sem_AttributeRangeViolation",
                 )
                 return False
 
@@ -121,7 +129,10 @@ class AttributeValuePatternConstraint(SemanticConstraint):
 
         value = element.attrib[attr_name]
         if not self._compiled.match(value):
-            msg = self.error_message or f"Attribute '{self.attribute}' value '{value}' does not match required pattern"
+            msg = self.error_message or (
+                f"Attribute '{self.attribute}' value '{value}' does not match "
+                "required pattern"
+            )
             context.add_semantic_error(msg, node=self.attribute)
             return False
 
@@ -165,20 +176,27 @@ class AttributeRequiredConditionToValue(SemanticConstraint):
     def validate(
         self, element: etree._Element, context: ValidationContext
     ) -> bool:
-        cond_name = f"{{{self.namespace}}}{self.condition_attribute}" if self.namespace else self.condition_attribute
-        req_name = f"{{{self.namespace}}}{self.required_attribute}" if self.namespace else self.required_attribute
+        cond_name = (
+            f"{{{self.namespace}}}{self.condition_attribute}"
+            if self.namespace
+            else self.condition_attribute
+        )
+        req_name = (
+            f"{{{self.namespace}}}{self.required_attribute}"
+            if self.namespace
+            else self.required_attribute
+        )
 
         if cond_name not in element.attrib:
             return True
 
-        if element.attrib[cond_name] == self.condition_value:
-            if req_name not in element.attrib:
-                context.add_semantic_error(
-                    f"Attribute '{self.required_attribute}' is required when "
-                    f"'{self.condition_attribute}' is '{self.condition_value}'",
-                    node=self.required_attribute,
-                )
-                return False
+        if element.attrib[cond_name] == self.condition_value and req_name not in element.attrib:
+            context.add_semantic_error(
+                f"Attribute '{self.required_attribute}' is required when "
+                f"'{self.condition_attribute}' is '{self.condition_value}'",
+                node=self.required_attribute,
+            )
+            return False
 
         return True
 
@@ -205,7 +223,8 @@ class AttributeValueLengthConstraint(SemanticConstraint):
 
         if self.min_length is not None and length < self.min_length:
             context.add_semantic_error(
-                f"Attribute '{self.attribute}' length {length} is less than minimum {self.min_length}",
+                f"Attribute '{self.attribute}' length {length} is less than "
+                f"minimum {self.min_length}",
                 node=self.attribute,
             )
             return False
@@ -273,7 +292,11 @@ class AttributeValueRangeConstraint(SemanticConstraint):
 
         # Check against min attribute
         if self.min_attribute:
-            min_name = f"{{{self.namespace}}}{self.min_attribute}" if self.namespace else self.min_attribute
+            min_name = (
+                f"{{{self.namespace}}}{self.min_attribute}"
+                if self.namespace
+                else self.min_attribute
+            )
             if min_name in element.attrib:
                 try:
                     min_val = float(element.attrib[min_name])
@@ -289,7 +312,11 @@ class AttributeValueRangeConstraint(SemanticConstraint):
 
         # Check against max attribute
         if self.max_attribute:
-            max_name = f"{{{self.namespace}}}{self.max_attribute}" if self.namespace else self.max_attribute
+            max_name = (
+                f"{{{self.namespace}}}{self.max_attribute}"
+                if self.namespace
+                else self.max_attribute
+            )
             if max_name in element.attrib:
                 try:
                     max_val = float(element.attrib[max_name])
@@ -345,8 +372,14 @@ class AttributeValueLessEqualToAnother(SemanticConstraint):
     def validate(
         self, element: etree._Element, context: ValidationContext
     ) -> bool:
-        attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
-        other_name = f"{{{self.namespace}}}{self.other_attribute}" if self.namespace else self.other_attribute
+        attr_name = (
+            f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
+        )
+        other_name = (
+            f"{{{self.namespace}}}{self.other_attribute}"
+            if self.namespace
+            else self.other_attribute
+        )
 
         if attr_name not in element.attrib or other_name not in element.attrib:
             return True

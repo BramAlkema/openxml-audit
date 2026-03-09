@@ -25,7 +25,33 @@ Current snapshots are produced by `scripts/corpus/run_parity_snapshot.py` and in
 - `checks_missing_files`
 - `match_rate_percent`
 - `strict`
-- `mismatch_families[]` with normalized `description` and `count`
+- `include_mutation_expectations`
+- `skipped_mutation_expectations`
+- `mismatch_families[]` with normalized tuple fields:
+  - `id`
+  - `error_type`
+  - `part`
+  - `path`
+  - `description`
+  - `family_key` (`id|error_type|part|path|description`)
+  - `count`
+
+## Expectation Scenarios
+
+Expectations extracted from SDK tests are tagged in the manifest with `scenario`:
+
+- `base`: validation of an unmodified corpus file
+- `mutation`: validation after test-time document mutations (add/remove/edit operations)
+
+Extractor normalization for parity fidelity:
+
+- Only package-level `OpenXmlValidator.Validate(package)` assertions are mapped to file-level expectations.
+- Part/element-level validations and max-error harness flows (for example `MaxNumberOfErrors` tests) are tagged as `mutation`.
+
+Default parity snapshots run against `base` expectations only.
+
+- `scripts/corpus/run_parity_snapshot.py` excludes `scenario == "mutation"` unless `--include-mutation-expectations` is passed.
+- Excluded counts are reported as `skipped_mutation_expectations` in the snapshot JSON.
 
 ## Comparison Contract
 
@@ -37,6 +63,8 @@ Current snapshots are produced by `scripts/corpus/run_parity_snapshot.py` and in
 - missing-file checks
 - check-count drop (unless explicitly allowed)
 - strict-mode drift (if required)
+
+Family drift is keyed by `family_key` when present (falls back to `description` for older snapshots).
 
 Default policy is strict no-drift:
 

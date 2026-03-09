@@ -6,7 +6,8 @@ uniqueness requirements within the XML document.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from contextlib import suppress
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from lxml import etree
@@ -44,6 +45,7 @@ class IndexReferenceConstraint(SemanticConstraint):
             context.add_semantic_error(
                 f"Index attribute '{self.attribute}' must be an integer",
                 node=self.attribute,
+                error_id="Sem_InvalidIndexValue",
             )
             return False
 
@@ -53,6 +55,7 @@ class IndexReferenceConstraint(SemanticConstraint):
             context.add_semantic_error(
                 f"Index '{self.attribute}' value {index} is less than minimum {min_index}",
                 node=self.attribute,
+                error_id="Sem_IndexOutOfRange",
             )
             return False
 
@@ -66,10 +69,8 @@ class IndexReferenceConstraint(SemanticConstraint):
                 else self.max_index_attribute
             )
             if max_attr_name in element.attrib:
-                try:
+                with suppress(ValueError):
                     max_index = int(element.attrib[max_attr_name])
-                except ValueError:
-                    pass
 
         if self.max_index_xpath and max_index is None:
             # Count elements using XPath
@@ -84,6 +85,7 @@ class IndexReferenceConstraint(SemanticConstraint):
             context.add_semantic_error(
                 f"Index '{self.attribute}' value {index} exceeds maximum {max_index}",
                 node=self.attribute,
+                error_id="Sem_IndexOutOfRange",
             )
             return False
 
@@ -116,13 +118,6 @@ class ReferenceExistConstraint(SemanticConstraint):
         # Get the root element to search from
         root = element.getroottree().getroot()
 
-        # Build the XPath to find matching elements
-        target_id_name = (
-            f"{{{self.target_namespace}}}{self.id_attribute}"
-            if self.target_namespace
-            else self.id_attribute
-        )
-
         # Search for element with matching ID
         try:
             xpath = f"{self.target_xpath}[@{self.id_attribute}='{ref_id}']"
@@ -131,6 +126,7 @@ class ReferenceExistConstraint(SemanticConstraint):
                 context.add_semantic_error(
                     f"Reference '{self.attribute}' value '{ref_id}' does not match any element",
                     node=self.attribute,
+                    error_id="Sem_ReferencedElementMissing",
                 )
                 return False
         except Exception:
@@ -200,6 +196,7 @@ class UniqueAttributeValueConstraint(SemanticConstraint):
                 f"Attribute '{self.attribute}' value '{value}' is not unique "
                 f"(found {count} occurrences)",
                 node=self.attribute,
+                error_id="Sem_UniqueId",
             )
             return False
 
@@ -251,7 +248,7 @@ class IdTracker:
 def validate_unique_ids(
     element: etree._Element,
     id_attribute: str,
-    context: "ValidationContext",
+    context: ValidationContext,
     tracker: IdTracker,
     scope: str | None = None,
 ) -> bool:
@@ -279,6 +276,7 @@ def validate_unique_ids(
                 context.add_semantic_error(
                     f"Duplicate ID '{id_value}'",
                     node=id_attribute,
+                    error_id="Sem_UniqueId",
                 )
                 valid = False
 

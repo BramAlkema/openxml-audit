@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from collections import Counter
 from dataclasses import dataclass
@@ -18,6 +17,10 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
 from openxml_audit import FileFormat, OpenXmlValidator  # noqa: E402
+from openxml_audit.parity_normalization import (  # noqa: E402
+    normalize_description,
+    normalize_error_tuple,
+)
 
 DEFAULT_MANIFEST = Path("data/corpus/sdk_seed/manifest.json")
 DEFAULT_OUTPUT = Path("data/corpus/parity_baseline/v3.4.1/parity_snapshot.json")
@@ -37,13 +40,7 @@ class ValidationRun:
 
     error_count: int
     descriptions: list[str]
-
-
-def _normalize_description(text: str) -> str:
-    value = re.sub(r"'[^']*'", "'<value>'", text)
-    value = re.sub(r"\b\d+(?:\.\d+)?\b", "<n>", value)
-    value = re.sub(r"\s+", " ", value).strip()
-    return value
+    normalized_tuples: list[dict[str, str]]
 
 
 def _load_manifest(path: Path) -> dict[str, Any]:
@@ -90,6 +87,7 @@ def _run_validator(
     run = ValidationRun(
         error_count=len(result.errors),
         descriptions=[error.description for error in result.errors],
+        normalized_tuples=[normalize_error_tuple(error) for error in result.errors],
     )
     cache[key] = run
     return run
@@ -99,11 +97,13 @@ def _collect_checks(
     manifest: dict[str, Any],
     max_files: int,
     max_checks: int,
-) -> list[dict[str, Any]]:
+    include_mutation_expectations: bool,
+) -> tuple[list[dict[str, Any]], int]:
     checks: list[dict[str, Any]] = []
+    skipped_mutation = 0
     files = manifest.get("files", [])
     if not isinstance(files, list):
-        return checks
+        return checks, skipped_mutation
 
     processed_files = 0
     for file_entry in files:
@@ -117,6 +117,12 @@ def _collect_checks(
         for expectation in expectations:
             if not isinstance(expectation, dict):
                 continue
+            if (
+                str(expectation.get("scenario", "base")) == "mutation"
+                and not include_mutation_expectations
+            ):
+                skipped_mutation += 1
+                continue
             checks.append(
                 {
                     "source_relpath": relpath,
@@ -124,10 +130,10 @@ def _collect_checks(
                 }
             )
             if max_checks > 0 and len(checks) >= max_checks:
-                return checks
+                return checks, skipped_mutation
         if max_files > 0 and processed_files >= max_files:
             break
-    return checks
+    return checks, skipped_mutation
 
 
 def main() -> int:
@@ -170,6 +176,11 @@ def main() -> int:
         help="Maximum mismatch examples stored in report.",
     )
     parser.add_argument(
+        "--include-mutation-expectations",
+        action="store_true",
+        help="Include mutation-dependent expectations extracted from SDK tests.",
+    )
+    parser.add_argument(
         "--strict",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -202,7 +213,12 @@ def main() -> int:
             return 2
         files_root = (Path(output_root) / "files").resolve()
 
-    checks = _collect_checks(manifest, max_files=args.max_files, max_checks=args.max_checks)
+    checks, skipped_mutation_expectations = _collect_checks(
+        manifest,
+        max_files=args.max_files,
+        max_checks=args.max_checks,
+        include_mutation_expectations=args.include_mutation_expectations,
+    )
     if not checks:
         print("No expectation checks found.")
         return 2
@@ -211,6 +227,7 @@ def main() -> int:
     by_kind = Counter()
     by_version = Counter()
     mismatch_families = Counter()
+    family_details: dict[str, dict[str, str]] = {}
     mismatch_examples: list[dict[str, Any]] = []
     evaluated_checks = 0
     mismatched_checks = 0
@@ -246,6 +263,7 @@ def main() -> int:
 
         actual_by_version: dict[str, int] = {}
         descriptions_by_version: dict[str, list[str]] = {}
+        tuples_by_version: dict[str, list[dict[str, str]]] = {}
         for version in versions:
             run = _run_validator(
                 cache=cache,
@@ -255,6 +273,7 @@ def main() -> int:
             )
             actual_by_version[version] = run.error_count
             descriptions_by_version[version] = run.descriptions
+            tuples_by_version[version] = run.normalized_tuples
 
         actual = sum(actual_by_version.values())
         expected_count, expected_counts = _expected_from_entry(expectation)
@@ -287,9 +306,30 @@ def main() -> int:
             )
 
         for version in versions:
-            top_descriptions = descriptions_by_version.get(version, [])[:20]
-            for description in top_descriptions:
-                mismatch_families[_normalize_description(description)] += 1
+            top_tuples = tuples_by_version.get(version, [])[:20]
+            for normalized_tuple in top_tuples:
+                family_key = normalized_tuple.get("family_key", "")
+                if family_key:
+                    mismatch_families[family_key] += 1
+                    if family_key not in family_details:
+                        family_details[family_key] = normalized_tuple
+                    continue
+
+                # Fallback for unexpected payload shape.
+                description = normalized_tuple.get("description", "")
+                if not description:
+                    continue
+                fallback_key = f"unknown|unknown|/|/|{normalize_description(description)}"
+                mismatch_families[fallback_key] += 1
+                if fallback_key not in family_details:
+                    family_details[fallback_key] = {
+                        "id": "unknown",
+                        "error_type": "unknown",
+                        "part": "/",
+                        "path": "/",
+                        "description": normalize_description(description),
+                        "family_key": fallback_key,
+                    }
 
     total = evaluated_checks
     mismatch_count = mismatched_checks
@@ -302,6 +342,8 @@ def main() -> int:
         "files_root": str(files_root),
         "strict": args.strict,
         "allow_missing_files": args.allow_missing_files,
+        "include_mutation_expectations": args.include_mutation_expectations,
+        "skipped_mutation_expectations": skipped_mutation_expectations,
         "duration_seconds": round(duration_seconds, 6),
         "checks_collected": len(checks),
         "checks_total": total,
@@ -314,8 +356,21 @@ def main() -> int:
         "by_version": dict(sorted(by_version.items())),
         "mismatch_examples": mismatch_examples,
         "mismatch_families": [
-            {"description": desc, "count": count}
-            for desc, count in mismatch_families.most_common(50)
+            {
+                **family_details.get(
+                    key,
+                    {
+                        "id": "unknown",
+                        "error_type": "unknown",
+                        "part": "/",
+                        "path": "/",
+                        "description": key,
+                        "family_key": key,
+                    },
+                ),
+                "count": count,
+            }
+            for key, count in mismatch_families.most_common(50)
         ],
     }
 

@@ -3,18 +3,17 @@
 from __future__ import annotations
 
 from pathlib import Path
-
-import pytest
+from types import SimpleNamespace
 
 from openxml_audit import (
     FileFormat,
     OpenXmlValidator,
-    ValidationErrorType,
     ValidationResult,
     ValidationSeverity,
     is_valid_pptx,
     validate_pptx,
 )
+from openxml_audit.relationships import Relationship
 
 
 class TestOpenXmlValidator:
@@ -139,6 +138,28 @@ class TestOpenXmlValidator:
             "schema.recursion",
         }
         assert expected_breakdown.issubset(timings.keys())
+
+    def test_relationship_validation_ignores_fragment_only_targets(self) -> None:
+        validator = OpenXmlValidator(schema_validation=False, semantic_validation=False)
+        rel = Relationship(
+            id="rId1",
+            type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+            target="#bookmark",
+        )
+        package = SimpleNamespace(
+            relationships=[],
+            list_parts=lambda: ["/word/document.xml"],
+            get_part_relationships=(
+                lambda source_uri: [rel]
+                if source_uri == "/word/document.xml"
+                else []
+            ),
+            has_part=lambda target_uri: target_uri == "/word/document.xml",
+        )
+
+        errors = validator._validate_relationships(package)  # type: ignore[arg-type]
+
+        assert not errors
 
 
 class TestValidationResult:

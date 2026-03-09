@@ -11,10 +11,7 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from lxml import etree
+from typing import Any
 
 # Path to SDK data files
 DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "openxml"
@@ -63,7 +60,7 @@ class ParsedSchematron:
     other_attribute: str | None = None
     comparison_operator: str | None = None
     # For compound rules
-    sub_rules: list["ParsedSchematron"] = field(default_factory=list)
+    sub_rules: list[ParsedSchematron] = field(default_factory=list)
     # For attributes present (@a and @b)
     required_attributes: list[str] = field(default_factory=list)
     # For cross-part count validation
@@ -209,15 +206,29 @@ def _classify_rule(rule: ParsedSchematron) -> None:
 
     # Pattern for attribute names (including prefixed and hyphenated names)
     # Matches: attr, prefix:attr, prefix:attr-name
-    ATTR = r'[\w:-]+'
+    attr_pattern = r'[\w:-]+'
 
     # Pattern for numbers including scientific notation (e.g., -1.7E308) and f suffix
-    NUM = r'[\d.eE+-]+f?'
+    num_pattern = r'[\d.eE+-]+f?'
+
+    # Pattern: @attr > 0 and @attr < 0x80000000
+    # SDK uses this for 8-hex-digit IDs (e.g., w14:paraId/textId). Treat as
+    # lexical hex validation instead of decimal range parsing.
+    hex_id_range_match = re.match(
+        rf"^@({attr_pattern})\s*>\s*0\s+and\s+@\1\s*<\s*0x80000000$",
+        test,
+        re.IGNORECASE,
+    )
+    if hex_id_range_match:
+        rule.rule_type = SchematronType.ATTRIBUTE_VALUE_PATTERN
+        rule.attribute = hex_id_range_match.group(1)
+        rule.pattern = r"^(?!00000000)[0-7][0-9A-Fa-f]{7}$"
+        return
 
     # Pattern: @attr >= N and @attr <= M (attribute value range)
     range_match = re.match(
-        rf'@(\w+:?\w*)\s*>=?\s*({NUM})\s+and\s+@\1\s*<=?\s*({NUM})',
-        test
+        rf'^@({attr_pattern})\s*>=?\s*({num_pattern})\s+and\s+@\1\s*<=?\s*({num_pattern})$',
+        test,
     )
     if range_match:
         rule.rule_type = SchematronType.ATTRIBUTE_VALUE_RANGE
@@ -227,7 +238,7 @@ def _classify_rule(rule: ParsedSchematron) -> None:
         return
 
     # Pattern: @attr <= N (single upper bound)
-    upper_match = re.match(rf'@(\w+:?\w*)\s*<=?\s*({NUM})$', test)
+    upper_match = re.match(rf'@(\w+:?\w*)\s*<=?\s*({num_pattern})$', test)
     if upper_match:
         rule.rule_type = SchematronType.ATTRIBUTE_VALUE_RANGE
         rule.attribute = upper_match.group(1)
@@ -235,7 +246,7 @@ def _classify_rule(rule: ParsedSchematron) -> None:
         return
 
     # Pattern: @attr >= N (single lower bound)
-    lower_match = re.match(rf'@(\w+:?\w*)\s*>=?\s*({NUM})$', test)
+    lower_match = re.match(rf'@(\w+:?\w*)\s*>=?\s*({num_pattern})$', test)
     if lower_match:
         rule.rule_type = SchematronType.ATTRIBUTE_VALUE_RANGE
         rule.attribute = lower_match.group(1)
@@ -281,7 +292,7 @@ def _classify_rule(rule: ParsedSchematron) -> None:
     if "count(distinct-values(" in test and "= count(" in test:
         rule.rule_type = SchematronType.UNIQUE_ATTRIBUTE
         # Extract attribute from the expression
-        attr_match = re.search(r'/@(\w+:?\w*)\)', test)
+        attr_match = re.search(rf"/@({attr_pattern})\)", test)
         if attr_match:
             rule.attribute = attr_match.group(1)
         return
@@ -301,7 +312,7 @@ def _classify_rule(rule: ParsedSchematron) -> None:
 
     # Pattern: Index-of(document(...), @id) (reference check)
     element_reference = re.match(
-        rf"[Ii]ndex-of\(document\(['\"]Part:([^'\"]+)['\"]\)//(.+?)/@({ATTR}),\s*@({ATTR})\)",
+        rf"[Ii]ndex-of\(document\(['\"]Part:([^'\"]+)['\"]\)//(.+?)/@({attr_pattern}),\s*@({attr_pattern})\)",
         test,
     )
     if element_reference:
@@ -338,7 +349,7 @@ def _classify_rule(rule: ParsedSchematron) -> None:
 
     # Pattern: @attr = value (attribute equals)
     # Use ATTR to match hyphenated names like @emma:disjunction-type
-    equals_match = re.match(rf"@({ATTR})\s*=\s*['\"]?([^'\"]+)['\"]?$", test)
+    equals_match = re.match(rf"@({attr_pattern})\s*=\s*['\"]?([^'\"]+)['\"]?$", test)
     if equals_match:
         rule.rule_type = SchematronType.ATTRIBUTE_EQUALS
         rule.attribute = equals_match.group(1)

@@ -32,19 +32,19 @@ The validator has closed many correctness bugs, but behavior is still far from O
 
 ### Expected-Outcomes Coverage
 
-- Files with extracted high-confidence expectations: `30`
-- Total expectation entries: `48`
-- Current pass rate on those checks: `0/48`
+- Files with extracted high-confidence expectations: `87`
+- Total expectation entries: `257`
+- Current pass rate on those checks: `10/101`
 
 ### Schematron Conversion
 
 - Parsed rules: `948`
-- Bridge-converted constraints: `946/948` (`99.79%`)
-- Remaining unconverted edge cases: `2`
+- Bridge-converted constraints: `948/948` (`100%`)
+- Remaining unconverted edge cases: `0`
 
 ### Known Noise Pattern
 
-On SDK-valid files (for example `TestFiles/Plain.docx`), Python reports large schema error volume dominated by repeated missing `latin/ea/cs` child requirements in theme/font structures, indicating content model fidelity issues still exist.
+The previous dominant false-positive family (repeated missing `latin/ea/cs` child requirements in theme/font structures) has been eliminated from top mismatch families. Current dominant families are incomplete-content and relationship-semantic buckets.
 
 ## Normative References
 

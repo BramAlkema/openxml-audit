@@ -25,18 +25,13 @@ def test_docx_missing_body_reports_error(docx_missing_body: Path) -> None:
     )
 
 
-def test_docx_missing_styles_with_effects_reports_error(
+def test_docx_missing_styles_with_effects_is_valid(
     docx_missing_styles_with_effects: Path,
 ) -> None:
     validator = OpenXmlValidator(schema_validation=False, semantic_validation=True)
     result = validator.validate(docx_missing_styles_with_effects)
 
-    assert not result.is_valid
-    assert any(
-        e.error_type == ValidationErrorType.SEMANTIC
-        and "stylesWithEffects" in e.description
-        for e in result.errors
-    )
+    assert result.is_valid
 
 
 def test_minimal_xlsx_valid(minimal_xlsx: Path) -> None:

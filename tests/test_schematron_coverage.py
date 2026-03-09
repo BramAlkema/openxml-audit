@@ -6,18 +6,16 @@ and that no rules are classified as UNKNOWN.
 
 from __future__ import annotations
 
-import pytest
-
 from openxml_audit.codegen.schematron_bridge import (
     create_constraint_from_schematron,
     get_sdk_constraint_stats,
 )
 from openxml_audit.codegen.schematron_loader import (
-    SchematronRegistry,
     SchematronType,
     get_registry,
     parse_schematron,
 )
+from openxml_audit.semantic.attributes import AttributeValuePatternConstraint
 from openxml_audit.semantic.constraints import (
     AndConstraint,
     AttributeEqualsConstraint,
@@ -25,6 +23,7 @@ from openxml_audit.semantic.constraints import (
     CrossPartReferenceConstraint,
     OrConstraint,
 )
+from openxml_audit.semantic.references import UniqueAttributeValueConstraint
 from openxml_audit.semantic.relationships import RelationshipExistConstraint
 
 
@@ -102,7 +101,10 @@ class TestSchematronCoverage:
         assert "by_type" in stats
 
         # Verify counts add up
-        assert stats["converted"] + stats["skipped_no_context"] + stats["skipped_no_constraint"] == stats["total"]
+        assert (
+            stats["converted"] + stats["skipped_no_context"] + stats["skipped_no_constraint"]
+            == stats["total"]
+        )
 
 
 class TestSchematronRuleTypes:
@@ -252,6 +254,65 @@ class TestSchematronRuleTypes:
         assert constraint.element_xpath == "w:footnotes/w:footnote"
         assert constraint.target_attribute == "id"
 
+    def test_unique_attribute_colon_prefixed_attribute_converts(self) -> None:
+        """UNIQUE rules with @:id should still extract and convert attribute name."""
+        rule = parse_schematron(
+            {
+                "Context": "p:sldId",
+                "Test": "count(distinct-values(//p:sldId/@:id)) = count(//p:sldId/@:id)",
+            }
+        )
+
+        constraint = create_constraint_from_schematron(
+            rule,
+            namespace_map={"p": "http://schemas.openxmlformats.org/presentationml/2006/main"},
+        )
+
+        assert isinstance(constraint, UniqueAttributeValueConstraint)
+        assert constraint.attribute == "id"
+
+    def test_pattern_rule_with_non_basic_latin_converts(self) -> None:
+        """Pattern rules using \\P{IsBasicLatin} should convert to a Python regex."""
+        rule = parse_schematron(
+            {
+                "Context": "x:sheetPr",
+                "Test": (
+                    r'matches(@x:codeName, "[\p{L}\P{IsBasicLatin}]'
+                    r'[_\d\p{L}\P{IsBasicLatin}]*")'
+                ),
+            }
+        )
+
+        constraint = create_constraint_from_schematron(
+            rule,
+            namespace_map={"x": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"},
+        )
+
+        assert isinstance(constraint, AttributeValuePatternConstraint)
+
+    def test_hex_id_range_rule_converts_to_pattern_constraint(self) -> None:
+        """Hex ID range rules should not be converted into decimal min/max constraints."""
+        rule = parse_schematron(
+            {
+                "Context": "w:p",
+                "Test": "@w14:paraId > 0 and @w14:paraId < 0x80000000",
+            }
+        )
+
+        assert rule.rule_type == SchematronType.ATTRIBUTE_VALUE_PATTERN
+        assert rule.attribute == "w14:paraId"
+        assert rule.pattern == r"^(?!00000000)[0-7][0-9A-Fa-f]{7}$"
+
+        constraint = create_constraint_from_schematron(
+            rule,
+            namespace_map={
+                "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
+                "w14": "http://schemas.microsoft.com/office/word/2010/wordml",
+            },
+        )
+
+        assert isinstance(constraint, AttributeValuePatternConstraint)
+
 
 class TestSchematronRegistry:
     """Tests for SchematronRegistry functionality."""
@@ -262,7 +323,8 @@ class TestSchematronRegistry:
         registry.load()
 
         # p:sld is a common context
-        rules = registry.get_rules_for_context("p:sld")
+        context_rules = registry.get_rules_for_context("p:sld")
+        assert isinstance(context_rules, list)
         # Should have some rules for slide element
         # (exact count depends on SDK data)
 
@@ -295,7 +357,7 @@ class TestSchematronRegistry:
         counts = registry.count_by_type()
 
         assert isinstance(counts, dict)
-        assert all(isinstance(k, SchematronType) for k in counts.keys())
+        assert all(isinstance(k, SchematronType) for k in counts)
         assert all(isinstance(v, int) for v in counts.values())
         assert sum(counts.values()) == registry.count_rules()
 

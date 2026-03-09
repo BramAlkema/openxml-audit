@@ -9,12 +9,11 @@ from lxml import etree
 
 from openxml_audit.codegen.schema_loader import get_registry as get_schema_registry
 from openxml_audit.context import ElementContext, ValidationContext
-from openxml_audit.errors import ValidationError
-from openxml_audit.namespaces import MC
+from openxml_audit.errors import FileFormat, ValidationError
+from openxml_audit.namespaces import MC, WORDPROCESSINGML
 from openxml_audit.schema.constraints import get_constraint_for_tag as get_hardcoded_constraint
 from openxml_audit.schema.particle import (
     CompositeParticle,
-    ParticleType,
     get_validator,
 )
 
@@ -22,6 +21,8 @@ from openxml_audit.schema.particle import (
 try:
     from openxml_audit.codegen.constraint_bridge import (
         get_element_constraint as get_sdk_constraint,
+    )
+    from openxml_audit.codegen.constraint_bridge import (
         get_element_constraint_for_element as get_sdk_constraint_for_element,
     )
     _HAS_SDK_CONSTRAINTS = True
@@ -138,7 +139,7 @@ class SchemaValidator:
             # Get constraint for this element
             constraint = get_constraint_for_tag(tag, element)
 
-            children = self._get_validation_children(element)
+            children = self._get_validation_children(element, context)
 
             if constraint is not None:
                 # Validate attributes
@@ -168,7 +169,7 @@ class SchemaValidator:
             self._metrics["constraint_lookup"] += perf_counter() - lookup_start
 
             children_start = perf_counter()
-            children = self._get_validation_children(element)
+            children = self._get_validation_children(element, context)
             self._metrics["children_expand"] += perf_counter() - children_start
 
             if constraint is not None:
@@ -189,7 +190,7 @@ class SchemaValidator:
     def _validate_attributes(
         self,
         element: etree._Element,
-        constraint: "ElementConstraint",  # type: ignore
+        constraint: ElementConstraint,  # type: ignore
         context: ValidationContext,
     ) -> None:
         """Validate element attributes."""
@@ -209,13 +210,15 @@ class SchemaValidator:
                 value = element.attrib[attr_name]
 
                 # Check fixed value
-                if attr_constraint.fixed_value is not None:
-                    if value != attr_constraint.fixed_value:
-                        context.add_schema_error(
-                            f"Attribute '{attr_constraint.local_name}' must have "
-                            f"fixed value '{attr_constraint.fixed_value}', got '{value}'",
-                            node=attr_constraint.local_name,
-                        )
+                if (
+                    attr_constraint.fixed_value is not None
+                    and value != attr_constraint.fixed_value
+                ):
+                    context.add_schema_error(
+                        f"Attribute '{attr_constraint.local_name}' must have "
+                        f"fixed value '{attr_constraint.fixed_value}', got '{value}'",
+                        node=attr_constraint.local_name,
+                    )
 
                 # Type validation
                 if attr_constraint.type_validator is not None:
@@ -258,7 +261,7 @@ class SchemaValidator:
 
     def _validate_content_model(
         self,
-        content_model: "ParticleConstraint",  # type: ignore
+        content_model: ParticleConstraint,  # type: ignore
         children: list[etree._Element],
         context: ValidationContext,
     ) -> None:
@@ -268,11 +271,19 @@ class SchemaValidator:
             if validator is not None:
                 validator.validate(content_model, children, context)
 
-    def _get_validation_children(self, element: etree._Element) -> list[etree._Element]:
+    def _get_validation_children(
+        self, element: etree._Element, context: ValidationContext
+    ) -> list[etree._Element]:
         children: list[etree._Element] = []
+        ignorable_namespaces = self._collect_ignorable_namespaces(element)
 
         for child in element:
             if not isinstance(child.tag, str):
+                continue
+            child_ns = self._extract_namespace(child.tag)
+            if child_ns is not None and child_ns in ignorable_namespaces:
+                continue
+            if self._is_version_ignored_child(element.tag, child.tag, context.file_format):
                 continue
             if child.tag == f"{{{MC}}}AlternateContent":
                 children.extend(self._resolve_alternate_content(child))
@@ -280,6 +291,37 @@ class SchemaValidator:
             children.append(child)
 
         return children
+
+    def _is_version_ignored_child(
+        self, parent_tag: str, child_tag: str, file_format: FileFormat
+    ) -> bool:
+        if (
+            parent_tag == f"{{{WORDPROCESSINGML}}}settings"
+            and child_tag == f"{{{WORDPROCESSINGML}}}doNotEmbedSmartTags"
+        ):
+            return file_format in {
+                FileFormat.OFFICE_2013,
+                FileFormat.OFFICE_2016,
+                FileFormat.OFFICE_2019,
+                FileFormat.OFFICE_2021,
+                FileFormat.MICROSOFT_365,
+            }
+        return False
+
+    def _collect_ignorable_namespaces(self, element: etree._Element) -> set[str]:
+        namespaces: set[str] = set()
+        current: etree._Element | None = element
+        while current is not None and isinstance(current.tag, str):
+            ignorable = current.get(f"{{{MC}}}Ignorable")
+            if ignorable:
+                nsmap = current.nsmap or {}
+                for prefix in ignorable.split():
+                    namespace = nsmap.get(prefix)
+                    if namespace:
+                        namespaces.add(namespace)
+            parent = current.getparent()
+            current = parent if isinstance(parent, etree._Element) else None
+        return namespaces
 
     def _resolve_alternate_content(self, alt: etree._Element) -> list[etree._Element]:
         ns = {"mc": MC}
@@ -331,7 +373,7 @@ class SchemaValidator:
     def _should_validate_undeclared_attributes(
         self,
         element: etree._Element,
-        constraint: "ElementConstraint",
+        constraint: ElementConstraint,
     ) -> bool:
         # SDK metadata currently omits inherited attributes for a subset of elements.
         # Restrict undeclared checks to elements with explicit attribute declarations.
@@ -345,19 +387,19 @@ class SchemaValidator:
         return self._undeclared_validation_cache[tag]
 
     def _get_required_attributes(
-        self, constraint: "ElementConstraint"
-    ) -> tuple["AttributeConstraint", ...]:
+        self, constraint: ElementConstraint
+    ) -> tuple[AttributeConstraint, ...]:
         cached = getattr(constraint, "_oa_required_attrs_cache", None)
         if cached is None:
             cached = tuple(constraint.get_required_attributes())
-            setattr(constraint, "_oa_required_attrs_cache", cached)
+            constraint._oa_required_attrs_cache = cached
         return cached
 
-    def _get_declared_attributes(self, constraint: "ElementConstraint") -> frozenset[str]:
+    def _get_declared_attributes(self, constraint: ElementConstraint) -> frozenset[str]:
         cached = getattr(constraint, "_oa_declared_attrs_cache", None)
         if cached is None:
             cached = frozenset(attr.qualified_name for attr in constraint.attributes)
-            setattr(constraint, "_oa_declared_attrs_cache", cached)
+            constraint._oa_declared_attrs_cache = cached
         return cached
 
 
