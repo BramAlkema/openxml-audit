@@ -31,7 +31,12 @@ def _is_xml_file(path: Path) -> bool:
     return path.suffix in {".xml", ".rels"}
 
 
-def _build_package_from_dir(source_dir: Path, output_path: Path) -> Path:
+def _build_package_from_dir(
+    source_dir: Path,
+    output_path: Path,
+    *,
+    validate_xml: bool = True,
+) -> Path:
     buffer = io.BytesIO()
 
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -40,7 +45,7 @@ def _build_package_from_dir(source_dir: Path, output_path: Path) -> Path:
                 continue
             rel_path = file_path.relative_to(source_dir).as_posix()
             data = file_path.read_bytes()
-            if _is_xml_file(file_path):
+            if validate_xml and _is_xml_file(file_path):
                 # Validate XML fixtures up front.
                 etree.fromstring(data)
             zf.writestr(rel_path, data)
@@ -123,3 +128,150 @@ def not_a_zip(tmp_path: Path) -> Path:
     path = tmp_path / "not_a_zip.pptx"
     path.write_text("This is not a ZIP file")
     return path
+
+
+def _build_odf_fixture(
+    tmp_path: Path,
+    fixture_relpath: str,
+    *,
+    filename: str,
+    validate_xml: bool = True,
+) -> Path:
+    source_dir = FIXTURES_DIR / "odf" / fixture_relpath
+    return _build_package_from_dir(
+        source_dir,
+        tmp_path / filename,
+        validate_xml=validate_xml,
+    )
+
+
+@pytest.fixture
+def minimal_odt(tmp_path: Path) -> Path:
+    """Create a minimal valid ODT file."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/minimal_odt",
+        filename="minimal.odt",
+    )
+
+
+@pytest.fixture
+def minimal_ods(tmp_path: Path) -> Path:
+    """Create a minimal valid ODS file."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/minimal_ods",
+        filename="minimal.ods",
+    )
+
+
+@pytest.fixture
+def minimal_odp(tmp_path: Path) -> Path:
+    """Create a minimal valid ODP file."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/minimal_odp",
+        filename="minimal.odp",
+    )
+
+
+@pytest.fixture
+def odf_missing_mimetype(tmp_path: Path) -> Path:
+    """Create an ODF package missing the mimetype entry."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/missing_mimetype",
+        filename="missing_mimetype.odt",
+    )
+
+
+@pytest.fixture
+def odf_invalid_mimetype(tmp_path: Path) -> Path:
+    """Create an ODF package with an invalid mimetype value."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/invalid_mimetype",
+        filename="invalid_mimetype.odt",
+    )
+
+
+@pytest.fixture
+def odf_missing_manifest(tmp_path: Path) -> Path:
+    """Create an ODF package missing META-INF/manifest.xml."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/missing_manifest",
+        filename="missing_manifest.odt",
+    )
+
+
+@pytest.fixture
+def odf_malformed_manifest(tmp_path: Path) -> Path:
+    """Create an ODF package with malformed manifest XML."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/malformed_manifest",
+        filename="malformed_manifest.odt",
+        validate_xml=False,
+    )
+
+
+@pytest.fixture
+def odf_manifest_missing_part(tmp_path: Path) -> Path:
+    """Create an ODF package where manifest references a missing part."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/manifest_missing_part",
+        filename="manifest_missing_part.odt",
+    )
+
+
+@pytest.fixture
+def odf_unlisted_xml_part(tmp_path: Path) -> Path:
+    """Create an ODF package with XML content not declared in manifest."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/unlisted_xml_part",
+        filename="unlisted_xml_part.odt",
+    )
+
+
+@pytest.fixture
+def odf_duplicate_manifest_entry(tmp_path: Path) -> Path:
+    """Create an ODF package with duplicate manifest file-entry paths."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/duplicate_manifest_entry",
+        filename="duplicate_manifest_entry.odt",
+    )
+
+
+@pytest.fixture
+def odf_missing_root_entry(tmp_path: Path) -> Path:
+    """Create an ODF package with no root ('/') manifest file-entry."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/missing_root_entry",
+        filename="missing_root_entry.odt",
+    )
+
+
+@pytest.fixture
+def odf_root_mimetype_mismatch(tmp_path: Path) -> Path:
+    """Create an ODF package where root manifest media-type mismatches mimetype."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/root_mimetype_mismatch",
+        filename="root_mimetype_mismatch.odt",
+    )
+
+
+@pytest.fixture
+def odf_broken_content_xml(tmp_path: Path) -> Path:
+    """Create an ODF package with malformed content.xml."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/broken_content_xml",
+        filename="broken_content_xml.odt",
+        validate_xml=False,
+    )

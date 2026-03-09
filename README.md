@@ -1,6 +1,6 @@
 # OpenXML Audit
 
-A Python library for validating Open XML (OOXML) and ODF files against schema and semantic rules. Determine if Office files (PPTX/DOCX/XLSX) or ODF files will open cleanly in their target apps.
+A Python library for validating Open XML (OOXML) and OASIS OpenDocument Format (ODF) files against schema and semantic rules. Determine if Office files (PPTX/DOCX/XLSX) or ODF files will open cleanly in their target apps.
 
 This is a Python port of the validation logic from Microsoft's [Open XML SDK](https://github.com/OfficeDev/Open-XML-SDK).
 
@@ -12,6 +12,7 @@ Current version: `0.2.0`
 - **Schema Validation**: Validates XML content against Open XML schema constraints
 - **Semantic Validation**: Validates relationships, references, and cross-document constraints
 - **OOXML-Specific Validation**: Validates presentation, wordprocessing, and spreadsheet structure
+- **ODF Support**: Validates OASIS OpenDocument packages
 - **Multiple Output Formats**: Text, JSON, and XML output
 - **Flexible Integration**: Context managers, decorators, and pytest fixtures
 
