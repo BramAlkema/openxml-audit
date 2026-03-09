@@ -1,0 +1,185 @@
+{
+  "generated_at": "2026-03-09T01:46:09.471776+00:00",
+  "contract_version": "odf-reference-v1",
+  "input_report": "data/odf/reference_baseline/2026-03-09/reference_runs.json",
+  "tool_order": [
+    "odf_toolkit",
+    "opf"
+  ],
+  "tools": {
+    "odf_toolkit": {
+      "tool": "odf_toolkit",
+      "samples_total": 13,
+      "samples_compared": 0,
+      "samples_skipped": 13,
+      "reference_status_counts": {
+        "unavailable": 13
+      },
+      "issue_totals": {
+        "python": 0,
+        "reference": 0,
+        "matched": 0,
+        "only_python": 0,
+        "only_reference": 0
+      },
+      "mismatch_families": {
+        "only_python": [],
+        "only_reference": []
+      },
+      "samples": [
+        {
+          "id": "valid_minimal_odt",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "valid_minimal_ods",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "valid_minimal_odp",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "invalid_missing_mimetype",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "invalid_invalid_mimetype",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "invalid_missing_manifest",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "invalid_malformed_manifest",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "invalid_manifest_missing_part",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "invalid_unlisted_xml_part",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "invalid_duplicate_manifest_entry",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "invalid_missing_root_entry",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "invalid_root_mimetype_mismatch",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        },
+        {
+          "id": "invalid_broken_content_xml",
+          "status": "skipped",
+          "reason": "python status=ok odf_toolkit status=unavailable"
+        }
+      ]
+    },
+    "opf": {
+      "tool": "opf",
+      "samples_total": 13,
+      "samples_compared": 0,
+      "samples_skipped": 13,
+      "reference_status_counts": {
+        "unavailable": 13
+      },
+      "issue_totals": {
+        "python": 0,
+        "reference": 0,
+        "matched": 0,
+        "only_python": 0,
+        "only_reference": 0
+      },
+      "mismatch_families": {
+        "only_python": [],
+        "only_reference": []
+      },
+      "samples": [
+        {
+          "id": "valid_minimal_odt",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "valid_minimal_ods",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "valid_minimal_odp",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "invalid_missing_mimetype",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "invalid_invalid_mimetype",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "invalid_missing_manifest",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "invalid_malformed_manifest",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "invalid_manifest_missing_part",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "invalid_unlisted_xml_part",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "invalid_duplicate_manifest_entry",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "invalid_missing_root_entry",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "invalid_root_mimetype_mismatch",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        },
+        {
+          "id": "invalid_broken_content_xml",
+          "status": "skipped",
+          "reason": "python status=ok opf status=unavailable"
+        }
+      ]
+    }
+  }
+}

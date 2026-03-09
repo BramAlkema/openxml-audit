@@ -1,0 +1,502 @@
+{
+  "generated_at": "2026-03-09T01:46:05.348410+00:00",
+  "contract_version": "odf-reference-v1",
+  "corpus_manifest": "data/odf/reference_corpus/manifest.json",
+  "fixtures_root": "tests/fixtures/odf",
+  "strict": true,
+  "sample_count": 13,
+  "duration_seconds": 0.027784,
+  "runners": {
+    "python": {
+      "status_counts": {
+        "ok": 13
+      },
+      "command_template": null
+    },
+    "odf_toolkit": {
+      "status_counts": {
+        "unavailable": 13
+      },
+      "command_template": null
+    },
+    "opf": {
+      "status_counts": {
+        "unavailable": 13
+      },
+      "command_template": null
+    }
+  },
+  "samples": [
+    {
+      "id": "valid_minimal_odt",
+      "profile": "valid",
+      "fixture_dir": "valid/minimal_odt",
+      "filename": "valid_minimal.odt",
+      "staged_relpath": "valid_minimal_odt/valid_minimal.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.003237,
+          "exit_code": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "issues": []
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "valid_minimal_ods",
+      "profile": "valid",
+      "fixture_dir": "valid/minimal_ods",
+      "filename": "valid_minimal.ods",
+      "staged_relpath": "valid_minimal_ods/valid_minimal.ods",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000282,
+          "exit_code": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "issues": []
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "valid_minimal_odp",
+      "profile": "valid",
+      "fixture_dir": "valid/minimal_odp",
+      "filename": "valid_minimal.odp",
+      "staged_relpath": "valid_minimal_odp/valid_minimal.odp",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000245,
+          "exit_code": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "issues": []
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "invalid_missing_mimetype",
+      "profile": "invalid",
+      "fixture_dir": "invalid/missing_mimetype",
+      "filename": "invalid_missing_mimetype.odt",
+      "staged_relpath": "invalid_missing_mimetype/invalid_missing_mimetype.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000212,
+          "exit_code": 0,
+          "error_count": 1,
+          "warning_count": 0,
+          "issues": [
+            {
+              "id": "Pkg_PackageError",
+              "error_type": "package",
+              "part": "/",
+              "path": "/",
+              "description": "Missing mimetype entry",
+              "family_key": "Pkg_PackageError|package|/|/|Missing mimetype entry",
+              "severity": "error",
+              "comparison_key": "error|Missing mimetype entry"
+            }
+          ]
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "invalid_invalid_mimetype",
+      "profile": "invalid",
+      "fixture_dir": "invalid/invalid_mimetype",
+      "filename": "invalid_invalid_mimetype.odt",
+      "staged_relpath": "invalid_invalid_mimetype/invalid_invalid_mimetype.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000305,
+          "exit_code": 0,
+          "error_count": 2,
+          "warning_count": 0,
+          "issues": [
+            {
+              "id": "Pkg_PackageError",
+              "error_type": "package",
+              "part": "/mimetype",
+              "path": "/",
+              "description": "Invalid ODF mimetype value '<value>'",
+              "family_key": "Pkg_PackageError|package|/mimetype|/|Invalid ODF mimetype value '<value>'",
+              "severity": "error",
+              "comparison_key": "error|Invalid ODF mimetype value '<value>'"
+            },
+            {
+              "id": "Pkg_PackageError",
+              "error_type": "package",
+              "part": "/META-INF/manifest.xml",
+              "path": "/",
+              "description": "Root manifest media-type does not match mimetype ('<value>' != '<value>')",
+              "family_key": "Pkg_PackageError|package|/META-INF/manifest.xml|/|Root manifest media-type does not match mimetype ('<value>' != '<value>')",
+              "severity": "error",
+              "comparison_key": "error|Root manifest media-type does not match mimetype ('<value>' != '<value>')"
+            }
+          ]
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "invalid_missing_manifest",
+      "profile": "invalid",
+      "fixture_dir": "invalid/missing_manifest",
+      "filename": "invalid_missing_manifest.odt",
+      "staged_relpath": "invalid_missing_manifest/invalid_missing_manifest.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000203,
+          "exit_code": 0,
+          "error_count": 1,
+          "warning_count": 0,
+          "issues": [
+            {
+              "id": "Pkg_PackageError",
+              "error_type": "package",
+              "part": "/",
+              "path": "/",
+              "description": "Missing META-INF/manifest.xml",
+              "family_key": "Pkg_PackageError|package|/|/|Missing META-INF/manifest.xml",
+              "severity": "error",
+              "comparison_key": "error|Missing META-INF/manifest.xml"
+            }
+          ]
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "invalid_malformed_manifest",
+      "profile": "invalid",
+      "fixture_dir": "invalid/malformed_manifest",
+      "filename": "invalid_malformed_manifest.odt",
+      "staged_relpath": "invalid_malformed_manifest/invalid_malformed_manifest.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000448,
+          "exit_code": 0,
+          "error_count": 1,
+          "warning_count": 0,
+          "issues": [
+            {
+              "id": "Sch_SchemaError",
+              "error_type": "schema",
+              "part": "/META-INF/manifest.xml",
+              "path": "/",
+              "description": "Invalid manifest.xml: Opening and ending tag mismatch: file-entry line <n> and manifest, line <n>, column <n> (<string>, line <n>)",
+              "family_key": "Sch_SchemaError|schema|/META-INF/manifest.xml|/|Invalid manifest.xml: Opening and ending tag mismatch: file-entry line <n> and manifest, line <n>, column <n> (<string>, line <n>)",
+              "severity": "error",
+              "comparison_key": "error|Invalid manifest.xml: Opening and ending tag mismatch: file-entry line <n> and manifest, line <n>, column <n> (<string>, line <n>)"
+            }
+          ]
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "invalid_manifest_missing_part",
+      "profile": "invalid",
+      "fixture_dir": "invalid/manifest_missing_part",
+      "filename": "invalid_manifest_missing_part.odt",
+      "staged_relpath": "invalid_manifest_missing_part/invalid_manifest_missing_part.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000208,
+          "exit_code": 0,
+          "error_count": 1,
+          "warning_count": 0,
+          "issues": [
+            {
+              "id": "Pkg_PackageError",
+              "error_type": "package",
+              "part": "/META-INF/manifest.xml",
+              "path": "/",
+              "description": "Manifest entry '<value>' was not found in package",
+              "family_key": "Pkg_PackageError|package|/META-INF/manifest.xml|/|Manifest entry '<value>' was not found in package",
+              "severity": "error",
+              "comparison_key": "error|Manifest entry '<value>' was not found in package"
+            }
+          ]
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "invalid_unlisted_xml_part",
+      "profile": "invalid",
+      "fixture_dir": "invalid/unlisted_xml_part",
+      "filename": "invalid_unlisted_xml_part.odt",
+      "staged_relpath": "invalid_unlisted_xml_part/invalid_unlisted_xml_part.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.00027,
+          "exit_code": 0,
+          "error_count": 1,
+          "warning_count": 0,
+          "issues": [
+            {
+              "id": "Pkg_PackageError",
+              "error_type": "package",
+              "part": "/META-INF/manifest.xml",
+              "path": "/",
+              "description": "Package member '<value>' is not declared in manifest.xml",
+              "family_key": "Pkg_PackageError|package|/META-INF/manifest.xml|/|Package member '<value>' is not declared in manifest.xml",
+              "severity": "error",
+              "comparison_key": "error|Package member '<value>' is not declared in manifest.xml"
+            }
+          ]
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "invalid_duplicate_manifest_entry",
+      "profile": "invalid",
+      "fixture_dir": "invalid/duplicate_manifest_entry",
+      "filename": "invalid_duplicate_manifest_entry.odt",
+      "staged_relpath": "invalid_duplicate_manifest_entry/invalid_duplicate_manifest_entry.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000345,
+          "exit_code": 0,
+          "error_count": 1,
+          "warning_count": 0,
+          "issues": [
+            {
+              "id": "Pkg_PackageError",
+              "error_type": "package",
+              "part": "/META-INF/manifest.xml",
+              "path": "/",
+              "description": "Duplicate manifest file-entry path '<value>' (<n> entries)",
+              "family_key": "Pkg_PackageError|package|/META-INF/manifest.xml|/|Duplicate manifest file-entry path '<value>' (<n> entries)",
+              "severity": "error",
+              "comparison_key": "error|Duplicate manifest file-entry path '<value>' (<n> entries)"
+            }
+          ]
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "invalid_missing_root_entry",
+      "profile": "invalid",
+      "fixture_dir": "invalid/missing_root_entry",
+      "filename": "invalid_missing_root_entry.odt",
+      "staged_relpath": "invalid_missing_root_entry/invalid_missing_root_entry.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000263,
+          "exit_code": 0,
+          "error_count": 1,
+          "warning_count": 0,
+          "issues": [
+            {
+              "id": "Pkg_PackageError",
+              "error_type": "package",
+              "part": "/META-INF/manifest.xml",
+              "path": "/",
+              "description": "manifest.xml is missing required root file-entry '<value>'",
+              "family_key": "Pkg_PackageError|package|/META-INF/manifest.xml|/|manifest.xml is missing required root file-entry '<value>'",
+              "severity": "error",
+              "comparison_key": "error|manifest.xml is missing required root file-entry '<value>'"
+            }
+          ]
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "invalid_root_mimetype_mismatch",
+      "profile": "invalid",
+      "fixture_dir": "invalid/root_mimetype_mismatch",
+      "filename": "invalid_root_mimetype_mismatch.odt",
+      "staged_relpath": "invalid_root_mimetype_mismatch/invalid_root_mimetype_mismatch.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000231,
+          "exit_code": 0,
+          "error_count": 1,
+          "warning_count": 0,
+          "issues": [
+            {
+              "id": "Pkg_PackageError",
+              "error_type": "package",
+              "part": "/META-INF/manifest.xml",
+              "path": "/",
+              "description": "Root manifest media-type does not match mimetype ('<value>' != '<value>')",
+              "family_key": "Pkg_PackageError|package|/META-INF/manifest.xml|/|Root manifest media-type does not match mimetype ('<value>' != '<value>')",
+              "severity": "error",
+              "comparison_key": "error|Root manifest media-type does not match mimetype ('<value>' != '<value>')"
+            }
+          ]
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "id": "invalid_broken_content_xml",
+      "profile": "invalid",
+      "fixture_dir": "invalid/broken_content_xml",
+      "filename": "invalid_broken_content_xml.odt",
+      "staged_relpath": "invalid_broken_content_xml/invalid_broken_content_xml.odt",
+      "runs": {
+        "python": {
+          "status": "ok",
+          "duration_seconds": 0.000261,
+          "exit_code": 0,
+          "error_count": 1,
+          "warning_count": 0,
+          "issues": [
+            {
+              "id": "Sch_SchemaError",
+              "error_type": "schema",
+              "part": "/content.xml",
+              "path": "/",
+              "description": "XML parse error: Opening and ending tag mismatch: bad line <n> and office:text, line <n>, column <n> (<string>, line <n>)",
+              "family_key": "Sch_SchemaError|schema|/content.xml|/|XML parse error: Opening and ending tag mismatch: bad line <n> and office:text, line <n>, column <n> (<string>, line <n>)",
+              "severity": "error",
+              "comparison_key": "error|XML parse error: Opening and ending tag mismatch: bad line <n> and office:text, line <n>, column <n> (<string>, line <n>)"
+            }
+          ]
+        },
+        "odf_toolkit": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        },
+        "opf": {
+          "status": "unavailable",
+          "reason": "Command template not configured.",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

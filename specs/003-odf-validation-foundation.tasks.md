@@ -44,13 +44,13 @@
 
 ## Phase 3: Reference Alignment + Documentation
 
-- [ ] Add `scripts/odf/run_reference_validators.py` (ODF Toolkit / OPF runners)
-- [ ] Add `scripts/odf/compare_reference_results.py` (normalized diff)
-- [ ] Add `docs/odf_validation_contract.md` (normalization and severity contract)
-- [ ] Add a pinned sample corpus for reference comparison
-- [ ] Generate first baseline mismatch report and commit summary artifact
-- [ ] Update README ODF section to reflect real validation depth
-- [ ] Document explicit ODF limitations and follow-up scope
+- [x] Add `scripts/odf/run_reference_validators.py` (ODF Toolkit / OPF runners)
+- [x] Add `scripts/odf/compare_reference_results.py` (normalized diff)
+- [x] Add `docs/odf_validation_contract.md` (normalization and severity contract)
+- [x] Add a pinned sample corpus for reference comparison
+- [x] Generate first baseline mismatch report and commit summary artifact
+- [x] Update README ODF section to reflect real validation depth
+- [x] Document explicit ODF limitations and follow-up scope
 
 ## Post-Milestone Follow-Up
 

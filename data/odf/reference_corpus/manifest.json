@@ -1,0 +1,86 @@
+{
+  "manifest_version": 1,
+  "name": "odf_phase3_reference_corpus",
+  "created_at": "2026-03-09",
+  "description": "Pinned fixture-backed ODF sample corpus for reference comparison.",
+  "samples": [
+    {
+      "id": "valid_minimal_odt",
+      "profile": "valid",
+      "fixture_dir": "valid/minimal_odt",
+      "filename": "valid_minimal.odt"
+    },
+    {
+      "id": "valid_minimal_ods",
+      "profile": "valid",
+      "fixture_dir": "valid/minimal_ods",
+      "filename": "valid_minimal.ods"
+    },
+    {
+      "id": "valid_minimal_odp",
+      "profile": "valid",
+      "fixture_dir": "valid/minimal_odp",
+      "filename": "valid_minimal.odp"
+    },
+    {
+      "id": "invalid_missing_mimetype",
+      "profile": "invalid",
+      "fixture_dir": "invalid/missing_mimetype",
+      "filename": "invalid_missing_mimetype.odt"
+    },
+    {
+      "id": "invalid_invalid_mimetype",
+      "profile": "invalid",
+      "fixture_dir": "invalid/invalid_mimetype",
+      "filename": "invalid_invalid_mimetype.odt"
+    },
+    {
+      "id": "invalid_missing_manifest",
+      "profile": "invalid",
+      "fixture_dir": "invalid/missing_manifest",
+      "filename": "invalid_missing_manifest.odt"
+    },
+    {
+      "id": "invalid_malformed_manifest",
+      "profile": "invalid",
+      "fixture_dir": "invalid/malformed_manifest",
+      "filename": "invalid_malformed_manifest.odt"
+    },
+    {
+      "id": "invalid_manifest_missing_part",
+      "profile": "invalid",
+      "fixture_dir": "invalid/manifest_missing_part",
+      "filename": "invalid_manifest_missing_part.odt"
+    },
+    {
+      "id": "invalid_unlisted_xml_part",
+      "profile": "invalid",
+      "fixture_dir": "invalid/unlisted_xml_part",
+      "filename": "invalid_unlisted_xml_part.odt"
+    },
+    {
+      "id": "invalid_duplicate_manifest_entry",
+      "profile": "invalid",
+      "fixture_dir": "invalid/duplicate_manifest_entry",
+      "filename": "invalid_duplicate_manifest_entry.odt"
+    },
+    {
+      "id": "invalid_missing_root_entry",
+      "profile": "invalid",
+      "fixture_dir": "invalid/missing_root_entry",
+      "filename": "invalid_missing_root_entry.odt"
+    },
+    {
+      "id": "invalid_root_mimetype_mismatch",
+      "profile": "invalid",
+      "fixture_dir": "invalid/root_mimetype_mismatch",
+      "filename": "invalid_root_mimetype_mismatch.odt"
+    },
+    {
+      "id": "invalid_broken_content_xml",
+      "profile": "invalid",
+      "fixture_dir": "invalid/broken_content_xml",
+      "filename": "invalid_broken_content_xml.odt"
+    }
+  ]
+}

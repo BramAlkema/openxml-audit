@@ -12,7 +12,7 @@ Current version: `0.2.0`
 - **Schema Validation**: Validates XML content against Open XML schema constraints
 - **Semantic Validation**: Validates relationships, references, and cross-document constraints
 - **OOXML-Specific Validation**: Validates presentation, wordprocessing, and spreadsheet structure
-- **ODF Support**: Validates OASIS OpenDocument packages
+- **ODF Foundation Validation**: Validates OASIS OpenDocument package integrity and XML well-formedness
 - **Multiple Output Formats**: Text, JSON, and XML output
 - **Flexible Integration**: Context managers, decorators, and pytest fixtures
 
@@ -37,6 +37,9 @@ pip install -e .
 ```bash
 # Validate a single file
 openxml-audit presentation.pptx
+
+# Validate an OASIS OpenDocument file
+openxml-audit document.odt
 
 # Validate with JSON output
 openxml-audit presentation.pptx --output json
@@ -80,6 +83,41 @@ validator = OpenXmlValidator(
     semantic_validation=True,
 )
 result = validator.validate("presentation.pptx")
+```
+
+## ODF Validation Depth
+
+ODF support is currently foundation-focused and explicit about scope:
+
+1. **Foundation (default)**:
+   - `mimetype` and `META-INF/manifest.xml` presence/parsing
+   - root manifest entry/media-type consistency
+   - manifest-to-package and package-to-manifest consistency
+   - XML parse sweep for core and manifest-declared XML members
+2. **Optional schema hook**:
+   - feature-gated Relax NG path via `OdfValidator(relaxng_validation=True, relaxng_schemas=...)`
+3. **Optional reference comparison (offline calibration)**:
+   - `scripts/odf/run_reference_validators.py`
+   - `scripts/odf/compare_reference_results.py`
+   - contract: `docs/odf_validation_contract.md`
+
+Current ODF limitations:
+
+- No full semantic-rule parity with all OASIS ODF conformance requirements.
+- Digital signature and encrypted-package handling are not complete.
+- Java-based reference validators (ODF Toolkit / OPF) are optional and not a default CI dependency.
+
+Example reference-calibration run:
+
+```bash
+python scripts/odf/run_reference_validators.py \
+  --corpus-manifest data/odf/reference_corpus/manifest.json \
+  --output data/odf/reference_baseline/2026-03-09/reference_runs.json
+
+python scripts/odf/compare_reference_results.py \
+  --input data/odf/reference_baseline/2026-03-09/reference_runs.json \
+  --output data/odf/reference_baseline/2026-03-09/mismatch_report.json \
+  --summary data/odf/reference_baseline/2026-03-09/mismatch_summary.md
 ```
 
 ## Open XML SDK (Standalone)
