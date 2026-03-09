@@ -87,27 +87,110 @@ result = validator.validate("presentation.pptx")
 
 ## ODF Validation Depth
 
-ODF support is currently foundation-focused and explicit about scope:
+ODF validation is staged by explicit conformance level.
 
-1. **Foundation (default)**:
-   - `mimetype` and `META-INF/manifest.xml` presence/parsing
-   - root manifest entry/media-type consistency
-   - manifest-to-package and package-to-manifest consistency
-   - required `content.xml` presence for text/spreadsheet/presentation packages
-   - XML parse sweep for core and manifest-declared XML members
-   - `content.xml` semantic checks (expected root + body document type vs mimetype)
-2. **Optional schema hook**:
-   - feature-gated Relax NG path via `OdfValidator(relaxng_validation=True, relaxng_schemas=...)`
-3. **Optional reference comparison (offline calibration)**:
-   - `scripts/odf/run_reference_validators.py`
-   - `scripts/odf/compare_reference_results.py`
-   - contract: `docs/odf_validation_contract.md`
+| Level | Includes | Does not include |
+|---|---|---|
+| `foundation` | package/manifest integrity + XML parse sweep | Relax NG schema-core routing, semantic-core rules, security-core checks |
+| `schema-core` | foundation + Relax NG validation for routed XML members | semantic-core and security-core checks |
+| `semantic-core` | foundation + semantic-core rule families (`ODFSEM*`) | Relax NG schema-core routing, security-core checks |
+| `security-core` | semantic-core + signature/encryption structural checks (`ODFSEC*`) | full cryptographic trust guarantees unless crypto verification backend is configured |
 
-Current ODF limitations:
+Rule registry and policy references:
 
-- No full semantic-rule parity with all OASIS ODF conformance requirements.
-- Digital signature and encrypted-package handling are not complete.
-- Java-based reference validators (ODF Toolkit / OPF) are optional and not a default CI dependency.
+- semantic rule IDs: `openxml_audit.odf.get_odf_semantic_rules()`
+- security policy: `docs/odf_security_policy.md`
+- reference calibration/drift contract: `docs/odf_validation_contract.md`
+
+### CLI Conformance Selection
+
+Use `--odf-level` when validating ODF files:
+
+```bash
+# foundation
+openxml-audit file.odt --validator odf --odf-level foundation
+
+# semantic-core (default)
+openxml-audit file.odt --validator odf --odf-level semantic-core
+
+# security-core
+openxml-audit file.odt --validator odf --odf-level security-core
+```
+
+Schema-core requires a schema-route JSON file:
+
+```bash
+openxml-audit file.odt \
+  --validator odf \
+  --odf-level schema-core \
+  --odf-schema-routes schemas/odf/routes.json
+```
+
+`--odf-schema-routes` accepts either shape:
+
+- versioned mapping:
+  - `{"1.3": {"content.xml": "schemas/odf/1.3/content.rng"}}`
+- flat legacy mapping:
+  - `{"content.xml": "schemas/odf/content.rng"}`
+
+Security-core crypto verification hook:
+
+```bash
+openxml-audit file.odt \
+  --validator odf \
+  --odf-level security-core \
+  --odf-verify-cryptography
+```
+
+### API Conformance Selection
+
+```python
+from openxml_audit import FileFormat
+from openxml_audit.odf import OdfValidator
+
+# foundation
+foundation = OdfValidator(
+    file_format=FileFormat.ODF_1_3,
+    schema_validation=False,
+    semantic_validation=False,
+    security_validation=False,
+)
+
+# schema-core (routes required)
+schema_core = OdfValidator(
+    file_format=FileFormat.ODF_1_3,
+    schema_validation=True,
+    semantic_validation=False,
+    security_validation=False,
+    relaxng_validation=True,
+    schema_routes={"1.3": {"content.xml": "schemas/odf/1.3/content.rng"}},
+)
+
+# semantic-core
+semantic_core = OdfValidator(
+    file_format=FileFormat.ODF_1_3,
+    schema_validation=True,
+    semantic_validation=True,
+    security_validation=False,
+)
+
+# security-core
+security_core = OdfValidator(
+    file_format=FileFormat.ODF_1_3,
+    schema_validation=True,
+    semantic_validation=True,
+    security_validation=True,
+    verify_cryptography=False,  # set True when crypto backend is available
+)
+```
+
+### Known ODF Limitations
+
+- Full OASIS conformance parity is not implemented yet.
+- Schema-core depends on caller-provided Relax NG routes (`schema_routes`).
+- Security-core validates signature/encryption structure and policy, not full trust semantics by default.
+- Reference-calibration parity is command-template based and can vary with external validator versions.
+- CLI `--odf-level` only applies when the selected/auto-detected validator is ODF.
 
 Example reference-calibration run:
 
@@ -120,7 +203,49 @@ python scripts/odf/compare_reference_results.py \
   --input data/odf/reference_baseline/2026-03-09/reference_runs.json \
   --output data/odf/reference_baseline/2026-03-09/mismatch_report.json \
   --summary data/odf/reference_baseline/2026-03-09/mismatch_summary.md
+
+python scripts/odf/build_mismatch_triage.py \
+  --compare data/odf/reference_baseline/2026-03-09/mismatch_report.json \
+  --runs data/odf/reference_baseline/2026-03-09/reference_runs.json \
+  --output data/odf/reference_baseline/2026-03-09/mismatch_triage.md
+
+python scripts/odf/check_reference_drift.py \
+  --baseline data/odf/reference_baseline/2026-03-09/mismatch_report.json \
+  --current data/odf/reference_baseline/2026-03-09/mismatch_report.json \
+  --policy data/odf/reference_baseline/2026-03-09/drift_policy.json \
+  --waivers data/odf/reference_baseline/2026-03-09/waivers.json \
+  --output data/odf/reference_baseline/2026-03-09/drift_report.json \
+  --summary data/odf/reference_baseline/2026-03-09/drift_summary.md
 ```
+
+ODF calibration workflow:
+
+- `.github/workflows/odf-reference-calibration.yml`
+- builds pinned external validators at runtime:
+  - ODF Toolkit (`tdf/odftoolkit`)
+  - OPF ODF Validator (`opf-labs/odf-validator`, fallback `openpreserve/odf-validator`)
+- `workflow_dispatch` inputs can override refs:
+  - `odf_toolkit_ref`
+  - `opf_ref`
+
+### ODF Reference Validator Troubleshooting
+
+- Confirm Maven is available for source builds (`mvn -version`) or Docker is available.
+- Build command templates automatically with:
+  - `python scripts/odf/bootstrap_reference_validators.py --print-shell`
+  - force Docker for both build + runtime:
+    `python scripts/odf/bootstrap_reference_validators.py --maven-mode docker --runtime-mode docker --print-shell`
+- Or provide templates directly:
+  - `ODF_TOOLKIT_CMD`
+  - `OPF_ODF_VALIDATOR_CMD`
+- Template placeholders supported by `run_reference_validators.py`:
+  - `{file}`, `{file_dir}`, `{file_name}`, `{file_stem}`, `{file_suffix}`
+  - if no placeholder is used, the file path is appended.
+- If reports show `status=unavailable`:
+  - check executable/jar path and runtime dependencies (for example Java)
+  - run the rendered command manually on one staged sample
+  - verify non-zero exit still emits parseable output for mismatch analysis
+- If drift gate fails on unavailable counts, wire/fix command templates before adjusting waivers.
 
 ## Open XML SDK (Standalone)
 

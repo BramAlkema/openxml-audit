@@ -51,6 +51,62 @@ class TestOdfValidator:
             encoding="utf-8",
         )
 
+    @staticmethod
+    def _write_relaxng_any_root_schema(path: Path) -> None:
+        path.write_text(
+            """<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+  <start>
+    <element>
+      <anyName/>
+      <zeroOrMore>
+        <choice>
+          <attribute>
+            <anyName/>
+          </attribute>
+          <text/>
+          <ref name="anyElement"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </start>
+  <define name="anyElement">
+    <element>
+      <anyName/>
+      <zeroOrMore>
+        <choice>
+          <attribute>
+            <anyName/>
+          </attribute>
+          <text/>
+          <ref name="anyElement"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+</grammar>
+""",
+            encoding="utf-8",
+        )
+
+    @staticmethod
+    def _write_relaxng_schema_with_include(
+        path: Path,
+        *,
+        include_filename: str,
+    ) -> None:
+        path.write_text(
+            f"""<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="{include_filename}"/>
+  <start>
+    <ref name="documentRoot"/>
+  </start>
+</grammar>
+""",
+            encoding="utf-8",
+        )
+
     def test_valid_odt_is_valid(self, minimal_odt: Path) -> None:
         result = OdfValidator().validate(minimal_odt)
 
@@ -82,6 +138,28 @@ class TestOdfValidator:
     def test_valid_odp_is_valid(self, minimal_odp: Path) -> None:
         result = OdfValidator().validate(minimal_odp)
 
+        assert result.is_valid
+
+    def test_valid_odt_v12_markers_are_accepted(self, minimal_odt_v12: Path) -> None:
+        result = OdfValidator(file_format=FileFormat.ODF_1_2).validate(minimal_odt_v12)
+        assert result.is_valid
+
+    def test_valid_odt_v14_markers_are_accepted(self, minimal_odt_v14: Path) -> None:
+        result = OdfValidator().validate(minimal_odt_v14)
+        assert result.is_valid
+
+    def test_signed_stub_package_is_accepted_at_foundation_level(
+        self,
+        minimal_odt_signed_stub: Path,
+    ) -> None:
+        result = OdfValidator().validate(minimal_odt_signed_stub)
+        assert result.is_valid
+
+    def test_encrypted_stub_package_is_accepted_at_foundation_level(
+        self,
+        minimal_odt_encrypted_stub: Path,
+    ) -> None:
+        result = OdfValidator().validate(minimal_odt_encrypted_stub)
         assert result.is_valid
 
     def test_broken_content_xml_reports_schema_error(self, odf_broken_content_xml: Path) -> None:
@@ -132,6 +210,7 @@ class TestOdfValidator:
             "xml_parse",
             "schema",
             "semantic",
+            "security",
             "total",
         }
         assert set(timings.keys()) == expected_phases
@@ -165,8 +244,24 @@ class TestOdfValidator:
             for error in result.errors
         )
 
+    def test_auxiliary_invalid_styles_xml_reports_schema_error(
+        self,
+        odf_aux_invalid_styles_xml: Path,
+    ) -> None:
+        result = OdfValidator().validate(odf_aux_invalid_styles_xml)
+        assert not result.is_valid
+        assert any(
+            error.error_type == ValidationErrorType.SCHEMA
+            and error.part_uri == "/styles.xml"
+            and "XML parse error" in error.description
+            for error in result.errors
+        )
+
     def test_relaxng_enabled_requires_schema_mapping(self) -> None:
-        with pytest.raises(ValueError, match="relaxng_validation requires relaxng_schemas"):
+        with pytest.raises(
+            ValueError,
+            match="relaxng_validation requires relaxng_schemas or schema_routes",
+        ):
             OdfValidator(relaxng_validation=True)
 
     def test_relaxng_requires_schema_validation_enabled(self) -> None:
@@ -176,6 +271,12 @@ class TestOdfValidator:
                 schema_validation=False,
                 relaxng_schemas={"*": "x.rng"},
             )
+
+    def test_schema_guardrail_arguments_must_be_non_negative(self) -> None:
+        with pytest.raises(ValueError, match="max_schema_parts must be >= 0"):
+            OdfValidator(relaxng_validation=False, max_schema_parts=-1)
+        with pytest.raises(ValueError, match="max_schema_xml_bytes must be >= 0"):
+            OdfValidator(relaxng_validation=False, max_schema_xml_bytes=-1)
 
     def test_relaxng_validation_passes_with_matching_schema(
         self,
@@ -227,7 +328,178 @@ class TestOdfValidator:
 
         assert not result.is_valid
         assert any(
-            error.error_type == ValidationErrorType.PACKAGE
-            and "Relax NG schema file not found" in error.description
+            error.error_type == ValidationErrorType.SCHEMA
+            and "No such file or directory" in error.description
+            for error in result.errors
+        )
+
+    @pytest.mark.parametrize("fixture_name", ["minimal_ods", "minimal_odp"])
+    def test_relaxng_validation_accepts_ods_and_odp_with_any_root_schema(
+        self,
+        request: pytest.FixtureRequest,
+        fixture_name: str,
+        tmp_path: Path,
+    ) -> None:
+        package = request.getfixturevalue(fixture_name)
+        schema_path = tmp_path / "any_root.rng"
+        self._write_relaxng_any_root_schema(schema_path)
+
+        result = OdfValidator(
+            relaxng_validation=True,
+            relaxng_schemas={"content.xml": schema_path},
+        ).validate(package)
+
+        assert result.is_valid
+
+    def test_schema_core_reports_missing_route_for_manifest_declared_xml_member(
+        self,
+        minimal_odt_with_styles: Path,
+        tmp_path: Path,
+    ) -> None:
+        content_schema = tmp_path / "content.rng"
+        self._write_relaxng_schema(content_schema, root_name="office:document-content")
+
+        result = OdfValidator(
+            relaxng_validation=True,
+            relaxng_schemas={"content.xml": content_schema},
+        ).validate(minimal_odt_with_styles)
+
+        assert not result.is_valid
+        assert any(
+            error.error_type == ValidationErrorType.SCHEMA
+            and error.part_uri == "/styles.xml"
+            and "No Relax NG schema route" in error.description
+            for error in result.errors
+        )
+
+    def test_schema_core_validates_all_manifest_declared_xml_members_when_routes_exist(
+        self,
+        minimal_odt_with_styles: Path,
+        tmp_path: Path,
+    ) -> None:
+        content_schema = tmp_path / "content.rng"
+        styles_schema = tmp_path / "styles.rng"
+        self._write_relaxng_schema(content_schema, root_name="office:document-content")
+        self._write_relaxng_schema(styles_schema, root_name="office:document-styles")
+
+        result = OdfValidator(
+            relaxng_validation=True,
+            relaxng_schemas={
+                "content.xml": content_schema,
+                "styles.xml": styles_schema,
+            },
+        ).validate(minimal_odt_with_styles)
+
+        assert result.is_valid
+
+    def test_schema_core_routes_14_packages_with_version_specific_mapping(
+        self,
+        minimal_odt_v14: Path,
+        tmp_path: Path,
+    ) -> None:
+        schema_v13 = tmp_path / "content_13.rng"
+        schema_v14 = tmp_path / "content_14.rng"
+        self._write_relaxng_schema(schema_v13, root_name="office:document-styles")
+        self._write_relaxng_schema(schema_v14, root_name="office:document-content")
+
+        result = OdfValidator(
+            relaxng_validation=True,
+            schema_routes={
+                "1.3": {"content.xml": schema_v13},
+                "1.4": {"content.xml": schema_v14},
+            },
+        ).validate(minimal_odt_v14)
+
+        assert result.is_valid
+
+    def test_schema_core_relaxng_resolver_supports_include_references(
+        self,
+        minimal_odt: Path,
+        tmp_path: Path,
+    ) -> None:
+        main_schema = tmp_path / "main.rng"
+        shared_schema = tmp_path / "shared.rng"
+        self._write_relaxng_schema_with_include(main_schema, include_filename="shared.rng")
+        shared_schema.write_text(
+            """<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0">
+  <define name="documentRoot">
+    <element name="office:document-content">
+      <zeroOrMore>
+        <choice>
+          <attribute>
+            <anyName/>
+          </attribute>
+          <text/>
+          <ref name="anyElement"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="anyElement">
+    <element>
+      <anyName/>
+      <zeroOrMore>
+        <choice>
+          <attribute>
+            <anyName/>
+          </attribute>
+          <text/>
+          <ref name="anyElement"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+</grammar>
+""",
+            encoding="utf-8",
+        )
+
+        result = OdfValidator(
+            relaxng_validation=True,
+            relaxng_schemas={"content.xml": main_schema},
+        ).validate(minimal_odt)
+
+        assert result.is_valid
+
+    def test_schema_core_relaxng_resolver_reports_missing_include_reference(
+        self,
+        minimal_odt: Path,
+        tmp_path: Path,
+    ) -> None:
+        main_schema = tmp_path / "main.rng"
+        self._write_relaxng_schema_with_include(main_schema, include_filename="missing.rng")
+
+        result = OdfValidator(
+            relaxng_validation=True,
+            relaxng_schemas={"content.xml": main_schema},
+        ).validate(minimal_odt)
+
+        assert not result.is_valid
+        assert any(
+            error.error_type == ValidationErrorType.SCHEMA
+            and "Unresolvable Relax NG reference" in error.description
+            for error in result.errors
+        )
+
+    def test_schema_core_part_guardrail_reports_error(
+        self,
+        minimal_odt_with_styles: Path,
+        tmp_path: Path,
+    ) -> None:
+        any_root_schema = tmp_path / "any_root.rng"
+        self._write_relaxng_any_root_schema(any_root_schema)
+
+        result = OdfValidator(
+            relaxng_validation=True,
+            relaxng_schemas={"*": any_root_schema},
+            max_schema_parts=1,
+        ).validate(minimal_odt_with_styles)
+
+        assert not result.is_valid
+        assert any(
+            error.error_type == ValidationErrorType.SCHEMA
+            and "Schema-core part guardrail exceeded" in error.description
             for error in result.errors
         )

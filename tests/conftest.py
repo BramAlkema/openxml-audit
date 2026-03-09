@@ -176,6 +176,96 @@ def minimal_odp(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
+def minimal_odt_v12(tmp_path: Path) -> Path:
+    """Create a minimal valid ODT file with ODF 1.2 version markers."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/minimal_odt_v12",
+        filename="minimal_v12.odt",
+    )
+
+
+@pytest.fixture
+def minimal_odt_v14(tmp_path: Path) -> Path:
+    """Create a minimal valid ODT file with ODF 1.4 version markers."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/minimal_odt_v14",
+        filename="minimal_v14.odt",
+    )
+
+
+@pytest.fixture
+def minimal_odt_with_styles(tmp_path: Path) -> Path:
+    """Create a minimal valid ODT file with content.xml and styles.xml."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/minimal_odt_with_styles",
+        filename="minimal_with_styles.odt",
+    )
+
+
+@pytest.fixture
+def minimal_odt_text_style_reference_with_styles(tmp_path: Path) -> Path:
+    """Create a minimal valid ODT with text:style-name and styles.xml companion."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/text_style_reference_with_styles",
+        filename="text_style_reference_with_styles.odt",
+    )
+
+
+@pytest.fixture
+def minimal_odp_master_page_resolved(tmp_path: Path) -> Path:
+    """Create a minimal valid ODP with draw:master-page-name resolved by styles.xml."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/presentation_master_page_resolved",
+        filename="presentation_master_page_resolved.odp",
+    )
+
+
+@pytest.fixture
+def minimal_odt_signed_stub(tmp_path: Path) -> Path:
+    """Create a minimal valid ODT-like package with signature metadata stub."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/signed_stub_odt",
+        filename="signed_stub.odt",
+    )
+
+
+@pytest.fixture
+def minimal_odt_encrypted_stub(tmp_path: Path) -> Path:
+    """Create a minimal valid ODT-like package with encryption metadata stub."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/encrypted_stub_odt",
+        filename="encrypted_stub.odt",
+    )
+
+
+@pytest.fixture
+def minimal_odt_signed_structural(tmp_path: Path) -> Path:
+    """Create a minimal ODT with structural signature metadata."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/signed_structural_odt",
+        filename="signed_structural.odt",
+    )
+
+
+@pytest.fixture
+def minimal_odt_encrypted_structural(tmp_path: Path) -> Path:
+    """Create a minimal ODT with structural encryption metadata."""
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/encrypted_structural_odt",
+        filename="encrypted_structural.odt",
+    )
+
+
+@pytest.fixture
 def odf_missing_mimetype(tmp_path: Path) -> Path:
     """Create an ODF package missing the mimetype entry."""
     return _build_odf_fixture(
@@ -304,4 +394,155 @@ def odf_content_root_mismatch(tmp_path: Path) -> Path:
         tmp_path,
         "invalid/content_root_mismatch",
         filename="content_root_mismatch.odt",
+    )
+
+
+@pytest.fixture
+def odf_aux_declared_missing_styles(tmp_path: Path) -> Path:
+    """Create an ODF package with manifest-declared styles.xml missing from ZIP."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/aux_declared_missing_styles",
+        filename="aux_declared_missing_styles.odt",
+    )
+
+
+@pytest.fixture
+def odf_aux_invalid_styles_xml(tmp_path: Path) -> Path:
+    """Create an ODF package with malformed styles.xml declared by manifest."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/aux_invalid_styles_xml",
+        filename="aux_invalid_styles_xml.odt",
+        validate_xml=False,
+    )
+
+
+@pytest.fixture
+def odf_manifest_content_bad_media_type(tmp_path: Path) -> Path:
+    """Create an ODF package with content.xml manifest media-type mismatch."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/manifest_content_bad_media_type",
+        filename="manifest_content_bad_media_type.odt",
+    )
+
+
+@pytest.fixture
+def odf_text_style_reference_missing_styles(tmp_path: Path) -> Path:
+    """Create a text ODF package with style references and no styles.xml companion."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/text_style_reference_missing_styles",
+        filename="text_style_reference_missing_styles.odt",
+    )
+
+
+@pytest.fixture
+def odf_spreadsheet_duplicate_table_names(tmp_path: Path) -> Path:
+    """Create a spreadsheet ODF package with duplicate table:name values."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/spreadsheet_duplicate_table_names",
+        filename="spreadsheet_duplicate_table_names.ods",
+    )
+
+
+@pytest.fixture
+def odf_presentation_duplicate_page_names(tmp_path: Path) -> Path:
+    """Create a presentation ODF package with duplicate draw:name values."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/presentation_duplicate_page_names",
+        filename="presentation_duplicate_page_names.odp",
+    )
+
+
+@pytest.fixture
+def odf_presentation_master_page_missing_styles(tmp_path: Path) -> Path:
+    """Create a presentation ODF package that references master pages without styles.xml."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/presentation_master_page_missing_styles",
+        filename="presentation_master_page_missing_styles.odp",
+    )
+
+
+@pytest.fixture
+def odf_presentation_master_page_unresolved(tmp_path: Path) -> Path:
+    """Create a presentation ODF package with unresolved draw:master-page-name."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/presentation_master_page_unresolved",
+        filename="presentation_master_page_unresolved.odp",
+    )
+
+
+@pytest.fixture
+def odf_signature_manifest_missing_xml(tmp_path: Path) -> Path:
+    """Create an ODF package with missing META-INF/documentsignatures.xml part."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/signature_manifest_missing_xml",
+        filename="signature_manifest_missing_xml.odt",
+    )
+
+
+@pytest.fixture
+def odf_signature_bad_root(tmp_path: Path) -> Path:
+    """Create an ODF package with invalid documentsignatures.xml root."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/signature_bad_root",
+        filename="signature_bad_root.odt",
+    )
+
+
+@pytest.fixture
+def odf_signature_bad_media_type(tmp_path: Path) -> Path:
+    """Create an ODF package with wrong signature entry media-type."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/signature_bad_media_type",
+        filename="signature_bad_media_type.odt",
+    )
+
+
+@pytest.fixture
+def odf_signature_missing_signedinfo(tmp_path: Path) -> Path:
+    """Create an ODF package with ds:Signature missing SignedInfo/Reference."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/signature_missing_signedinfo",
+        filename="signature_missing_signedinfo.odt",
+    )
+
+
+@pytest.fixture
+def odf_encrypted_missing_key_derivation(tmp_path: Path) -> Path:
+    """Create an ODF package with encryption-data missing key-derivation."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/encrypted_missing_key_derivation",
+        filename="encrypted_missing_key_derivation.odt",
+    )
+
+
+@pytest.fixture
+def odf_encrypted_root_entry_encrypted(tmp_path: Path) -> Path:
+    """Create an ODF package with invalid encryption-data on root entry '/'."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/encrypted_root_entry_encrypted",
+        filename="encrypted_root_entry_encrypted.odt",
+    )
+
+
+@pytest.fixture
+def odf_encrypted_checksum_partial(tmp_path: Path) -> Path:
+    """Create an ODF package with incomplete encryption checksum metadata."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/encrypted_checksum_partial",
+        filename="encrypted_checksum_partial.odt",
     )

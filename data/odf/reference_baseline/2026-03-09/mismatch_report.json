@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-03-09T01:46:09.471776+00:00",
-  "contract_version": "odf-reference-v1",
+  "generated_at": "2026-03-09T10:52:33.508500+00:00",
+  "contract_version": "odf-reference-v2",
   "input_report": "data/odf/reference_baseline/2026-03-09/reference_runs.json",
   "tool_order": [
     "odf_toolkit",
@@ -9,177 +9,2311 @@
   "tools": {
     "odf_toolkit": {
       "tool": "odf_toolkit",
-      "samples_total": 13,
-      "samples_compared": 0,
-      "samples_skipped": 13,
+      "samples_total": 23,
+      "samples_compared": 23,
+      "samples_skipped": 0,
       "reference_status_counts": {
-        "unavailable": 13
+        "ok": 23
       },
       "issue_totals": {
-        "python": 0,
-        "reference": 0,
+        "python": 26,
+        "reference": 143,
         "matched": 0,
-        "only_python": 0,
-        "only_reference": 0
+        "only_python": 26,
+        "only_reference": 143
       },
       "mismatch_families": {
-        "only_python": [],
-        "only_reference": []
+        "only_python": [
+          {
+            "comparison_key": "error|content.xml is missing required office:body element",
+            "description": "content.xml is missing required office:body element",
+            "family_group_key": "error|<file> is missing required office body element",
+            "count": 6
+          },
+          {
+            "comparison_key": "error|Manifest entry '<value>' was not found in package",
+            "description": "Manifest entry '<value>' was not found in package",
+            "family_group_key": "error|manifest entry <value> was not found in package",
+            "count": 3
+          },
+          {
+            "comparison_key": "error|Root manifest media-type does not match mimetype ('<value>' != '<value>')",
+            "description": "Root manifest media-type does not match mimetype ('<value>' != '<value>')",
+            "family_group_key": "error|root manifest media type does not match mimetype <value> <value>",
+            "count": 2
+          },
+          {
+            "comparison_key": "error|ODF package is missing required member '<value>'",
+            "description": "ODF package is missing required member '<value>'",
+            "family_group_key": "error|odf package is missing required member <value>",
+            "count": 2
+          },
+          {
+            "comparison_key": "error|ODF package is missing required manifest entry '<value>'",
+            "description": "ODF package is missing required manifest entry '<value>'",
+            "family_group_key": "error|odf package is missing required manifest entry <value>",
+            "count": 2
+          },
+          {
+            "comparison_key": "error|Missing mimetype entry",
+            "description": "Missing mimetype entry",
+            "family_group_key": "error|missing mimetype entry",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|Invalid ODF mimetype value '<value>'",
+            "description": "Invalid ODF mimetype value '<value>'",
+            "family_group_key": "error|invalid odf mimetype value <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|Missing META-INF/manifest.xml",
+            "description": "Missing META-INF/manifest.xml",
+            "family_group_key": "error|missing meta inf <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|Invalid manifest.xml: Opening and ending tag mismatch: file-entry line <n> and manifest, line <n>, column <n> (<string>, line <n>)",
+            "description": "Invalid manifest.xml: Opening and ending tag mismatch: file-entry line <n> and manifest, line <n>, column <n> (<string>, line <n>)",
+            "family_group_key": "error|invalid <file> opening and ending tag mismatch file entry line <n> and manifest line <n> column <n> <string> line <n>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|Package member '<value>' is not declared in manifest.xml",
+            "description": "Package member '<value>' is not declared in manifest.xml",
+            "family_group_key": "error|package member <value> is not declared in <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|Duplicate manifest file-entry path '<value>' (<n> entries)",
+            "description": "Duplicate manifest file-entry path '<value>' (<n> entries)",
+            "family_group_key": "error|duplicate manifest file entry path <value> <n> entries",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|manifest.xml is missing required root file-entry '<value>'",
+            "description": "manifest.xml is missing required root file-entry '<value>'",
+            "family_group_key": "error|<file> is missing required root file entry <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|XML parse error: Opening and ending tag mismatch: bad line <n> and office:text, line <n>, column <n> (<string>, line <n>)",
+            "description": "XML parse error: Opening and ending tag mismatch: bad line <n> and office:text, line <n>, column <n> (<string>, line <n>)",
+            "family_group_key": "error|xml parse error opening and ending tag mismatch bad line <n> and office text line <n> column <n> <string> line <n>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|content.xml body type does not match mimetype (expected office:text, found '<value>')",
+            "description": "content.xml body type does not match mimetype (expected office:text, found '<value>')",
+            "family_group_key": "error|<file> body type does not match mimetype expected office text found <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|content.xml root element must be office:document-content (found '<value>')",
+            "description": "content.xml root element must be office:document-content (found '<value>')",
+            "family_group_key": "error|<file> root element must be office document content found <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|XML parse error: Opening and ending tag mismatch: styles line <n> and document-stylez, line <n>, column <n> (<string>, line <n>)",
+            "description": "XML parse error: Opening and ending tag mismatch: styles line <n> and document-stylez, line <n>, column <n> (<string>, line <n>)",
+            "family_group_key": "error|xml parse error opening and ending tag mismatch styles line <n> and document stylez line <n> column <n> <string> line <n>",
+            "count": 1
+          }
+        ],
+        "only_reference": [
+          {
+            "comparison_key": "info|/input/valid_minimal.odt: Info: Generator: null",
+            "description": "/input/valid_minimal.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/valid_minimal.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/valid_minimal.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_minimal.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/valid_minimal.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/valid_minimal.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_minimal.ods: Info: Generator: null",
+            "description": "/input/valid_minimal.ods: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.ods/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/valid_minimal.ods/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.ods: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/valid_minimal.ods: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_minimal.ods/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/valid_minimal.ods/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.ods/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/valid_minimal.ods/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.ods/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <dde-source>,<desc>,<forms>,<scenario>,<shapes>,<table-column-group>,<table-column>,<table-columns>,<table-header-columns>,<table-source>,<title>",
+            "description": "/input/valid_minimal.ods/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <dde-source>,<desc>,<forms>,<scenario>,<shapes>,<table-column-group>,<table-column>,<table-columns>,<table-header-columns>,<table-source>,<title>",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <dde source> <desc> <forms> <scenario> <shapes> <table column group> <table column> <table columns> <table header columns> <table source> <title>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_minimal.odp: Info: Generator: null",
+            "description": "/input/valid_minimal.odp: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.odp/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/valid_minimal.odp/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.odp: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/valid_minimal.odp: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_minimal.odp/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/valid_minimal.odp/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.odp/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/valid_minimal.odp/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal.odp/content.xml[<n>,<n>]: Error: element \"draw:page\" is missing \"master-page-name\" attribute",
+            "description": "/input/valid_minimal.odp/content.xml[<n>,<n>]: Error: element \"draw:page\" is missing \"master-page-name\" attribute",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error element draw page is missing master page name attribute",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_minimal_v12.odt: Info: Generator: null",
+            "description": "/input/valid_minimal_v12.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal_v12.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/valid_minimal_v12.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal_v12.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/valid_minimal_v12.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_minimal_v12.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/v1.<n>/OpenDocument-v1.<n>-part3.html#a2_2Packages",
+            "description": "/input/valid_minimal_v12.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/v1.<n>/OpenDocument-v1.<n>-part3.html#a2_2Packages",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> part3 html a2 2packages",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal_v12.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/valid_minimal_v12.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_minimal_v14.odt: Info: Generator: null",
+            "description": "/input/valid_minimal_v14.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal_v14.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/valid_minimal_v14.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal_v14.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/valid_minimal_v14.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_minimal_v14.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/OpenDocument-v1.<n>-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/valid_minimal_v14.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/OpenDocument-v1.<n>-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_minimal_v14.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/valid_minimal_v14.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_signed_stub.odt: Info: Generator: null",
+            "description": "/input/valid_signed_stub.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_signed_stub.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/valid_signed_stub.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_signed_stub.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/valid_signed_stub.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_signed_stub.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/valid_signed_stub.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_signed_stub.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/valid_signed_stub.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_signed_stub.odt/META-INF/documentsignatures.xml[<n>,<n>]: Error: element \"document-signatures\" is missing \"version\" attribute",
+            "description": "/input/valid_signed_stub.odt/META-INF/documentsignatures.xml[<n>,<n>]: Error: element \"document-signatures\" is missing \"version\" attribute",
+            "family_group_key": "error|<path> <file> <path> <file> <n> <n> error element document signatures is missing version attribute",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_encrypted_stub.odt: Info: Generator: null",
+            "description": "/input/valid_encrypted_stub.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_encrypted_stub.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/valid_encrypted_stub.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_encrypted_stub.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/valid_encrypted_stub.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/valid_encrypted_stub.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/valid_encrypted_stub.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_encrypted_stub.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/valid_encrypted_stub.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_encrypted_stub.odt/META-INF/manifest.xml[<n>,<n>]: Error: attribute \"manifest:checksum\" has a bad value: \"dummy\" does not satisfy the \"base64Binary\" type",
+            "description": "/input/valid_encrypted_stub.odt/META-INF/manifest.xml[<n>,<n>]: Error: attribute \"manifest:checksum\" has a bad value: \"dummy\" does not satisfy the \"base64Binary\" type",
+            "family_group_key": "error|<path> <file> <path> <file> <n> <n> error attribute manifest checksum has a bad value dummy does not satisfy the base64binary type",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/valid_encrypted_stub.odt/content.xml: Fatal: stream content is encrypted. Validation of encrypted content is not supported.",
+            "description": "/input/valid_encrypted_stub.odt/content.xml: Fatal: stream content is encrypted. Validation of encrypted content is not supported.",
+            "family_group_key": "error|<path> <file> <file> fatal stream content is encrypted of encrypted content is not supported",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_missing_mimetype.odt: Info: Generator: null",
+            "description": "/input/invalid_missing_mimetype.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_mimetype.odt/mimetype: Error: The ODF package '<value>' contains no '<value>' file!",
+            "description": "/input/invalid_missing_mimetype.odt/mimetype: Error: The ODF package '<value>' contains no '<value>' file!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains no <value> file",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_mimetype.odt[-<n>,-<n>]: Error: The '<value>' file have to be contained in the ODF XML Schema package '<value>'!",
+            "description": "/input/invalid_missing_mimetype.odt[-<n>,-<n>]: Error: The '<value>' file have to be contained in the ODF XML Schema package '<value>'!",
+            "family_group_key": "error|<path> <file> <n> <n> error the <value> file have to be contained in the odf xml schema package <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_missing_mimetype.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_missing_mimetype.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_mimetype.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "description": "/input/invalid_missing_mimetype.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <automatic styles> <body> <font face decls> <scripts>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_invalid_mimetype.odt: Info: Generator: null",
+            "description": "/input/invalid_invalid_mimetype.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_invalid_mimetype.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_invalid_mimetype.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_invalid_mimetype.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_invalid_mimetype.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_invalid_mimetype.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_invalid_mimetype.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_invalid_mimetype.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_invalid_mimetype.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_invalid_mimetype.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "description": "/input/invalid_invalid_mimetype.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <automatic styles> <body> <font face decls> <scripts>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_missing_manifest.odt: Info: Generator: null",
+            "description": "/input/invalid_missing_manifest.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_manifest.odt/META-INF/manifest.xml: Error: The ODF package '<value>' shall contain the '<value>' file!",
+            "description": "/input/invalid_missing_manifest.odt/META-INF/manifest.xml: Error: The ODF package '<value>' shall contain the '<value>' file!",
+            "family_group_key": "error|<path> <file> <path> <file> error the odf package <value> shall contain the <value> file",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_manifest.odt[-<n>,-<n>]: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', but no mediatype for its root document in its '<value>'!",
+            "description": "/input/invalid_missing_manifest.odt[-<n>,-<n>]: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', but no mediatype for its root document in its '<value>'!",
+            "family_group_key": "error|<path> <file> <n> <n> error the odf package <value> contains a <value> file containing <value> but no mediatype for its root document in its <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_manifest.odt/META-INF/manifest.xml: Error: The file '<value>' shall be listed in the '<value>' file as it exists in the ODF package '<value>'!",
+            "description": "/input/invalid_missing_manifest.odt/META-INF/manifest.xml: Error: The file '<value>' shall be listed in the '<value>' file as it exists in the ODF package '<value>'!",
+            "family_group_key": "error|<path> <file> <path> <file> error the file <value> shall be listed in the <value> file as it exists in the odf package <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_manifest.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_missing_manifest.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_missing_manifest.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_missing_manifest.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_manifest.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_missing_manifest.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_manifest.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "description": "/input/invalid_missing_manifest.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <automatic styles> <body> <font face decls> <scripts>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_malformed_manifest.odt: Info: Generator: null",
+            "description": "/input/invalid_malformed_manifest.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|[Fatal Error] :<n>:<n>: The element type \"manifest:file-entry\" must be terminated by the matching end-tag \"</manifest:file-entry>\".",
+            "description": "[Fatal Error] :<n>:<n>: The element type \"manifest:file-entry\" must be terminated by the matching end-tag \"</manifest:file-entry>\".",
+            "family_group_key": "error|fatal error <n> <n> the element type manifest file entry must be terminated by the matching end tag < <path> >",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_malformed_manifest.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_malformed_manifest.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_malformed_manifest.odt/META-INF/manifest.xml: Error: The file '<value>' shall be listed in the '<value>' file as it exists in the ODF package '<value>'!",
+            "description": "/input/invalid_malformed_manifest.odt/META-INF/manifest.xml: Error: The file '<value>' shall be listed in the '<value>' file as it exists in the ODF package '<value>'!",
+            "family_group_key": "error|<path> <file> <path> <file> error the file <value> shall be listed in the <value> file as it exists in the odf package <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_malformed_manifest.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_malformed_manifest.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_malformed_manifest.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_malformed_manifest.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_malformed_manifest.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_malformed_manifest.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_malformed_manifest.odt/META-INF/manifest.xml[<n>,<n>]: Error: element \"manifest:manifest\" is missing \"version\" attribute",
+            "description": "/input/invalid_malformed_manifest.odt/META-INF/manifest.xml[<n>,<n>]: Error: element \"manifest:manifest\" is missing \"version\" attribute",
+            "family_group_key": "error|<path> <file> <path> <file> <n> <n> error element manifest manifest is missing version attribute",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_malformed_manifest.odt/META-INF/manifest.xml[<n>,<n>]: Fatal: The element type \"manifest:file-entry\" must be terminated by the matching end-tag \"</manifest:file-entry>\".",
+            "description": "/input/invalid_malformed_manifest.odt/META-INF/manifest.xml[<n>,<n>]: Fatal: The element type \"manifest:file-entry\" must be terminated by the matching end-tag \"</manifest:file-entry>\".",
+            "family_group_key": "error|<path> <file> <path> <file> <n> <n> fatal the element type manifest file entry must be terminated by the matching end tag < <path> >",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_malformed_manifest.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "description": "/input/invalid_malformed_manifest.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <automatic styles> <body> <font face decls> <scripts>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_manifest_missing_part.odt: Info: Generator: null",
+            "description": "/input/invalid_manifest_missing_part.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_manifest_missing_part.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_manifest_missing_part.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_manifest_missing_part.odt/META-INF/manifest.xml: Error: The file '<value>' shall not be listed in the '<value>' file as it does not exist in the ODF package '<value>'!",
+            "description": "/input/invalid_manifest_missing_part.odt/META-INF/manifest.xml: Error: The file '<value>' shall not be listed in the '<value>' file as it does not exist in the ODF package '<value>'!",
+            "family_group_key": "error|<path> <file> <path> <file> error the file <value> shall not be listed in the <value> file as it does not exist in the odf package <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_manifest_missing_part.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_manifest_missing_part.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_manifest_missing_part.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/v1.<n>/OpenDocument-v1.<n>.html#Ref_Package",
+            "description": "/input/invalid_manifest_missing_part.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/v1.<n>/OpenDocument-v1.<n>.html#Ref_Package",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> html ref package",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_manifest_missing_part.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_manifest_missing_part.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_manifest_missing_part.odt/META-INF/manifest.xml[<n>,<n>]: Error: unexpected attribute \"manifest:version\"",
+            "description": "/input/invalid_manifest_missing_part.odt/META-INF/manifest.xml[<n>,<n>]: Error: unexpected attribute \"manifest:version\"",
+            "family_group_key": "error|<path> <file> <path> <file> <n> <n> error unexpected attribute manifest version",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_unlisted_xml_part.odt: Info: Generator: null",
+            "description": "/input/invalid_unlisted_xml_part.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_unlisted_xml_part.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_unlisted_xml_part.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_unlisted_xml_part.odt/META-INF/manifest.xml: Error: The file '<value>' shall be listed in the '<value>' file as it exists in the ODF package '<value>'!",
+            "description": "/input/invalid_unlisted_xml_part.odt/META-INF/manifest.xml: Error: The file '<value>' shall be listed in the '<value>' file as it exists in the ODF package '<value>'!",
+            "family_group_key": "error|<path> <file> <path> <file> error the file <value> shall be listed in the <value> file as it exists in the odf package <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_unlisted_xml_part.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_unlisted_xml_part.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_unlisted_xml_part.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_unlisted_xml_part.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_unlisted_xml_part.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_unlisted_xml_part.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_unlisted_xml_part.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "description": "/input/invalid_unlisted_xml_part.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <automatic styles> <body> <font face decls> <scripts>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_duplicate_manifest_entry.odt: Info: Generator: null",
+            "description": "/input/invalid_duplicate_manifest_entry.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_duplicate_manifest_entry.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_duplicate_manifest_entry.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_duplicate_manifest_entry.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_duplicate_manifest_entry.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_duplicate_manifest_entry.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_duplicate_manifest_entry.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_duplicate_manifest_entry.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_duplicate_manifest_entry.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_duplicate_manifest_entry.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "description": "/input/invalid_duplicate_manifest_entry.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <automatic styles> <body> <font face decls> <scripts>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_missing_root_entry.odt: Info: Generator: null",
+            "description": "/input/invalid_missing_root_entry.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_root_entry.odt[-<n>,-<n>]: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', but no mediatype for its root document in its '<value>'!",
+            "description": "/input/invalid_missing_root_entry.odt[-<n>,-<n>]: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', but no mediatype for its root document in its '<value>'!",
+            "family_group_key": "error|<path> <file> <n> <n> error the odf package <value> contains a <value> file containing <value> but no mediatype for its root document in its <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_root_entry.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_missing_root_entry.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_missing_root_entry.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_missing_root_entry.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_root_entry.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_missing_root_entry.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_root_entry.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "description": "/input/invalid_missing_root_entry.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <automatic styles> <body> <font face decls> <scripts>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_root_mimetype_mismatch.odt: Info: Generator: null",
+            "description": "/input/invalid_root_mimetype_mismatch.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_root_mimetype_mismatch.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_root_mimetype_mismatch.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_root_mimetype_mismatch.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_root_mimetype_mismatch.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_root_mimetype_mismatch.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_root_mimetype_mismatch.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_root_mimetype_mismatch.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_root_mimetype_mismatch.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_root_mimetype_mismatch.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "description": "/input/invalid_root_mimetype_mismatch.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <automatic styles> <body> <font face decls> <scripts>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_broken_content_xml.odt: Info: Generator: null",
+            "description": "/input/invalid_broken_content_xml.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_broken_content_xml.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_broken_content_xml.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_broken_content_xml.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_broken_content_xml.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_broken_content_xml.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_broken_content_xml.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_broken_content_xml.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_broken_content_xml.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_broken_content_xml.odt/content.xml[<n>,<n>]: Error: tag name \"bad\" is not allowed. Possible tag names are: <a>,<alphabetical-index-auto-mark-file>,<alphabetical-index>,<bibliography>,<calculation-settings>,<caption>,<change-end>,<change-start>,<change>,<circle>,<connector>,<consolidation>,<content-validations>,<control>,<custom-shape>,<data-pilot-tables>,<database-ranges>,<dde-connection-decls>,<dde-links>,<ellipse>,<forms>,<frame>,<g>,<h>,<illustration-index>,<label-ranges>,<line>,<list>,<measure>,<named-expressions>,<numbered-paragraph>,<object-index>,<p>,<page-sequence>,<page-thumbnail>,<path>,<polygon>,<polyline>,<rect>,<regular-polygon>,<scene>,<section>,<sequence-decls>,<soft-page-break>,<table-index>,<table-of-content>,<table>,<tracked-changes>,<user-field-decls>,<user-index>,<variable-decls>",
+            "description": "/input/invalid_broken_content_xml.odt/content.xml[<n>,<n>]: Error: tag name \"bad\" is not allowed. Possible tag names are: <a>,<alphabetical-index-auto-mark-file>,<alphabetical-index>,<bibliography>,<calculation-settings>,<caption>,<change-end>,<change-start>,<change>,<circle>,<connector>,<consolidation>,<content-validations>,<control>,<custom-shape>,<data-pilot-tables>,<database-ranges>,<dde-connection-decls>,<dde-links>,<ellipse>,<forms>,<frame>,<g>,<h>,<illustration-index>,<label-ranges>,<line>,<list>,<measure>,<named-expressions>,<numbered-paragraph>,<object-index>,<p>,<page-sequence>,<page-thumbnail>,<path>,<polygon>,<polyline>,<rect>,<regular-polygon>,<scene>,<section>,<sequence-decls>,<soft-page-break>,<table-index>,<table-of-content>,<table>,<tracked-changes>,<user-field-decls>,<user-index>,<variable-decls>",
+            "family_group_key": "error|<path> <file> <file> <n> <n> error tag name bad is not allowed possible tag names are <a> <alphabetical index auto mark file> <alphabetical index> <bibliography> <calculation settings> <caption> <change end> <change start> <change> <circle> <connector> <consolidation> <content validations> <control> <custom shape> <data pilot tables> <database ranges> <dde connection decls> <dde links> <ellipse> <forms> <frame> <g> <h> <illustration index> <label ranges> <line> <list> <measure> <named expressions> <numbered paragraph> <object index> <p> <page sequence> <page thumbnail> <path> <polygon> <polyline> <rect> <regular polygon> <scene> <section> <sequence decls> <soft page break> <table index> <table of content> <table> <tracked changes> <user field decls> <user index> <variable decls>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_broken_content_xml.odt/content.xml[<n>,<n>]: Fatal: The element type \"bad\" must be terminated by the matching end-tag \"</bad>\".",
+            "description": "/input/invalid_broken_content_xml.odt/content.xml[<n>,<n>]: Fatal: The element type \"bad\" must be terminated by the matching end-tag \"</bad>\".",
+            "family_group_key": "error|<path> <file> <file> <n> <n> fatal the element type bad must be terminated by the matching end tag < <path> >",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_missing_content_xml.odt: Info: Generator: null",
+            "description": "/input/invalid_missing_content_xml.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_content_xml.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_missing_content_xml.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_content_xml.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_missing_content_xml.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_missing_content_xml.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/v1.<n>/OpenDocument-v1.<n>.html#Ref_Package",
+            "description": "/input/invalid_missing_content_xml.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/v1.<n>/OpenDocument-v1.<n>.html#Ref_Package",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> html ref package",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_content_xml.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_missing_content_xml.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_missing_content_xml.odt/META-INF/manifest.xml[<n>,<n>]: Error: unexpected attribute \"manifest:version\"",
+            "description": "/input/invalid_missing_content_xml.odt/META-INF/manifest.xml[<n>,<n>]: Error: unexpected attribute \"manifest:version\"",
+            "family_group_key": "error|<path> <file> <path> <file> <n> <n> error unexpected attribute manifest version",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_content_body_mismatch.odt: Info: Generator: null",
+            "description": "/input/invalid_content_body_mismatch.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_content_body_mismatch.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_content_body_mismatch.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_content_body_mismatch.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_content_body_mismatch.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_content_body_mismatch.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_content_body_mismatch.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_content_body_mismatch.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_content_body_mismatch.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_content_root_mismatch.odt: Info: Generator: null",
+            "description": "/input/invalid_content_root_mismatch.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_content_root_mismatch.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_content_root_mismatch.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_content_root_mismatch.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_content_root_mismatch.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_content_root_mismatch.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_content_root_mismatch.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_content_root_mismatch.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_content_root_mismatch.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_content_root_mismatch.odt/content.xml: Error: Invalid root element: office:document-styles",
+            "description": "/input/invalid_content_root_mismatch.odt/content.xml: Error: Invalid root element: office:document-styles",
+            "family_group_key": "error|<path> <file> <file> error invalid root element office document styles",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_aux_declared_missing_styles.odt: Info: Generator: null",
+            "description": "/input/invalid_aux_declared_missing_styles.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_aux_declared_missing_styles.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_aux_declared_missing_styles.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_aux_declared_missing_styles.odt/META-INF/manifest.xml: Error: The file '<value>' shall not be listed in the '<value>' file as it does not exist in the ODF package '<value>'!",
+            "description": "/input/invalid_aux_declared_missing_styles.odt/META-INF/manifest.xml: Error: The file '<value>' shall not be listed in the '<value>' file as it does not exist in the ODF package '<value>'!",
+            "family_group_key": "error|<path> <file> <path> <file> error the file <value> shall not be listed in the <value> file as it does not exist in the odf package <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_aux_declared_missing_styles.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_aux_declared_missing_styles.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_aux_declared_missing_styles.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_aux_declared_missing_styles.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_aux_declared_missing_styles.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_aux_declared_missing_styles.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_aux_invalid_styles_xml.odt: Info: Generator: null",
+            "description": "/input/invalid_aux_invalid_styles_xml.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_aux_invalid_styles_xml.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_aux_invalid_styles_xml.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_aux_invalid_styles_xml.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_aux_invalid_styles_xml.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_aux_invalid_styles_xml.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_aux_invalid_styles_xml.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_aux_invalid_styles_xml.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_aux_invalid_styles_xml.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_aux_invalid_styles_xml.odt/styles.xml[<n>,<n>]: Fatal: The element type \"office:styles\" must be terminated by the matching end-tag \"</office:styles>\".",
+            "description": "/input/invalid_aux_invalid_styles_xml.odt/styles.xml[<n>,<n>]: Fatal: The element type \"office:styles\" must be terminated by the matching end-tag \"</office:styles>\".",
+            "family_group_key": "error|<path> <file> <file> <n> <n> fatal the element type office styles must be terminated by the matching end tag < <path> >",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_signature_manifest_missing_xml.odt: Info: Generator: null",
+            "description": "/input/invalid_signature_manifest_missing_xml.odt: Info: Generator: null",
+            "family_group_key": "info|<path> <file> info generator null",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_signature_manifest_missing_xml.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "description": "/input/invalid_signature_manifest_missing_xml.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+            "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_signature_manifest_missing_xml.odt/META-INF/manifest.xml: Error: The file '<value>' shall not be listed in the '<value>' file as it does not exist in the ODF package '<value>'!",
+            "description": "/input/invalid_signature_manifest_missing_xml.odt/META-INF/manifest.xml: Error: The file '<value>' shall not be listed in the '<value>' file as it does not exist in the ODF package '<value>'!",
+            "family_group_key": "error|<path> <file> <path> <file> error the file <value> shall not be listed in the <value> file as it does not exist in the odf package <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_signature_manifest_missing_xml.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "description": "/input/invalid_signature_manifest_missing_xml.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+            "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|/input/invalid_signature_manifest_missing_xml.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "description": "/input/invalid_signature_manifest_missing_xml.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+            "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|/input/invalid_signature_manifest_missing_xml.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "description": "/input/invalid_signature_manifest_missing_xml.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+            "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+            "count": 1
+          }
+        ]
+      },
+      "mismatch_categories": {
+        "only_python": {
+          "package": 15,
+          "schema": 10,
+          "semantic": 1
+        },
+        "only_reference": {
+          "reference": 25,
+          "package": 41,
+          "schema": 63,
+          "security": 14
+        }
       },
       "samples": [
         {
           "id": "valid_minimal_odt",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 5,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 5
         },
         {
           "id": "valid_minimal_ods",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 6
         },
         {
           "id": "valid_minimal_odp",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 6
+        },
+        {
+          "id": "valid_minimal_odt_v12",
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 5,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 5
+        },
+        {
+          "id": "valid_minimal_odt_v14",
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 5,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 5
+        },
+        {
+          "id": "valid_signed_stub_odt",
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 6
+        },
+        {
+          "id": "valid_encrypted_stub_odt",
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 7,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 7
         },
         {
           "id": "invalid_missing_mimetype",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 5,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 5
         },
         {
           "id": "invalid_invalid_mimetype",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 3,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 3,
+          "only_reference": 6
         },
         {
           "id": "invalid_missing_manifest",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 8,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 8
         },
         {
           "id": "invalid_malformed_manifest",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 10,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 10
         },
         {
           "id": "invalid_manifest_missing_part",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 7,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 7
         },
         {
           "id": "invalid_unlisted_xml_part",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 7,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 7
         },
         {
           "id": "invalid_duplicate_manifest_entry",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
         },
         {
           "id": "invalid_missing_root_entry",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
         },
         {
           "id": "invalid_root_mimetype_mismatch",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
         },
         {
           "id": "invalid_broken_content_xml",
-          "status": "skipped",
-          "reason": "python status=ok odf_toolkit status=unavailable"
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 7,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 7
+        },
+        {
+          "id": "invalid_missing_content_xml",
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
+        },
+        {
+          "id": "invalid_content_body_mismatch",
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 5,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 5
+        },
+        {
+          "id": "invalid_content_root_mismatch",
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
+        },
+        {
+          "id": "invalid_aux_declared_missing_styles",
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 6
+        },
+        {
+          "id": "invalid_aux_invalid_styles_xml",
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 6
+        },
+        {
+          "id": "invalid_signature_manifest_missing_xml",
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 6
         }
       ]
     },
     "opf": {
       "tool": "opf",
-      "samples_total": 13,
-      "samples_compared": 0,
-      "samples_skipped": 13,
+      "samples_total": 23,
+      "samples_compared": 23,
+      "samples_skipped": 0,
       "reference_status_counts": {
-        "unavailable": 13
+        "ok": 23
       },
       "issue_totals": {
-        "python": 0,
-        "reference": 0,
+        "python": 26,
+        "reference": 119,
         "matched": 0,
-        "only_python": 0,
-        "only_reference": 0
+        "only_python": 26,
+        "only_reference": 119
       },
       "mismatch_families": {
-        "only_python": [],
-        "only_reference": []
+        "only_python": [
+          {
+            "comparison_key": "error|content.xml is missing required office:body element",
+            "description": "content.xml is missing required office:body element",
+            "family_group_key": "error|<file> is missing required office body element",
+            "count": 6
+          },
+          {
+            "comparison_key": "error|Manifest entry '<value>' was not found in package",
+            "description": "Manifest entry '<value>' was not found in package",
+            "family_group_key": "error|manifest entry <value> was not found in package",
+            "count": 3
+          },
+          {
+            "comparison_key": "error|Root manifest media-type does not match mimetype ('<value>' != '<value>')",
+            "description": "Root manifest media-type does not match mimetype ('<value>' != '<value>')",
+            "family_group_key": "error|root manifest media type does not match mimetype <value> <value>",
+            "count": 2
+          },
+          {
+            "comparison_key": "error|ODF package is missing required member '<value>'",
+            "description": "ODF package is missing required member '<value>'",
+            "family_group_key": "error|odf package is missing required member <value>",
+            "count": 2
+          },
+          {
+            "comparison_key": "error|ODF package is missing required manifest entry '<value>'",
+            "description": "ODF package is missing required manifest entry '<value>'",
+            "family_group_key": "error|odf package is missing required manifest entry <value>",
+            "count": 2
+          },
+          {
+            "comparison_key": "error|Missing mimetype entry",
+            "description": "Missing mimetype entry",
+            "family_group_key": "error|missing mimetype entry",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|Invalid ODF mimetype value '<value>'",
+            "description": "Invalid ODF mimetype value '<value>'",
+            "family_group_key": "error|invalid odf mimetype value <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|Missing META-INF/manifest.xml",
+            "description": "Missing META-INF/manifest.xml",
+            "family_group_key": "error|missing meta inf <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|Invalid manifest.xml: Opening and ending tag mismatch: file-entry line <n> and manifest, line <n>, column <n> (<string>, line <n>)",
+            "description": "Invalid manifest.xml: Opening and ending tag mismatch: file-entry line <n> and manifest, line <n>, column <n> (<string>, line <n>)",
+            "family_group_key": "error|invalid <file> opening and ending tag mismatch file entry line <n> and manifest line <n> column <n> <string> line <n>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|Package member '<value>' is not declared in manifest.xml",
+            "description": "Package member '<value>' is not declared in manifest.xml",
+            "family_group_key": "error|package member <value> is not declared in <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|Duplicate manifest file-entry path '<value>' (<n> entries)",
+            "description": "Duplicate manifest file-entry path '<value>' (<n> entries)",
+            "family_group_key": "error|duplicate manifest file entry path <value> <n> entries",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|manifest.xml is missing required root file-entry '<value>'",
+            "description": "manifest.xml is missing required root file-entry '<value>'",
+            "family_group_key": "error|<file> is missing required root file entry <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|XML parse error: Opening and ending tag mismatch: bad line <n> and office:text, line <n>, column <n> (<string>, line <n>)",
+            "description": "XML parse error: Opening and ending tag mismatch: bad line <n> and office:text, line <n>, column <n> (<string>, line <n>)",
+            "family_group_key": "error|xml parse error opening and ending tag mismatch bad line <n> and office text line <n> column <n> <string> line <n>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|content.xml body type does not match mimetype (expected office:text, found '<value>')",
+            "description": "content.xml body type does not match mimetype (expected office:text, found '<value>')",
+            "family_group_key": "error|<file> body type does not match mimetype expected office text found <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|content.xml root element must be office:document-content (found '<value>')",
+            "description": "content.xml root element must be office:document-content (found '<value>')",
+            "family_group_key": "error|<file> root element must be office document content found <value>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|XML parse error: Opening and ending tag mismatch: styles line <n> and document-stylez, line <n>, column <n> (<string>, line <n>)",
+            "description": "XML parse error: Opening and ending tag mismatch: styles line <n> and document-stylez, line <n>, column <n> (<string>, line <n>)",
+            "family_group_key": "error|xml parse error opening and ending tag mismatch styles line <n> and document stylez line <n> column <n> <string> line <n>",
+            "count": 1
+          }
+        ],
+        "only_reference": [
+          {
+            "comparison_key": "error|\"severity\" : \"ERROR\",",
+            "description": "\"severity\" : \"ERROR\",",
+            "family_group_key": "error|severity error",
+            "count": 23
+          },
+          {
+            "comparison_key": "warning|\"severity\" : \"WARNING\",",
+            "description": "\"severity\" : \"WARNING\",",
+            "family_group_key": "warning|severity warning",
+            "count": 23
+          },
+          {
+            "comparison_key": "warning|NOT VALID, <n> errors, <n> warnings and <n> info messages.",
+            "description": "NOT VALID, <n> errors, <n> warnings and <n> info messages.",
+            "family_group_key": "warning|not valid <n> errors <n> warnings and <n> info messages",
+            "count": 22
+          },
+          {
+            "comparison_key": "error|\"title\" : \"Not a valid XML document. Validation exception at line <n> and column <n>: value of attribute \\\"manifest:checksum\\\" is invalid; must be a base64 string.\",",
+            "description": "\"title\" : \"Not a valid XML document. Validation exception at line <n> and column <n>: value of attribute \\\"manifest:checksum\\\" is invalid; must be a base64 string.\",",
+            "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute manifest checksum is invalid must be a base64 string",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"value\" : \"value of attribute \\\"manifest:checksum\\\" is invalid; must be a base64 string\"",
+            "description": "\"value\" : \"value of attribute \\\"manifest:checksum\\\" is invalid; must be a base64 string\"",
+            "family_group_key": "error|value value of attribute manifest checksum is invalid must be a base64 string",
+            "count": 1
+          },
+          {
+            "comparison_key": "warning|INCOMPLETE encrypted entries are not supported, <n> errors, <n> warnings and <n> info messages.",
+            "description": "INCOMPLETE encrypted entries are not supported, <n> errors, <n> warnings and <n> info messages.",
+            "family_group_key": "warning|incomplete encrypted entries are not supported <n> errors <n> warnings and <n> info messages",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_missing_mimetype.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_missing_mimetype.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_missing_mimetype.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_missing_mimetype.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_missing_mimetype.odt\",",
+            "description": "\"filename\" : \"/input/invalid_missing_mimetype.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_invalid_mimetype.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_invalid_mimetype.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_invalid_mimetype.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_invalid_mimetype.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_invalid_mimetype.odt\",",
+            "description": "\"filename\" : \"/input/invalid_invalid_mimetype.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_missing_manifest.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_missing_manifest.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_missing_manifest.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_missing_manifest.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_missing_manifest.odt\",",
+            "description": "\"filename\" : \"/input/invalid_missing_manifest.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_malformed_manifest.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_malformed_manifest.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_malformed_manifest.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_malformed_manifest.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_malformed_manifest.odt\",",
+            "description": "\"filename\" : \"/input/invalid_malformed_manifest.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_manifest_missing_part.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_manifest_missing_part.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_manifest_missing_part.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_manifest_missing_part.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_manifest_missing_part.odt\",",
+            "description": "\"filename\" : \"/input/invalid_manifest_missing_part.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_unlisted_xml_part.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_unlisted_xml_part.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_unlisted_xml_part.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_unlisted_xml_part.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_unlisted_xml_part.odt\",",
+            "description": "\"filename\" : \"/input/invalid_unlisted_xml_part.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_duplicate_manifest_entry.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_duplicate_manifest_entry.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_duplicate_manifest_entry.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_duplicate_manifest_entry.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_duplicate_manifest_entry.odt\",",
+            "description": "\"filename\" : \"/input/invalid_duplicate_manifest_entry.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_missing_root_entry.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_missing_root_entry.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_missing_root_entry.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_missing_root_entry.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_missing_root_entry.odt\",",
+            "description": "\"filename\" : \"/input/invalid_missing_root_entry.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_root_mimetype_mismatch.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_root_mimetype_mismatch.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_root_mimetype_mismatch.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_root_mimetype_mismatch.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_root_mimetype_mismatch.odt\",",
+            "description": "\"filename\" : \"/input/invalid_root_mimetype_mismatch.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_broken_content_xml.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_broken_content_xml.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_broken_content_xml.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_broken_content_xml.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_broken_content_xml.odt\",",
+            "description": "\"filename\" : \"/input/invalid_broken_content_xml.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_missing_content_xml.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_missing_content_xml.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_missing_content_xml.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_missing_content_xml.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_missing_content_xml.odt\",",
+            "description": "\"filename\" : \"/input/invalid_missing_content_xml.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_content_body_mismatch.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_content_body_mismatch.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_content_body_mismatch.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_content_body_mismatch.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_content_body_mismatch.odt\",",
+            "description": "\"filename\" : \"/input/invalid_content_body_mismatch.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_content_root_mismatch.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_content_root_mismatch.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_content_root_mismatch.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_content_root_mismatch.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_content_root_mismatch.odt\",",
+            "description": "\"filename\" : \"/input/invalid_content_root_mismatch.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_aux_declared_missing_styles.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_aux_declared_missing_styles.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_aux_declared_missing_styles.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_aux_declared_missing_styles.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_aux_declared_missing_styles.odt\",",
+            "description": "\"filename\" : \"/input/invalid_aux_declared_missing_styles.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_aux_invalid_styles_xml.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_aux_invalid_styles_xml.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_aux_invalid_styles_xml.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_aux_invalid_styles_xml.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_aux_invalid_styles_xml.odt\",",
+            "description": "\"filename\" : \"/input/invalid_aux_invalid_styles_xml.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validating /input/invalid_signature_manifest_missing_xml.odt.",
+            "description": "APP-<n>: [INFO] Validating /input/invalid_signature_manifest_missing_xml.odt.",
+            "family_group_key": "info|app <n> info validating <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "info|APP-<n>: [INFO] Validation report for /input/invalid_signature_manifest_missing_xml.odt.",
+            "description": "APP-<n>: [INFO] Validation report for /input/invalid_signature_manifest_missing_xml.odt.",
+            "family_group_key": "info|app <n> info report for <path> <file>",
+            "count": 1
+          },
+          {
+            "comparison_key": "error|\"filename\" : \"/input/invalid_signature_manifest_missing_xml.odt\",",
+            "description": "\"filename\" : \"/input/invalid_signature_manifest_missing_xml.odt\",",
+            "family_group_key": "error|filename <path> <file>",
+            "count": 1
+          }
+        ]
+      },
+      "mismatch_categories": {
+        "only_python": {
+          "package": 15,
+          "schema": 10,
+          "semantic": 1
+        },
+        "only_reference": {
+          "reference": 89,
+          "schema": 13,
+          "package": 13,
+          "security": 4
+        }
       },
       "samples": [
         {
           "id": "valid_minimal_odt",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 3,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 3
         },
         {
           "id": "valid_minimal_ods",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 3,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 3
         },
         {
           "id": "valid_minimal_odp",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 3,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 3
+        },
+        {
+          "id": "valid_minimal_odt_v12",
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 3,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 3
+        },
+        {
+          "id": "valid_minimal_odt_v14",
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 3,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 3
+        },
+        {
+          "id": "valid_signed_stub_odt",
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 3,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 3
+        },
+        {
+          "id": "valid_encrypted_stub_odt",
+          "status": "compared",
+          "python_issue_count": 0,
+          "reference_issue_count": 5,
+          "matched": 0,
+          "only_python": 0,
+          "only_reference": 5
         },
         {
           "id": "invalid_missing_mimetype",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
         },
         {
           "id": "invalid_invalid_mimetype",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 3,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 3,
+          "only_reference": 6
         },
         {
           "id": "invalid_missing_manifest",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 6
         },
         {
           "id": "invalid_malformed_manifest",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 6
         },
         {
           "id": "invalid_manifest_missing_part",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
         },
         {
           "id": "invalid_unlisted_xml_part",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
         },
         {
           "id": "invalid_duplicate_manifest_entry",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
         },
         {
           "id": "invalid_missing_root_entry",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
         },
         {
           "id": "invalid_root_mimetype_mismatch",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
         },
         {
           "id": "invalid_broken_content_xml",
-          "status": "skipped",
-          "reason": "python status=ok opf status=unavailable"
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 6
+        },
+        {
+          "id": "invalid_missing_content_xml",
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
+        },
+        {
+          "id": "invalid_content_body_mismatch",
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 6
+        },
+        {
+          "id": "invalid_content_root_mismatch",
+          "status": "compared",
+          "python_issue_count": 2,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 2,
+          "only_reference": 6
+        },
+        {
+          "id": "invalid_aux_declared_missing_styles",
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 6
+        },
+        {
+          "id": "invalid_aux_invalid_styles_xml",
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 6
+        },
+        {
+          "id": "invalid_signature_manifest_missing_xml",
+          "status": "compared",
+          "python_issue_count": 1,
+          "reference_issue_count": 6,
+          "matched": 0,
+          "only_python": 1,
+          "only_reference": 6
         }
       ]
     }
+  },
+  "cross_tool_families": {
+    "only_python": [
+      {
+        "family_group_key": "error|<file> is missing required office body element",
+        "description": "content.xml is missing required office:body element",
+        "count": 12,
+        "tools": {
+          "odf_toolkit": 6,
+          "opf": 6
+        }
+      },
+      {
+        "family_group_key": "error|manifest entry <value> was not found in package",
+        "description": "Manifest entry '<value>' was not found in package",
+        "count": 6,
+        "tools": {
+          "odf_toolkit": 3,
+          "opf": 3
+        }
+      },
+      {
+        "family_group_key": "error|root manifest media type does not match mimetype <value> <value>",
+        "description": "Root manifest media-type does not match mimetype ('<value>' != '<value>')",
+        "count": 4,
+        "tools": {
+          "odf_toolkit": 2,
+          "opf": 2
+        }
+      },
+      {
+        "family_group_key": "error|odf package is missing required member <value>",
+        "description": "ODF package is missing required member '<value>'",
+        "count": 4,
+        "tools": {
+          "odf_toolkit": 2,
+          "opf": 2
+        }
+      },
+      {
+        "family_group_key": "error|odf package is missing required manifest entry <value>",
+        "description": "ODF package is missing required manifest entry '<value>'",
+        "count": 4,
+        "tools": {
+          "odf_toolkit": 2,
+          "opf": 2
+        }
+      },
+      {
+        "family_group_key": "error|missing mimetype entry",
+        "description": "Missing mimetype entry",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|invalid odf mimetype value <value>",
+        "description": "Invalid ODF mimetype value '<value>'",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|missing meta inf <file>",
+        "description": "Missing META-INF/manifest.xml",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|invalid <file> opening and ending tag mismatch file entry line <n> and manifest line <n> column <n> <string> line <n>",
+        "description": "Invalid manifest.xml: Opening and ending tag mismatch: file-entry line <n> and manifest, line <n>, column <n> (<string>, line <n>)",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|package member <value> is not declared in <file>",
+        "description": "Package member '<value>' is not declared in manifest.xml",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|duplicate manifest file entry path <value> <n> entries",
+        "description": "Duplicate manifest file-entry path '<value>' (<n> entries)",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|<file> is missing required root file entry <value>",
+        "description": "manifest.xml is missing required root file-entry '<value>'",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|xml parse error opening and ending tag mismatch bad line <n> and office text line <n> column <n> <string> line <n>",
+        "description": "XML parse error: Opening and ending tag mismatch: bad line <n> and office:text, line <n>, column <n> (<string>, line <n>)",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|<file> body type does not match mimetype expected office text found <value>",
+        "description": "content.xml body type does not match mimetype (expected office:text, found '<value>')",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|<file> root element must be office document content found <value>",
+        "description": "content.xml root element must be office:document-content (found '<value>')",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|xml parse error opening and ending tag mismatch styles line <n> and document stylez line <n> column <n> <string> line <n>",
+        "description": "XML parse error: Opening and ending tag mismatch: styles line <n> and document-stylez, line <n>, column <n> (<string>, line <n>)",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 1,
+          "opf": 1
+        }
+      }
+    ],
+    "only_reference": [
+      {
+        "family_group_key": "info|<path> <file> info generator null",
+        "description": "/input/valid_minimal.odt: Info: Generator: null",
+        "count": 23,
+        "tools": {
+          "odf_toolkit": 23
+        }
+      },
+      {
+        "family_group_key": "error|severity error",
+        "description": "\"severity\" : \"ERROR\",",
+        "count": 23,
+        "tools": {
+          "opf": 23
+        }
+      },
+      {
+        "family_group_key": "warning|severity warning",
+        "description": "\"severity\" : \"WARNING\",",
+        "count": 23,
+        "tools": {
+          "opf": 23
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+        "description": "/input/valid_minimal.odt: Error: The ODF mimetype '<value>' is invalid for the ODF XML Schema document!",
+        "count": 22,
+        "tools": {
+          "odf_toolkit": 22
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+        "description": "/input/valid_minimal.odt/mimetype: Error: mimetype is not an ODFMediaTypes mimetype.",
+        "count": 22,
+        "tools": {
+          "odf_toolkit": 22
+        }
+      },
+      {
+        "family_group_key": "warning|not valid <n> errors <n> warnings and <n> info messages",
+        "description": "NOT VALID, <n> errors, <n> warnings and <n> info messages.",
+        "count": 22,
+        "tools": {
+          "opf": 22
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+        "description": "/input/valid_minimal.odt/mimetype: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', which differs from the mediatype of the root document '<value>'!",
+        "count": 20,
+        "tools": {
+          "odf_toolkit": 20
+        }
+      },
+      {
+        "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> os part2 packages html a 2 2 package conformance",
+        "description": "/input/valid_minimal.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/os/part2-packages/OpenDocument-v1.<n>-os-part2-packages.html#a_2_2_Package_Conformance",
+        "count": 19,
+        "tools": {
+          "odf_toolkit": 19
+        }
+      },
+      {
+        "family_group_key": "info|app <n> info validating <path> <file>",
+        "description": "APP-<n>: [INFO] Validating /input/invalid_missing_mimetype.odt.",
+        "count": 16,
+        "tools": {
+          "opf": 16
+        }
+      },
+      {
+        "family_group_key": "info|app <n> info report for <path> <file>",
+        "description": "APP-<n>: [INFO] Validation report for /input/invalid_missing_mimetype.odt.",
+        "count": 16,
+        "tools": {
+          "opf": 16
+        }
+      },
+      {
+        "family_group_key": "error|filename <path> <file>",
+        "description": "\"filename\" : \"/input/invalid_missing_mimetype.odt\",",
+        "count": 16,
+        "tools": {
+          "opf": 16
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <automatic styles> <body> <font face decls> <scripts>",
+        "description": "/input/invalid_missing_mimetype.odt/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <automatic-styles>,<body>,<font-face-decls>,<scripts>",
+        "count": 8,
+        "tools": {
+          "odf_toolkit": 8
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> <file> error the file <value> shall be listed in the <value> file as it exists in the odf package <value>",
+        "description": "/input/invalid_missing_manifest.odt/META-INF/manifest.xml: Error: The file '<value>' shall be listed in the '<value>' file as it exists in the ODF package '<value>'!",
+        "count": 3,
+        "tools": {
+          "odf_toolkit": 3
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> <file> error the file <value> shall not be listed in the <value> file as it does not exist in the odf package <value>",
+        "description": "/input/invalid_manifest_missing_part.odt/META-INF/manifest.xml: Error: The file '<value>' shall not be listed in the '<value>' file as it does not exist in the ODF package '<value>'!",
+        "count": 3,
+        "tools": {
+          "odf_toolkit": 3
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <n> <n> error the odf package <value> contains a <value> file containing <value> but no mediatype for its root document in its <value>",
+        "description": "/input/invalid_missing_manifest.odt[-<n>,-<n>]: Error: The ODF package '<value>' contains a '<value>' file containing '<value>', but no mediatype for its root document in its '<value>'!",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 2
+        }
+      },
+      {
+        "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> html ref package",
+        "description": "/input/invalid_manifest_missing_part.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/v1.<n>/OpenDocument-v1.<n>.html#Ref_Package",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 2
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> <file> <n> <n> error unexpected attribute manifest version",
+        "description": "/input/invalid_manifest_missing_part.odt/META-INF/manifest.xml[<n>,<n>]: Error: unexpected attribute \"manifest:version\"",
+        "count": 2,
+        "tools": {
+          "odf_toolkit": 2
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <dde source> <desc> <forms> <scenario> <shapes> <table column group> <table column> <table columns> <table header columns> <table source> <title>",
+        "description": "/input/valid_minimal.ods/content.xml[<n>,<n>]: Error: uncompleted content model. expecting: <dde-source>,<desc>,<forms>,<scenario>,<shapes>,<table-column-group>,<table-column>,<table-columns>,<table-header-columns>,<table-source>,<title>",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <file> <n> <n> error element draw page is missing master page name attribute",
+        "description": "/input/valid_minimal.odp/content.xml[<n>,<n>]: Error: element \"draw:page\" is missing \"master-page-name\" attribute",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> part3 html a2 2packages",
+        "description": "/input/valid_minimal_v12.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/v1.<n>/OpenDocument-v1.<n>-part3.html#a2_2Packages",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "info|<path> <file> <path> error for more information on odf package conformance see <path> <n> <path> <n> part2 packages html a 2 2 package conformance",
+        "description": "/input/valid_minimal_v14.odt/mimetype: Error: For more information on ODF package conformance see https://docs.oasis-open.org/office/OpenDocument/v1.<n>/OpenDocument-v1.<n>-part2-packages.html#a_2_2_Package_Conformance",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> <file> <n> <n> error element document signatures is missing version attribute",
+        "description": "/input/valid_signed_stub.odt/META-INF/documentsignatures.xml[<n>,<n>]: Error: element \"document-signatures\" is missing \"version\" attribute",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> <file> <n> <n> error attribute manifest checksum has a bad value dummy does not satisfy the base64binary type",
+        "description": "/input/valid_encrypted_stub.odt/META-INF/manifest.xml[<n>,<n>]: Error: attribute \"manifest:checksum\" has a bad value: \"dummy\" does not satisfy the \"base64Binary\" type",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <file> fatal stream content is encrypted of encrypted content is not supported",
+        "description": "/input/valid_encrypted_stub.odt/content.xml: Fatal: stream content is encrypted. Validation of encrypted content is not supported.",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> error the odf package <value> contains no <value> file",
+        "description": "/input/invalid_missing_mimetype.odt/mimetype: Error: The ODF package '<value>' contains no '<value>' file!",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <n> <n> error the <value> file have to be contained in the odf xml schema package <value>",
+        "description": "/input/invalid_missing_mimetype.odt[-<n>,-<n>]: Error: The '<value>' file have to be contained in the ODF XML Schema package '<value>'!",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> <file> error the odf package <value> shall contain the <value> file",
+        "description": "/input/invalid_missing_manifest.odt/META-INF/manifest.xml: Error: The ODF package '<value>' shall contain the '<value>' file!",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|fatal error <n> <n> the element type manifest file entry must be terminated by the matching end tag < <path> >",
+        "description": "[Fatal Error] :<n>:<n>: The element type \"manifest:file-entry\" must be terminated by the matching end-tag \"</manifest:file-entry>\".",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> <file> <n> <n> error element manifest manifest is missing version attribute",
+        "description": "/input/invalid_malformed_manifest.odt/META-INF/manifest.xml[<n>,<n>]: Error: element \"manifest:manifest\" is missing \"version\" attribute",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <path> <file> <n> <n> fatal the element type manifest file entry must be terminated by the matching end tag < <path> >",
+        "description": "/input/invalid_malformed_manifest.odt/META-INF/manifest.xml[<n>,<n>]: Fatal: The element type \"manifest:file-entry\" must be terminated by the matching end-tag \"</manifest:file-entry>\".",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <file> <n> <n> error tag name bad is not allowed possible tag names are <a> <alphabetical index auto mark file> <alphabetical index> <bibliography> <calculation settings> <caption> <change end> <change start> <change> <circle> <connector> <consolidation> <content validations> <control> <custom shape> <data pilot tables> <database ranges> <dde connection decls> <dde links> <ellipse> <forms> <frame> <g> <h> <illustration index> <label ranges> <line> <list> <measure> <named expressions> <numbered paragraph> <object index> <p> <page sequence> <page thumbnail> <path> <polygon> <polyline> <rect> <regular polygon> <scene> <section> <sequence decls> <soft page break> <table index> <table of content> <table> <tracked changes> <user field decls> <user index> <variable decls>",
+        "description": "/input/invalid_broken_content_xml.odt/content.xml[<n>,<n>]: Error: tag name \"bad\" is not allowed. Possible tag names are: <a>,<alphabetical-index-auto-mark-file>,<alphabetical-index>,<bibliography>,<calculation-settings>,<caption>,<change-end>,<change-start>,<change>,<circle>,<connector>,<consolidation>,<content-validations>,<control>,<custom-shape>,<data-pilot-tables>,<database-ranges>,<dde-connection-decls>,<dde-links>,<ellipse>,<forms>,<frame>,<g>,<h>,<illustration-index>,<label-ranges>,<line>,<list>,<measure>,<named-expressions>,<numbered-paragraph>,<object-index>,<p>,<page-sequence>,<page-thumbnail>,<path>,<polygon>,<polyline>,<rect>,<regular-polygon>,<scene>,<section>,<sequence-decls>,<soft-page-break>,<table-index>,<table-of-content>,<table>,<tracked-changes>,<user-field-decls>,<user-index>,<variable-decls>",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <file> <n> <n> fatal the element type bad must be terminated by the matching end tag < <path> >",
+        "description": "/input/invalid_broken_content_xml.odt/content.xml[<n>,<n>]: Fatal: The element type \"bad\" must be terminated by the matching end-tag \"</bad>\".",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <file> error invalid root element office document styles",
+        "description": "/input/invalid_content_root_mismatch.odt/content.xml: Error: Invalid root element: office:document-styles",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|<path> <file> <file> <n> <n> fatal the element type office styles must be terminated by the matching end tag < <path> >",
+        "description": "/input/invalid_aux_invalid_styles_xml.odt/styles.xml[<n>,<n>]: Fatal: The element type \"office:styles\" must be terminated by the matching end-tag \"</office:styles>\".",
+        "count": 1,
+        "tools": {
+          "odf_toolkit": 1
+        }
+      },
+      {
+        "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute manifest checksum is invalid must be a base64 string",
+        "description": "\"title\" : \"Not a valid XML document. Validation exception at line <n> and column <n>: value of attribute \\\"manifest:checksum\\\" is invalid; must be a base64 string.\",",
+        "count": 1,
+        "tools": {
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "error|value value of attribute manifest checksum is invalid must be a base64 string",
+        "description": "\"value\" : \"value of attribute \\\"manifest:checksum\\\" is invalid; must be a base64 string\"",
+        "count": 1,
+        "tools": {
+          "opf": 1
+        }
+      },
+      {
+        "family_group_key": "warning|incomplete encrypted entries are not supported <n> errors <n> warnings and <n> info messages",
+        "description": "INCOMPLETE encrypted entries are not supported, <n> errors, <n> warnings and <n> info messages.",
+        "count": 1,
+        "tools": {
+          "opf": 1
+        }
+      }
+    ]
   }
 }

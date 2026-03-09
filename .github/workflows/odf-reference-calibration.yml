@@ -1,0 +1,150 @@
+name: ODF reference calibration
+
+on:
+  workflow_dispatch:
+    inputs:
+      odf_toolkit_ref:
+        description: "ODF Toolkit git ref to build."
+        required: false
+        default: "v0.13.0"
+      opf_ref:
+        description: "OPF validator git ref to build."
+        required: false
+        default: "v0.20-alpha-2"
+  schedule:
+    - cron: "31 2 * * 1"
+
+jobs:
+  odf-reference-drift:
+    runs-on: ubuntu-latest
+    env:
+      BASELINE_COMPARE: data/odf/reference_baseline/2026-03-09/mismatch_report.json
+      POLICY_FILE: data/odf/reference_baseline/2026-03-09/drift_policy.json
+      WAIVERS_FILE: data/odf/reference_baseline/2026-03-09/waivers.json
+      RUN_REPORT: reports/odf/reference_runs.json
+      COMPARE_REPORT: reports/odf/reference_compare.json
+      COMPARE_SUMMARY: reports/odf/reference_compare.md
+      TRIAGE_REPORT: reports/odf/mismatch_triage.md
+      DRIFT_REPORT: reports/odf/reference_drift.json
+      DRIFT_SUMMARY: /tmp/odf_reference_drift.md
+      ODF_TOOLKIT_REF: ${{ github.event.inputs.odf_toolkit_ref || 'v0.13.0' }}
+      OPF_REF: ${{ github.event.inputs.opf_ref || 'v0.20-alpha-2' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Maven
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y maven
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Prepare reports directory
+        run: mkdir -p reports/odf
+
+      - name: Bootstrap reference validators
+        id: bootstrap
+        run: |
+          python scripts/odf/bootstrap_reference_validators.py \
+            --work-root /tmp/openxml_audit_odf_reference_tools \
+            --odf-toolkit-ref "$ODF_TOOLKIT_REF" \
+            --opf-ref "$OPF_REF" \
+            --output-json /tmp/odf_reference_tools.json
+
+          cp /tmp/odf_reference_tools.json reports/odf/reference_tooling.json
+
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          payload = json.loads(Path("/tmp/odf_reference_tools.json").read_text(encoding="utf-8"))
+          output_path = Path(os.environ["GITHUB_OUTPUT"])
+          with output_path.open("a", encoding="utf-8") as fh:
+            for key, value in {
+              "odf_toolkit_cmd": payload["odf_toolkit_cmd"],
+              "opf_cmd": payload["opf_cmd"],
+              "odf_toolkit_repo": payload["odf_toolkit"]["repo"],
+              "odf_toolkit_ref": payload["odf_toolkit"]["ref"],
+              "opf_repo": payload["opf"]["repo"],
+              "opf_ref": payload["opf"]["ref"],
+            }.items():
+              fh.write(f"{key}<<EOF\n{value}\nEOF\n")
+          PY
+
+      - name: Run ODF reference validators
+        run: |
+          python scripts/odf/run_reference_validators.py \
+            --corpus-manifest data/odf/reference_corpus/manifest.json \
+            --output "$RUN_REPORT" \
+            --odf-toolkit-cmd "${{ steps.bootstrap.outputs.odf_toolkit_cmd }}" \
+            --opf-cmd "${{ steps.bootstrap.outputs.opf_cmd }}"
+
+      - name: Compare reference results
+        run: |
+          python scripts/odf/compare_reference_results.py \
+            --input "$RUN_REPORT" \
+            --output "$COMPARE_REPORT" \
+            --summary "$COMPARE_SUMMARY"
+
+      - name: Build mismatch triage
+        run: |
+          python scripts/odf/build_mismatch_triage.py \
+            --compare "$COMPARE_REPORT" \
+            --runs "$RUN_REPORT" \
+            --output "$TRIAGE_REPORT"
+
+      - name: Enforce reference drift policy
+        run: |
+          python scripts/odf/check_reference_drift.py \
+            --baseline "$BASELINE_COMPARE" \
+            --current "$COMPARE_REPORT" \
+            --policy "$POLICY_FILE" \
+            --waivers "$WAIVERS_FILE" \
+            --output "$DRIFT_REPORT" \
+            --summary "$DRIFT_SUMMARY"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: odf-reference-calibration
+          path: reports/odf
+
+      - name: Workflow summary
+        if: always()
+        run: |
+          {
+            echo "# ODF Reference Calibration";
+            echo "- ODF Toolkit: ${{ steps.bootstrap.outputs.odf_toolkit_repo }} @ ${{ steps.bootstrap.outputs.odf_toolkit_ref }}";
+            echo "- OPF: ${{ steps.bootstrap.outputs.opf_repo }} @ ${{ steps.bootstrap.outputs.opf_ref }}";
+            echo "";
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -f "$DRIFT_SUMMARY" ]; then
+            cat "$DRIFT_SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No ODF drift summary produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f "$TRIAGE_REPORT" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            cat "$TRIAGE_REPORT" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "No ODF mismatch triage report produced." >> "$GITHUB_STEP_SUMMARY"
+          fi

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document-signatures
+  xmlns="urn:oasis:names:tc:opendocument:xmlns:digitalsignature:1.0"
+  xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+  <ds:Signature>
+    <ds:SignedInfo>
+      <ds:Reference URI="content.xml"/>
+    </ds:SignedInfo>
+    <ds:SignatureValue>AAAA</ds:SignatureValue>
+  </ds:Signature>
+</document-signatures>

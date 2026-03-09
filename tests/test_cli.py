@@ -18,16 +18,32 @@ def test_detect_validator_for_odf_extensions() -> None:
 
 
 def test_cli_auto_routes_odf_to_odf_validator(monkeypatch, minimal_odt: Path) -> None:
-    calls: list[tuple[str, str, FileFormat, int, bool]] = []
+    calls: list[tuple[str, str, FileFormat, int, bool, dict[str, object]]] = []
 
     class DummyOdfValidator:
-        def __init__(self, file_format: FileFormat, max_errors: int, strict: bool) -> None:
+        def __init__(
+            self,
+            file_format: FileFormat,
+            max_errors: int,
+            strict: bool,
+            **kwargs: object,
+        ) -> None:
             self.file_format = file_format
             self.max_errors = max_errors
             self.strict = strict
+            self.kwargs = kwargs
 
         def validate(self, path: Path) -> ValidationResult:
-            calls.append(("odf", str(path), self.file_format, self.max_errors, self.strict))
+            calls.append(
+                (
+                    "odf",
+                    str(path),
+                    self.file_format,
+                    self.max_errors,
+                    self.strict,
+                    self.kwargs,
+                )
+            )
             return ValidationResult(
                 is_valid=True,
                 errors=[],
@@ -52,6 +68,76 @@ def test_cli_auto_routes_odf_to_odf_validator(monkeypatch, minimal_odt: Path) ->
     assert calls and calls[0][0] == "odf"
     assert calls[0][2] == FileFormat.ODF_1_3
     assert calls[0][3] == 100
+    assert calls[0][5]["semantic_validation"] is True
+
+
+def test_cli_odf_level_foundation_disables_semantic_schema(
+    monkeypatch,
+    minimal_odt: Path,
+) -> None:
+    kwargs_capture: list[dict[str, object]] = []
+
+    class DummyOdfValidator:
+        def __init__(
+            self,
+            file_format: FileFormat,
+            max_errors: int,
+            strict: bool,
+            **kwargs: object,
+        ) -> None:
+            kwargs_capture.append(kwargs)
+            self.file_format = file_format
+
+        def validate(self, path: Path) -> ValidationResult:
+            return ValidationResult(
+                is_valid=True,
+                errors=[],
+                file_path=str(path),
+                file_format=self.file_format,
+            )
+
+    monkeypatch.setattr(cli_module, "OdfValidator", DummyOdfValidator)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli_module.main,
+        [
+            str(minimal_odt),
+            "--validator",
+            "odf",
+            "--odf-level",
+            "foundation",
+            "--output",
+            "json",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert kwargs_capture
+    kwargs = kwargs_capture[0]
+    assert kwargs["schema_validation"] is False
+    assert kwargs["semantic_validation"] is False
+    assert kwargs["security_validation"] is False
+    assert kwargs["relaxng_validation"] is False
+
+
+def test_cli_odf_schema_core_requires_routes(minimal_odt: Path) -> None:
+    runner = CliRunner()
+    result = runner.invoke(
+        cli_module.main,
+        [
+            str(minimal_odt),
+            "--validator",
+            "odf",
+            "--odf-level",
+            "schema-core",
+            "--output",
+            "json",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "--odf-level=schema-core requires --odf-schema-routes" in result.output
 
 
 def test_cli_auto_routes_ooxml_to_ooxml_validator(monkeypatch, minimal_pptx: Path) -> None:

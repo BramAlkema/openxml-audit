@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 
 import click
@@ -71,6 +72,12 @@ ODF_EXTENSIONS = {
     ".otm",
     ".oth",
 }
+ODF_CONFORMANCE_LEVELS = {
+    "foundation",
+    "schema-core",
+    "semantic-core",
+    "security-core",
+}
 
 
 def _detect_validator_for_path(path: Path) -> str:
@@ -105,8 +112,94 @@ def _collect_files(path: Path, recursive: bool, validator: str) -> list[Path]:
             extensions = ODF_EXTENSIONS
         else:
             extensions = OOXML_EXTENSIONS | ODF_EXTENSIONS
-        return sorted({p for ext in extensions for p in path.rglob(f"*{ext}")})
+        return sorted(p for p in path.rglob("*") if p.suffix.lower() in extensions)
     return [path]
+
+
+def _load_odf_schema_routes(path: Path) -> Mapping[str, Mapping[str, Path]]:
+    """Load ODF schema routes JSON for schema-core CLI mode.
+
+    Accepted payload shapes:
+    1) versioned mapping:
+       {"1.3": {"content.xml": "schemas/odf/content.rng"}}
+    2) legacy flat mapping:
+       {"content.xml": "schemas/odf/content.rng"}
+    """
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("ODF schema routes file must contain a JSON object.")
+
+    route_values = list(payload.values())
+    is_versioned = bool(route_values) and all(isinstance(value, dict) for value in route_values)
+    route_payload: dict[str, object] = payload if is_versioned else {"*": payload}
+
+    normalized: dict[str, dict[str, Path]] = {}
+    for version, raw_mapping in route_payload.items():
+        if not isinstance(version, str) or not version.strip():
+            raise ValueError("ODF schema route versions must be non-empty strings.")
+        if not isinstance(raw_mapping, dict):
+            raise ValueError(
+                f"ODF schema routes for version '{version}' must be a JSON object."
+            )
+
+        resolved_mapping: dict[str, Path] = {}
+        for pattern, raw_schema in raw_mapping.items():
+            if not isinstance(pattern, str) or not pattern.strip():
+                raise ValueError("ODF schema route patterns must be non-empty strings.")
+            if not isinstance(raw_schema, str) or not raw_schema.strip():
+                raise ValueError(
+                    f"ODF schema route '{pattern}' for version '{version}' "
+                    "must map to a non-empty string path."
+                )
+            schema_path = Path(raw_schema.strip())
+            if not schema_path.is_absolute():
+                schema_path = (path.parent / schema_path).resolve()
+            resolved_mapping[pattern] = schema_path
+
+        if resolved_mapping:
+            normalized[version.strip()] = resolved_mapping
+
+    if not normalized:
+        raise ValueError("ODF schema routes file does not contain any usable routes.")
+    return normalized
+
+
+def _odf_validator_kwargs_for_level(
+    level: str,
+    *,
+    schema_routes: Mapping[str, Mapping[str, Path]] | None,
+    verify_cryptography: bool,
+) -> dict[str, object]:
+    if level == "foundation":
+        return {
+            "schema_validation": False,
+            "semantic_validation": False,
+            "security_validation": False,
+            "relaxng_validation": False,
+        }
+    if level == "schema-core":
+        return {
+            "schema_validation": True,
+            "semantic_validation": False,
+            "security_validation": False,
+            "relaxng_validation": True,
+            "schema_routes": schema_routes,
+            "require_schema_routes": True,
+        }
+    if level == "security-core":
+        return {
+            "schema_validation": True,
+            "semantic_validation": True,
+            "security_validation": True,
+            "relaxng_validation": False,
+            "verify_cryptography": verify_cryptography,
+        }
+    return {
+        "schema_validation": True,
+        "semantic_validation": True,
+        "security_validation": False,
+        "relaxng_validation": False,
+    }
 
 
 @click.command()
@@ -158,6 +251,30 @@ def _collect_files(path: Path, recursive: bool, validator: str) -> list[Path]:
     is_flag=True,
     help="Only output errors, no success messages.",
 )
+@click.option(
+    "--odf-level",
+    type=click.Choice(sorted(ODF_CONFORMANCE_LEVELS), case_sensitive=False),
+    default="semantic-core",
+    show_default=True,
+    help=(
+        "ODF conformance level when validator is odf/auto and file is ODF "
+        "(foundation, schema-core, semantic-core, security-core)."
+    ),
+)
+@click.option(
+    "--odf-schema-routes",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help=(
+        "JSON schema-route mapping for ODF schema-core mode. "
+        "Required when --odf-level=schema-core."
+    ),
+)
+@click.option(
+    "--odf-verify-cryptography/--no-odf-verify-cryptography",
+    default=False,
+    help="Enable cryptographic verification hook in ODF security-core mode.",
+)
 def main(
     path: Path,
     file_format: str | None,
@@ -167,6 +284,9 @@ def main(
     max_errors: int,
     recursive: bool,
     quiet: bool,
+    odf_level: str,
+    odf_schema_routes: Path | None,
+    odf_verify_cryptography: bool,
 ) -> None:
     """Validate Open XML or ODF files against their specifications.
 
@@ -174,6 +294,18 @@ def main(
     """
     requested_format = FileFormat(file_format) if file_format else None
     strict = policy == "strict"
+    schema_routes: Mapping[str, Mapping[str, Path]] | None = None
+    if odf_schema_routes is not None:
+        try:
+            schema_routes = _load_odf_schema_routes(odf_schema_routes)
+        except (ValueError, json.JSONDecodeError) as exc:
+            error_console.print(f"[red]Error:[/red] {exc}")
+            sys.exit(1)
+    if odf_verify_cryptography and odf_level != "security-core":
+        error_console.print(
+            "[red]Error:[/red] --odf-verify-cryptography requires --odf-level=security-core."
+        )
+        sys.exit(1)
 
     # Collect files to validate
     try:
@@ -188,7 +320,7 @@ def main(
     # Validate each file
     results = []
     all_valid = True
-    validators: dict[tuple[str, FileFormat], object] = {}
+    validators: dict[tuple[str, FileFormat], OpenXmlValidator | OdfValidator] = {}
 
     for file_path in files:
         file_validator = validator
@@ -213,10 +345,22 @@ def main(
                     strict=strict,
                 )
             else:
+                if odf_level == "schema-core" and schema_routes is None:
+                    error_console.print(
+                        "[red]Error:[/red] "
+                        "--odf-level=schema-core requires --odf-schema-routes."
+                    )
+                    sys.exit(1)
+                odf_kwargs = _odf_validator_kwargs_for_level(
+                    odf_level,
+                    schema_routes=schema_routes,
+                    verify_cryptography=odf_verify_cryptography,
+                )
                 validators[cache_key] = OdfValidator(
                     file_format=format_enum,
                     max_errors=max_errors,
                     strict=strict,
+                    **odf_kwargs,
                 )
         result = validators[cache_key].validate(file_path)
         results.append(result)

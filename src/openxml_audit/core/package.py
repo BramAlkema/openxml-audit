@@ -26,6 +26,7 @@ class ZipPackage:
         self._path = Path(path)
         self._zip: zipfile.ZipFile | None = None
         self._part_cache: dict[str, bytes] = {}
+        self._name_set: set[str] | None = None
         self._errors: list[ValidationError] = []
 
     def __enter__(self) -> ZipPackage:
@@ -71,6 +72,7 @@ class ZipPackage:
             self._zip.close()
             self._zip = None
         self._part_cache.clear()
+        self._name_set = None
 
     @property
     def path(self) -> Path:
@@ -126,10 +128,14 @@ class ZipPackage:
         for name in self._zip.namelist():
             yield "/" + name
 
+    def _nameset(self) -> set[str]:
+        if self._name_set is None:
+            if self._zip is None:
+                raise PackageValidationError("Package not opened")
+            self._name_set = set(self._zip.namelist())
+        return self._name_set
+
     def has_part(self, part_path: str) -> bool:
         """Check if a part exists in the package."""
-        if self._zip is None:
-            raise PackageValidationError("Package not opened")
-
         zip_path = part_path.lstrip("/")
-        return zip_path in self._zip.namelist()
+        return zip_path in self._nameset()

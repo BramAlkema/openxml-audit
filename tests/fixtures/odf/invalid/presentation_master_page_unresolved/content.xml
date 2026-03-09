@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content
+  xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+  xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
+  office:version="1.3">
+  <office:body>
+    <office:presentation>
+      <draw:page draw:name="slide1" draw:master-page-name="Default"/>
+    </office:presentation>
+  </office:body>
+</office:document-content>

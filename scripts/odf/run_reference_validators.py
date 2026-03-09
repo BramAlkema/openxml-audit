@@ -31,6 +31,31 @@ DEFAULT_CORPUS_MANIFEST = Path("data/odf/reference_corpus/manifest.json")
 DEFAULT_FIXTURES_ROOT = Path("tests/fixtures/odf")
 DEFAULT_OUTPUT = Path("reports/odf/reference_runs.json")
 DEFAULT_STAGING_ROOT = Path("/tmp/openxml_audit_odf_reference")
+FILE_FORMAT_BY_VALUE = {
+    FileFormat.ODF_1_2.value: FileFormat.ODF_1_2,
+    FileFormat.ODF_1_3.value: FileFormat.ODF_1_3,
+}
+
+_REFERENCE_RUNTIME_UNAVAILABLE_HINTS = (
+    "unable to locate a java runtime",
+    "no java runtime present",
+    "please visit http://www.java.com",
+    "command not found: java",
+    "java: command not found",
+    "java: not found",
+    "'java' is not recognized",
+    "unable to access jarfile",
+    "unsupportedclassversionerror",
+    "cannot connect to the docker daemon",
+    "permission denied while trying to connect to the docker daemon socket",
+    "is the docker daemon running?",
+)
+
+_REFERENCE_RUNTIME_ERROR_HINTS = (
+    "classnotfoundexception",
+    "noclassdeffounderror",
+    "could not find or load main class",
+)
 
 
 @dataclass(frozen=True)
@@ -92,11 +117,28 @@ def _parse_command_template(raw: str | None) -> list[str] | None:
 
 
 def _format_command(template: list[str], file_path: Path) -> list[str]:
-    placeholder = "{file}"
-    file_text = str(file_path)
-    if any(placeholder in token for token in template):
-        return [token.replace(placeholder, file_text) for token in template]
-    return [*template, file_text]
+    replacements = {
+        "{file}": str(file_path),
+        "{file_dir}": str(file_path.parent),
+        "{file_name}": file_path.name,
+        "{file_stem}": file_path.stem,
+        "{file_suffix}": file_path.suffix,
+    }
+    has_placeholder = False
+    formatted: list[str] = []
+    for token in template:
+        updated = token
+        token_replaced = False
+        for placeholder, value in replacements.items():
+            if placeholder in updated:
+                updated = updated.replace(placeholder, value)
+                token_replaced = True
+        if token_replaced:
+            has_placeholder = True
+        formatted.append(updated)
+    if has_placeholder:
+        return formatted
+    return [*formatted, str(file_path)]
 
 
 def _looks_like_issue_line(line: str) -> bool:
@@ -140,14 +182,14 @@ def _extract_messages_from_json(payload: Any) -> list[str]:
             rows.extend(_extract_messages_from_json(item))
         return rows
     if isinstance(payload, dict):
-        rows: list[str] = []
+        messages: list[str] = []
         for key in message_keys:
             value = payload.get(key)
             if isinstance(value, str) and value.strip():
-                rows.append(value.strip())
+                messages.append(value.strip())
         for key in container_keys:
-            rows.extend(_extract_messages_from_json(payload.get(key)))
-        return rows
+            messages.extend(_extract_messages_from_json(payload.get(key)))
+        return messages
     return []
 
 
@@ -185,6 +227,39 @@ def _parse_reference_messages(stdout: str, stderr: str) -> list[str]:
     return _dedupe_stable([row for row in messages if row.strip()])
 
 
+def _classify_reference_process_failure(
+    *,
+    exit_code: int,
+    stdout: str,
+    stderr: str,
+    messages: list[str],
+) -> tuple[str, str] | None:
+    if exit_code == 0:
+        return None
+
+    chunks = [stdout, stderr, *messages]
+    combined = "\n".join(chunk for chunk in chunks if chunk).lower()
+    if not combined:
+        return (
+            "error",
+            f"Reference validator exited with code {exit_code} and no output.",
+        )
+
+    if any(hint in combined for hint in _REFERENCE_RUNTIME_UNAVAILABLE_HINTS):
+        return (
+            "unavailable",
+            "Runtime dependency unavailable (for example Java runtime missing).",
+        )
+
+    if any(hint in combined for hint in _REFERENCE_RUNTIME_ERROR_HINTS):
+        return (
+            "error",
+            "Reference validator runtime failed before document validation.",
+        )
+
+    return None
+
+
 def _severity_from_message(message: str) -> str:
     lower = message.lower()
     if "warn" in lower:
@@ -194,11 +269,25 @@ def _severity_from_message(message: str) -> str:
     return "error"
 
 
+def _category_from_reference_message(message: str) -> str:
+    lower = message.lower()
+    if "signature" in lower or "encrypt" in lower:
+        return "security"
+    if "schema" in lower or "xml" in lower:
+        return "schema"
+    if "semantic" in lower:
+        return "semantic"
+    if "manifest" in lower or "package" in lower:
+        return "package"
+    return "reference"
+
+
 def _reference_issue_rows(tool: str, messages: list[str]) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     for message in messages:
         normalized = normalize_description(message)
         severity = _severity_from_message(message)
+        category = _category_from_reference_message(message)
         rows.append(
             {
                 "id": f"Ref_{tool}",
@@ -206,6 +295,7 @@ def _reference_issue_rows(tool: str, messages: list[str]) -> list[dict[str, str]
                 "part": "/",
                 "path": "/",
                 "severity": severity,
+                "category": category,
                 "description": normalized,
                 "family_key": f"{tool}|{severity}|{normalized}",
                 "comparison_key": f"{severity}|{normalized}",
@@ -227,9 +317,21 @@ def _preview(text: str, max_lines: int = 20, max_chars: int = 4000) -> str:
     return out
 
 
-def _run_python_validator(path: Path, strict: bool) -> dict[str, Any]:
+def _category_from_python_error(error_type: str, part: str, description: str) -> str:
+    lower_description = description.lower()
+    lower_part = part.lower()
+    if "signature" in lower_part or "encrypt" in lower_part:
+        return "security"
+    if "signature" in lower_description or "encrypt" in lower_description:
+        return "security"
+    if error_type in {"package", "schema", "semantic"}:
+        return error_type
+    return "other"
+
+
+def _run_python_validator(path: Path, strict: bool, file_format: FileFormat) -> dict[str, Any]:
     started = perf_counter()
-    validator = OdfValidator(file_format=FileFormat.ODF_1_3, strict=strict)
+    validator = OdfValidator(file_format=file_format, strict=strict)
     result = validator.validate(path)
     duration = perf_counter() - started
 
@@ -238,10 +340,16 @@ def _run_python_validator(path: Path, strict: bool) -> dict[str, Any]:
         normalized = normalize_error_tuple(error)
         normalized_description = normalized["description"]
         severity = error.severity.value
+        category = _category_from_python_error(
+            normalized["error_type"],
+            normalized["part"],
+            normalized_description,
+        )
         issues.append(
             {
                 **normalized,
                 "severity": severity,
+                "category": category,
                 "comparison_key": f"{severity}|{normalized_description}",
             }
         )
@@ -299,6 +407,26 @@ def _run_reference_runner(
 
     duration = perf_counter() - started
     messages = _parse_reference_messages(completed.stdout, completed.stderr)
+    failure = _classify_reference_process_failure(
+        exit_code=completed.returncode,
+        stdout=completed.stdout,
+        stderr=completed.stderr,
+        messages=messages,
+    )
+    if failure is not None:
+        status, reason = failure
+        return {
+            "status": status,
+            "reason": reason,
+            "duration_seconds": round(duration, 6),
+            "exit_code": completed.returncode,
+            "issue_count": 0,
+            "issues": [],
+            "command": command,
+            "stdout_preview": _preview(completed.stdout),
+            "stderr_preview": _preview(completed.stderr),
+        }
+
     issues = _reference_issue_rows(config.name, messages)
     status = "ok"
     if completed.returncode != 0 and not issues:
@@ -335,6 +463,15 @@ def _load_samples(corpus_manifest: dict[str, Any]) -> list[dict[str, Any]]:
             continue
         valid_samples.append(sample)
     return valid_samples
+
+
+def _sample_file_format(sample: dict[str, Any]) -> FileFormat:
+    raw = sample.get("file_format")
+    if isinstance(raw, str):
+        mapped = FILE_FORMAT_BY_VALUE.get(raw.strip().lower())
+        if mapped is not None:
+            return mapped
+    return FileFormat.ODF_1_3
 
 
 def _materialize_sample(
@@ -404,7 +541,8 @@ def main() -> int:
         default=os.getenv("ODF_TOOLKIT_CMD"),
         help=(
             "ODF Toolkit command template (optional). "
-            "Use '{file}' placeholder, or file path is appended."
+            "Supports {file}, {file_dir}, {file_name}, {file_stem}, {file_suffix}. "
+            "If no placeholder is provided, file path is appended."
         ),
     )
     parser.add_argument(
@@ -413,7 +551,8 @@ def main() -> int:
         default=os.getenv("OPF_ODF_VALIDATOR_CMD"),
         help=(
             "OPF validator command template (optional). "
-            "Use '{file}' placeholder, or file path is appended."
+            "Supports {file}, {file_dir}, {file_name}, {file_stem}, {file_suffix}. "
+            "If no placeholder is provided, file path is appended."
         ),
     )
     parser.add_argument(
@@ -468,15 +607,27 @@ def main() -> int:
         "opf": Counter(),
     }
 
+    python_issue_categories: Counter[str] = Counter()
+
     try:
         for sample in samples:
             sample_id = str(sample["id"])
             staged_file = _materialize_sample(sample, fixtures_root, active_staging_root)
+            sample_format = _sample_file_format(sample)
 
             runs: dict[str, Any] = {}
-            python_run = _run_python_validator(staged_file, strict=args.strict)
+            python_run = _run_python_validator(
+                staged_file,
+                strict=args.strict,
+                file_format=sample_format,
+            )
             runs["python"] = python_run
             runner_status["python"][str(python_run.get("status", "unknown"))] += 1
+            for issue in python_run.get("issues", []):
+                if isinstance(issue, dict):
+                    category = issue.get("category")
+                    if isinstance(category, str):
+                        python_issue_categories[category] += 1
 
             for runner in runners:
                 ref_run = _run_reference_runner(
@@ -491,8 +642,11 @@ def main() -> int:
                 {
                     "id": sample_id,
                     "profile": sample.get("profile", ""),
+                    "category": sample.get("category", ""),
                     "fixture_dir": sample["fixture_dir"],
                     "filename": sample["filename"],
+                    "file_format": sample_format.value,
+                    "odf_version_marker": sample.get("odf_version_marker", ""),
                     "staged_relpath": f"{sample_id}/{sample['filename']}",
                     "runs": runs,
                 }
@@ -510,6 +664,7 @@ def main() -> int:
         "strict": args.strict,
         "sample_count": len(sample_reports),
         "duration_seconds": round(duration, 6),
+        "python_issue_categories": dict(python_issue_categories),
         "runners": {
             "python": {
                 "status_counts": dict(runner_status["python"]),

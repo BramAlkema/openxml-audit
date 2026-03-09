@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,6 +14,17 @@ from typing import Any
 DEFAULT_INPUT = Path("reports/odf/reference_runs.json")
 DEFAULT_OUTPUT = Path("reports/odf/reference_compare.json")
 DEFAULT_SUMMARY = Path("reports/odf/reference_compare.md")
+
+_TOOL_NOISE_PATTERN = re.compile(
+    r"\b(?:odf[ -]?toolkit|odf validator|opf|apache|validator|validation)\b",
+    flags=re.IGNORECASE,
+)
+_FILE_NOISE_PATTERN = re.compile(
+    r"\b[0-9A-Za-z_.-]+\.(?:xml|odt|ods|odp|fodt|fods|fodp)\b",
+    flags=re.IGNORECASE,
+)
+_PATH_NOISE_PATTERN = re.compile(r"(?:[A-Za-z]+:)?/[0-9A-Za-z_.:/-]+")
+_SEPARATOR_PATTERN = re.compile(r"[^0-9a-z<>]+", flags=re.IGNORECASE)
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -37,7 +49,7 @@ def _counter_from_issues(issues: Any) -> Counter[str]:
     return counter
 
 
-def _description_map(issues: Any) -> dict[str, str]:
+def _field_map(issues: Any, field: str) -> dict[str, str]:
     mapping: dict[str, str] = {}
     if not isinstance(issues, list):
         return mapping
@@ -47,10 +59,32 @@ def _description_map(issues: Any) -> dict[str, str]:
         key = issue.get("comparison_key")
         if not isinstance(key, str) or not key:
             continue
-        description = issue.get("description")
-        if isinstance(description, str) and description and key not in mapping:
-            mapping[key] = description
+        value = issue.get(field)
+        if isinstance(value, str) and value and key not in mapping:
+            mapping[key] = value
     return mapping
+
+
+def _split_comparison_key(key: str) -> tuple[str, str]:
+    severity, separator, description = key.partition("|")
+    if not separator:
+        return "error", key
+    return severity.strip() or "error", description.strip() or key
+
+
+def _normalize_cross_tool_description(value: str) -> str:
+    normalized = value.lower()
+    normalized = _TOOL_NOISE_PATTERN.sub(" ", normalized)
+    normalized = _FILE_NOISE_PATTERN.sub("<file>", normalized)
+    normalized = _PATH_NOISE_PATTERN.sub(" <path> ", normalized)
+    normalized = _SEPARATOR_PATTERN.sub(" ", normalized)
+    normalized = " ".join(normalized.split())
+    return normalized or "unknown"
+
+
+def _cross_tool_family_key(comparison_key: str) -> str:
+    severity, description = _split_comparison_key(comparison_key)
+    return f"{severity}|{_normalize_cross_tool_description(description)}"
 
 
 def _sorted_family_rows(
@@ -60,12 +94,70 @@ def _sorted_family_rows(
         {
             "comparison_key": key,
             "description": descriptions.get(key, key),
+            "family_group_key": _cross_tool_family_key(key),
             "count": count,
         }
         for key, count in counter.items()
     ]
     rows.sort(key=lambda row: int(row["count"]), reverse=True)
     return rows
+
+
+def _aggregate_cross_tool_families(tools: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    aggregated: dict[str, dict[str, dict[str, Any]]] = {
+        "only_python": {},
+        "only_reference": {},
+    }
+    for tool_name, tool_payload in tools.items():
+        if not isinstance(tool_payload, dict):
+            continue
+        mismatch = tool_payload.get("mismatch_families")
+        if not isinstance(mismatch, dict):
+            continue
+        for direction in ("only_python", "only_reference"):
+            rows = mismatch.get(direction)
+            if not isinstance(rows, list):
+                continue
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                comparison_key = row.get("comparison_key")
+                if not isinstance(comparison_key, str) or not comparison_key:
+                    continue
+                group_key = row.get("family_group_key")
+                if not isinstance(group_key, str) or not group_key:
+                    group_key = _cross_tool_family_key(comparison_key)
+                count = row.get("count")
+                if not isinstance(count, int):
+                    continue
+
+                group_bucket = aggregated[direction].setdefault(
+                    group_key,
+                    {
+                        "family_group_key": group_key,
+                        "description": row.get("description", comparison_key),
+                        "count": 0,
+                        "tools": {},
+                    },
+                )
+                group_bucket["count"] = int(group_bucket["count"]) + count
+                tool_counts = group_bucket["tools"]
+                tool_counts[tool_name] = int(tool_counts.get(tool_name, 0)) + count
+
+    output: dict[str, list[dict[str, Any]]] = {}
+    for direction, buckets in aggregated.items():
+        rows = list(buckets.values())
+        rows.sort(key=lambda row: int(row.get("count", 0)), reverse=True)
+        for row in rows:
+            tools_map = row.get("tools")
+            if isinstance(tools_map, dict):
+                row["tools"] = {
+                    key: int(tools_map[key])
+                    for key in sorted(tools_map)
+                    if isinstance(tools_map[key], int)
+                }
+        output[direction] = rows
+    return output
 
 
 def _collect_tool_names(report: dict[str, Any]) -> list[str]:
@@ -99,6 +191,8 @@ def _compare_tool(report: dict[str, Any], tool_name: str) -> dict[str, Any]:
     status_counts: Counter[str] = Counter()
     only_python_families: Counter[str] = Counter()
     only_reference_families: Counter[str] = Counter()
+    only_python_categories: Counter[str] = Counter()
+    only_reference_categories: Counter[str] = Counter()
     description_lookup: dict[str, str] = {}
 
     samples_compared = 0
@@ -157,8 +251,10 @@ def _compare_tool(report: dict[str, Any], tool_name: str) -> dict[str, Any]:
 
         python_counter = _counter_from_issues(python_run.get("issues"))
         reference_counter = _counter_from_issues(reference_run.get("issues"))
-        python_descriptions = _description_map(python_run.get("issues"))
-        reference_descriptions = _description_map(reference_run.get("issues"))
+        python_descriptions = _field_map(python_run.get("issues"), "description")
+        reference_descriptions = _field_map(reference_run.get("issues"), "description")
+        python_categories = _field_map(python_run.get("issues"), "category")
+        reference_categories = _field_map(reference_run.get("issues"), "category")
 
         description_lookup.update(reference_descriptions)
         description_lookup.update(python_descriptions)
@@ -182,6 +278,10 @@ def _compare_tool(report: dict[str, Any], tool_name: str) -> dict[str, Any]:
 
         only_python_families.update(only_python)
         only_reference_families.update(only_reference)
+        for key, count in only_python.items():
+            only_python_categories[python_categories.get(key, "unknown")] += count
+        for key, count in only_reference.items():
+            only_reference_categories[reference_categories.get(key, "unknown")] += count
 
         sample_rows.append(
             {
@@ -212,6 +312,10 @@ def _compare_tool(report: dict[str, Any], tool_name: str) -> dict[str, Any]:
             "only_python": _sorted_family_rows(only_python_families, description_lookup),
             "only_reference": _sorted_family_rows(only_reference_families, description_lookup),
         },
+        "mismatch_categories": {
+            "only_python": dict(only_python_categories),
+            "only_reference": dict(only_reference_categories),
+        },
         "samples": sample_rows,
     }
 
@@ -240,6 +344,12 @@ def _build_markdown(report: dict[str, Any]) -> str:
             f"only_python={totals.get('only_python', 0)}, "
             f"only_reference={totals.get('only_reference', 0)}"
         )
+        categories = tool.get("mismatch_categories", {})
+        lines.append(
+            "- Mismatch categories: "
+            f"only_python={categories.get('only_python', {})}, "
+            f"only_reference={categories.get('only_reference', {})}"
+        )
 
         only_python_rows = tool.get("mismatch_families", {}).get("only_python", [])[:10]
         only_reference_rows = tool.get("mismatch_families", {}).get("only_reference", [])[:10]
@@ -259,6 +369,35 @@ def _build_markdown(report: dict[str, Any]) -> str:
         if not only_python_rows and not only_reference_rows:
             lines.append("- No mismatch families recorded.")
         lines.append("")
+
+    cross_tool = report.get("cross_tool_families")
+    if isinstance(cross_tool, dict):
+        has_rows = False
+        for direction in ("only_python", "only_reference"):
+            rows = cross_tool.get(direction)
+            if isinstance(rows, list) and rows:
+                has_rows = True
+                break
+        if has_rows:
+            lines.append("## Cross-tool grouped families")
+        for direction, heading in (
+            ("only_python", "Top grouped only-python families"),
+            ("only_reference", "Top grouped only-reference families"),
+        ):
+            rows = cross_tool.get(direction)
+            if not isinstance(rows, list) or not rows:
+                continue
+            lines.append("")
+            lines.append(f"### {heading}")
+            for row in rows[:10]:
+                if not isinstance(row, dict):
+                    continue
+                lines.append(
+                    f"- {row.get('count', 0)}x {row.get('description', '')} "
+                    f"(tools={row.get('tools', {})})"
+                )
+        if has_rows:
+            lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"
 
@@ -290,6 +429,12 @@ def main() -> int:
         help="Maximum number of per-sample rows kept per tool in output JSON.",
     )
     parser.add_argument(
+        "--max-cross-tool-rows",
+        type=int,
+        default=200,
+        help="Maximum grouped cross-tool families kept per mismatch direction.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Compute report and print summary without writing files.",
@@ -310,13 +455,20 @@ def main() -> int:
         samples = tool_payload.get("samples", [])
         if isinstance(samples, list) and args.max_sample_rows > 0:
             tool_payload["samples"] = samples[: args.max_sample_rows]
+    cross_tool_families = _aggregate_cross_tool_families(tools)
+    if args.max_cross_tool_rows > 0:
+        for direction in ("only_python", "only_reference"):
+            rows = cross_tool_families.get(direction)
+            if isinstance(rows, list):
+                cross_tool_families[direction] = rows[: args.max_cross_tool_rows]
 
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "contract_version": "odf-reference-v1",
+        "contract_version": "odf-reference-v2",
         "input_report": str(args.input),
         "tool_order": tool_names,
         "tools": tools,
+        "cross_tool_families": cross_tool_families,
     }
 
     markdown = _build_markdown(report)

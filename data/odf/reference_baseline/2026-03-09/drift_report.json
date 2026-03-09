@@ -1,0 +1,135 @@
+{
+  "baseline_path": "/Users/ynse/projects/openxml-audit/data/odf/reference_baseline/2026-03-09/mismatch_report.json",
+  "current_path": "/Users/ynse/projects/openxml-audit/data/odf/reference_baseline/2026-03-09/mismatch_report.json",
+  "tool_order": [
+    "odf_toolkit",
+    "opf"
+  ],
+  "policy": {
+    "max_only_python_growth": 0,
+    "max_only_reference_growth": 0,
+    "max_new_only_python_families": 0,
+    "max_new_only_reference_families": 0,
+    "max_compared_sample_drop": 0,
+    "max_unavailable_samples": 0,
+    "max_timeout_samples": 0,
+    "max_error_samples": 0,
+    "required_tools": [
+      "odf_toolkit",
+      "opf"
+    ]
+  },
+  "tools": {
+    "odf_toolkit": {
+      "baseline": {
+        "samples_total": 23,
+        "samples_compared": 23,
+        "only_python_total": 26,
+        "only_reference_total": 143,
+        "status_counts": {
+          "ok": 23
+        }
+      },
+      "current": {
+        "samples_total": 23,
+        "samples_compared": 23,
+        "only_python_total": 26,
+        "only_reference_total": 143,
+        "status_counts": {
+          "ok": 23
+        }
+      },
+      "deltas": {
+        "samples_compared": 0,
+        "only_python_total": 0,
+        "only_reference_total": 0,
+        "status_counts": {
+          "ok": 0
+        }
+      },
+      "families": {
+        "only_python": {
+          "new": [],
+          "new_waived": [],
+          "new_unwaived": [],
+          "regressed": [],
+          "improved": []
+        },
+        "only_reference": {
+          "new": [],
+          "new_waived": [],
+          "new_unwaived": [],
+          "regressed": [],
+          "improved": []
+        }
+      },
+      "new_family_counts": {
+        "only_python_total": 0,
+        "only_python_waived": 0,
+        "only_python_unwaived": 0,
+        "only_reference_total": 0,
+        "only_reference_waived": 0,
+        "only_reference_unwaived": 0
+      }
+    },
+    "opf": {
+      "baseline": {
+        "samples_total": 23,
+        "samples_compared": 23,
+        "only_python_total": 26,
+        "only_reference_total": 119,
+        "status_counts": {
+          "ok": 23
+        }
+      },
+      "current": {
+        "samples_total": 23,
+        "samples_compared": 23,
+        "only_python_total": 26,
+        "only_reference_total": 119,
+        "status_counts": {
+          "ok": 23
+        }
+      },
+      "deltas": {
+        "samples_compared": 0,
+        "only_python_total": 0,
+        "only_reference_total": 0,
+        "status_counts": {
+          "ok": 0
+        }
+      },
+      "families": {
+        "only_python": {
+          "new": [],
+          "new_waived": [],
+          "new_unwaived": [],
+          "regressed": [],
+          "improved": []
+        },
+        "only_reference": {
+          "new": [],
+          "new_waived": [],
+          "new_unwaived": [],
+          "regressed": [],
+          "improved": []
+        }
+      },
+      "new_family_counts": {
+        "only_python_total": 0,
+        "only_python_waived": 0,
+        "only_python_unwaived": 0,
+        "only_reference_total": 0,
+        "only_reference_waived": 0,
+        "only_reference_unwaived": 0
+      }
+    }
+  },
+  "policy_warnings": [],
+  "waiver_warnings": [],
+  "gate": {
+    "passed": true,
+    "failures": [],
+    "waived_conditions": []
+  }
+}

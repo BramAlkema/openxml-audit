@@ -26,6 +26,26 @@ class TestOdfPackage:
 
         assert not any(error.severity == ValidationSeverity.ERROR for error in errors)
 
+    def test_manifest_version_is_exposed(self, minimal_odt: Path) -> None:
+        with OdfPackage(minimal_odt) as package:
+            assert package.manifest_version == "1.3"
+
+    def test_manifest_encryption_metadata_is_exposed(
+        self,
+        minimal_odt_encrypted_structural: Path,
+    ) -> None:
+        with OdfPackage(minimal_odt_encrypted_structural) as package:
+            content_entries = [
+                entry
+                for entry in package.manifest
+                if entry.full_path.strip().lstrip("/") == "content.xml"
+            ]
+            assert content_entries
+            content = content_entries[0]
+            assert content.has_encryption_data
+            assert content.encryption_algorithm_name
+            assert content.encryption_key_derivation_name
+
     def test_missing_mimetype_reports_error(self, odf_missing_mimetype: Path) -> None:
         with OdfPackage(odf_missing_mimetype) as package:
             errors = package.validate_structure()
@@ -137,3 +157,28 @@ class TestOdfPackage:
 
         assert any("missing required member 'content.xml'" in e.description for e in errors)
         assert any("missing required manifest entry 'content.xml'" in e.description for e in errors)
+
+    def test_manifest_declared_auxiliary_missing_part_is_reported(
+        self,
+        odf_aux_declared_missing_styles: Path,
+    ) -> None:
+        with OdfPackage(odf_aux_declared_missing_styles) as package:
+            errors = package.validate_structure(strict=True)
+
+        assert any(
+            "Manifest entry 'styles.xml' was not found in package" in e.description
+            for e in errors
+        )
+
+    def test_signature_manifest_missing_part_is_reported(
+        self,
+        odf_signature_manifest_missing_xml: Path,
+    ) -> None:
+        with OdfPackage(odf_signature_manifest_missing_xml) as package:
+            errors = package.validate_structure(strict=True)
+
+        assert any(
+            "Manifest entry 'META-INF/documentsignatures.xml' was not found in package"
+            in e.description
+            for e in errors
+        )
