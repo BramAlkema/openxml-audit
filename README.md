@@ -1,19 +1,19 @@
 # OpenXML Audit
 
-A Python library for validating Open XML (OOXML) and OASIS OpenDocument Format (ODF) files against schema and semantic rules. Determine if Office files (PPTX/DOCX/XLSX) or ODF files will open cleanly in their target apps.
+Validate OOXML (PPTX/DOCX/XLSX) and ODF files in pure Python — no .NET required.
 
-This is a Python port of the validation logic from Microsoft's [Open XML SDK](https://github.com/OfficeDev/Open-XML-SDK).
+A Python port of Microsoft's [Open XML SDK](https://github.com/OfficeDev/Open-XML-SDK) validation logic. Check whether generated or modified Office files will open cleanly, directly from Python scripts, CI pipelines, or anywhere .NET isn't practical.
+
+Also supports OASIS OpenDocument Format (ODT/ODS/ODP) with staged conformance levels.
 
 Current version: `0.2.0`
 
 ## Features
 
-- **Package Validation**: Validates OPC (Open Packaging Conventions) structure
-- **Schema Validation**: Validates XML content against Open XML schema constraints
-- **Semantic Validation**: Validates relationships, references, and cross-document constraints
-- **OOXML-Specific Validation**: Validates presentation, wordprocessing, and spreadsheet structure
-- **ODF Foundation Validation**: Validates OASIS OpenDocument package integrity and XML well-formedness
+- **OOXML Validation**: Package structure, schema, semantic, and format-specific checks for PPTX/DOCX/XLSX — matching the Open XML SDK's validation without the .NET dependency
+- **ODF Validation**: Staged conformance levels — foundation, schema-core (Relax NG), semantic-core, and security-core for ODT/ODS/ODP
 - **Multiple Output Formats**: Text, JSON, and XML output
+- **Performance Tooling**: Per-phase timing breakdown, benchmark scripts for both OOXML and ODF
 - **Flexible Integration**: Context managers, decorators, and pytest fixtures
 
 ## Installation
@@ -184,338 +184,148 @@ security_core = OdfValidator(
 )
 ```
 
-### Known ODF Limitations
-
-- Full OASIS conformance parity is not implemented yet.
-- Schema-core depends on caller-provided Relax NG routes (`schema_routes`).
-- Security-core validates signature/encryption structure and policy, not full trust semantics by default.
-- Reference-calibration parity is command-template based and can vary with external validator versions.
-- CLI `--odf-level` only applies when the selected/auto-detected validator is ODF.
-
-Example reference-calibration run:
+### ODF Benchmarking
 
 ```bash
-python scripts/odf/run_reference_validators.py \
-  --corpus-manifest data/odf/reference_corpus/manifest.json \
-  --output data/odf/reference_baseline/2026-03-09/reference_runs.json
+# Benchmark an ODF file (5 iterations by default)
+python scripts/odf/benchmark_validation.py document.odt
 
-python scripts/odf/compare_reference_results.py \
-  --input data/odf/reference_baseline/2026-03-09/reference_runs.json \
-  --output data/odf/reference_baseline/2026-03-09/mismatch_report.json \
-  --summary data/odf/reference_baseline/2026-03-09/mismatch_summary.md
+# More iterations, with security checks
+python scripts/odf/benchmark_validation.py document.odt --iterations 20 --security
 
-python scripts/odf/build_mismatch_triage.py \
-  --compare data/odf/reference_baseline/2026-03-09/mismatch_report.json \
-  --runs data/odf/reference_baseline/2026-03-09/reference_runs.json \
-  --output data/odf/reference_baseline/2026-03-09/mismatch_triage.md
-
-python scripts/odf/check_reference_drift.py \
-  --baseline data/odf/reference_baseline/2026-03-09/mismatch_report.json \
-  --current data/odf/reference_baseline/2026-03-09/mismatch_report.json \
-  --policy data/odf/reference_baseline/2026-03-09/drift_policy.json \
-  --waivers data/odf/reference_baseline/2026-03-09/waivers.json \
-  --output data/odf/reference_baseline/2026-03-09/drift_report.json \
-  --summary data/odf/reference_baseline/2026-03-09/drift_summary.md
+# Foundation-only (skip schema/semantic)
+python scripts/odf/benchmark_validation.py document.odt --no-schema --no-semantic
 ```
 
-ODF calibration workflow:
+Reports avg/min/max/P95 with per-phase breakdown (package_structure, xml_parse, schema, semantic, security).
 
-- `.github/workflows/odf-reference-calibration.yml`
-- builds pinned external validators at runtime:
-  - ODF Toolkit (`tdf/odftoolkit`)
-  - OPF ODF Validator (`opf-labs/odf-validator`, fallback `openpreserve/odf-validator`)
-- `workflow_dispatch` inputs can override refs:
-  - `odf_toolkit_ref`
-  - `opf_ref`
+OOXML benchmark: `python scripts/benchmark_validation.py presentation.pptx`
 
-### ODF Reference Validator Troubleshooting
+### Known ODF Limitations
 
-- Confirm Maven is available for source builds (`mvn -version`) or Docker is available.
-- Build command templates automatically with:
-  - `python scripts/odf/bootstrap_reference_validators.py --print-shell`
-  - force Docker for both build + runtime:
-    `python scripts/odf/bootstrap_reference_validators.py --maven-mode docker --runtime-mode docker --print-shell`
-- Or provide templates directly:
-  - `ODF_TOOLKIT_CMD`
-  - `OPF_ODF_VALIDATOR_CMD`
-- Template placeholders supported by `run_reference_validators.py`:
-  - `{file}`, `{file_dir}`, `{file_name}`, `{file_stem}`, `{file_suffix}`
-  - if no placeholder is used, the file path is appended.
-- If reports show `status=unavailable`:
-  - check executable/jar path and runtime dependencies (for example Java)
-  - run the rendered command manually on one staged sample
-  - verify non-zero exit still emits parseable output for mismatch analysis
-- If drift gate fails on unavailable counts, wire/fix command templates before adjusting waivers.
+- Full OASIS conformance parity is not yet complete.
+- Schema-core requires caller-provided Relax NG routes (`schema_routes`).
+- Security-core validates structure/policy, not full cryptographic trust by default.
+- CLI `--odf-level` only applies when the selected/auto-detected validator is ODF.
+
+### ODF Reference Calibration
+
+Compare Python results against external validators (ODF Toolkit, OPF) using the scripts in `scripts/odf/`:
+
+| Script | Purpose |
+|--------|---------|
+| `run_reference_validators.py` | Run Python + external validators on pinned corpus |
+| `compare_reference_results.py` | Diff results into mismatch families |
+| `check_reference_drift.py` | Enforce drift policy against baseline |
+| `bootstrap_reference_validators.py` | Auto-build external validator commands |
+
+CI workflow: `.github/workflows/odf-reference-calibration.yml` — builds ODF Toolkit and OPF at runtime via Maven/Docker.
+
+Set command templates via `--odf-toolkit-cmd` / `--opf-cmd` or env vars `ODF_TOOLKIT_CMD` / `OPF_ODF_VALIDATOR_CMD`. Placeholders: `{file}`, `{file_dir}`, `{file_name}`, `{file_stem}`, `{file_suffix}`.
 
 ## Open XML SDK (Standalone)
 
-Run the .NET Open XML SDK validator separately from the Python package. These helpers live under `scripts/` and only require the .NET SDK (or Docker).
-
-### Local .NET SDK
-
-1. Install the .NET SDK (8.x recommended).
-2. From the repo root, run:
+Run the .NET SDK validator separately (requires .NET SDK 8.x or Docker):
 
 ```bash
-# Plain text output
 dotnet run --project scripts/sdk_check/sdk_check.csproj -- /path/to/file.pptx
+dotnet run --project scripts/sdk_compare/OpenXmlSdkValidator.csproj -- /path/to/file.pptx  # JSON
 
-# JSON output (useful for diffs)
-dotnet run --project scripts/sdk_compare/OpenXmlSdkValidator.csproj -- /path/to/file.pptx
-```
-
-Notes:
-- The SDK validator is configured for Office 2019 (see `scripts/sdk_check/Program.cs`).
-- It supports PPTX/POTX/PPSX, DOCX/DOTX, and XLSX/XLTX inputs.
-- Mono is not supported; use the .NET SDK or Docker.
-
-### Docker (no local .NET install)
-
-```bash
+# Via Docker
 docker run --rm -v "$PWD:/work" -w /work mcr.microsoft.com/dotnet/sdk:8.0 \
   dotnet run --project scripts/sdk_check/sdk_check.csproj -- /work/path/to/file.pptx
 ```
 
-For JSON output, swap the project to `scripts/sdk_compare/OpenXmlSdkValidator.csproj`.
+Supports PPTX/DOCX/XLSX and variants. Configured for Office 2019.
 
-## Seed Corpus From SDK Tests
+## CI Workflows
 
-Use the SDK test-assets importer to build a parity manifest and optionally materialize files locally:
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `parity-gate.yml` | PR / push | Enforce OOXML parity + perf budget against SDK baseline |
+| `calibrate-parity.yml` | Weekly / dispatch | Calibrate against Open XML SDK upstream |
+| `odf-reference-calibration.yml` | Dispatch | Run ODF reference validators and drift checks |
+| `validate-inputs.yml` | Push to `inputs/` | Validate dropped files with both Python and .NET SDK |
 
-```bash
-# Preview selection and extracted expectations from SDK test code
-python scripts/corpus/import_sdk_assets.py --sdk-root /tmp/openxml-sdk-upstream --dry-run
-
-# Write manifest only (no file copies)
-python scripts/corpus/import_sdk_assets.py --sdk-root /tmp/openxml-sdk-upstream --manifest-only
-
-# Copy selected files plus manifest
-python scripts/corpus/import_sdk_assets.py \
-  --sdk-root /tmp/openxml-sdk-upstream \
-  --output-root /tmp/openxml-sdk-seed \
-  --include-dir TestFiles \
-  --include-dir TestDataStorage/O14ISOStrict
-```
-
-Manifest output defaults to `data/corpus/sdk_seed/manifest.json`.
-Corpus files are intentionally not tracked in git (`data/corpus/sdk_seed/files/` is ignored).
-
-## Parity Calibration Workflow
-
-Use `.github/workflows/calibrate-parity.yml` to run SDK-backed calibration in CI:
-
-- Clones Open XML SDK at a pinned or manually selected ref (default `v3.4.1`)
-- Materializes corpus files under `/tmp` at runtime
-- Re-extracts SDK expectations into a runtime manifest
-- Runs parity snapshot and uploads artifacts (`parity_snapshot.json`, runtime manifest)
-
-This keeps day-to-day repository size small while preserving repeatable parity calibration.
-
-## PR Parity Gate
-
-Use `.github/workflows/parity-gate.yml` to enforce no parity drift in PRs:
-
-- Runs Python parity snapshot on the pinned corpus manifest.
-- Compares current snapshot to `data/corpus/parity_baseline/v3.4.1/parity_snapshot.json`.
-- Fails on mismatch growth, new mismatch families, match-rate drop, or missing files.
-- Enforces parity performance budget from `data/corpus/parity_baseline/v3.4.1/perf_budget.json`.
-- Supports temporary, expiring waivers via `data/corpus/parity_baseline/v3.4.1/waivers.json`.
-
-Because corpus files are not committed, the gate expects a compressed corpus archive via repository variable:
-
-- `PARITY_CORPUS_ARCHIVE_URL`: HTTPS URL to a `.tar.zst` archive that extracts to a top-level `files/` directory.
-
-`workflow_dispatch` supports overriding this URL with `corpus_archive_url`.
-
-Parity contract and waiver rules are documented in `docs/parity_contract.md`.
-
-## GitHub Actions Validation
-
-Drop files into `inputs/` and push to GitHub. The workflow will:
-- run the Python validator and the Open XML SDK validator
-- upload JSON reports as artifacts
-- post a summary in the GitHub Actions job summary
-
-Workflow file: `.github/workflows/validate-inputs.yml`.
+OOXML parity details: `docs/parity_contract.md`. ODF reference contract: `docs/odf_validation_contract.md`.
 
 ## Integration Helpers
 
-### Context Manager
-
 ```python
+# Context manager
 from openxml_audit import validation_context
 
-# Basic usage
-with validation_context() as validator:
-    result = validator.validate("presentation.pptx")
-    print(f"Valid: {result.is_valid}")
-
-# Raise exception on invalid files
 with validation_context(raise_on_invalid=True) as validator:
-    result = validator.validate("presentation.pptx")  # Raises ValueError if invalid
-```
+    result = validator.validate("presentation.pptx")
 
-### Decorator for python-pptx
-
-Validate PPTX files created by python-pptx after saving:
-
-```python
-from pptx import Presentation
+# Decorator — validate after save
 from openxml_audit import validate_on_save
 
 @validate_on_save(raise_on_invalid=True)
 def create_presentation(output_path: str) -> None:
-    prs = Presentation()
-    slide = prs.slides.add_slide(prs.slide_layouts[0])
-    title = slide.shapes.title
-    title.text = "Hello World"
-    prs.save(output_path)
+    Presentation().save(output_path)
 
-# Will validate after save, raises ValueError if invalid
-create_presentation("output.pptx")
-```
-
-Validate input files before processing:
-
-```python
+# Decorator — require valid input
 from openxml_audit import require_valid_pptx
 
 @require_valid_pptx()
-def process_presentation(input_path: str) -> dict:
-    # This only runs if input is valid
-    prs = Presentation(input_path)
-    return {"slides": len(prs.slides)}
+def process(input_path: str) -> dict: ...
 
-# Raises ValueError if input is invalid
-result = process_presentation("input.pptx")
-```
+# pytest fixtures (add to conftest.py)
+from openxml_audit.helpers import pytest_openxml_audit, pytest_assert_valid_pptx
 
-### pytest Fixtures
-
-Add to your `conftest.py`:
-
-```python
-from openxml_audit.helpers import (
-    pytest_openxml_audit,
-    pytest_valid_pptx_path,
-    pytest_assert_valid_pptx,
-)
-
-# Register fixtures
 openxml_audit = pytest_openxml_audit()
-valid_pptx_path = pytest_valid_pptx_path()
 assert_valid_pptx = pytest_assert_valid_pptx()
 ```
 
-Use in tests:
-
-```python
-def test_my_generator(assert_valid_pptx, tmp_path):
-    output = tmp_path / "output.pptx"
-    generate_my_pptx(output)
-    assert_valid_pptx(output)  # Fails with detailed error message if invalid
-
-def test_with_validator(openxml_audit, tmp_path):
-    output = tmp_path / "output.pptx"
-    create_pptx(output)
-    result = openxml_audit.validate(output)
-    assert result.is_valid
-```
-
-## Validation Phases
-
-The validator runs through multiple validation phases:
-
-1. **Package Structure**: Validates ZIP structure, content types, and package relationships
-2. **Presentation Structure**: Validates presentation.xml and slide/master references
-3. **Slide Validation**: Validates slide XML structure and layout relationships
-4. **Relationship Integrity**: Validates all relationships point to existing parts
-5. **Schema Validation**: Validates XML content against element constraints
-6. **Semantic Validation**: Validates cross-document references and constraints
-7. **OOXML-Specific Validation**: Validates themes, masters, layouts, and slides (plus Word/Excel structure)
-
-## Office Format Versions
-
-Validate against different Office versions:
-
-```python
-from openxml_audit import OpenXmlValidator, FileFormat
-
-# Available versions
-FileFormat.OFFICE_2007    # Office 2007 (ECMA-376 1st Edition)
-FileFormat.OFFICE_2010    # Office 2010
-FileFormat.OFFICE_2013    # Office 2013
-FileFormat.OFFICE_2016    # Office 2016
-FileFormat.OFFICE_2019    # Office 2019 (default)
-FileFormat.MICROSOFT_365  # Microsoft 365
-
-validator = OpenXmlValidator(file_format=FileFormat.OFFICE_2007)
-```
-
-## Error Types
-
-Errors are categorized by type:
-
-- `PACKAGE`: OPC package structure issues (missing parts, invalid ZIP)
-- `SCHEMA`: XML schema violations (missing elements, invalid values)
-- `SEMANTIC`: Semantic constraint violations (broken references, invalid IDs)
-- `RELATIONSHIP`: Relationship issues (missing targets, wrong types)
-
-And by severity:
-
-- `ERROR`: Critical issues that will prevent the file from opening
-- `WARNING`: Issues that may cause problems but won't prevent opening
-- `INFO`: Informational messages about potential issues
-
 ## API Reference
 
-### Classes
-
-#### `OpenXmlValidator`
-
-Main validator class.
+### `OpenXmlValidator` / `OdfValidator`
 
 ```python
-OpenXmlValidator(
-    file_format: FileFormat = FileFormat.OFFICE_2019,
-    max_errors: int = 1000,
-    schema_validation: bool = True,
-    semantic_validation: bool = True,
-)
+OpenXmlValidator(file_format=FileFormat.OFFICE_2019, max_errors=1000,
+                 schema_validation=True, semantic_validation=True)
+
+OdfValidator(file_format=FileFormat.ODF_1_3, max_errors=1000,
+             schema_validation=True, semantic_validation=True,
+             security_validation=False, strict=True)
 ```
 
-**Methods:**
-- `validate(path: str | Path) -> ValidationResult`: Validate an OOXML file
-- `is_valid(path: str | Path) -> bool`: Quick check if file is valid
+Both expose:
+- `validate(path) -> ValidationResult`
+- `validate_with_timings(path) -> (ValidationResult, dict[str, float])`
+- `is_valid(path) -> bool`
 
-#### `ValidationResult`
+### `ValidationResult`
 
-Result of validation.
+| Property | Type | Description |
+|----------|------|-------------|
+| `is_valid` | `bool` | No ERROR-severity issues |
+| `errors` | `list[ValidationError]` | All errors and warnings |
+| `error_count` / `warning_count` | `int` | Counts by severity |
+| `file_path` | `str` | Validated file path |
+| `file_format` | `FileFormat` | Version validated against |
 
-**Properties:**
-- `is_valid: bool`: True if no errors found
-- `errors: list[ValidationError]`: List of all errors and warnings
-- `error_count: int`: Number of ERROR severity issues
-- `warning_count: int`: Number of WARNING severity issues
-- `file_path: str`: Path to validated file
-- `file_format: FileFormat`: Office version validated against
+### `ValidationError`
 
-#### `ValidationError`
+| Property | Type | Description |
+|----------|------|-------------|
+| `error_type` | `ValidationErrorType` | `PACKAGE`, `SCHEMA`, `SEMANTIC`, `RELATIONSHIP` |
+| `severity` | `ValidationSeverity` | `ERROR`, `WARNING`, `INFO` |
+| `description` | `str` | Human-readable message |
+| `part_uri` | `str \| None` | Affected part URI |
+| `path` | `str \| None` | XPath to affected element |
 
-Individual validation error.
+### Supported Formats
 
-**Properties:**
-- `error_type: ValidationErrorType`: Category of error
-- `severity: ValidationSeverity`: ERROR, WARNING, or INFO
-- `description: str`: Human-readable error description
-- `part_uri: str | None`: URI of the affected part
-- `path: str | None`: XPath to the affected element
-- `node: str | None`: Name of the affected node/attribute
+| OOXML | ODF |
+|-------|-----|
+| `OFFICE_2007` through `MICROSOFT_365` (default: `OFFICE_2019`) | `ODF_1_2`, `ODF_1_3` (default: `ODF_1_3`) |
 
-### Functions
+### Convenience Functions
 
-- `validate_pptx(path: str | Path) -> ValidationResult`: Validate with default options
-- `is_valid_pptx(path: str | Path) -> bool`: Quick validity check
+- `validate_pptx(path) -> ValidationResult`
+- `is_valid_pptx(path) -> bool`
 
 ## License
 

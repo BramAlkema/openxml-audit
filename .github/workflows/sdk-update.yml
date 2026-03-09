@@ -1,0 +1,79 @@
+name: SDK upstream update
+
+on:
+  schedule:
+    # Quarterly: 1st of Jan, Apr, Jul, Oct at 06:00 UTC
+    - cron: "0 6 1 1,4,7,10 *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-and-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check for upstream update
+        id: check
+        run: |
+          current=$(python -c "
+          import re, pathlib
+          text = pathlib.Path('.github/workflows/calibrate-parity.yml').read_text()
+          m = re.search(r'default:\s*\"(v[\d.]+)\"', text)
+          print(m.group(1) if m else '')
+          ")
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+
+          latest=$(python -c "
+          import json, urllib.request
+          req = urllib.request.Request('https://api.github.com/repos/dotnet/Open-XML-SDK/releases/latest')
+          req.add_header('Accept', 'application/vnd.github.v3+json')
+          req.add_header('User-Agent', 'openxml-audit')
+          resp = urllib.request.urlopen(req, timeout=30)
+          print(json.loads(resp.read().decode())['tag_name'])
+          ")
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+
+          if [ "$current" = "$latest" ]; then
+            echo "update=false" >> "$GITHUB_OUTPUT"
+            echo "Already at $current"
+          else
+            echo "update=true" >> "$GITHUB_OUTPUT"
+            echo "Update available: $current -> $latest"
+          fi
+
+      - name: Apply version bump
+        if: steps.check.outputs.update == 'true'
+        run: |
+          python scripts/check_sdk_update.py \
+            --from "${{ steps.check.outputs.current }}" \
+            --to "${{ steps.check.outputs.latest }}"
+
+      - name: Create pull request
+        if: steps.check.outputs.update == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: sdk-update/${{ steps.check.outputs.latest }}
+          commit-message: "Bump Open XML SDK from ${{ steps.check.outputs.current }} to ${{ steps.check.outputs.latest }}"
+          title: "Bump Open XML SDK to ${{ steps.check.outputs.latest }}"
+          body: |
+            Upstream [Open XML SDK](https://github.com/dotnet/Open-XML-SDK) released `${{ steps.check.outputs.latest }}` (was `${{ steps.check.outputs.current }}`).
+
+            ## What this PR does
+            - Updates all pinned SDK version references
+            - Copies baseline directory for new version
+
+            ## Before merging
+            1. Run `calibrate-parity` workflow against `${{ steps.check.outputs.latest }}`
+            2. Review parity snapshot for regressions
+            3. Update waivers if needed
+          labels: dependencies,automated

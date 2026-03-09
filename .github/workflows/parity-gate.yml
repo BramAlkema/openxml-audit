@@ -64,8 +64,9 @@ jobs:
           fi
 
           if [ -z "${CORPUS_ARCHIVE_URL:-}" ]; then
-            echo "::error::Parity corpus is unavailable. Set repository variable PARITY_CORPUS_ARCHIVE_URL (tar.zst containing a top-level 'files/' directory)."
-            exit 2
+            echo "::warning::Parity corpus is unavailable. Set repository variable PARITY_CORPUS_ARCHIVE_URL to enable parity checks."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
           work_root="/tmp/openxml-parity-corpus"
@@ -86,6 +87,7 @@ jobs:
           echo "files_root=$files_root" >> "$GITHUB_OUTPUT"
 
       - name: Run parity snapshot
+        if: steps.corpus.outputs.skip != 'true'
         run: |
           python scripts/corpus/run_parity_snapshot.py \
             --manifest data/corpus/sdk_seed/manifest.json \
@@ -93,6 +95,7 @@ jobs:
             --output "$CURRENT_SNAPSHOT"
 
       - name: Compare against baseline
+        if: steps.corpus.outputs.skip != 'true'
         run: |
           python scripts/corpus/compare_to_baseline.py \
             --baseline "$BASELINE_SNAPSHOT" \
@@ -106,6 +109,7 @@ jobs:
             --max-missing-files 0
 
       - name: Enforce parity performance budget
+        if: steps.corpus.outputs.skip != 'true'
         run: |
           python scripts/corpus/check_perf_budget.py \
             --report "$CURRENT_SNAPSHOT" \
@@ -114,7 +118,7 @@ jobs:
             --summary "$PERF_SUMMARY_REPORT"
 
       - name: Upload parity reports
-        if: always()
+        if: always() && steps.corpus.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: parity-gate-reports
