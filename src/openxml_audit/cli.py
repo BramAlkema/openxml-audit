@@ -215,6 +215,7 @@ def main(
             else:
                 validators[cache_key] = OdfValidator(
                     file_format=format_enum,
+                    max_errors=max_errors,
                     strict=strict,
                 )
         result = validators[cache_key].validate(file_path)
@@ -283,8 +284,8 @@ def _output_json(results: list) -> None:
 
 def _output_xml(results: list) -> None:
     """Output results as XML (matching .NET SDK format)."""
-    from xml.etree.ElementTree import Element, SubElement, tostring
     from xml.dom.minidom import parseString
+    from xml.etree.ElementTree import Element, SubElement, tostring
 
     root = Element("ValidationResults")
     root.set("xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main")

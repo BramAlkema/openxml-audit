@@ -18,15 +18,16 @@ def test_detect_validator_for_odf_extensions() -> None:
 
 
 def test_cli_auto_routes_odf_to_odf_validator(monkeypatch, minimal_odt: Path) -> None:
-    calls: list[tuple[str, str, FileFormat, bool]] = []
+    calls: list[tuple[str, str, FileFormat, int, bool]] = []
 
     class DummyOdfValidator:
-        def __init__(self, file_format: FileFormat, strict: bool) -> None:
+        def __init__(self, file_format: FileFormat, max_errors: int, strict: bool) -> None:
             self.file_format = file_format
+            self.max_errors = max_errors
             self.strict = strict
 
         def validate(self, path: Path) -> ValidationResult:
-            calls.append(("odf", str(path), self.file_format, self.strict))
+            calls.append(("odf", str(path), self.file_format, self.max_errors, self.strict))
             return ValidationResult(
                 is_valid=True,
                 errors=[],
@@ -50,6 +51,7 @@ def test_cli_auto_routes_odf_to_odf_validator(monkeypatch, minimal_odt: Path) ->
     assert result.exit_code == 0, result.output
     assert calls and calls[0][0] == "odf"
     assert calls[0][2] == FileFormat.ODF_1_3
+    assert calls[0][3] == 100
 
 
 def test_cli_auto_routes_ooxml_to_ooxml_validator(monkeypatch, minimal_pptx: Path) -> None:

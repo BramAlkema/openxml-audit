@@ -57,6 +57,22 @@ class TestOdfValidator:
         assert result.is_valid
         assert result.file_format == FileFormat.ODF_1_3
 
+    def test_validator_initialization_defaults(self) -> None:
+        validator = OdfValidator()
+        assert validator.file_format == FileFormat.ODF_1_3
+        assert validator.max_errors == 1000
+
+    def test_validator_initialization_custom(self) -> None:
+        validator = OdfValidator(
+            file_format=FileFormat.ODF_1_2,
+            max_errors=5,
+            schema_validation=False,
+            semantic_validation=False,
+            strict=False,
+        )
+        assert validator.file_format == FileFormat.ODF_1_2
+        assert validator.max_errors == 5
+
     def test_valid_ods_is_valid(self, minimal_ods: Path) -> None:
         result = OdfValidator(file_format=FileFormat.ODF_1_2).validate(minimal_ods)
 
@@ -99,6 +115,28 @@ class TestOdfValidator:
             for error in result.errors
         )
 
+    def test_is_valid_method(self, minimal_odt: Path) -> None:
+        assert isinstance(OdfValidator().is_valid(minimal_odt), bool)
+
+    def test_max_errors_limit(self, odf_invalid_mimetype: Path) -> None:
+        result = OdfValidator(max_errors=1).validate(odf_invalid_mimetype)
+        error_count = sum(
+            1 for error in result.errors if error.severity == ValidationSeverity.ERROR
+        )
+        assert error_count <= 1
+
+    def test_validate_with_timings_returns_phase_metrics(self, minimal_odt: Path) -> None:
+        _result, timings = OdfValidator().validate_with_timings(minimal_odt)
+        expected_phases = {
+            "package_structure",
+            "xml_parse",
+            "schema",
+            "semantic",
+            "total",
+        }
+        assert set(timings.keys()) == expected_phases
+        assert all(duration >= 0.0 for duration in timings.values())
+
     def test_content_body_type_mismatch_reports_semantic_error(
         self,
         odf_content_body_mismatch: Path,
@@ -130,6 +168,14 @@ class TestOdfValidator:
     def test_relaxng_enabled_requires_schema_mapping(self) -> None:
         with pytest.raises(ValueError, match="relaxng_validation requires relaxng_schemas"):
             OdfValidator(relaxng_validation=True)
+
+    def test_relaxng_requires_schema_validation_enabled(self) -> None:
+        with pytest.raises(ValueError, match="relaxng_validation requires schema_validation=True"):
+            OdfValidator(
+                relaxng_validation=True,
+                schema_validation=False,
+                relaxng_schemas={"*": "x.rng"},
+            )
 
     def test_relaxng_validation_passes_with_matching_schema(
         self,

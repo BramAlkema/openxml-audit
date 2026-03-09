@@ -1,14 +1,16 @@
-"""ODF validator skeleton."""
+"""ODF validator aligned with OOXML validator pipeline shape."""
 
 from __future__ import annotations
 
 from collections.abc import Mapping
 from pathlib import Path
+from time import perf_counter
 
 from lxml import etree
 
 from openxml_audit.errors import (
     FileFormat,
+    PackageValidationError,
     ValidationError,
     ValidationErrorType,
     ValidationResult,
@@ -18,7 +20,7 @@ from openxml_audit.odf.package import OdfPackage
 
 
 class OdfValidator:
-    """Validate ODF packages using manifest + schema rules."""
+    """Validate ODF packages using package, schema, and semantic phases."""
 
     OFFICE_NS = "urn:oasis:names:tc:opendocument:xmlns:office:1.0"
     CORE_ROOTS = {
@@ -36,11 +38,16 @@ class OdfValidator:
     def __init__(
         self,
         file_format: FileFormat = FileFormat.ODF_1_3,
+        max_errors: int = 1000,
+        schema_validation: bool = True,
+        semantic_validation: bool = True,
         strict: bool = True,
         *,
         relaxng_validation: bool = False,
         relaxng_schemas: Mapping[str, str | Path] | None = None,
     ):
+        if relaxng_validation and not schema_validation:
+            raise ValueError("relaxng_validation requires schema_validation=True")
         if relaxng_validation and not relaxng_schemas:
             raise ValueError(
                 "relaxng_validation requires relaxng_schemas mapping "
@@ -48,10 +55,23 @@ class OdfValidator:
             )
 
         self._file_format = file_format
+        self._max_errors = max_errors
+        self._schema_validation = schema_validation
+        self._semantic_validation = semantic_validation
         self._strict = strict
-        self._relaxng_validation = relaxng_validation
+        self._relaxng_validation = relaxng_validation and schema_validation
         self._relaxng_schemas = dict(relaxng_schemas or {})
         self._relaxng_cache: dict[Path, etree.RelaxNG] = {}
+
+    @property
+    def file_format(self) -> FileFormat:
+        """Get the target ODF version."""
+        return self._file_format
+
+    @property
+    def max_errors(self) -> int:
+        """Get the maximum number of ERROR entries to collect."""
+        return self._max_errors
 
     @staticmethod
     def _normalize_part_uri(part_path: str) -> str:
@@ -60,6 +80,118 @@ class OdfValidator:
     @staticmethod
     def _normalize_part_key(part_path: str) -> str:
         return part_path[1:] if part_path.startswith("/") else part_path
+
+    def validate(self, path: str | Path) -> ValidationResult:
+        """Validate an ODF file."""
+        result, _timings = self.validate_with_timings(path)
+        return result
+
+    def validate_with_timings(
+        self,
+        path: str | Path,
+        include_schema_breakdown: bool = False,
+    ) -> tuple[ValidationResult, dict[str, float]]:
+        """Validate an ODF file and return per-phase timing metrics."""
+        path = Path(path)
+        errors: list[ValidationError] = []
+        timings: dict[str, float] = {
+            "package_structure": 0.0,
+            "xml_parse": 0.0,
+            "schema": 0.0,
+            "semantic": 0.0,
+            "total": 0.0,
+        }
+        total_start = perf_counter()
+
+        def finish() -> tuple[ValidationResult, dict[str, float]]:
+            timings["total"] = perf_counter() - total_start
+            return self._create_result(path, errors), timings
+
+        parsed_parts: dict[str, etree._Element] = {}
+        try:
+            with OdfPackage(path) as package:
+                phase_start = perf_counter()
+                errors.extend(self._validate_package_structure(package))
+                self._trim_to_error_limit(errors)
+                timings["package_structure"] += perf_counter() - phase_start
+                if self._should_stop(errors):
+                    return finish()
+
+                if self._schema_validation or self._semantic_validation:
+                    phase_start = perf_counter()
+                    parsed_parts, parse_errors = self._parse_xml_parts(package)
+                    errors.extend(parse_errors)
+                    self._trim_to_error_limit(errors)
+                    timings["xml_parse"] += perf_counter() - phase_start
+                    if self._should_stop(errors):
+                        return finish()
+
+                if self._schema_validation:
+                    phase_start = perf_counter()
+                    schema_errors = self._validate_schema(parsed_parts)
+                    errors.extend(schema_errors)
+                    self._trim_to_error_limit(errors)
+                    timings["schema"] += perf_counter() - phase_start
+                    if include_schema_breakdown and self._relaxng_validation:
+                        timings["schema.relaxng"] = timings["schema"]
+                    if self._should_stop(errors):
+                        return finish()
+
+                if self._semantic_validation:
+                    phase_start = perf_counter()
+                    errors.extend(self._validate_document_semantics(package, parsed_parts))
+                    self._trim_to_error_limit(errors)
+                    timings["semantic"] += perf_counter() - phase_start
+
+        except PackageValidationError as exc:
+            errors.extend(exc.errors)
+            self._trim_to_error_limit(errors)
+        except Exception as exc:
+            errors.append(
+                ValidationError(
+                    error_type=ValidationErrorType.PACKAGE,
+                    description=str(exc),
+                )
+            )
+            self._trim_to_error_limit(errors)
+
+        return finish()
+
+    def is_valid(self, path: str | Path) -> bool:
+        """Quick check if an ODF file is valid."""
+        return self.validate(path).is_valid
+
+    def _should_stop(self, errors: list[ValidationError]) -> bool:
+        if self._max_errors == 0:
+            return False
+        error_count = sum(1 for error in errors if error.severity == ValidationSeverity.ERROR)
+        return error_count >= self._max_errors
+
+    def _trim_to_error_limit(self, errors: list[ValidationError]) -> None:
+        if self._max_errors == 0:
+            return
+        limited: list[ValidationError] = []
+        error_count = 0
+        for error in errors:
+            if error.severity == ValidationSeverity.ERROR:
+                if error_count >= self._max_errors:
+                    continue
+                error_count += 1
+            limited.append(error)
+        if len(limited) != len(errors):
+            errors[:] = limited
+
+    def _create_result(self, path: Path, errors: list[ValidationError]) -> ValidationResult:
+        is_valid = not any(error.severity == ValidationSeverity.ERROR for error in errors)
+        return ValidationResult(
+            is_valid=is_valid,
+            errors=errors,
+            file_path=str(path),
+            file_format=self._file_format,
+        )
+
+    def _validate_package_structure(self, package: OdfPackage) -> list[ValidationError]:
+        return package.validate_structure(strict=self._strict)
 
     def _collect_xml_parts(self, package: OdfPackage) -> list[str]:
         parts: set[str] = set(package.list_xml_parts())
@@ -90,6 +222,11 @@ class OdfValidator:
                     )
                 )
         return parsed_parts, errors
+
+    def _validate_schema(self, parsed_parts: dict[str, etree._Element]) -> list[ValidationError]:
+        if not self._relaxng_validation:
+            return []
+        return self._validate_relaxng_parts(parsed_parts)
 
     def _schema_path_for_part(self, part: str) -> Path | None:
         normalized = self._normalize_part_key(part)
@@ -236,9 +373,6 @@ class OdfValidator:
         self,
         parsed_parts: dict[str, etree._Element],
     ) -> list[ValidationError]:
-        if not self._relaxng_validation:
-            return []
-
         errors: list[ValidationError] = []
         for part, element in parsed_parts.items():
             schema_path = self._schema_path_for_part(part)
@@ -267,29 +401,3 @@ class OdfValidator:
                 )
             )
         return errors
-
-    def validate(self, path: str | Path) -> ValidationResult:
-        errors: list[ValidationError] = []
-
-        try:
-            with OdfPackage(path) as package:
-                errors.extend(package.validate_structure(strict=self._strict))
-                parsed_parts, parse_errors = self._parse_xml_parts(package)
-                errors.extend(parse_errors)
-                errors.extend(self._validate_document_semantics(package, parsed_parts))
-                errors.extend(self._validate_relaxng_parts(parsed_parts))
-        except Exception as exc:
-            errors.append(
-                ValidationError(
-                    error_type=ValidationErrorType.PACKAGE,
-                    description=str(exc),
-                )
-            )
-
-        is_valid = not any(error.severity == ValidationSeverity.ERROR for error in errors)
-        return ValidationResult(
-            is_valid=is_valid,
-            errors=errors,
-            file_path=str(path),
-            file_format=self._file_format,
-        )
