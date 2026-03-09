@@ -99,6 +99,34 @@ class TestOdfValidator:
             for error in result.errors
         )
 
+    def test_content_body_type_mismatch_reports_semantic_error(
+        self,
+        odf_content_body_mismatch: Path,
+    ) -> None:
+        result = OdfValidator().validate(odf_content_body_mismatch)
+
+        assert not result.is_valid
+        assert any(
+            error.error_type == ValidationErrorType.SEMANTIC
+            and "body type does not match mimetype" in error.description
+            and error.part_uri == "/content.xml"
+            for error in result.errors
+        )
+
+    def test_content_root_mismatch_reports_schema_error(
+        self,
+        odf_content_root_mismatch: Path,
+    ) -> None:
+        result = OdfValidator().validate(odf_content_root_mismatch)
+
+        assert not result.is_valid
+        assert any(
+            error.error_type == ValidationErrorType.SCHEMA
+            and "content.xml root element must be office:document-content" in error.description
+            and error.part_uri == "/content.xml"
+            for error in result.errors
+        )
+
     def test_relaxng_enabled_requires_schema_mapping(self) -> None:
         with pytest.raises(ValueError, match="relaxng_validation requires relaxng_schemas"):
             OdfValidator(relaxng_validation=True)

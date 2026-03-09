@@ -20,6 +20,19 @@ from openxml_audit.odf.package import OdfPackage
 class OdfValidator:
     """Validate ODF packages using manifest + schema rules."""
 
+    OFFICE_NS = "urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    CORE_ROOTS = {
+        "content.xml": "document-content",
+        "styles.xml": "document-styles",
+        "meta.xml": "document-meta",
+        "settings.xml": "document-settings",
+    }
+    CONTENT_BODY_BY_MIMETYPE = (
+        ("application/vnd.oasis.opendocument.text", "text"),
+        ("application/vnd.oasis.opendocument.spreadsheet", "spreadsheet"),
+        ("application/vnd.oasis.opendocument.presentation", "presentation"),
+    )
+
     def __init__(
         self,
         file_format: FileFormat = FileFormat.ODF_1_3,
@@ -124,6 +137,101 @@ class OdfValidator:
             )
             return None, errors
 
+    @staticmethod
+    def _expected_content_body_local(mimetype: str | None) -> str | None:
+        if not mimetype:
+            return None
+        for prefix, local in OdfValidator.CONTENT_BODY_BY_MIMETYPE:
+            if mimetype.startswith(prefix):
+                return local
+        return None
+
+    @staticmethod
+    def _first_element_child(element: etree._Element) -> etree._Element | None:
+        for child in element:
+            if isinstance(child.tag, str):
+                return child
+        return None
+
+    def _validate_document_semantics(
+        self,
+        package: OdfPackage,
+        parsed_parts: dict[str, etree._Element],
+    ) -> list[ValidationError]:
+        errors: list[ValidationError] = []
+        manifest_paths = package.manifest_paths()
+        for part, expected_root in self.CORE_ROOTS.items():
+            if part not in manifest_paths:
+                continue
+            root = parsed_parts.get(part)
+            if root is None:
+                continue
+
+            qname = etree.QName(root)
+            if qname.namespace != self.OFFICE_NS or qname.localname != expected_root:
+                errors.append(
+                    ValidationError(
+                        error_type=ValidationErrorType.SCHEMA,
+                        description=(
+                            f"{part} root element must be office:{expected_root} "
+                            f"(found '{root.tag}')"
+                        ),
+                        part_uri=self._normalize_part_uri(part),
+                        severity=ValidationSeverity.ERROR,
+                    )
+                )
+
+        content = parsed_parts.get("content.xml")
+        if "content.xml" not in manifest_paths:
+            return errors
+        if content is None:
+            return errors
+
+        body = content.find(f"{{{self.OFFICE_NS}}}body")
+        if body is None:
+            errors.append(
+                ValidationError(
+                    error_type=ValidationErrorType.SCHEMA,
+                    description="content.xml is missing required office:body element",
+                    part_uri="/content.xml",
+                    severity=ValidationSeverity.ERROR,
+                )
+            )
+            return errors
+
+        expected_body_local = self._expected_content_body_local(package.mimetype)
+        if expected_body_local is None:
+            return errors
+
+        body_child = self._first_element_child(body)
+        if body_child is None:
+            errors.append(
+                ValidationError(
+                    error_type=ValidationErrorType.SCHEMA,
+                    description="content.xml office:body has no document type element",
+                    part_uri="/content.xml",
+                    severity=ValidationSeverity.ERROR,
+                )
+            )
+            return errors
+
+        child_qname = etree.QName(body_child)
+        if child_qname.namespace == self.OFFICE_NS and child_qname.localname == expected_body_local:
+            return errors
+
+        errors.append(
+            ValidationError(
+                error_type=ValidationErrorType.SEMANTIC,
+                description=(
+                    "content.xml body type does not match mimetype "
+                    f"(expected office:{expected_body_local}, found '{body_child.tag}')"
+                ),
+                part_uri="/content.xml",
+                severity=ValidationSeverity.ERROR,
+            )
+        )
+        return errors
+
     def _validate_relaxng_parts(
         self,
         parsed_parts: dict[str, etree._Element],
@@ -168,6 +276,7 @@ class OdfValidator:
                 errors.extend(package.validate_structure(strict=self._strict))
                 parsed_parts, parse_errors = self._parse_xml_parts(package)
                 errors.extend(parse_errors)
+                errors.extend(self._validate_document_semantics(package, parsed_parts))
                 errors.extend(self._validate_relaxng_parts(parsed_parts))
         except Exception as exc:
             errors.append(

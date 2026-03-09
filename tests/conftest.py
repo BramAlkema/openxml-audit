@@ -275,3 +275,33 @@ def odf_broken_content_xml(tmp_path: Path) -> Path:
         filename="broken_content_xml.odt",
         validate_xml=False,
     )
+
+
+@pytest.fixture
+def odf_missing_content_xml(tmp_path: Path) -> Path:
+    """Create an ODF package missing required content.xml."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/missing_content_xml",
+        filename="missing_content_xml.odt",
+    )
+
+
+@pytest.fixture
+def odf_content_body_mismatch(tmp_path: Path) -> Path:
+    """Create an ODF package where content.xml body type mismatches mimetype."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/content_body_mismatch",
+        filename="content_body_mismatch.odt",
+    )
+
+
+@pytest.fixture
+def odf_content_root_mismatch(tmp_path: Path) -> Path:
+    """Create an ODF package where content.xml root element is invalid for content part."""
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/content_root_mismatch",
+        filename="content_root_mismatch.odt",
+    )

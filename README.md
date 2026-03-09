@@ -93,7 +93,9 @@ ODF support is currently foundation-focused and explicit about scope:
    - `mimetype` and `META-INF/manifest.xml` presence/parsing
    - root manifest entry/media-type consistency
    - manifest-to-package and package-to-manifest consistency
+   - required `content.xml` presence for text/spreadsheet/presentation packages
    - XML parse sweep for core and manifest-declared XML members
+   - `content.xml` semantic checks (expected root + body document type vs mimetype)
 2. **Optional schema hook**:
    - feature-gated Relax NG path via `OdfValidator(relaxng_validation=True, relaxng_schemas=...)`
 3. **Optional reference comparison (offline calibration)**:

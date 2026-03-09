@@ -130,3 +130,10 @@ class TestOdfPackage:
             and e.severity == ValidationSeverity.WARNING
             for e in errors
         )
+
+    def test_missing_content_xml_is_reported(self, odf_missing_content_xml: Path) -> None:
+        with OdfPackage(odf_missing_content_xml) as package:
+            errors = package.validate_structure(strict=True)
+
+        assert any("missing required member 'content.xml'" in e.description for e in errors)
+        assert any("missing required manifest entry 'content.xml'" in e.description for e in errors)

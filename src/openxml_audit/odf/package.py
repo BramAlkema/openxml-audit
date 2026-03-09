@@ -31,6 +31,11 @@ class OdfPackage(ZipPackage):
     MIMETYPE_PATH = "mimetype"
     MANIFEST_NS = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
     MIMETYPE_PREFIX = "application/vnd.oasis.opendocument."
+    REQUIRED_CONTENT_PREFIXES = (
+        "application/vnd.oasis.opendocument.text",
+        "application/vnd.oasis.opendocument.spreadsheet",
+        "application/vnd.oasis.opendocument.presentation",
+    )
 
     def __init__(self, path: str | Path):
         super().__init__(path)
@@ -120,6 +125,10 @@ class OdfPackage(ZipPackage):
     def _is_supported_mimetype(mimetype: str) -> bool:
         return mimetype.startswith(OdfPackage.MIMETYPE_PREFIX)
 
+    @staticmethod
+    def _requires_content_xml(mimetype: str) -> bool:
+        return mimetype.startswith(OdfPackage.REQUIRED_CONTENT_PREFIXES)
+
     def list_xml_parts(self) -> Iterator[str]:
         """List manifest parts that look like XML."""
         seen: set[str] = set()
@@ -133,6 +142,14 @@ class OdfPackage(ZipPackage):
                 continue
             seen.add(path)
             yield path
+
+    def manifest_paths(self) -> set[str]:
+        """Return normalized non-root manifest member paths."""
+        return {
+            self._normalize_manifest_path(entry.full_path)
+            for entry in self.manifest
+            if self._normalize_manifest_path(entry.full_path) not in {"", "/"}
+        }
 
     def validate_structure(self, strict: bool = True) -> list[ValidationError]:
         """Perform basic ODF package checks."""
@@ -202,11 +219,7 @@ class OdfPackage(ZipPackage):
                 )
 
         zip_members = self._zip_members()
-        manifest_members = {
-            self._normalize_manifest_path(entry.full_path)
-            for entry in manifest
-            if self._normalize_manifest_path(entry.full_path) not in {"", "/"}
-        }
+        manifest_members = self.manifest_paths()
 
         for member in sorted(manifest_members):
             if member.endswith("/"):
@@ -231,6 +244,26 @@ class OdfPackage(ZipPackage):
                     ValidationError(
                         error_type=ValidationErrorType.PACKAGE,
                         description=f"Package member '{member}' is not declared in manifest.xml",
+                        part_uri=self.MANIFEST_PATH,
+                        severity=self._conformance_severity(strict),
+                    )
+                )
+
+        if self._requires_content_xml(mimetype):
+            if "content.xml" not in zip_members:
+                errors.append(
+                    ValidationError(
+                        error_type=ValidationErrorType.PACKAGE,
+                        description="ODF package is missing required member 'content.xml'",
+                        part_uri=self.MANIFEST_PATH,
+                        severity=self._conformance_severity(strict),
+                    )
+                )
+            if "content.xml" not in manifest_members:
+                errors.append(
+                    ValidationError(
+                        error_type=ValidationErrorType.PACKAGE,
+                        description="ODF package is missing required manifest entry 'content.xml'",
                         part_uri=self.MANIFEST_PATH,
                         severity=self._conformance_severity(strict),
                     )
