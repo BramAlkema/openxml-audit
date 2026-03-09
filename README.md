@@ -4,6 +4,8 @@ A Python library for validating Open XML (OOXML) and ODF files against schema an
 
 This is a Python port of the validation logic from Microsoft's [Open XML SDK](https://github.com/OfficeDev/Open-XML-SDK).
 
+Current version: `0.2.0`
+
 ## Features
 
 - **Package Validation**: Validates OPC (Open Packaging Conventions) structure
