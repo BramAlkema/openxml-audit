@@ -12,7 +12,8 @@ on:
         required: false
         default: "v0.20-alpha-2"
   schedule:
-    - cron: "31 2 * * 1"
+    # Quarterly: 1st of Jan, Apr, Jul, Oct at 03:00 UTC
+    - cron: "0 3 1 1,4,7,10 *"
 
 jobs:
   odf-reference-drift:
