@@ -330,6 +330,27 @@ Both expose:
 - `validate_pptx(path) -> ValidationResult`
 - `is_valid_pptx(path) -> bool`
 
+## Works Well With
+
+These libraries create Office files — openxml-audit checks them:
+
+| Library | Format | Link |
+|---------|--------|------|
+| [python-pptx](https://github.com/scanny/python-pptx) | PPTX | Create and update PowerPoint files |
+| [python-docx](https://github.com/python-openxml/python-docx) | DOCX | Create and update Word files |
+| [openpyxl](https://openpyxl.readthedocs.io/) | XLSX | Create and update Excel files |
+
+```python
+from pptx import Presentation
+from openxml_audit import validate_pptx
+
+Presentation().save("output.pptx")
+
+result = validate_pptx("output.pptx")
+if not result.is_valid:
+    print(f"{result.error_count} issues found")
+```
+
 ## Contributing
 
 Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup and guidelines.
