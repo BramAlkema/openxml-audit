@@ -55,6 +55,7 @@ from openxml_audit.pptx.presentation import PresentationValidator
 from openxml_audit.pptx.slides import SlideValidator
 from openxml_audit.pptx.supertheme import SuperthemeValidator
 from openxml_audit.pptx.themes import ThemeValidator
+from openxml_audit.properties import PropertiesValidator
 from openxml_audit.relationships import get_rels_path
 from openxml_audit.schema.validator import SchemaValidator
 from openxml_audit.semantic.validator import (
@@ -64,6 +65,7 @@ from openxml_audit.semantic.validator import (
     create_word_semantic_validator,
 )
 from openxml_audit.word.document import DocumentValidator
+from openxml_audit.word.styles_with_effects import StylesWithEffectsValidator
 
 if TYPE_CHECKING:
     pass
@@ -150,6 +152,8 @@ class OpenXmlValidator:
         )
         self._master_validator = MasterValidator()
         self._document_validator = DocumentValidator()
+        self._styles_with_effects_validator = StylesWithEffectsValidator()
+        self._properties_validator = PropertiesValidator()
         self._workbook_validator = WorkbookValidator()
         self._profiles: dict[DocumentKind, DocumentProfile] = {
             DocumentKind.PRESENTATION: DocumentProfile(
@@ -285,6 +289,14 @@ class OpenXmlValidator:
                     phase_start = perf_counter()
                     errors.extend(profile.semantic_validator(package))
                     timings["semantic"] += perf_counter() - phase_start
+
+                if self._should_stop(errors):
+                    return finish()
+
+                # Phase 6.5: Package properties validation
+                phase_start = perf_counter()
+                errors.extend(self._validate_properties(package))
+                timings["specific"] += perf_counter() - phase_start
 
                 if self._should_stop(errors):
                     return finish()
@@ -554,6 +566,16 @@ class OpenXmlValidator:
 
         return errors
 
+    def _validate_properties(self, package: OpenXmlPackage) -> list[ValidationError]:
+        """Validate package properties (core, extended, custom)."""
+        context = ValidationContext(
+            package=package,
+            file_format=self._file_format,
+            max_errors=self._max_errors,
+            strict=self._strict,
+        )
+        return self._properties_validator.validate(package, context)
+
     def _validate_binary_parts(self, package: OpenXmlPackage) -> list[ValidationError]:
         """Validate binary payloads (images, embeddings) by magic bytes."""
         errors: list[ValidationError] = []
@@ -738,6 +760,7 @@ class OpenXmlValidator:
                 context,
             )
             self._validate_word_cross_part(package, context)
+            self._styles_with_effects_validator.validate(package, context)
 
         errors.extend(
             self._validate_semantic_all_parts(
