@@ -5,7 +5,7 @@
   office:version="1.3">
   <office:body>
     <office:presentation>
-      <draw:page draw:name="slide1"/>
+      <draw:page draw:name="slide1" draw:master-page-name="Default"/>
     </office:presentation>
   </office:body>
 </office:document-content>

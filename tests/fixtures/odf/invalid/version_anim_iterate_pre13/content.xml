@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+    xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
+    xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0"
+    xmlns:anim="urn:oasis:names:tc:opendocument:xmlns:animation:1.0"
+    office:version="1.2">
+  <office:body>
+    <office:presentation>
+      <draw:page draw:name="Slide1">
+        <presentation:animations>
+          <anim:iterate anim:id="i1"/>
+        </presentation:animations>
+      </draw:page>
+    </office:presentation>
+  </office:body>
+</office:document-content>

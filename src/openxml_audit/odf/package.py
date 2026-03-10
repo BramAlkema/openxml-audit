@@ -152,7 +152,8 @@ class OdfPackage(ZipPackage):
     def _normalize_manifest_path(path: str) -> str:
         return normalize_manifest_path(path)
 
-    def _zip_members(self) -> set[str]:
+    def zip_members(self) -> set[str]:
+        """Return the set of all ZIP member names in the package."""
         return self._nameset()
 
     @staticmethod
@@ -264,7 +265,7 @@ class OdfPackage(ZipPackage):
                     )
                 )
 
-        zip_members = self._zip_members()
+        zip_members = self.zip_members()
         manifest_members = self.manifest_paths()
 
         for member in sorted(manifest_members):

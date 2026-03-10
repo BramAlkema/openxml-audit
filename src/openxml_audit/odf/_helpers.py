@@ -16,12 +16,30 @@ SVG_NS = "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
 META_NS = "urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
 NUMBER_NS = "urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0"
 PRESENTATION_NS = "urn:oasis:names:tc:opendocument:xmlns:presentation:1.0"
+FORM_NS = "urn:oasis:names:tc:opendocument:xmlns:form:1.0"
+CHART_NS = "urn:oasis:names:tc:opendocument:xmlns:chart:1.0"
+DR3D_NS = "urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0"
+SCRIPT_NS = "urn:oasis:names:tc:opendocument:xmlns:script:1.0"
 XLINK_NS = "http://www.w3.org/1999/xlink"
 
 
 def normalize_part_uri(part_path: str) -> str:
     """Ensure part URI has a leading slash."""
     return part_path if part_path.startswith("/") else f"/{part_path}"
+
+
+def normalize_internal_href(href: str) -> str | None:
+    """Normalize an internal xlink:href for package member lookup.
+
+    Returns ``None`` for empty or external (http/https) hrefs.
+    Strips a leading ``./`` prefix if present.
+    """
+    href = href.strip()
+    if not href or href.startswith("http://") or href.startswith("https://"):
+        return None
+    if href.startswith("./"):
+        href = href[2:]
+    return href
 
 
 def normalize_manifest_path(path: str) -> str:

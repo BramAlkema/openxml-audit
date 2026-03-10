@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" office:version="1.3">
+  <office:automatic-styles>
+    <style:style style:name="s1" style:family="paragraph" style:parent-style-name="s2"/>
+    <style:style style:name="s2" style:family="paragraph" style:parent-style-name="s3"/>
+    <style:style style:name="s3" style:family="paragraph" style:parent-style-name="s4"/>
+    <style:style style:name="s4" style:family="paragraph" style:parent-style-name="s5"/>
+    <style:style style:name="s5" style:family="paragraph" style:parent-style-name="s6"/>
+    <style:style style:name="s6" style:family="paragraph" style:parent-style-name="s7"/>
+    <style:style style:name="s7" style:family="paragraph" style:parent-style-name="s8"/>
+    <style:style style:name="s8" style:family="paragraph" style:parent-style-name="s9"/>
+    <style:style style:name="s9" style:family="paragraph" style:parent-style-name="s10"/>
+    <style:style style:name="s10" style:family="paragraph" style:parent-style-name="s11"/>
+    <style:style style:name="s11" style:family="paragraph" style:parent-style-name="s12"/>
+    <style:style style:name="s12" style:family="paragraph" style:parent-style-name="s13"/>
+    <style:style style:name="s13" style:family="paragraph" style:parent-style-name="s14"/>
+    <style:style style:name="s14" style:family="paragraph" style:parent-style-name="s15"/>
+    <style:style style:name="s15" style:family="paragraph" style:parent-style-name="s16"/>
+    <style:style style:name="s16" style:family="paragraph" style:parent-style-name="s17"/>
+    <style:style style:name="s17" style:family="paragraph" style:parent-style-name="s18"/>
+    <style:style style:name="s18" style:family="paragraph" style:parent-style-name="s19"/>
+    <style:style style:name="s19" style:family="paragraph" style:parent-style-name="s20"/>
+    <style:style style:name="s20" style:family="paragraph" style:parent-style-name="s21"/>
+    <style:style style:name="s21" style:family="paragraph" style:parent-style-name="s22"/>
+    <style:style style:name="s22" style:family="paragraph"/>
+  </office:automatic-styles>
+  <office:body><office:text><text:p text:style-name="s1">Content</text:p></office:text></office:body>
+</office:document-content>

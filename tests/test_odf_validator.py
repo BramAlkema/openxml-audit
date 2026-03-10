@@ -257,12 +257,9 @@ class TestOdfValidator:
             for error in result.errors
         )
 
-    def test_relaxng_enabled_requires_schema_mapping(self) -> None:
-        with pytest.raises(
-            ValueError,
-            match="relaxng_validation requires relaxng_schemas or schema_routes",
-        ):
-            OdfValidator(relaxng_validation=True)
+    def test_relaxng_enabled_uses_bundled_schemas_by_default(self) -> None:
+        validator = OdfValidator(relaxng_validation=True)
+        assert not validator._schema_router.is_empty()
 
     def test_relaxng_requires_schema_validation_enabled(self) -> None:
         with pytest.raises(ValueError, match="relaxng_validation requires schema_validation=True"):
@@ -347,6 +344,7 @@ class TestOdfValidator:
         result = OdfValidator(
             relaxng_validation=True,
             relaxng_schemas={"content.xml": schema_path},
+            require_schema_routes=False,
         ).validate(package)
 
         assert result.is_valid

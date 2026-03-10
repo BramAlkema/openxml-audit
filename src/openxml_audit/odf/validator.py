@@ -55,11 +55,6 @@ class OdfValidator:
             raise ValueError("max_schema_xml_bytes must be >= 0")
         if relaxng_validation and not schema_validation:
             raise ValueError("relaxng_validation requires schema_validation=True")
-        if relaxng_validation and not (relaxng_schemas or schema_routes):
-            raise ValueError(
-                "relaxng_validation requires relaxng_schemas or schema_routes mapping "
-                "(for example {'content.xml': '/path/to/content.rng'})"
-            )
 
         self._file_format = file_format
         self._max_errors = max_errors
@@ -73,8 +68,13 @@ class OdfValidator:
         self._max_schema_xml_bytes = max_schema_xml_bytes
         if schema_routes is not None:
             self._schema_router = OdfRelaxNgRouter(schema_routes)
-        else:
+        elif relaxng_schemas is not None:
             self._schema_router = OdfRelaxNgRouter.from_legacy_mapping(relaxng_schemas)
+        elif relaxng_validation:
+            # Use bundled schemas for zero-config validation
+            self._schema_router = OdfRelaxNgRouter.from_bundled()
+        else:
+            self._schema_router = OdfRelaxNgRouter()
         self._schema_resolver = OdfRelaxNgResolver()
         self._semantic_core_validator = OdfSemanticValidator()
         self._security_core_validator = (
@@ -272,7 +272,9 @@ class OdfValidator:
             parsed_parts,
             fallback_format=self._file_format,
         )
-        return self._validate_relaxng_parts(parsed_parts, schema_version=schema_version)
+        errors = self._validate_relaxng_parts(parsed_parts, schema_version=schema_version)
+        errors.extend(self._validate_manifest_schema(package, schema_version))
+        return errors
 
     def _validate_schema_guardrails(
         self,
@@ -413,3 +415,46 @@ class OdfValidator:
                 )
             )
         return errors
+
+    def _validate_manifest_schema(
+        self,
+        package: OdfPackage,
+        schema_version: str,
+    ) -> list[ValidationError]:
+        """Validate META-INF/manifest.xml against its Relax NG schema if available."""
+        manifest_part = "META-INF/manifest.xml"
+        schema_path = self._schema_path_for_part(manifest_part, schema_version)
+        if schema_path is None:
+            return []
+
+        content = package.get_part_content(manifest_part)
+        if content is None:
+            return []
+
+        try:
+            manifest_xml = etree.fromstring(content)
+        except etree.XMLSyntaxError:
+            return []  # Already reported during XML parse phase
+
+        relaxng, schema_errors = self._load_relaxng(schema_path)
+        if schema_errors:
+            return schema_errors
+        if relaxng is None:
+            return []
+
+        if relaxng.validate(manifest_xml):
+            return []
+
+        detail = "Relax NG validation failed"
+        if relaxng.error_log:
+            last = relaxng.error_log.last_error
+            if last is not None and last.message:
+                detail = f"Relax NG validation failed: {last.message}"
+        return [
+            ValidationError(
+                error_type=ValidationErrorType.SCHEMA,
+                description=detail,
+                part_uri=self._normalize_part_uri(manifest_part),
+                severity=ValidationSeverity.ERROR,
+            )
+        ]

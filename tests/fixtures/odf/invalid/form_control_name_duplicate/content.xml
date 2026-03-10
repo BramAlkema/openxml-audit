@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+  xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+  xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0"
+  office:version="1.3">
+  <office:body>
+    <office:text>
+      <office:forms>
+        <form:form form:name="TestForm">
+          <form:text form:name="Field1" form:id="c1"/>
+          <form:text form:name="Field1" form:id="c2"/>
+        </form:form>
+      </office:forms>
+      <text:p>Hello</text:p>
+    </office:text>
+  </office:body>
+</office:document-content>

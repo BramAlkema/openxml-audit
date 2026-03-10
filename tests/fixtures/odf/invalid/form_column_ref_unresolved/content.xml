@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+  xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+  xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0"
+  office:version="1.3">
+  <office:body>
+    <office:text>
+      <office:forms>
+        <form:form form:name="GridForm">
+          <form:text form:name="RealCtrl" form:id="ctrl1"/>
+          <form:grid form:name="Grid1" form:id="grid1">
+            <form:column form:control="nonexistent_ctrl"/>
+          </form:grid>
+        </form:form>
+      </office:forms>
+      <text:p>Hello</text:p>
+    </office:text>
+  </office:body>
+</office:document-content>

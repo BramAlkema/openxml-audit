@@ -142,6 +142,19 @@ MS_OFFICE_EXCEL = "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main
 MS_OFFICE_DRAWING = "http://schemas.microsoft.com/office/drawing/2010/main"
 MS_OFFICE_POWERPOINT = "http://schemas.microsoft.com/office/powerpoint/2010/main"
 
+# MS-OE376 extensions (Microsoft Office implementation notes for ECMA-376)
+MS_THEMEML_2012 = "http://schemas.microsoft.com/office/thememl/2012/main"
+MS_DRAWING_2014 = "http://schemas.microsoft.com/office/drawing/2014/main"
+MS_POWERPOINT_2012 = "http://schemas.microsoft.com/office/powerpoint/2012/main"
+
+# MS-OE376 relationship types
+REL_THEME_VARIANT_MANAGER = (
+    "http://schemas.microsoft.com/office/2011/relationships/themeVariantManager"
+)
+
+# MS-OE376 content types
+CT_THEME_VARIANT_MANAGER = "application/vnd.ms-powerpoint.themeVariantManager+xml"
+
 # XML standard namespaces
 XML = "http://www.w3.org/XML/1998/namespace"
 XSD = "http://www.w3.org/2001/XMLSchema"
@@ -164,6 +177,7 @@ NSMAP = {
     "dc": DC,
     "dcterms": DCTERMS,
     "xsi": XSI,
+    "thm15": MS_THEMEML_2012,
 }
 
 # Reverse map for looking up prefix by namespace

@@ -654,3 +654,488 @@ def odf_valid_named_range(tmp_path: Path) -> Path:
 @pytest.fixture
 def odf_valid_bookmark(tmp_path: Path) -> Path:
     return _build_odf_fixture(tmp_path, "valid/text_bookmark_resolved", filename="valid_bookmark.odt")
+
+
+# ── M2: Text fixtures ───────────────────────────────────────────────────
+
+
+@pytest.fixture
+def odf_text_heading_level_skip(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/text_heading_level_skip", filename="heading_skip.odt"
+    )
+
+
+@pytest.fixture
+def odf_text_note_ref_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/text_note_ref_unresolved", filename="note_ref_bad.odt"
+    )
+
+
+@pytest.fixture
+def odf_text_section_duplicate_name(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/text_section_duplicate_name", filename="section_dup.odt"
+    )
+
+
+@pytest.fixture
+def odf_text_tracked_change_dup_id(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/text_tracked_change_dup_id", filename="tracked_dup.odt"
+    )
+
+
+@pytest.fixture
+def odf_text_sequence_decl_duplicate(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/text_sequence_decl_duplicate", filename="seq_dup.odt"
+    )
+
+
+@pytest.fixture
+def odf_text_variable_decl_duplicate(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/text_variable_decl_duplicate", filename="var_dup.odt"
+    )
+
+
+@pytest.fixture
+def odf_text_variable_get_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/text_variable_get_unresolved", filename="var_get_bad.odt"
+    )
+
+
+@pytest.fixture
+def odf_text_user_field_decl_duplicate(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/text_user_field_decl_duplicate", filename="ufield_dup.odt"
+    )
+
+
+@pytest.fixture
+def odf_text_user_field_get_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/text_user_field_get_unresolved", filename="ufield_get_bad.odt"
+    )
+
+
+@pytest.fixture
+def odf_text_table_empty(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/text_table_empty", filename="table_empty.odt"
+    )
+
+
+# ── M2: Spreadsheet fixtures ────────────────────────────────────────────
+
+
+@pytest.fixture
+def odf_spreadsheet_no_tables(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/spreadsheet_no_tables", filename="no_tables.ods"
+    )
+
+
+@pytest.fixture
+def odf_spreadsheet_database_range_bad_table(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/spreadsheet_database_range_bad_table", filename="db_range_bad.ods"
+    )
+
+
+@pytest.fixture
+def odf_spreadsheet_data_pilot_bad_source(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/spreadsheet_data_pilot_bad_source", filename="dp_bad.ods"
+    )
+
+
+@pytest.fixture
+def odf_spreadsheet_validation_duplicate(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/spreadsheet_validation_duplicate", filename="val_dup.ods"
+    )
+
+
+@pytest.fixture
+def odf_spreadsheet_validation_ref_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/spreadsheet_validation_ref_unresolved", filename="val_ref_bad.ods"
+    )
+
+
+@pytest.fixture
+def odf_spreadsheet_bad_repeat_count(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/spreadsheet_bad_repeat_count", filename="repeat_bad.ods"
+    )
+
+
+@pytest.fixture
+def odf_spreadsheet_column_style_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/spreadsheet_column_style_unresolved", filename="col_style_bad.ods"
+    )
+
+
+@pytest.fixture
+def odf_spreadsheet_cell_style_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/spreadsheet_cell_style_unresolved", filename="cell_style_bad.ods"
+    )
+
+
+@pytest.fixture
+def odf_spreadsheet_conditional_style_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/spreadsheet_conditional_style_unresolved", filename="cond_style_bad.ods"
+    )
+
+
+@pytest.fixture
+def odf_spreadsheet_filter_bad_field(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/spreadsheet_filter_bad_field", filename="filter_bad.ods"
+    )
+
+
+# ── M2: Presentation fixtures ───────────────────────────────────────────
+
+
+@pytest.fixture
+def odf_presentation_custom_show_bad_ref(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/presentation_custom_show_bad_ref", filename="custom_show_bad.odp"
+    )
+
+
+@pytest.fixture
+def odf_presentation_duplicate_layer(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/presentation_duplicate_layer", filename="layer_dup.odp"
+    )
+
+
+@pytest.fixture
+def odf_presentation_sound_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/presentation_sound_unresolved", filename="sound_bad.odp"
+    )
+
+
+@pytest.fixture
+def odf_presentation_header_decl_duplicate(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/presentation_header_decl_duplicate", filename="hdr_dup.odp"
+    )
+
+
+@pytest.fixture
+def odf_presentation_header_ref_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/presentation_header_ref_unresolved", filename="hdr_ref_bad.odp"
+    )
+
+
+@pytest.fixture
+def odf_presentation_settings_bad_start(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/presentation_settings_bad_start", filename="settings_bad.odp"
+    )
+
+
+@pytest.fixture
+def odf_presentation_animation_bad_target(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/presentation_animation_bad_target", filename="anim_bad.odp"
+    )
+
+
+@pytest.fixture
+def odf_presentation_bad_transition_type(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/presentation_bad_transition_type", filename="trans_bad.odp"
+    )
+
+
+@pytest.fixture
+def odf_presentation_notes_bad_ref(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/presentation_notes_bad_ref", filename="notes_bad.odp"
+    )
+
+
+@pytest.fixture
+def odf_presentation_bad_class(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/presentation_bad_class", filename="class_bad.odp"
+    )
+
+
+# ── M3: Style chain fixtures ────────────────────────────────────────────
+
+
+@pytest.fixture
+def odf_style_cycle(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_cycle", filename="style_cycle.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_orphaned_auto(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_orphaned_auto", filename="orphaned_auto.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_no_default(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_no_default", filename="no_default.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_map_target_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_map_target_unresolved", filename="map_target_bad.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_master_page_no_layout(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_master_page_no_layout", filename="mp_no_layout.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_family_mismatch(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_family_mismatch", filename="family_mismatch.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_name_empty(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_name_empty", filename="name_empty.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_duplicate_name(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_duplicate_name", filename="dup_name.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_deep_inheritance(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_deep_inheritance", filename="deep_inherit.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_next_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_next_unresolved", filename="next_bad.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_master_next_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_master_next_unresolved", filename="mp_next_bad.odt"
+    )
+
+
+@pytest.fixture
+def odf_style_font_name_undeclared(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/style_font_name_undeclared", filename="font_undeclared.odt"
+    )
+
+
+# ── M4: Version-specific fixtures ───────────────────────────────────────
+
+
+@pytest.fixture
+def odf_version_missing_attr(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/version_missing_attr", filename="ver_missing.odt"
+    )
+
+
+@pytest.fixture
+def odf_version_inconsistent(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/version_inconsistent", filename="ver_inconsistent.odt"
+    )
+
+
+@pytest.fixture
+def odf_version_rdf_pre12(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/version_rdf_pre12", filename="rdf_pre12.odt"
+    )
+
+
+@pytest.fixture
+def odf_version_named_expr_pre12(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/version_named_expr_pre12", filename="named_expr_pre12.ods"
+    )
+
+
+@pytest.fixture
+def odf_version_signature_pre12(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/version_signature_pre12", filename="sig_pre12.odt"
+    )
+
+
+@pytest.fixture
+def odf_version_change_tracking_pre12(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/version_change_tracking_pre12",
+        filename="ct_pre12.odt",
+    )
+
+
+@pytest.fixture
+def odf_version_draw_enhanced_pre13(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/version_draw_enhanced_pre13",
+        filename="draw_pre13.odt",
+    )
+
+
+@pytest.fixture
+def odf_version_anim_iterate_pre13(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/version_anim_iterate_pre13",
+        filename="anim_pre13.odp",
+    )
+
+
+# ── M6: Drawing fixtures ────────────────────────────────────────────────
+
+
+@pytest.fixture
+def odf_draw_shape_no_position(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/draw_shape_no_position", filename="draw_no_pos.odt"
+    )
+
+
+@pytest.fixture
+def odf_draw_group_deep_nesting(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/draw_group_deep_nesting", filename="draw_deep.odt"
+    )
+
+
+@pytest.fixture
+def odf_draw_connector_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/draw_connector_unresolved", filename="conn_bad.odt"
+    )
+
+
+@pytest.fixture
+def odf_draw_custom_shape_no_geometry(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/draw_custom_shape_no_geometry", filename="custom_no_geom.odt"
+    )
+
+
+@pytest.fixture
+def odf_draw_frame_href_missing_part(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/draw_frame_href_missing_part", filename="frame_href_bad.odt"
+    )
+
+
+@pytest.fixture
+def odf_draw_3d_scene_empty(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/draw_3d_scene_empty", filename="3d_scene_empty.odt"
+    )
+
+
+@pytest.fixture
+def odf_draw_style_ref_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/draw_style_ref_unresolved", filename="draw_style_bad.odt"
+    )
+
+
+# ── M6: Forms fixtures ──────────────────────────────────────────────────
+
+
+@pytest.fixture
+def odf_form_control_name_duplicate(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/form_control_name_duplicate", filename="form_name_dup.odt"
+    )
+
+
+@pytest.fixture
+def odf_form_control_id_duplicate(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/form_control_id_duplicate", filename="form_id_dup.odt"
+    )
+
+
+@pytest.fixture
+def odf_form_column_ref_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/form_column_ref_unresolved", filename="form_col_bad.odt"
+    )
+
+
+@pytest.fixture
+def odf_form_event_listener_no_href(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/form_event_listener_no_href", filename="form_event_bad.odt"
+    )
+
+
+# ── M6: Chart fixtures ──────────────────────────────────────────────────
+
+
+@pytest.fixture
+def odf_chart_missing_plot_area(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/chart_missing_plot_area", filename="chart_no_plot.odt"
+    )
+
+
+@pytest.fixture
+def odf_chart_no_axis(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/chart_no_axis", filename="chart_no_axis.odt"
+    )
+
+
+@pytest.fixture
+def odf_chart_empty_range_address(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/chart_empty_range_address", filename="chart_range_empty.odt"
+    )
+
+
+@pytest.fixture
+def odf_chart_style_ref_unresolved(tmp_path: Path) -> Path:
+    return _build_odf_fixture(
+        tmp_path, "invalid/chart_style_ref_unresolved", filename="chart_style_bad.odt"
+    )

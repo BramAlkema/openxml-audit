@@ -53,6 +53,7 @@ from openxml_audit.parts import (
 from openxml_audit.pptx.masters import MasterValidator
 from openxml_audit.pptx.presentation import PresentationValidator
 from openxml_audit.pptx.slides import SlideValidator
+from openxml_audit.pptx.supertheme import SuperthemeValidator
 from openxml_audit.pptx.themes import ThemeValidator
 from openxml_audit.relationships import get_rels_path
 from openxml_audit.schema.validator import SchemaValidator
@@ -144,6 +145,9 @@ class OpenXmlValidator:
         self._presentation_validator = PresentationValidator()
         self._slide_validator = SlideValidator()
         self._theme_validator = ThemeValidator()
+        self._supertheme_validator = SuperthemeValidator(
+            theme_validator=self._theme_validator
+        )
         self._master_validator = MasterValidator()
         self._document_validator = DocumentValidator()
         self._workbook_validator = WorkbookValidator()
@@ -1546,6 +1550,10 @@ class OpenXmlValidator:
 
                 if context.should_stop:
                     break
+
+        if not context.should_stop:
+            # Validate supertheme (themeVariantManager) if present
+            self._supertheme_validator.validate(package, context)
 
         errors.extend(context.errors)
         return errors

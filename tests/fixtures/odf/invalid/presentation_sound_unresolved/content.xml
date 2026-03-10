@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" office:version="1.3">
+  <office:body><office:presentation>
+    <draw:page draw:name="slide1">
+      <presentation:sound xlink:href="media/missing.mp3" xlink:type="simple"/>
+    </draw:page>
+  </office:presentation></office:body>
+</office:document-content>

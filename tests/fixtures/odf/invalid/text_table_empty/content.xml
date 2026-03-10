@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" office:version="1.3">
+  <office:body><office:text>
+    <table:table table:name="EmptyTable"/>
+    <text:p>After table</text:p>
+  </office:text></office:body>
+</office:document-content>

@@ -96,6 +96,13 @@ class OdfRelaxNgRouter:
             return cls()
         return cls({"*": dict(mapping)})
 
+    @classmethod
+    def from_bundled(cls) -> OdfRelaxNgRouter:
+        """Create a router using bundled structural Relax NG schemas."""
+        from openxml_audit.odf.schemas import build_bundled_routes
+
+        return cls(build_bundled_routes())
+
     def is_empty(self) -> bool:
         return not self._routes
 

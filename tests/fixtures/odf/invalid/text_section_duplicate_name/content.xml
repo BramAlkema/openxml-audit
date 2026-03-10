@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" office:version="1.3">
+  <office:body><office:text>
+    <text:section text:name="sec1"><text:p>A</text:p></text:section>
+    <text:section text:name="sec1"><text:p>B</text:p></text:section>
+  </office:text></office:body>
+</office:document-content>

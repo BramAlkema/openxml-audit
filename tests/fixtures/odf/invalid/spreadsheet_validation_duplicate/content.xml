@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" office:version="1.3">
+  <office:body><office:spreadsheet>
+    <table:content-validations>
+      <table:content-validation table:name="val1" table:condition="cell-content-is-whole-number()"/>
+      <table:content-validation table:name="val1" table:condition="cell-content-is-decimal-number()"/>
+    </table:content-validations>
+    <table:table table:name="Sheet1"/>
+  </office:spreadsheet></office:body>
+</office:document-content>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" office:version="1.3">
+  <office:body><office:presentation>
+    <presentation:header-decl presentation:name="hdr1">Header A</presentation:header-decl>
+    <presentation:header-decl presentation:name="hdr1">Header B</presentation:header-decl>
+    <draw:page draw:name="slide1"/>
+  </office:presentation></office:body>
+</office:document-content>
