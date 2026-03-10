@@ -1,0 +1,39 @@
+name: Bug report
+description: Report a validation issue or unexpected behavior
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened vs what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Command or code to reproduce the issue
+      render: bash
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "Output of: openxml-audit --version"
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      description: "Output of: python --version"
+  - type: dropdown
+    id: file-type
+    attributes:
+      label: File type
+      options:
+        - PPTX
+        - DOCX
+        - XLSX
+        - ODT
+        - ODS
+        - ODP
+        - Other
