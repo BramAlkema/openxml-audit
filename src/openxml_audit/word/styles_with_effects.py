@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 from lxml import etree
 
 from openxml_audit.errors import ValidationError, ValidationErrorType, ValidationSeverity
-from openxml_audit.namespaces import REL_STYLES_WITH_EFFECTS, WORDPROCESSINGML
+from openxml_audit.namespaces import REL_STYLES, REL_STYLES_WITH_EFFECTS, WORDPROCESSINGML
 from openxml_audit.parts import OpenXmlPart
 
 if TYPE_CHECKING:
@@ -58,7 +58,6 @@ class StylesWithEffectsValidator:
         if uri is None:
             return []
 
-        errors: list[ValidationError] = []
         context.set_part(OpenXmlPart(package, uri))
 
         # Verify content type
@@ -75,8 +74,7 @@ class StylesWithEffectsValidator:
             context.add_schema_error(
                 f"stylesWithEffects part '{uri}' could not be parsed",
             )
-            errors.extend(context.errors)
-            return errors
+            return list(context.errors)
 
         # Root element must be w:styles
         expected_tag = f"{{{WORDPROCESSINGML}}}styles"
@@ -84,14 +82,11 @@ class StylesWithEffectsValidator:
             context.add_schema_error(
                 f"stylesWithEffects root should be 'styles', got '{xml.tag}'",
             )
-            errors.extend(context.errors)
-            return errors
+            return list(context.errors)
 
         self._validate_styles(xml, context)
         self._validate_consistency_with_styles(xml, package, context)
-
-        errors.extend(context.errors)
-        return errors
+        return list(context.errors)
 
     def _validate_styles(
         self, xml: etree._Element, context: ValidationContext
@@ -146,18 +141,14 @@ class StylesWithEffectsValidator:
         context: ValidationContext,
     ) -> None:
         """Check that stylesWithEffects styleIds are consistent with styles.xml."""
-        styles_uri = None
         main_uri = package.get_main_document_uri()
-        if main_uri:
-            main_part = OpenXmlPart(package, main_uri)
-            rel_type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"
-            for rel in main_part.relationships:
-                if rel.type == rel_type:
-                    styles_uri = rel.resolve_target(main_uri)
-                    break
-
-        if styles_uri is None or not package.has_part(styles_uri):
+        if not main_uri:
             return
+        main_part = OpenXmlPart(package, main_uri)
+        rel = main_part.relationships.get_first_by_type(REL_STYLES)
+        if rel is None:
+            return
+        styles_uri = rel.resolve_target(main_uri)
 
         styles_xml = package.get_part_xml(styles_uri)
         if styles_xml is None:

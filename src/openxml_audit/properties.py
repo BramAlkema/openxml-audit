@@ -13,6 +13,7 @@ from lxml import etree
 from openxml_audit.errors import ValidationError, ValidationErrorType, ValidationSeverity
 from openxml_audit.namespaces import (
     CORE_PROPERTIES,
+    CUSTOM_PROPERTIES,
     DC,
     DCTERMS,
     EXTENDED_PROPERTIES,
@@ -26,9 +27,6 @@ from openxml_audit.parts import OpenXmlPart
 if TYPE_CHECKING:
     from openxml_audit.context import ValidationContext
     from openxml_audit.package import OpenXmlPackage
-
-# Custom properties namespace
-CUSTOM_PROPERTIES = "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
 
 # Extended properties (app.xml) expected element names
 _APP_STRING_ELEMENTS = frozenset({
@@ -95,29 +93,22 @@ class PropertiesValidator:
         context: ValidationContext,
     ) -> list[ValidationError]:
         """Validate all property parts found in the package."""
-        errors: list[ValidationError] = []
-
         self._validate_core_properties(package, context)
         self._validate_extended_properties(package, context)
         self._validate_custom_properties(package, context)
+        return list(context.errors)
 
-        errors.extend(context.errors)
-        return errors
-
-    def _find_part_by_rel_type(
-        self, package: OpenXmlPackage, rel_type: str
-    ) -> str | None:
+    @staticmethod
+    def _resolve_part_uri(package: OpenXmlPackage, rel_type: str) -> str | None:
         """Find a part URI via package-level relationship type."""
-        for rel in package.relationships:
-            if rel.type == rel_type:
-                return rel.resolve_target("/")
-        return None
+        rel = package.relationships.get_first_by_type(rel_type)
+        return rel.resolve_target("/") if rel else None
 
     def _validate_core_properties(
         self, package: OpenXmlPackage, context: ValidationContext
     ) -> None:
         """Validate docProps/core.xml structure."""
-        uri = self._find_part_by_rel_type(package, RELATIONSHIPS_METADATA_CORE)
+        uri = self._resolve_part_uri(package, RELATIONSHIPS_METADATA_CORE)
         if uri is None:
             # Core properties are optional
             return
@@ -173,7 +164,7 @@ class PropertiesValidator:
         self, package: OpenXmlPackage, context: ValidationContext
     ) -> None:
         """Validate docProps/app.xml structure."""
-        uri = self._find_part_by_rel_type(package, REL_EXTENDED_PROPERTIES)
+        uri = self._resolve_part_uri(package, REL_EXTENDED_PROPERTIES)
         if uri is None:
             return
 
@@ -293,7 +284,7 @@ class PropertiesValidator:
         self, package: OpenXmlPackage, context: ValidationContext
     ) -> None:
         """Validate docProps/custom.xml structure."""
-        uri = self._find_part_by_rel_type(package, REL_CUSTOM_PROPERTIES)
+        uri = self._resolve_part_uri(package, REL_CUSTOM_PROPERTIES)
         if uri is None:
             return
 

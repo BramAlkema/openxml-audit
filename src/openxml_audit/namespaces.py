@@ -125,6 +125,11 @@ EXTENDED_PROPERTIES = (
     "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
 )
 
+# Custom Properties
+CUSTOM_PROPERTIES = (
+    "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
+)
+
 # VML (Vector Markup Language)
 VML = "urn:schemas-microsoft-com:vml"
 VML_OFFICE = "urn:schemas-microsoft-com:office:office"
