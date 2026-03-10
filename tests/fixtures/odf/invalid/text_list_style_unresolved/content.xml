@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+  xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+  office:version="1.3">
+  <office:body><office:text>
+    <text:list text:style-name="GhostList">
+      <text:list-item><text:p>Item</text:p></text:list-item>
+    </text:list>
+  </office:text></office:body>
+</office:document-content>

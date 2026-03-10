@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+  xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+  office:version="1.3">
+  <office:body><office:text>
+    <text:p><text:bookmark text:name="here"/>Target</text:p>
+    <text:p><text:bookmark-ref text:ref-name="here">see here</text:bookmark-ref></text:p>
+  </office:text></office:body>
+</office:document-content>
