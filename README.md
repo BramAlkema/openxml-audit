@@ -1,12 +1,15 @@
 # OpenXML Audit
 
+[![PyPI](https://img.shields.io/pypi/v/openxml-audit)](https://pypi.org/project/openxml-audit/)
+[![Python](https://img.shields.io/pypi/pyversions/openxml-audit)](https://pypi.org/project/openxml-audit/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/BramAlkema/openxml-audit/actions/workflows/parity-gate.yml/badge.svg)](https://github.com/BramAlkema/openxml-audit/actions/workflows/parity-gate.yml)
+
 Validate OOXML (PPTX/DOCX/XLSX) and ODF files in pure Python — no .NET required.
 
 A Python port of Microsoft's [Open XML SDK](https://github.com/OfficeDev/Open-XML-SDK) validation logic. Check whether generated or modified Office files will open cleanly, directly from Python scripts, CI pipelines, or anywhere .NET isn't practical.
 
 Also supports OASIS OpenDocument Format (ODT/ODS/ODP) with staged conformance levels.
-
-Current version: `0.2.0`
 
 ## Features
 
@@ -327,14 +330,30 @@ Both expose:
 - `validate_pptx(path) -> ValidationResult`
 - `is_valid_pptx(path) -> bool`
 
-## License
-
-MIT License
-
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup and guidelines.
+
+## Looking for Maintainers
+
+This project is actively looking for co-maintainers — especially people working with:
+
+- Office file generation pipelines (python-pptx, python-docx, openpyxl)
+- ODF tooling and OASIS conformance
+- Open XML SDK internals
+
+If you're interested, open an issue or reach out.
+
+## Funding
+
+If this project saves you time, consider sponsoring its development:
+
+[![GitHub Sponsors](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ea4aaa)](https://github.com/sponsors/BramAlkema)
+
+## License
+
+[MIT](LICENSE)
 
 ## Acknowledgments
 
-This project is based on the validation logic from Microsoft's [Open XML SDK](https://github.com/OfficeDev/Open-XML-SDK) for .NET.
+Based on the validation logic from Microsoft's [Open XML SDK](https://github.com/OfficeDev/Open-XML-SDK) for .NET.
