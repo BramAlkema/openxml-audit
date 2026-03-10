@@ -57,7 +57,7 @@ jobs:
           nav a {{ margin-right: 1em; }}
           </style>
           </head><body>
-          <nav><a href="/">Home</a><a href="/parity_contract.html">OOXML Parity</a><a href="/odf_validation_contract.html">ODF Contract</a><a href="/odf_security_policy.html">ODF Security</a></nav>
+          <nav><a href="./">Home</a><a href="./parity_contract.html">OOXML Parity</a><a href="./odf_validation_contract.html">ODF Contract</a><a href="./odf_security_policy.html">ODF Security</a></nav>
           {content}
           </body></html>"""
 
