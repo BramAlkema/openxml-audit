@@ -26,6 +26,8 @@ jobs:
   parity:
     runs-on: ubuntu-latest
     env:
+      SDK_REF: v3.4.1
+      SDK_REPO: https://github.com/dotnet/Open-XML-SDK.git
       BASELINE_SNAPSHOT: data/corpus/parity_baseline/v3.4.1/parity_snapshot.json
       WAIVERS_FILE: data/corpus/parity_baseline/v3.4.1/waivers.json
       PERF_BUDGET_FILE: data/corpus/parity_baseline/v3.4.1/perf_budget.json
@@ -56,6 +58,7 @@ jobs:
         run: |
           set -euo pipefail
 
+          # 1. Local files checked into the repo
           local_root="$GITHUB_WORKSPACE/data/corpus/sdk_seed/files"
           if [ -d "$local_root" ]; then
             echo "Using local corpus files at $local_root"
@@ -63,31 +66,36 @@ jobs:
             exit 0
           fi
 
-          if [ -z "${CORPUS_ARCHIVE_URL:-}" ]; then
-            echo "::warning::Parity corpus is unavailable. Set repository variable PARITY_CORPUS_ARCHIVE_URL to enable parity checks."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
+          # 2. Pre-built archive from repo variable
+          if [ -n "${CORPUS_ARCHIVE_URL:-}" ]; then
+            work_root="/tmp/openxml-parity-corpus"
+            archive_path="/tmp/openxml-parity-corpus.tar.zst"
+            rm -rf "$work_root"
+            mkdir -p "$work_root"
+            echo "Downloading corpus archive from configured URL"
+            curl -fsSL "$CORPUS_ARCHIVE_URL" -o "$archive_path"
+            tar --zstd -xf "$archive_path" -C "$work_root"
+            files_root="$work_root/files"
+            if [ ! -d "$files_root" ]; then
+              echo "::error::Corpus archive does not contain expected 'files/' directory."
+              exit 2
+            fi
+            echo "files_root=$files_root" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          work_root="/tmp/openxml-parity-corpus"
-          archive_path="/tmp/openxml-parity-corpus.tar.zst"
-          rm -rf "$work_root"
-          mkdir -p "$work_root"
-
-          echo "Downloading corpus archive from configured URL"
-          curl -fsSL "$CORPUS_ARCHIVE_URL" -o "$archive_path"
-          tar --zstd -xf "$archive_path" -C "$work_root"
-
-          files_root="$work_root/files"
-          if [ ! -d "$files_root" ]; then
-            echo "::error::Corpus archive does not contain expected 'files/' directory."
-            exit 2
-          fi
-
-          echo "files_root=$files_root" >> "$GITHUB_OUTPUT"
+          # 3. Build corpus from upstream SDK
+          echo "Building corpus from upstream SDK ($SDK_REF)"
+          sdk_root="/tmp/openxml-sdk-upstream"
+          corpus_root="/tmp/openxml-sdk-seed"
+          rm -rf "$sdk_root" "$corpus_root"
+          git clone --depth 1 --branch "$SDK_REF" "$SDK_REPO" "$sdk_root"
+          python scripts/corpus/import_sdk_assets.py \
+            --sdk-root "$sdk_root" \
+            --output-root "$corpus_root"
+          echo "files_root=$corpus_root/files" >> "$GITHUB_OUTPUT"
 
       - name: Run parity snapshot
-        if: steps.corpus.outputs.skip != 'true'
         run: |
           python scripts/corpus/run_parity_snapshot.py \
             --manifest data/corpus/sdk_seed/manifest.json \
@@ -95,7 +103,6 @@ jobs:
             --output "$CURRENT_SNAPSHOT"
 
       - name: Compare against baseline
-        if: steps.corpus.outputs.skip != 'true'
         run: |
           python scripts/corpus/compare_to_baseline.py \
             --baseline "$BASELINE_SNAPSHOT" \
@@ -109,7 +116,6 @@ jobs:
             --max-missing-files 0
 
       - name: Enforce parity performance budget
-        if: steps.corpus.outputs.skip != 'true'
         run: |
           python scripts/corpus/check_perf_budget.py \
             --report "$CURRENT_SNAPSHOT" \
@@ -118,7 +124,7 @@ jobs:
             --summary "$PERF_SUMMARY_REPORT"
 
       - name: Upload parity reports
-        if: always() && steps.corpus.outputs.skip != 'true'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: parity-gate-reports
