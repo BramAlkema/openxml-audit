@@ -29,59 +29,124 @@ if TYPE_CHECKING:
     from openxml_audit.package import OpenXmlPackage
 
 # Extended properties (app.xml) expected element names
-_APP_STRING_ELEMENTS = frozenset({
-    "Application", "AppVersion", "Template", "Manager", "Company",
-    "PresentationFormat", "HyperlinkBase",
-})
-_APP_INT_ELEMENTS = frozenset({
-    "TotalTime", "Pages", "Words", "Characters", "Lines",
-    "Paragraphs", "Slides", "Notes", "HiddenSlides", "MMClips",
-    "CharactersWithSpaces",
-})
-_APP_BOOL_ELEMENTS = frozenset({
-    "ScaleCrop", "LinksUpToDate", "SharedDoc", "HyperlinksChanged",
-})
-_APP_VECTOR_ELEMENTS = frozenset({
-    "HeadingPairs", "TitlesOfParts",
-})
+_APP_STRING_ELEMENTS = frozenset(
+    {
+        "Application",
+        "AppVersion",
+        "Template",
+        "Manager",
+        "Company",
+        "PresentationFormat",
+        "HyperlinkBase",
+    }
+)
+_APP_INT_ELEMENTS = frozenset(
+    {
+        "TotalTime",
+        "Pages",
+        "Words",
+        "Characters",
+        "Lines",
+        "Paragraphs",
+        "Slides",
+        "Notes",
+        "HiddenSlides",
+        "MMClips",
+        "CharactersWithSpaces",
+    }
+)
+_APP_BOOL_ELEMENTS = frozenset(
+    {
+        "ScaleCrop",
+        "LinksUpToDate",
+        "SharedDoc",
+        "HyperlinksChanged",
+    }
+)
+_APP_VECTOR_ELEMENTS = frozenset(
+    {
+        "HeadingPairs",
+        "HLinks",
+        "TitlesOfParts",
+    }
+)
 _APP_ALL_ELEMENTS = (
-    _APP_STRING_ELEMENTS | _APP_INT_ELEMENTS | _APP_BOOL_ELEMENTS
-    | _APP_VECTOR_ELEMENTS | {"DocSecurity", "DigSig"}
+    _APP_STRING_ELEMENTS
+    | _APP_INT_ELEMENTS
+    | _APP_BOOL_ELEMENTS
+    | _APP_VECTOR_ELEMENTS
+    | {"DocSecurity", "DigSig"}
 )
 
 # Core properties (core.xml) expected element names with namespaces
-_CORE_DC_ELEMENTS = frozenset({
-    f"{{{DC}}}title",
-    f"{{{DC}}}subject",
-    f"{{{DC}}}creator",
-    f"{{{DC}}}description",
-    f"{{{DC}}}language",
-    f"{{{DC}}}identifier",
-})
-_CORE_DCTERMS_ELEMENTS = frozenset({
-    f"{{{DCTERMS}}}created",
-    f"{{{DCTERMS}}}modified",
-})
-_CORE_CP_ELEMENTS = frozenset({
-    f"{{{CORE_PROPERTIES}}}category",
-    f"{{{CORE_PROPERTIES}}}contentStatus",
-    f"{{{CORE_PROPERTIES}}}contentType",
-    f"{{{CORE_PROPERTIES}}}keywords",
-    f"{{{CORE_PROPERTIES}}}lastModifiedBy",
-    f"{{{CORE_PROPERTIES}}}lastPrinted",
-    f"{{{CORE_PROPERTIES}}}revision",
-    f"{{{CORE_PROPERTIES}}}version",
-})
+_CORE_DC_ELEMENTS = frozenset(
+    {
+        f"{{{DC}}}title",
+        f"{{{DC}}}subject",
+        f"{{{DC}}}creator",
+        f"{{{DC}}}description",
+        f"{{{DC}}}language",
+        f"{{{DC}}}identifier",
+    }
+)
+_CORE_DCTERMS_ELEMENTS = frozenset(
+    {
+        f"{{{DCTERMS}}}created",
+        f"{{{DCTERMS}}}modified",
+    }
+)
+_CORE_CP_ELEMENTS = frozenset(
+    {
+        f"{{{CORE_PROPERTIES}}}category",
+        f"{{{CORE_PROPERTIES}}}contentStatus",
+        f"{{{CORE_PROPERTIES}}}contentType",
+        f"{{{CORE_PROPERTIES}}}keywords",
+        f"{{{CORE_PROPERTIES}}}lastModifiedBy",
+        f"{{{CORE_PROPERTIES}}}lastPrinted",
+        f"{{{CORE_PROPERTIES}}}revision",
+        f"{{{CORE_PROPERTIES}}}version",
+    }
+)
 _CORE_ALL_ELEMENTS = _CORE_DC_ELEMENTS | _CORE_DCTERMS_ELEMENTS | _CORE_CP_ELEMENTS
 
 # VTypes namespace elements for vector validation
-_VTYPE_VALID_TYPES = frozenset({
-    "variant", "i1", "i2", "i4", "i8", "ui1", "ui2", "ui4", "ui8",
-    "r4", "r8", "lpstr", "lpwstr", "bstr", "date", "filetime",
-    "bool", "cy", "error", "blob", "oblob", "stream", "ostream",
-    "storage", "ostorage", "vstream", "clsid", "cf", "null", "empty",
-    "decimal", "int", "uint",
-})
+_VTYPE_VALID_TYPES = frozenset(
+    {
+        "variant",
+        "i1",
+        "i2",
+        "i4",
+        "i8",
+        "ui1",
+        "ui2",
+        "ui4",
+        "ui8",
+        "r4",
+        "r8",
+        "lpstr",
+        "lpwstr",
+        "bstr",
+        "date",
+        "filetime",
+        "bool",
+        "cy",
+        "error",
+        "blob",
+        "oblob",
+        "stream",
+        "ostream",
+        "storage",
+        "ostorage",
+        "vstream",
+        "clsid",
+        "cf",
+        "null",
+        "empty",
+        "decimal",
+        "int",
+        "uint",
+    }
+)
 
 
 class PropertiesValidator:
@@ -145,9 +210,7 @@ class PropertiesValidator:
         for date_tag in _CORE_DCTERMS_ELEMENTS:
             date_elem = xml.find(date_tag)
             if date_elem is not None:
-                xsi_type = date_elem.get(
-                    "{http://www.w3.org/2001/XMLSchema-instance}type", ""
-                )
+                xsi_type = date_elem.get("{http://www.w3.org/2001/XMLSchema-instance}type", "")
                 if xsi_type and xsi_type != "dcterms:W3CDTF":
                     local = etree.QName(date_tag).localname
                     context.add_error(
@@ -250,9 +313,7 @@ class PropertiesValidator:
         else:
             try:
                 size = int(size_attr)
-                actual = sum(
-                    1 for c in vector if isinstance(c.tag, str)
-                )
+                actual = sum(1 for c in vector if isinstance(c.tag, str))
                 if size != actual:
                     context.add_error(
                         error_type=ValidationErrorType.SCHEMA,
@@ -312,8 +373,7 @@ class PropertiesValidator:
             local = etree.QName(child).localname
             if local != "property":
                 context.add_schema_error(
-                    f"Custom properties should only contain 'property' elements, "
-                    f"found '{local}'",
+                    f"Custom properties should only contain 'property' elements, found '{local}'",
                     node=local,
                 )
                 continue
@@ -370,9 +430,7 @@ class PropertiesValidator:
                 seen_names.add(name)
 
             # Must have exactly one value child (vt:* element)
-            value_children = [
-                c for c in child if isinstance(c.tag, str)
-            ]
+            value_children = [c for c in child if isinstance(c.tag, str)]
             if len(value_children) == 0:
                 context.add_schema_error(
                     f"Custom property '{name or '(unnamed)'}' has no value element",
