@@ -19,6 +19,20 @@ Also supports OASIS OpenDocument Format (ODT/ODS/ODP) with staged conformance le
 - **Performance Tooling**: Per-phase timing breakdown, benchmark scripts for both OOXML and ODF
 - **Flexible Integration**: Context managers, decorators, and pytest fixtures
 
+## Why validate?
+
+Libraries that generate Office files routinely produce corrupt output — python-pptx has 12+ open corruption issues, docxtpl has 7, XlsxWriter 25+. These surface as "PowerPoint found a problem" dialogs for end users or silent failures in CI. With AI agents now generating slides and reports, the problem is getting worse.
+
+openxml-audit catches these before your users do — same checks Microsoft's SDK runs, in pure Python.
+
+| Ecosystem | Examples | How openxml-audit helps |
+|-----------|----------|------------------------|
+| File generators | python-pptx, python-docx, openpyxl, XlsxWriter | Validate output in tests and CI — catch corruption before release |
+| Template engines | docxtpl, pptx-template | Jinja2 rendering can break XML structure — validate after render |
+| Data pipelines | pandas `to_excel`, tablib, django-import-export | Assert valid exports in pipeline tests |
+| AI/LLM agents | Auto-PPT, GenFilesMCP, Docling | AI-generated Office files are unreliable — validate and retry |
+| Government / ODF | Suite Numerique, odfpy | ODF conformance for EU regulatory requirements |
+
 ## Installation
 
 ```bash
