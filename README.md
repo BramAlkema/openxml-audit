@@ -13,7 +13,7 @@ Also supports OASIS OpenDocument Format (ODT/ODS/ODP) with staged conformance le
 
 ## Features
 
-- **OOXML Validation**: Package structure, schema, semantic, properties, and format-specific checks for PPTX/DOCX/XLSX — matching the Open XML SDK's validation without the .NET dependency
+- **OOXML Validation**: Package structure, schema, semantic, properties, and format-specific checks for PPTX/DOCX/XLSX — 100% parity with Open XML SDK v3.4.1 without the .NET dependency
 - **ODF Validation**: Staged conformance levels — foundation, schema-core (Relax NG), semantic-core, and security-core for ODT/ODS/ODP
 - **Multiple Output Formats**: Text, JSON, and XML output
 - **Performance Tooling**: Per-phase timing breakdown, benchmark scripts for both OOXML and ODF
