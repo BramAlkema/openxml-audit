@@ -13,7 +13,7 @@ Also supports OASIS OpenDocument Format (ODT/ODS/ODP) with staged conformance le
 
 ## Features
 
-- **OOXML Validation**: Package structure, schema, semantic, and format-specific checks for PPTX/DOCX/XLSX — matching the Open XML SDK's validation without the .NET dependency
+- **OOXML Validation**: Package structure, schema, semantic, properties, and format-specific checks for PPTX/DOCX/XLSX — matching the Open XML SDK's validation without the .NET dependency
 - **ODF Validation**: Staged conformance levels — foundation, schema-core (Relax NG), semantic-core, and security-core for ODT/ODS/ODP
 - **Multiple Output Formats**: Text, JSON, and XML output
 - **Performance Tooling**: Per-phase timing breakdown, benchmark scripts for both OOXML and ODF
@@ -28,7 +28,7 @@ pip install openxml-audit
 Or install from source:
 
 ```bash
-git clone https://github.com/yourusername/openxml-audit.git
+git clone https://github.com/BramAlkema/openxml-audit.git
 cd openxml-audit
 pip install -e .
 ```
@@ -247,8 +247,11 @@ Supports PPTX/DOCX/XLSX and variants. Configured for Office 2019.
 |----------|---------|---------|
 | `parity-gate.yml` | PR / push | Enforce OOXML parity + perf budget against SDK baseline |
 | `calibrate-parity.yml` | Weekly / dispatch | Calibrate against Open XML SDK upstream |
+| `sdk-update.yml` | Quarterly / dispatch | Track upstream SDK version changes |
 | `odf-reference-calibration.yml` | Dispatch | Run ODF reference validators and drift checks |
 | `validate-inputs.yml` | Push to `inputs/` | Validate dropped files with both Python and .NET SDK |
+| `release.yml` | Tag push (`v*`) | Build and publish to PyPI |
+| `pages.yml` | Push to `main` | Deploy documentation site |
 
 OOXML parity details: `docs/parity_contract.md`. ODF reference contract: `docs/odf_validation_contract.md`.
 
@@ -313,7 +316,7 @@ Both expose:
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `error_type` | `ValidationErrorType` | `PACKAGE`, `SCHEMA`, `SEMANTIC`, `RELATIONSHIP` |
+| `error_type` | `ValidationErrorType` | `PACKAGE`, `BINARY`, `SCHEMA`, `SEMANTIC`, `RELATIONSHIP`, `MARKUP_COMPATIBILITY` |
 | `severity` | `ValidationSeverity` | `ERROR`, `WARNING`, `INFO` |
 | `description` | `str` | Human-readable message |
 | `part_uri` | `str \| None` | Affected part URI |
@@ -370,6 +373,10 @@ If you're interested, open an issue or reach out.
 If this project saves you time, consider sponsoring its development:
 
 [![GitHub Sponsors](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ea4aaa)](https://github.com/sponsors/BramAlkema)
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a full list of changes by version.
 
 ## License
 
