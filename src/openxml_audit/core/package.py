@@ -26,6 +26,7 @@ class ZipPackage:
         self._path = Path(path)
         self._zip: zipfile.ZipFile | None = None
         self._part_cache: dict[str, bytes] = {}
+        self._xml_cache: dict[str, etree._Element] = {}
         self._name_set: set[str] | None = None
         self._errors: list[ValidationError] = []
 
@@ -103,12 +104,18 @@ class ZipPackage:
 
     def get_part_xml(self, part_path: str) -> etree._Element | None:
         """Get the parsed XML content of a part."""
+        cached = self._xml_cache.get(part_path)
+        if cached is not None:
+            return cached
+
         content = self.get_part_content(part_path)
         if content is None:
             return None
 
         try:
-            return etree.fromstring(content)
+            root = etree.fromstring(content)
+            self._xml_cache[part_path] = root
+            return root
         except etree.XMLSyntaxError as exc:
             self._errors.append(
                 ValidationError(
