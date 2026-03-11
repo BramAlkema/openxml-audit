@@ -22,9 +22,10 @@ Also supports OASIS OpenDocument Format (ODT/ODS/ODP) with staged conformance le
 
 - **OOXML Validation**: Package structure, schema, semantic, properties, and format-specific checks for PPTX/DOCX/XLSX — 100% parity with Open XML SDK v3.4.1 without the .NET dependency
 - **ODF Validation**: Staged conformance levels — foundation, schema-core (Relax NG), semantic-core, and security-core for ODT/ODS/ODP
+- **Fast**: 1.2x the .NET SDK cold, 2.2x warm — validates a 798K DOCX in 101ms
+- **pytest Plugin**: `assert_valid_pptx`, `assert_valid_docx`, `assert_valid_xlsx`, `assert_valid_odf` — zero config
+- **CI Ready**: GitHub Action, pre-commit hook, and parallel batch validation
 - **Multiple Output Formats**: Text, JSON, and XML output
-- **Performance Tooling**: Per-phase timing breakdown, benchmark scripts for both OOXML and ODF
-- **Flexible Integration**: Context managers, decorators, and pytest fixtures
 
 ## Why validate?
 
@@ -39,6 +40,19 @@ openxml-audit catches these before your users do — same checks Microsoft's SDK
 | Data pipelines | pandas `to_excel`, tablib, django-import-export | Assert valid exports in pipeline tests |
 | AI/LLM agents | Auto-PPT, GenFilesMCP, Docling | AI-generated Office files are unreliable — validate and retry |
 | Government / ODF | Suite Numerique, odfpy | ODF conformance for EU regulatory requirements |
+
+## Performance
+
+Pure Python, but close to .NET — lxml does the heavy XML lifting in C.
+
+| Benchmark | .NET SDK | openxml-audit | Ratio |
+|-----------|----------|---------------|-------|
+| Cold start (6 files, mixed formats) | 994ms | 1,175ms | 1.2x |
+| Warm (798K DOCX) | 46ms | 101ms | 2.2x |
+| Warm (1.4MB PPTX) | — | 83ms | — |
+| Warm (114K XLSX) | — | 29ms | — |
+
+Batch validation supports `--parallel N` for multiprocess speedup. The pytest plugin uses session-scoped fixtures so schema loading happens once per test run.
 
 ## Installation
 
@@ -300,7 +314,7 @@ Options:
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/BramAlkema/openxml-audit
-    rev: v0.4.2
+    rev: v0.4.3
     hooks:
       - id: openxml-audit
 ```

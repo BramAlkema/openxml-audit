@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-03-12
+
+### Added
+- pytest plugin with auto-registered fixtures (`assert_valid_pptx`,
+  `assert_valid_docx`, `assert_valid_xlsx`, `assert_valid_odf`) — zero
+  config, just `pip install openxml-audit` and use in tests
+- GitHub Action for validating Office files in PRs (`changed-only` mode)
+- Pre-commit hook for OOXML and ODF files
+- Example scripts for python-pptx, openpyxl, ODF, and CI batch validation
+
+### Changed
+- 2x batch validation speedup via hot-path optimizations:
+  single-candidate constraint cache, ignorable namespace passdown,
+  singleton particle validators, and XML parse caching
+- Warm validation of Document.docx (798K): 164ms → 101ms
+
 ## [0.4.2] - 2026-03-11
 
 ### Fixed
@@ -92,7 +108,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration helpers: context managers, decorators, pytest fixtures
 - Support for Office 2007 through Microsoft 365 format versions
 
-[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.3.0...v0.4.0
