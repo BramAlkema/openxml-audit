@@ -56,6 +56,7 @@ def _convert_attribute(
         local_name=attr.local_name,
         type_validator=type_validator,
         required=attr.required,
+        introduced_version=attr.version,
     )
 
 
@@ -78,8 +79,7 @@ def _convert_particle(
 
     if kind == "Sequence":
         children = [
-            _convert_particle(item, target_namespace, namespace_map)
-            for item in particle.items
+            _convert_particle(item, target_namespace, namespace_map) for item in particle.items
         ]
         children = [c for c in children if c is not None]
         flattened: list[ParticleConstraint] = []
@@ -107,8 +107,7 @@ def _convert_particle(
 
     elif kind == "Choice":
         children = [
-            _convert_particle(item, target_namespace, namespace_map)
-            for item in particle.items
+            _convert_particle(item, target_namespace, namespace_map) for item in particle.items
         ]
         children = [c for c in children if c is not None]
         flattened = []
@@ -133,8 +132,7 @@ def _convert_particle(
 
     elif kind == "All":
         children = [
-            _convert_particle(item, target_namespace, namespace_map)
-            for item in particle.items
+            _convert_particle(item, target_namespace, namespace_map) for item in particle.items
         ]
         children = [c for c in children if c is not None]
         collapsed = maybe_collapse_single_child(children)
@@ -149,8 +147,7 @@ def _convert_particle(
     elif kind == "Group":
         # Group is a reference to a named group - inline its items
         children = [
-            _convert_particle(item, target_namespace, namespace_map)
-            for item in particle.items
+            _convert_particle(item, target_namespace, namespace_map) for item in particle.items
         ]
         children = [c for c in children if c is not None]
         if len(children) == 1:
@@ -190,11 +187,17 @@ def _convert_particle(
             local_name = particle.name.split(":")[-1]
             ns = target_namespace
 
+        # Look up version from the referenced element type
+        registry = get_registry()
+        ref_type = registry.get_type(particle.name)
+        introduced_version = ref_type.version if ref_type else None
+
         return ElementParticle(
             namespace=ns,
             local_name=local_name,
             min_occurs=particle.min_occurs,
             max_occurs=particle.max_occurs,
+            introduced_version=introduced_version,
         )
 
     return None
@@ -232,6 +235,7 @@ def _apply_particle_compat_overrides(
     return content_model
 
 
+@lru_cache(maxsize=1)
 def _build_namespace_map() -> dict[str, str]:
     """Build prefix -> namespace URI map from registry."""
     registry = get_registry()
@@ -359,10 +363,7 @@ def _convert_element_type_uncached(elem_type: SdkElementType) -> ElementConstrai
     target_namespace = schema.target_namespace if schema else ""
 
     # Convert attributes
-    attributes = [
-        _convert_attribute(attr, namespace_map)
-        for attr in elem_type.attributes
-    ]
+    attributes = [_convert_attribute(attr, namespace_map) for attr in elem_type.attributes]
 
     # Convert particle (content model)
     content_model = None
@@ -386,6 +387,7 @@ def _convert_element_type_uncached(elem_type: SdkElementType) -> ElementConstrai
         attributes=attributes,
         content_model=content_model,
         allows_text=False,  # Could be determined from base class
+        introduced_version=elem_type.version,
     )
 
 

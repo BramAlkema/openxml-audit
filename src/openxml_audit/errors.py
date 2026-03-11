@@ -17,6 +17,50 @@ class FileFormat(Enum):
     ODF_1_2 = "odf1.2"
     ODF_1_3 = "odf1.3"
 
+    @classmethod
+    def from_version_string(cls, version: str) -> "FileFormat | None":
+        """Map SDK version strings like 'Office2010' to FileFormat."""
+        return _VERSION_STRING_MAP.get(version)
+
+    def ooxml_order(self) -> int:
+        """Return ordinal position for OOXML version comparison.
+
+        Returns -1 for non-OOXML formats.
+        """
+        return _OOXML_ORDER.get(self, -1)
+
+    def includes_ooxml(self, other: "FileFormat") -> bool:
+        """Check if this format version includes elements from `other`.
+
+        Returns True if `other` was introduced at or before this version.
+        """
+        self_order = self.ooxml_order()
+        other_order = other.ooxml_order()
+        if self_order < 0 or other_order < 0:
+            return False
+        return self_order >= other_order
+
+
+_VERSION_STRING_MAP: dict[str, "FileFormat"] = {
+    "Office2007": FileFormat.OFFICE_2007,
+    "Office2010": FileFormat.OFFICE_2010,
+    "Office2013": FileFormat.OFFICE_2013,
+    "Office2016": FileFormat.OFFICE_2016,
+    "Office2019": FileFormat.OFFICE_2019,
+    "Office2021": FileFormat.OFFICE_2021,
+    "Microsoft365": FileFormat.MICROSOFT_365,
+}
+
+_OOXML_ORDER: dict["FileFormat", int] = {
+    FileFormat.OFFICE_2007: 0,
+    FileFormat.OFFICE_2010: 1,
+    FileFormat.OFFICE_2013: 2,
+    FileFormat.OFFICE_2016: 3,
+    FileFormat.OFFICE_2019: 4,
+    FileFormat.OFFICE_2021: 5,
+    FileFormat.MICROSOFT_365: 6,
+}
+
 
 class ValidationErrorType(Enum):
     """Types of validation errors."""

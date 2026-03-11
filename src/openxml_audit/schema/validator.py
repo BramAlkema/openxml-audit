@@ -14,6 +14,7 @@ from openxml_audit.namespaces import MC, WORDPROCESSINGML
 from openxml_audit.schema.constraints import get_constraint_for_tag as get_hardcoded_constraint
 from openxml_audit.schema.particle import (
     CompositeParticle,
+    ElementParticle,
     get_validator,
 )
 
@@ -25,6 +26,7 @@ try:
     from openxml_audit.codegen.constraint_bridge import (
         get_element_constraint_for_element as get_sdk_constraint_for_element,
     )
+
     _HAS_SDK_CONSTRAINTS = True
 except ImportError:
     _HAS_SDK_CONSTRAINTS = False
@@ -53,8 +55,19 @@ def get_constraint_for_tag(tag: str, element: etree._Element | None = None):
     # Fall back to hardcoded constraints
     return get_hardcoded_constraint(tag)
 
+
 if TYPE_CHECKING:
     from openxml_audit.parts import OpenXmlPart
+
+
+def _is_version_excluded(
+    versioned: ElementConstraint | ElementParticle | None, file_format: FileFormat
+) -> bool:
+    """Check if a versioned constraint/particle is excluded at the given file format."""
+    if versioned is None or not versioned.introduced_version:
+        return False
+    introduced = FileFormat.from_version_string(versioned.introduced_version)
+    return introduced is not None and not file_format.includes_ooxml(introduced)
 
 
 class SchemaValidator:
@@ -77,6 +90,8 @@ class SchemaValidator:
         self._schema_registry = get_schema_registry()
         self._schema_registry.load()
         self._known_namespaces = self._build_known_namespaces()
+        self._namespace_versions = self._build_namespace_versions()
+        self._version_filter_cache: dict[tuple[int, FileFormat], ParticleConstraint | None] = {}
         self._undeclared_validation_cache: dict[str, bool] = {}
         self._collect_metrics = False
         self._metrics: dict[str, float] = self._new_metrics()
@@ -103,9 +118,7 @@ class SchemaValidator:
         """Get collected schema hot-path metrics."""
         return dict(self._metrics)
 
-    def validate_part(
-        self, part: OpenXmlPart, context: ValidationContext
-    ) -> list[ValidationError]:
+    def validate_part(self, part: OpenXmlPart, context: ValidationContext) -> list[ValidationError]:
         """Validate an XML part against schema constraints.
 
         Args:
@@ -138,6 +151,8 @@ class SchemaValidator:
 
             # Get constraint for this element
             constraint = get_constraint_for_tag(tag, element)
+            if _is_version_excluded(constraint, context.file_format):
+                constraint = None
 
             children = self._get_validation_children(element, context)
 
@@ -167,6 +182,9 @@ class SchemaValidator:
             lookup_start = perf_counter()
             constraint = get_constraint_for_tag(tag, element)
             self._metrics["constraint_lookup"] += perf_counter() - lookup_start
+
+            if _is_version_excluded(constraint, context.file_format):
+                constraint = None
 
             children_start = perf_counter()
             children = self._get_validation_children(element, context)
@@ -210,10 +228,7 @@ class SchemaValidator:
                 value = element.attrib[attr_name]
 
                 # Check fixed value
-                if (
-                    attr_constraint.fixed_value is not None
-                    and value != attr_constraint.fixed_value
-                ):
+                if attr_constraint.fixed_value is not None and value != attr_constraint.fixed_value:
                     context.add_schema_error(
                         f"Attribute '{attr_constraint.local_name}' must have "
                         f"fixed value '{attr_constraint.fixed_value}', got '{value}'",
@@ -258,7 +273,6 @@ class SchemaValidator:
                 node=attr_local,
             )
 
-
     def _validate_content_model(
         self,
         content_model: ParticleConstraint,  # type: ignore
@@ -267,9 +281,48 @@ class SchemaValidator:
     ) -> None:
         """Validate element children against content model."""
         if isinstance(content_model, CompositeParticle):
-            validator = get_validator(content_model.particle_type)
-            if validator is not None:
-                validator.validate(content_model, children, context)
+            filtered = self._filter_content_model_by_version(content_model, context.file_format)
+            if filtered is not None and isinstance(filtered, CompositeParticle):
+                validator = get_validator(filtered.particle_type)
+                if validator is not None:
+                    validator.validate(filtered, children, context)
+
+    _FILTER_CACHE_MISS = object()
+
+    def _filter_content_model_by_version(
+        self, particle: ParticleConstraint, file_format: FileFormat
+    ) -> ParticleConstraint | None:
+        """Remove particles for elements introduced in later versions."""
+        cache_key = (id(particle), file_format)
+        cached = self._version_filter_cache.get(cache_key, self._FILTER_CACHE_MISS)
+        if cached is not self._FILTER_CACHE_MISS:
+            return cached  # type: ignore[return-value]
+        result = self._filter_content_model_uncached(particle, file_format)
+        self._version_filter_cache[cache_key] = result
+        return result
+
+    def _filter_content_model_uncached(
+        self, particle: ParticleConstraint, file_format: FileFormat
+    ) -> ParticleConstraint | None:
+        if isinstance(particle, ElementParticle):
+            return None if _is_version_excluded(particle, file_format) else particle
+        if isinstance(particle, CompositeParticle):
+            filtered_children = []
+            for child in particle.children:
+                filtered = self._filter_content_model_by_version(child, file_format)
+                if filtered is not None:
+                    filtered_children.append(filtered)
+            if filtered_children == particle.children:
+                return particle  # No change, reuse original
+            # Create a new particle of the same type with filtered children
+            clone_cls = type(particle)
+            clone = clone_cls(
+                children=filtered_children,
+                min_occurs=particle.min_occurs,
+                max_occurs=particle.max_occurs,
+            )
+            return clone
+        return particle
 
     def _get_validation_children(
         self, element: etree._Element, context: ValidationContext
@@ -286,7 +339,7 @@ class SchemaValidator:
             if self._is_version_ignored_child(element.tag, child.tag, context.file_format):
                 continue
             if child.tag == f"{{{MC}}}AlternateContent":
-                children.extend(self._resolve_alternate_content(child))
+                children.extend(self._resolve_alternate_content(child, context.file_format))
                 continue
             children.append(child)
 
@@ -299,13 +352,7 @@ class SchemaValidator:
             parent_tag == f"{{{WORDPROCESSINGML}}}settings"
             and child_tag == f"{{{WORDPROCESSINGML}}}doNotEmbedSmartTags"
         ):
-            return file_format in {
-                FileFormat.OFFICE_2013,
-                FileFormat.OFFICE_2016,
-                FileFormat.OFFICE_2019,
-                FileFormat.OFFICE_2021,
-                FileFormat.MICROSOFT_365,
-            }
+            return file_format.includes_ooxml(FileFormat.OFFICE_2013)
         return False
 
     def _collect_ignorable_namespaces(self, element: etree._Element) -> set[str]:
@@ -323,9 +370,11 @@ class SchemaValidator:
             current = parent if isinstance(parent, etree._Element) else None
         return namespaces
 
-    def _resolve_alternate_content(self, alt: etree._Element) -> list[etree._Element]:
+    def _resolve_alternate_content(
+        self, alt: etree._Element, file_format: FileFormat
+    ) -> list[etree._Element]:
         ns = {"mc": MC}
-        chosen = self._select_alternate_content_choice(alt, ns)
+        chosen = self._select_alternate_content_choice(alt, ns, file_format)
         if chosen is None:
             chosen = alt.find("mc:Fallback", ns)
         if chosen is None:
@@ -333,18 +382,21 @@ class SchemaValidator:
         return [c for c in chosen if isinstance(c.tag, str)]
 
     def _select_alternate_content_choice(
-        self, alt: etree._Element, namespaces: dict[str, str]
+        self, alt: etree._Element, namespaces: dict[str, str], file_format: FileFormat
     ) -> etree._Element | None:
         for choice in alt.findall("mc:Choice", namespaces):
             requires = choice.get("Requires", "").split()
             if not requires:
                 return choice
-            if self._choice_is_understood(choice, requires):
+            if self._choice_is_understood(choice, requires, file_format):
                 return choice
         return None
 
     def _choice_is_understood(
-        self, choice: etree._Element, required_prefixes: list[str]
+        self,
+        choice: etree._Element,
+        required_prefixes: list[str],
+        file_format: FileFormat,
     ) -> bool:
         nsmap = choice.nsmap or {}
         for prefix in required_prefixes:
@@ -353,12 +405,41 @@ class SchemaValidator:
                 return False
             if namespace not in self._known_namespaces:
                 return False
+            # Check if the namespace is available at the target file format
+            ns_version = self._namespace_versions.get(namespace)
+            if ns_version is not None and not file_format.includes_ooxml(ns_version):
+                return False
         return True
 
     def _build_known_namespaces(self) -> set[str]:
         known = {MC}
         known.update(self._schema_registry._prefixes.values())
         return known
+
+    def _build_namespace_versions(self) -> dict[str, FileFormat]:
+        """Build mapping from namespace URI to its minimum introduced version.
+
+        Extension-only namespaces (where all types have a version annotation)
+        are mapped to the minimum version.  Base namespaces (with unversioned
+        types) are omitted — they are understood at every version.
+        """
+        ns_versions: dict[str, FileFormat] = {}
+        for ns, schema in self._schema_registry._schemas.items():
+            min_fmt: FileFormat | None = None
+            min_order = 999
+            has_base = False
+            for t in schema.types:
+                fmt = FileFormat.from_version_string(t.version) if t.version else None
+                if fmt is None:
+                    has_base = True
+                    break
+                order = fmt.ooxml_order()
+                if order < min_order:
+                    min_order = order
+                    min_fmt = fmt
+            if not has_base and min_fmt is not None:
+                ns_versions[ns] = min_fmt
+        return ns_versions
 
     def _extract_namespace(self, qname: str) -> str | None:
         if qname.startswith("{") and "}" in qname:

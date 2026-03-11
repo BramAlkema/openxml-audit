@@ -29,6 +29,7 @@ class SdkAttribute:
     type_name: str  # e.g., "UInt32Value", "BooleanValue", "StringValue"
     required: bool = False
     validators: list[dict[str, Any]] = field(default_factory=list)
+    version: str | None = None  # e.g., "Office2010"
 
     @property
     def local_name(self) -> str:
@@ -114,6 +115,7 @@ class SdkElementType:
     is_derived: bool = False
     is_leaf_element: bool = False
     summary: str | None = None
+    version: str | None = None  # e.g., "Office2010"
     attributes: list[SdkAttribute] = field(default_factory=list)
     particle: SdkParticle | None = None
     children: list[dict[str, Any]] = field(default_factory=list)
@@ -150,8 +152,7 @@ class SdkElementType:
         attributes = []
         for attr_data in data.get("Attributes", []):
             required = any(
-                v.get("Name") == "RequiredValidator"
-                for v in attr_data.get("Validators", [])
+                v.get("Name") == "RequiredValidator" for v in attr_data.get("Validators", [])
             )
             qname = attr_data["QName"]
             # PropertyName may be missing - derive from QName
@@ -159,13 +160,16 @@ class SdkElementType:
             if not property_name:
                 # Use local part of QName as property name
                 property_name = qname.split(":")[-1] if ":" in qname else qname.lstrip(":")
-            attributes.append(SdkAttribute(
-                qname=qname,
-                property_name=property_name,
-                type_name=attr_data.get("Type", "StringValue"),
-                required=required,
-                validators=attr_data.get("Validators", []),
-            ))
+            attributes.append(
+                SdkAttribute(
+                    qname=qname,
+                    property_name=property_name,
+                    type_name=attr_data.get("Type", "StringValue"),
+                    required=required,
+                    validators=attr_data.get("Validators", []),
+                    version=attr_data.get("Version"),
+                )
+            )
 
         # Parse particle (content model)
         particle = None
@@ -180,6 +184,7 @@ class SdkElementType:
             is_derived=data.get("IsDerived", False),
             is_leaf_element=data.get("IsLeafElement", False),
             summary=data.get("Summary"),
+            version=data.get("Version"),
             attributes=attributes,
             particle=particle,
             children=data.get("Children", []),

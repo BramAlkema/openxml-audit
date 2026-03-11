@@ -53,12 +53,15 @@ class ParticleConstraint:
 class ElementParticle(ParticleConstraint):
     """Particle for a specific element."""
 
+    introduced_version: str | None = None
+
     def __init__(
         self,
         namespace: str,
         local_name: str,
         min_occurs: int = 1,
         max_occurs: int = 1,
+        introduced_version: str | None = None,
     ):
         super().__init__(
             particle_type=ParticleType.ELEMENT,
@@ -67,6 +70,7 @@ class ElementParticle(ParticleConstraint):
             namespace=namespace,
             local_name=local_name,
         )
+        self.introduced_version = introduced_version
 
     @property
     def qualified_name(self) -> str:
@@ -420,8 +424,7 @@ class ChoiceParticleValidator(ParticleValidator):
                 tag = tag.split("}")[-1]
 
             context.add_schema_error(
-                f"Element '{tag}' is not a valid choice. "
-                f"Expected one of: {', '.join(expected)}",
+                f"Element '{tag}' is not a valid choice. Expected one of: {', '.join(expected)}",
                 node=tag,
             )
             valid = False

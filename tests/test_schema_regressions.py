@@ -110,13 +110,13 @@ def test_alternate_content_prefers_matching_choice_over_fallback() -> None:
         (
             f'<mc:AlternateContent xmlns:mc="{MC}" xmlns:a="{DRAWINGML}">'
             '<mc:Choice Requires="a"><a:fromChoice/></mc:Choice>'
-            '<mc:Fallback><a:fromFallback/></mc:Fallback>'
+            "<mc:Fallback><a:fromFallback/></mc:Fallback>"
             "</mc:AlternateContent>"
         ).encode()
     )
 
     validator = SchemaValidator()
-    resolved = validator._resolve_alternate_content(alt)
+    resolved = validator._resolve_alternate_content(alt, FileFormat.OFFICE_2019)
 
     assert len(resolved) == 1
     assert resolved[0].tag.endswith("fromChoice")
@@ -127,13 +127,13 @@ def test_alternate_content_uses_fallback_when_choice_not_understood() -> None:
         (
             f'<mc:AlternateContent xmlns:mc="{MC}" xmlns:zz="urn:unknown">'
             '<mc:Choice Requires="zz"><zz:fromChoice/></mc:Choice>'
-            '<mc:Fallback><fallback/></mc:Fallback>'
+            "<mc:Fallback><fallback/></mc:Fallback>"
             "</mc:AlternateContent>"
         ).encode()
     )
 
     validator = SchemaValidator()
-    resolved = validator._resolve_alternate_content(alt)
+    resolved = validator._resolve_alternate_content(alt, FileFormat.OFFICE_2019)
 
     assert len(resolved) == 1
     assert resolved[0].tag.endswith("fallback")
@@ -192,8 +192,7 @@ def test_schema_validator_selects_supplemental_font_constraint_for_a_font() -> N
 def test_word_cols_allows_empty_col_children() -> None:
     cols = etree.fromstring(
         (
-            f'<w:cols xmlns:w="{WORDPROCESSINGML}" '
-            'w:space="708" w:num="1" w:equalWidth="1"/>'
+            f'<w:cols xmlns:w="{WORDPROCESSINGML}" w:space="708" w:num="1" w:equalWidth="1"/>'
         ).encode()
     )
     context = ValidationContext(max_errors=0)
@@ -205,9 +204,7 @@ def test_word_cols_allows_empty_col_children() -> None:
 
 
 def test_word_sdt_end_pr_allows_empty_content() -> None:
-    sdt_end_pr = etree.fromstring(
-        f'<w:sdtEndPr xmlns:w="{WORDPROCESSINGML}"/>'.encode()
-    )
+    sdt_end_pr = etree.fromstring(f'<w:sdtEndPr xmlns:w="{WORDPROCESSINGML}"/>'.encode())
     context = ValidationContext(max_errors=0)
     validator = SchemaValidator()
 
@@ -220,10 +217,7 @@ def test_word_sdt_end_pr_allows_empty_content() -> None:
 
 def test_word_fld_char_allows_empty_optional_choice_content() -> None:
     fld_char = etree.fromstring(
-        (
-            f'<w:fldChar xmlns:w="{WORDPROCESSINGML}" '
-            'w:fldCharType="begin"/>'
-        ).encode()
+        (f'<w:fldChar xmlns:w="{WORDPROCESSINGML}" w:fldCharType="begin"/>').encode()
     )
     context = ValidationContext(max_errors=0)
     validator = SchemaValidator()
@@ -237,8 +231,7 @@ def test_word_fld_char_allows_empty_optional_choice_content() -> None:
 
 def test_spreadsheet_cell_style_index_is_not_treated_as_boolean() -> None:
     cell = etree.fromstring(
-        b'<x:c xmlns:x="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
-        b'r="A1" s="4"/>'
+        b'<x:c xmlns:x="http://schemas.openxmlformats.org/spreadsheetml/2006/main" r="A1" s="4"/>'
     )
     row = etree.Element("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}row")
     row.append(cell)
@@ -268,11 +261,7 @@ def test_word_footnotes_allows_multiple_footnote_children() -> None:
 
 def test_word_settings_allows_do_not_embed_smart_tags_element() -> None:
     settings = etree.fromstring(
-        (
-            f'<w:settings xmlns:w="{WORDPROCESSINGML}">'
-            "<w:doNotEmbedSmartTags/>"
-            "</w:settings>"
-        ).encode()
+        (f'<w:settings xmlns:w="{WORDPROCESSINGML}"><w:doNotEmbedSmartTags/></w:settings>').encode()
     )
     context = ValidationContext(max_errors=0)
     validator = SchemaValidator()
@@ -280,18 +269,13 @@ def test_word_settings_allows_do_not_embed_smart_tags_element() -> None:
     validator._validate_element(settings, context)
 
     assert not any(
-        "Unexpected element 'doNotEmbedSmartTags'" in error.description
-        for error in context.errors
+        "Unexpected element 'doNotEmbedSmartTags'" in error.description for error in context.errors
     )
 
 
 def test_word_settings_rejects_do_not_embed_smart_tags_for_office2010() -> None:
     settings = etree.fromstring(
-        (
-            f'<w:settings xmlns:w="{WORDPROCESSINGML}">'
-            "<w:doNotEmbedSmartTags/>"
-            "</w:settings>"
-        ).encode()
+        (f'<w:settings xmlns:w="{WORDPROCESSINGML}"><w:doNotEmbedSmartTags/></w:settings>').encode()
     )
     context = ValidationContext(file_format=FileFormat.OFFICE_2010, max_errors=0)
     validator = SchemaValidator()
@@ -299,8 +283,7 @@ def test_word_settings_rejects_do_not_embed_smart_tags_for_office2010() -> None:
     validator._validate_element(settings, context)
 
     assert any(
-        "Unexpected element 'doNotEmbedSmartTags'" in error.description
-        for error in context.errors
+        "Unexpected element 'doNotEmbedSmartTags'" in error.description for error in context.errors
     )
 
 
@@ -308,12 +291,12 @@ def test_chart_dlbls_allows_multiple_optional_boolean_children() -> None:
     d_lbls = etree.fromstring(
         (
             f'<c:dLbls xmlns:c="{DRAWINGML_CHART}">'
-            "<c:showLegendKey val=\"0\"/>"
-            "<c:showVal val=\"1\"/>"
-            "<c:showCatName val=\"0\"/>"
-            "<c:showSerName val=\"0\"/>"
-            "<c:showPercent val=\"0\"/>"
-            "<c:showBubbleSize val=\"0\"/>"
+            '<c:showLegendKey val="0"/>'
+            '<c:showVal val="1"/>'
+            '<c:showCatName val="0"/>'
+            '<c:showSerName val="0"/>'
+            '<c:showPercent val="0"/>'
+            '<c:showBubbleSize val="0"/>'
             "</c:dLbls>"
         ).encode()
     )
@@ -344,9 +327,7 @@ def test_chart_style_and_overlap_value_ranges_match_sdk_types() -> None:
 
     validator._validate_element(chart_space, context)
 
-    assert not any(
-        "Value 134 exceeds maximum 127" in error.description for error in context.errors
-    )
+    assert not any("Value 134 exceeds maximum 127" in error.description for error in context.errors)
     assert not any(
         "Value -27 is less than minimum 0" in error.description for error in context.errors
     )

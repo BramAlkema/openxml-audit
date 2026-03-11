@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-03-11
+
 ### Added
+- Version-aware element and attribute gating: elements introduced in later
+  Office versions (e.g., Office 2010) are flagged when validating against
+  earlier formats (e.g., Office 2007)
+- Version-aware MCE resolution: `mc:Choice` branches requiring extension
+  namespaces from later versions fall back to `mc:Fallback` at earlier formats
+- Content model filtering by version: particle constraints from later versions
+  are removed from content models during validation
 - Properties validation for core (`docProps/core.xml`), extended (`docProps/app.xml`),
   and custom (`docProps/custom.xml`) package metadata
 - Styles-with-effects validation for Word documents (`stylesWithEffects.xml`)
@@ -59,7 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration helpers: context managers, decorators, pytest fixtures
 - Support for Office 2007 through Microsoft 365 format versions
 
-[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/BramAlkema/openxml-audit/releases/tag/v0.1.0
