@@ -42,6 +42,13 @@ from openxml_audit.semantic.relationships import (
 if TYPE_CHECKING:
     pass
 
+# VML namespaces — attributes are unnamespaced in XML even when the
+# schematron data uses the element prefix (e.g. "v:id" → plain "id").
+_VML_NAMESPACES = frozenset({
+    "urn:schemas-microsoft-com:vml",
+    "urn:schemas-microsoft-com:office:office",
+})
+
 
 def _get_namespace_map() -> dict[str, str]:
     """Get prefix -> namespace URI map."""
@@ -159,6 +166,10 @@ def create_constraint_from_schematron(
     attr_namespace = None
     if rule.attribute:
         attr_local, attr_namespace = _split_attribute_name(rule.attribute, namespace_map)
+        # VML attributes are unnamespaced in XML even when schematron uses
+        # the v: prefix.  Strip the namespace for VML contexts.
+        if attr_namespace and attr_namespace in _VML_NAMESPACES:
+            attr_namespace = None
 
     match rule.rule_type:
         case SchematronType.ATTRIBUTE_VALUE_RANGE:

@@ -1,0 +1,313 @@
+[
+  {
+    "File": "/tmp/corpus/files/TestFiles/complex2010.docx",
+    "Errors": [
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:firstRow\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[3]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:lastRow\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[3]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:firstColumn\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[3]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:lastColumn\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[3]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:noHBand\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[3]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:noVBand\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[3]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:firstRow\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[2]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:lastRow\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[2]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:firstColumn\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[2]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:lastColumn\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[2]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:noHBand\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[2]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:noVBand\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[2]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:firstRow\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[1]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:lastRow\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[1]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:firstColumn\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[1]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:lastColumn\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[1]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:noHBand\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[1]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:noVBand\u0027 attribute is not declared.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:tbl[1]/w:tblPr[1]/w:tblLook[1]",
+        "Node": "tblLook",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_InvalidElementContentExpectingComplex",
+        "Description": "The element has invalid child element \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:doNotEmbedSmartTags\u0027.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]",
+        "Node": "settings",
+        "RelatedNode": "doNotEmbedSmartTags",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:allStyles\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:customStyles\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:latentStyles\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:stylesInUse\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:headingStyles\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:numberingStyles\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:tableStyles\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:directFormattingOnRuns\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:directFormattingOnParagraphs\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:directFormattingOnNumbering\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:directFormattingOnTables\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:clearFormatting\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:top3HeadingStyles\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:visibleStyles\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      },
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:alternateStyleNames\u0027 attribute is not declared.",
+        "Part": "/word/settings.xml",
+        "Path": "/w:settings[1]/w:stylePaneFormatFilter[1]",
+        "Node": "stylePaneFormatFilter",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      }
+    ]
+  }
+]

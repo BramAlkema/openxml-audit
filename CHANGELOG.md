@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-03-11
+
+### Added
+- Version-aware attribute gating: attributes introduced in later Office versions
+  are flagged as undeclared when validating against earlier formats
+- Unique attribute value validation (`Sem_UniqueAttributeValue`) for VML elements
+- VML attribute namespace fix in schematron bridge (unnamespaced attributes
+  were incorrectly resolved to the element's namespace)
+
+### Fixed
+- Parity improvement from 93.51% to 98.7% against Open XML SDK v3.4.1
+  - 414 undeclared attribute errors now detected for Document.docx at Office2007
+  - 33 undeclared attribute errors now detected for complex2010.docx at Office2007
+  - 1 undeclared `shapeId` attribute error now detected for Spreadsheet.xlsx at Office2007
+  - 1 `Sem_UniqueAttributeValue` error now detected for Document.docx at Office2007/2013
+
 ## [0.4.0] - 2026-03-11
 
 ### Added
@@ -68,7 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration helpers: context managers, decorators, pytest fixtures
 - Support for Office 2007 through Microsoft 365 format versions
 
-[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.1.0...v0.2.0

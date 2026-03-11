@@ -1,0 +1,16 @@
+[
+  {
+    "File": "/tmp/corpus/files/TestFiles/Document.docx",
+    "Errors": [
+      {
+        "Id": "Sem_UniqueAttributeValue",
+        "Description": "Attribute \u0027id\u0027 should have unique value. Its current value \u0027_x0000_t202\u0027 duplicates with others.",
+        "Part": "/word/document.xml",
+        "Path": "/w:document[1]/w:body[1]/w:sdt[11]/w:sdtContent[1]/w:p[1]/w:r[1]/mc:AlternateContent[1]/mc:Fallback[1]/w:pict[1]/v:shapetype[1]",
+        "Node": "shapetype",
+        "RelatedNode": "",
+        "ErrorType": "Semantic"
+      }
+    ]
+  }
+]

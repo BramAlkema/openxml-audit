@@ -61,7 +61,8 @@ if TYPE_CHECKING:
 
 
 def _is_version_excluded(
-    versioned: ElementConstraint | ElementParticle | None, file_format: FileFormat
+    versioned: ElementConstraint | ElementParticle | AttributeConstraint | None,
+    file_format: FileFormat,
 ) -> bool:
     """Check if a versioned constraint/particle is excluded at the given file format."""
     if versioned is None or not versioned.introduced_version:
@@ -93,6 +94,7 @@ class SchemaValidator:
         self._namespace_versions = self._build_namespace_versions()
         self._version_filter_cache: dict[tuple[int, FileFormat], ParticleConstraint | None] = {}
         self._undeclared_validation_cache: dict[str, bool] = {}
+        self._declared_attrs_version_cache: dict[tuple[int, FileFormat], frozenset[str]] = {}
         self._collect_metrics = False
         self._metrics: dict[str, float] = self._new_metrics()
 
@@ -212,8 +214,12 @@ class SchemaValidator:
         context: ValidationContext,
     ) -> None:
         """Validate element attributes."""
-        # Check required attributes
+        file_format = context.file_format
+
+        # Check required attributes (skip version-excluded ones)
         for attr_constraint in self._get_required_attributes(constraint):
+            if _is_version_excluded(attr_constraint, file_format):
+                continue
             attr_name = attr_constraint.qualified_name
             if attr_name not in element.attrib:
                 context.add_schema_error(
@@ -221,8 +227,10 @@ class SchemaValidator:
                     node=attr_constraint.local_name,
                 )
 
-        # Validate attribute values
+        # Validate attribute values (skip version-excluded ones)
         for attr_constraint in constraint.attributes:
+            if _is_version_excluded(attr_constraint, file_format):
+                continue
             attr_name = attr_constraint.qualified_name
             if attr_name in element.attrib:
                 value = element.attrib[attr_name]
@@ -249,7 +257,7 @@ class SchemaValidator:
         if not self._should_validate_undeclared_attributes(element, constraint):
             return
 
-        declared = self._get_declared_attributes(constraint)
+        declared = self._get_declared_attributes(constraint, file_format)
         element_ns = self._extract_namespace(element.tag)
         for attr_name in element.attrib:
             if attr_name in declared:
@@ -476,12 +484,28 @@ class SchemaValidator:
             constraint._oa_required_attrs_cache = cached
         return cached
 
-    def _get_declared_attributes(self, constraint: ElementConstraint) -> frozenset[str]:
-        cached = getattr(constraint, "_oa_declared_attrs_cache", None)
-        if cached is None:
-            cached = frozenset(attr.qualified_name for attr in constraint.attributes)
-            constraint._oa_declared_attrs_cache = cached
-        return cached
+    def _get_declared_attributes(
+        self, constraint: ElementConstraint, file_format: FileFormat
+    ) -> frozenset[str]:
+        # Version-unaware cache (all attributes) for the latest format
+        if file_format == FileFormat.MICROSOFT_365:
+            cached = getattr(constraint, "_oa_declared_attrs_cache", None)
+            if cached is None:
+                cached = frozenset(attr.qualified_name for attr in constraint.attributes)
+                constraint._oa_declared_attrs_cache = cached
+            return cached
+        # Version-aware: exclude attributes introduced in later versions
+        cache_key = (id(constraint), file_format)
+        cached_v = self._declared_attrs_version_cache.get(cache_key)
+        if cached_v is not None:
+            return cached_v
+        result = frozenset(
+            attr.qualified_name
+            for attr in constraint.attributes
+            if not _is_version_excluded(attr, file_format)
+        )
+        self._declared_attrs_version_cache[cache_key] = result
+        return result
 
 
 # Import for type hints only

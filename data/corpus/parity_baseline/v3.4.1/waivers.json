@@ -1,3 +1,11 @@
 {
-  "waivers": []
+  "waivers": [
+    {
+      "kind": "new_mismatch_family",
+      "target": "Sem_UniqueAttributeValue|semantic|/word/document.xml|/document[1]/body[1]/p[1]/r[1]/AlternateContent[1]/Fallback[1]/pict[1]/shapetype[1]|Attribute '<value>' should have unique value. Its current value '<value>' duplicates with others.",
+      "owner": "openxml-audit",
+      "reason": "Over-detection at Office2010: duplicate v:shapetype id is in mc:Fallback branches that should be MCE-resolved away. SDK semantic validator uses version-aware MCE resolution that we don't yet implement.",
+      "expires": "2026-06-30"
+    }
+  ]
 }

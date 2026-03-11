@@ -173,8 +173,11 @@ class UniqueAttributeValueConstraint(SemanticConstraint):
         except Exception:
             return True
 
-        # Count elements with same attribute value
+        # Count elements with same attribute value; only report on
+        # the first occurrence to match SDK behaviour (one error per
+        # duplicate value).
         count = 0
+        first_match: etree._Element | None = None
         if self.element_tag:
             root = element.getroottree().getroot()
             candidates = root.iter(self.element_tag)
@@ -189,14 +192,16 @@ class UniqueAttributeValueConstraint(SemanticConstraint):
                 if not self.case_sensitive:
                     elem_value = elem_value.lower()
                 if elem_value == value:
+                    if first_match is None:
+                        first_match = elem
                     count += 1
 
-        if count > 1:
+        if count > 1 and element is first_match:
             context.add_semantic_error(
-                f"Attribute '{self.attribute}' value '{value}' is not unique "
-                f"(found {count} occurrences)",
+                f"Attribute '{self.attribute}' should have unique value. "
+                f"Its current value '{value}' duplicates with others.",
                 node=self.attribute,
-                error_id="Sem_UniqueId",
+                error_id="Sem_UniqueAttributeValue",
             )
             return False
 

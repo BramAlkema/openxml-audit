@@ -60,8 +60,8 @@ def normalize_error_id(error: ValidationError) -> str:
         return "Sch_SchemaError"
 
     if error_type == ValidationErrorType.SEMANTIC:
-        if "duplicate id" in description:
-            return "Sem_UniqueId"
+        if "duplicate id" in description or "unique value" in description:
+            return "Sem_UniqueAttributeValue"
         if "referenced by" in description and "does not exist" in description:
             return "Sem_MissingRelationshipReference"
         if "missing required relationship type" in description:

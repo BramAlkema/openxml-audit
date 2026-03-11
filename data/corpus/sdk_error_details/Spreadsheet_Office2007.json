@@ -1,0 +1,16 @@
+[
+  {
+    "File": "/tmp/corpus/files/TestFiles/Spreadsheet.xlsx",
+    "Errors": [
+      {
+        "Id": "Sch_UndeclaredAttribute",
+        "Description": "The \u0027shapeId\u0027 attribute is not declared.",
+        "Part": "/xl/comments1.xml",
+        "Path": "/x:comments[1]/x:commentList[1]/x:comment[1]",
+        "Node": "comment",
+        "RelatedNode": "",
+        "ErrorType": "Schema"
+      }
+    ]
+  }
+]
