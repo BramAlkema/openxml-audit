@@ -1,9 +1,12 @@
 # OpenXML Audit
 
 [![PyPI](https://img.shields.io/pypi/v/openxml-audit)](https://pypi.org/project/openxml-audit/)
+[![Downloads](https://img.shields.io/pypi/dm/openxml-audit)](https://pypi.org/project/openxml-audit/)
 [![Python](https://img.shields.io/pypi/pyversions/openxml-audit)](https://pypi.org/project/openxml-audit/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/BramAlkema/openxml-audit/actions/workflows/parity-gate.yml/badge.svg)](https://github.com/BramAlkema/openxml-audit/actions/workflows/parity-gate.yml)
+[![SDK Parity](https://img.shields.io/badge/SDK%20parity-100%25-brightgreen)](docs/parity_contract.md)
+[![pytest](https://img.shields.io/badge/pytest-plugin-orange)](https://pypi.org/project/openxml-audit/)
 
 Validate OOXML (PPTX/DOCX/XLSX) and ODF files in pure Python — no .NET required.
 
