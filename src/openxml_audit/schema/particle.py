@@ -684,11 +684,13 @@ class AllParticleValidator(ParticleValidator):
         return particle.particle_type.value
 
 
+_VALIDATORS: dict[ParticleType, ParticleValidator] = {
+    ParticleType.SEQUENCE: SequenceParticleValidator(),
+    ParticleType.CHOICE: ChoiceParticleValidator(),
+    ParticleType.ALL: AllParticleValidator(),
+}
+
+
 def get_validator(particle_type: ParticleType) -> ParticleValidator | None:
     """Get the appropriate validator for a particle type."""
-    validators: dict[ParticleType, ParticleValidator] = {
-        ParticleType.SEQUENCE: SequenceParticleValidator(),
-        ParticleType.CHOICE: ChoiceParticleValidator(),
-        ParticleType.ALL: AllParticleValidator(),
-    }
-    return validators.get(particle_type)
+    return _VALIDATORS.get(particle_type)

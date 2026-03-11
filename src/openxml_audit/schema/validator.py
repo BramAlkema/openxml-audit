@@ -143,7 +143,12 @@ class SchemaValidator:
 
         return context.errors
 
-    def _validate_element(self, element: etree._Element, context: ValidationContext) -> None:
+    def _validate_element(
+        self,
+        element: etree._Element,
+        context: ValidationContext,
+        ignorable_ns: frozenset[str] = frozenset(),
+    ) -> None:
         """Validate an element and its children recursively."""
         if context.should_stop:
             return
@@ -151,12 +156,15 @@ class SchemaValidator:
         with ElementContext(context, element):
             tag = element.tag
 
+            # Merge inherited ignorable namespaces with this element's own
+            ignorable_ns = self._merge_ignorable_namespaces(element, ignorable_ns)
+
             # Get constraint for this element
             constraint = get_constraint_for_tag(tag, element)
             if _is_version_excluded(constraint, context.file_format):
                 constraint = None
 
-            children = self._get_validation_children(element, context)
+            children = self._get_validation_children(element, context, ignorable_ns)
 
             if constraint is not None:
                 # Validate attributes
@@ -168,10 +176,13 @@ class SchemaValidator:
 
             # Recursively validate children
             for child in children:
-                self._validate_element(child, context)
+                self._validate_element(child, context, ignorable_ns)
 
     def _validate_element_with_metrics(
-        self, element: etree._Element, context: ValidationContext
+        self,
+        element: etree._Element,
+        context: ValidationContext,
+        ignorable_ns: frozenset[str] = frozenset(),
     ) -> None:
         """Validate an element recursively while collecting hot-path timings."""
         if context.should_stop:
@@ -181,6 +192,9 @@ class SchemaValidator:
             self._metrics["elements"] += 1.0
             tag = element.tag
 
+            # Merge inherited ignorable namespaces with this element's own
+            ignorable_ns = self._merge_ignorable_namespaces(element, ignorable_ns)
+
             lookup_start = perf_counter()
             constraint = get_constraint_for_tag(tag, element)
             self._metrics["constraint_lookup"] += perf_counter() - lookup_start
@@ -189,7 +203,7 @@ class SchemaValidator:
                 constraint = None
 
             children_start = perf_counter()
-            children = self._get_validation_children(element, context)
+            children = self._get_validation_children(element, context, ignorable_ns)
             self._metrics["children_expand"] += perf_counter() - children_start
 
             if constraint is not None:
@@ -204,7 +218,7 @@ class SchemaValidator:
 
             recurse_start = perf_counter()
             for child in children:
-                self._validate_element_with_metrics(child, context)
+                self._validate_element_with_metrics(child, context, ignorable_ns)
             self._metrics["recursion"] += perf_counter() - recurse_start
 
     def _validate_attributes(
@@ -333,10 +347,12 @@ class SchemaValidator:
         return particle
 
     def _get_validation_children(
-        self, element: etree._Element, context: ValidationContext
+        self,
+        element: etree._Element,
+        context: ValidationContext,
+        ignorable_namespaces: frozenset[str] = frozenset(),
     ) -> list[etree._Element]:
         children: list[etree._Element] = []
-        ignorable_namespaces = self._collect_ignorable_namespaces(element)
 
         for child in element:
             if not isinstance(child.tag, str):
@@ -363,20 +379,22 @@ class SchemaValidator:
             return file_format.includes_ooxml(FileFormat.OFFICE_2013)
         return False
 
-    def _collect_ignorable_namespaces(self, element: etree._Element) -> set[str]:
-        namespaces: set[str] = set()
-        current: etree._Element | None = element
-        while current is not None and isinstance(current.tag, str):
-            ignorable = current.get(f"{{{MC}}}Ignorable")
-            if ignorable:
-                nsmap = current.nsmap or {}
-                for prefix in ignorable.split():
-                    namespace = nsmap.get(prefix)
-                    if namespace:
-                        namespaces.add(namespace)
-            parent = current.getparent()
-            current = parent if isinstance(parent, etree._Element) else None
-        return namespaces
+    def _merge_ignorable_namespaces(
+        self, element: etree._Element, inherited: frozenset[str]
+    ) -> frozenset[str]:
+        """Merge inherited ignorable namespaces with this element's own mc:Ignorable."""
+        ignorable = element.get(f"{{{MC}}}Ignorable")
+        if not ignorable:
+            return inherited
+        nsmap = element.nsmap or {}
+        local: set[str] = set()
+        for prefix in ignorable.split():
+            namespace = nsmap.get(prefix)
+            if namespace:
+                local.add(namespace)
+        if not local:
+            return inherited
+        return inherited | local
 
     def _resolve_alternate_content(
         self, alt: etree._Element, file_format: FileFormat

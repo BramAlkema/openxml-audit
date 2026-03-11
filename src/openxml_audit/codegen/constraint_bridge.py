@@ -36,6 +36,10 @@ from openxml_audit.schema.types import get_type_validator
 if TYPE_CHECKING:
     pass
 
+# Cache for tags where get_element_type_candidates() returns exactly 1 candidate.
+# The result is deterministic by tag alone (no dependency on element content).
+_single_candidate_cache: dict[str, ElementConstraint] = {}
+
 
 def _convert_attribute(
     attr: SdkAttribute,
@@ -274,7 +278,12 @@ def get_element_constraint_for_element(
         return convert_element_type(elem_type) if elem_type else None
 
     if len(candidates) == 1:
-        return convert_element_type(candidates[0])
+        cached = _single_candidate_cache.get(tag)
+        if cached is not None:
+            return cached
+        result = convert_element_type(candidates[0])
+        _single_candidate_cache[tag] = result
+        return result
 
     selected_by_context = _select_candidate_by_context(tag, element, candidates)
     if selected_by_context is not None:
