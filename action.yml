@@ -1,0 +1,95 @@
+name: "OpenXML Audit"
+description: "Validate OOXML (PPTX/DOCX/XLSX) and ODF (ODT/ODS/ODP) files in your PR"
+branding:
+  icon: "file-text"
+  color: "blue"
+
+inputs:
+  path:
+    description: "Directory or file to validate"
+    required: false
+    default: "."
+  format:
+    description: "Office version to validate against"
+    required: false
+    default: "Office2019"
+  max-errors:
+    description: "Maximum errors per file"
+    required: false
+    default: "100"
+  recursive:
+    description: "Search subdirectories"
+    required: false
+    default: "true"
+  changed-only:
+    description: "Only validate files changed in this PR"
+    required: false
+    default: "false"
+  version:
+    description: "openxml-audit version to install"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install openxml-audit
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.version }}" ]; then
+          pip install "openxml-audit==${{ inputs.version }}"
+        else
+          pip install openxml-audit
+        fi
+
+    - name: Find files to validate
+      id: find-files
+      shell: bash
+      run: |
+        EXTENSIONS='pptx|docx|xlsx|pptm|docm|xlsm|odt|ods|odp'
+
+        if [ "${{ inputs.changed-only }}" = "true" ] && [ -n "$GITHUB_BASE_REF" ]; then
+          # PR: only changed Office files
+          FILES=$(git diff --name-only --diff-filter=ACMR "origin/$GITHUB_BASE_REF"...HEAD \
+            | grep -iE "\.($EXTENSIONS)$" || true)
+        elif [ -f "${{ inputs.path }}" ]; then
+          # Single file
+          FILES="${{ inputs.path }}"
+        else
+          # Directory scan
+          FIND_ARGS="-iregex .*\.\($EXTENSIONS\)"
+          if [ "${{ inputs.recursive }}" = "true" ]; then
+            FILES=$(find "${{ inputs.path }}" $FIND_ARGS -type f 2>/dev/null || true)
+          else
+            FILES=$(find "${{ inputs.path }}" -maxdepth 1 $FIND_ARGS -type f 2>/dev/null || true)
+          fi
+        fi
+
+        if [ -z "$FILES" ]; then
+          echo "No Office files found to validate."
+          echo "files=" >> "$GITHUB_OUTPUT"
+        else
+          echo "Found files to validate:"
+          echo "$FILES"
+          # Store as multiline output
+          {
+            echo "files<<EOF"
+            echo "$FILES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Validate files
+      if: steps.find-files.outputs.files != ''
+      shell: bash
+      run: |
+        EXIT_CODE=0
+        while IFS= read -r file; do
+          [ -z "$file" ] && continue
+          echo "::group::Validating $file"
+          if ! openxml-audit "$file" --format "${{ inputs.format }}" --max-errors "${{ inputs.max-errors }}"; then
+            EXIT_CODE=1
+          fi
+          echo "::endgroup::"
+        done <<< "${{ steps.find-files.outputs.files }}"
+        exit $EXIT_CODE

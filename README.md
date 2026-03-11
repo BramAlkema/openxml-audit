@@ -262,6 +262,62 @@ docker run --rm -v "$PWD:/work" -w /work mcr.microsoft.com/dotnet/sdk:8.0 \
 
 Supports PPTX/DOCX/XLSX and variants. Configured for Office 2019.
 
+## GitHub Action
+
+Validate Office files in your PRs automatically:
+
+```yaml
+# .github/workflows/validate-office-files.yml
+name: Validate Office Files
+on: [pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: BramAlkema/openxml-audit@main
+        with:
+          changed-only: "true"  # only validate files changed in the PR
+```
+
+Options:
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `path` | `.` | Directory or file to validate |
+| `format` | `Office2019` | Office version to validate against |
+| `changed-only` | `false` | Only validate files changed in the PR |
+| `recursive` | `true` | Search subdirectories |
+| `max-errors` | `100` | Maximum errors per file |
+
+## Pre-commit Hook
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/BramAlkema/openxml-audit
+    rev: v0.4.2
+    hooks:
+      - id: openxml-audit
+```
+
+Validates any `.pptx`, `.docx`, `.xlsx`, `.odt`, `.ods`, or `.odp` file before commit.
+
+## Examples
+
+Ready-to-run scripts in [`examples/`](examples/):
+
+| Script | Description |
+|--------|-------------|
+| [`validate_python_pptx.py`](examples/validate_python_pptx.py) | Generate a PPTX with python-pptx and validate it |
+| [`validate_openpyxl.py`](examples/validate_openpyxl.py) | Generate an XLSX with openpyxl and validate it |
+| [`validate_odf.py`](examples/validate_odf.py) | Validate an ODF file (ODT/ODS/ODP) |
+| [`ci_validation.py`](examples/ci_validation.py) | Validate all Office files in a directory (CI-ready, OOXML + ODF) |
+
 ## CI Workflows
 
 | Workflow | Trigger | Purpose |

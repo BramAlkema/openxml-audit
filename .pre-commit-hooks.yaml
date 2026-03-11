@@ -1,0 +1,8 @@
+- id: openxml-audit
+  name: Validate Office files
+  description: Validate OOXML and ODF files with openxml-audit
+  entry: openxml-audit
+  language: python
+  # pre-commit doesn't have built-in types for Office files,
+  # so we use file extensions instead:
+  files: \.(pptx|docx|xlsx|pptm|docm|xlsm|odt|ods|odp)$
