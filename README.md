@@ -1,4 +1,8 @@
-# OpenXML Audit
+<p align="center">
+  <img src="docs/logo.svg" alt="OpenXML Audit" width="96">
+</p>
+
+<h1 align="center">OpenXML Audit</h1>
 
 [![PyPI](https://img.shields.io/pypi/v/openxml-audit)](https://pypi.org/project/openxml-audit/)
 [![Downloads](https://img.shields.io/pypi/dm/openxml-audit)](https://pypi.org/project/openxml-audit/)
