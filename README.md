@@ -269,6 +269,44 @@ Supports PPTX/DOCX/XLSX and variants. Configured for Office 2019.
 
 OOXML parity details: `docs/parity_contract.md`. ODF reference contract: `docs/odf_validation_contract.md`.
 
+## pytest Plugin
+
+Fixtures are registered automatically — just `pip install openxml-audit` and use them:
+
+```python
+def test_my_presentation(assert_valid_pptx, tmp_path):
+    output = tmp_path / "output.pptx"
+    generate_pptx(output)
+    assert_valid_pptx(output)  # fails with detailed errors if invalid
+
+def test_my_document(assert_valid_docx, tmp_path):
+    output = tmp_path / "output.docx"
+    generate_docx(output)
+    assert_valid_docx(output)
+
+def test_my_spreadsheet(assert_valid_xlsx, tmp_path):
+    output = tmp_path / "output.xlsx"
+    generate_xlsx(output)
+    assert_valid_xlsx(output)
+
+def test_odf_file(assert_valid_odf, tmp_path):
+    output = tmp_path / "output.odt"
+    generate_odt(output)
+    assert_valid_odf(output)
+```
+
+CLI options:
+
+```bash
+# Validate against a specific Office version
+pytest --openxml-format Office2007
+
+# Limit errors collected per file
+pytest --openxml-max-errors 50
+```
+
+Available fixtures: `openxml_validator`, `assert_valid_pptx`, `assert_valid_docx`, `assert_valid_xlsx`, `assert_valid_odf`.
+
 ## Integration Helpers
 
 ```python
@@ -290,12 +328,6 @@ from openxml_audit import require_valid_pptx
 
 @require_valid_pptx()
 def process(input_path: str) -> dict: ...
-
-# pytest fixtures (add to conftest.py)
-from openxml_audit.helpers import pytest_openxml_audit, pytest_assert_valid_pptx
-
-openxml_audit = pytest_openxml_audit()
-assert_valid_pptx = pytest_assert_valid_pptx()
 ```
 
 ## API Reference

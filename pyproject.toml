@@ -19,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Framework :: Pytest",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Office/Business",
     "Typing :: Typed",
@@ -48,6 +49,9 @@ Documentation = "https://bramalkema.github.io/openxml-audit/"
 
 [project.scripts]
 openxml-audit = "openxml_audit.cli:main"
+
+[project.entry-points.pytest11]
+openxml-audit = "openxml_audit.pytest_plugin"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/openxml_audit"]
