@@ -1,18 +1,18 @@
 {
-  "generated_at_utc": "2026-03-09T00:31:55.843993+00:00",
+  "generated_at_utc": "2026-03-11T22:22:15.490110+00:00",
   "manifest": "/Users/ynse/projects/openxml-audit/data/corpus/sdk_seed/manifest.json",
-  "files_root": "/private/tmp/openxml-sdk-seed/files",
+  "files_root": "/private/tmp/corpus/files",
   "strict": true,
-  "allow_missing_files": false,
+  "allow_missing_files": true,
   "include_mutation_expectations": false,
   "skipped_mutation_expectations": 33,
-  "duration_seconds": 3.803789,
+  "duration_seconds": 7.370094,
   "checks_collected": 112,
   "checks_total": 77,
-  "checks_matched": 72,
-  "checks_mismatched": 5,
+  "checks_matched": 77,
+  "checks_mismatched": 0,
   "checks_missing_files": 0,
-  "match_rate_percent": 93.51,
+  "match_rate_percent": 100.0,
   "validation_runs": 55,
   "by_kind": {
     "assert_empty_single_version": 3,
@@ -32,84 +32,6 @@
     "Office2013": 53,
     "Office2016": 36
   },
-  "mismatch_examples": [
-    {
-      "source_relpath": "TestFiles/Document.docx",
-      "kind": "assert_single_validator",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 1,
-      "actual_sum": 0,
-      "actual_by_version": {
-        "Office2013": 0
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Document.docx",
-      "kind": "inline_version_count",
-      "validator_versions": [
-        "Office2007"
-      ],
-      "expected": 415,
-      "actual_sum": 0,
-      "actual_by_version": {
-        "Office2007": 0
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Document.docx",
-      "kind": "inline_version_count",
-      "validator_versions": [
-        "Office2013"
-      ],
-      "expected": 1,
-      "actual_sum": 0,
-      "actual_by_version": {
-        "Office2013": 0
-      }
-    },
-    {
-      "source_relpath": "TestFiles/Spreadsheet.xlsx",
-      "kind": "helper_allowed_counts",
-      "validator_versions": [
-        "Office2007",
-        "Office2010",
-        "Office2013"
-      ],
-      "expected": [
-        1,
-        2
-      ],
-      "actual_sum": 0,
-      "actual_by_version": {
-        "Office2007": 0,
-        "Office2010": 0,
-        "Office2013": 0
-      }
-    },
-    {
-      "source_relpath": "TestFiles/complex2010.docx",
-      "kind": "assert_equal_validator_count",
-      "validator_versions": [
-        "Office2007"
-      ],
-      "expected": 34,
-      "actual_sum": 1,
-      "actual_by_version": {
-        "Office2007": 1
-      }
-    }
-  ],
-  "mismatch_families": [
-    {
-      "id": "Sch_UnexpectedElementContentExpectingComplex",
-      "error_type": "schema",
-      "part": "/word/settings.xml",
-      "path": "/settings[1]",
-      "description": "Unexpected element '<value>' found",
-      "family_key": "Sch_UnexpectedElementContentExpectingComplex|schema|/word/settings.xml|/settings[1]|Unexpected element '<value>' found",
-      "count": 1
-    }
-  ]
+  "mismatch_examples": [],
+  "mismatch_families": []
 }

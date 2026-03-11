@@ -7,9 +7,12 @@ from typing import TYPE_CHECKING
 from lxml import etree
 
 from openxml_audit.context import ElementContext
-from openxml_audit.errors import ValidationError
+from openxml_audit.errors import FileFormat, ValidationError
 from openxml_audit.namespaces import MC, OFFICE_DOC_RELATIONSHIPS
 from openxml_audit.semantic.attributes import SemanticConstraint
+
+_MC_ALTERNATE_CONTENT = f"{{{MC}}}AlternateContent"
+_MC_NS = {"mc": MC}
 from openxml_audit.semantic.references import IdTracker, validate_unique_ids
 from openxml_audit.semantic.relationships import validate_part_relationships
 
@@ -32,6 +35,8 @@ class SemanticValidator:
         self._constraints: dict[str, list[SemanticConstraint]] = {}
         self._id_tracker = IdTracker()
         self._validate_unique_ids = validate_unique_ids
+        self._known_namespaces: set[str] | None = None
+        self._namespace_versions: dict[str, FileFormat] | None = None
 
     def register_constraint(self, element_tag: str, constraint: SemanticConstraint) -> None:
         """Register a semantic constraint for an element type.
@@ -94,9 +99,19 @@ class SemanticValidator:
                 for constraint in self._constraints[tag]:
                     constraint.validate(element, context)
 
-            # Recursively validate children
+            # Recursively validate children.
+            # At Office2010, the SDK resolves mc:AlternateContent before
+            # semantic validation (skipping mc:Fallback when mc:Choice is
+            # understood).  At all other versions, both branches are
+            # validated.
+            mce_resolve = context.file_format == FileFormat.OFFICE_2010
             for child in element:
-                if isinstance(child.tag, str):
+                if not isinstance(child.tag, str):
+                    continue
+                if mce_resolve and child.tag == _MC_ALTERNATE_CONTENT:
+                    for resolved in self._resolve_mce(child, context.file_format):
+                        self._validate_element(resolved, context)
+                else:
                     self._validate_element(child, context)
 
     def _validate_relationship_attributes(
@@ -137,6 +152,89 @@ class SemanticValidator:
                     f"Ignorable attribute contains undefined prefix '{prefix}'",
                     node="Ignorable",
                 )
+
+    # ------------------------------------------------------------------
+    # MCE resolution (Office 2010 only)
+    # ------------------------------------------------------------------
+
+    def _ensure_namespace_data(self) -> None:
+        """Lazily load known namespaces and version map from the schema registry."""
+        if self._known_namespaces is not None:
+            return
+        from openxml_audit.codegen.schema_loader import get_registry as get_schema_registry
+
+        registry = get_schema_registry()
+        if not registry._schemas:
+            registry.load()
+
+        known: set[str] = {MC}
+        known.update(registry._prefixes.values())
+        self._known_namespaces = known
+
+        ns_versions: dict[str, FileFormat] = {}
+        for ns, schema in registry._schemas.items():
+            min_fmt: FileFormat | None = None
+            min_order = float("inf")
+            has_base = False
+            for t in schema.types:
+                fmt = FileFormat.from_version_string(t.version) if t.version else None
+                if fmt is None:
+                    has_base = True
+                    break
+                order = fmt.ooxml_order()
+                if order < min_order:
+                    min_order = order
+                    min_fmt = fmt
+            if not has_base and min_fmt is not None:
+                ns_versions[ns] = min_fmt
+        self._namespace_versions = ns_versions
+
+    def _resolve_mce(
+        self, alt: etree._Element, file_format: FileFormat
+    ) -> list[etree._Element]:
+        """Resolve mc:AlternateContent to the appropriate branch.
+
+        At Office2010, the SDK resolves MCE: if a Choice's required namespaces
+        are understood at the target version, its children are used; otherwise
+        Fallback children are used.
+        """
+        self._ensure_namespace_data()
+        assert self._known_namespaces is not None
+        assert self._namespace_versions is not None
+
+        # Try each Choice
+        for choice in alt.findall("mc:Choice", _MC_NS):
+            requires = choice.get("Requires", "").split()
+            if not requires:
+                return [c for c in choice if isinstance(c.tag, str)]
+            if self._choice_is_understood(choice, requires, file_format):
+                return [c for c in choice if isinstance(c.tag, str)]
+
+        # Fall back
+        fallback = alt.find("mc:Fallback", _MC_NS)
+        if fallback is not None:
+            return [c for c in fallback if isinstance(c.tag, str)]
+        return []
+
+    def _choice_is_understood(
+        self,
+        choice: etree._Element,
+        required_prefixes: list[str],
+        file_format: FileFormat,
+    ) -> bool:
+        assert self._known_namespaces is not None
+        assert self._namespace_versions is not None
+        nsmap = choice.nsmap or {}
+        for prefix in required_prefixes:
+            namespace = nsmap.get(prefix)
+            if namespace is None:
+                return False
+            if namespace not in self._known_namespaces:
+                return False
+            ns_version = self._namespace_versions.get(namespace)
+            if ns_version is not None and not file_format.includes_ooxml(ns_version):
+                return False
+        return True
 
 
 def create_pptx_semantic_validator(load_sdk_rules: bool = True) -> SemanticValidator:

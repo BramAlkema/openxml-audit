@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-03-11
+
+### Added
+- Version-aware MCE resolution in semantic validator: at Office 2010 the SDK
+  resolves `mc:AlternateContent` before semantic validation, selecting the
+  understood `mc:Choice` branch and skipping `mc:Fallback`
+
+### Fixed
+- 100% parity with Open XML SDK v3.4.1 (up from 98.7%) — 77/77 checks matched
+  - 1 false-positive `Sem_UniqueAttributeValue` error for Document.docx at
+    Office 2010 eliminated via MCE-aware semantic validation
+- Removed parity waiver (no longer needed)
+
 ## [0.4.1] - 2026-03-11
 
 ### Added
@@ -84,7 +97,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration helpers: context managers, decorators, pytest fixtures
 - Support for Office 2007 through Microsoft 365 format versions
 
-[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.2.0...v0.3.0
