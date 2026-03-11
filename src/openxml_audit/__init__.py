@@ -52,7 +52,7 @@ from openxml_audit.helpers import (
     validation_context,
 )
 
-__version__ = "0.5.0"
+__version__ = "0.4.2"
 
 __all__ = [
     # Main API
