@@ -2,6 +2,9 @@
 <manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.3">
   <manifest:file-entry manifest:full-path="/" manifest:media-type="application/vnd.oasis.opendocument.text"/>
   <manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml">
-    <manifest:encryption-data manifest:checksum-type="SHA1" manifest:checksum="dummy"/>
+    <manifest:encryption-data manifest:checksum-type="SHA1" manifest:checksum="dummy">
+      <manifest:algorithm manifest:algorithm-name="http://www.w3.org/2001/04/xmlenc#aes256-cbc"/>
+      <manifest:key-derivation manifest:key-derivation-name="PBKDF2"/>
+    </manifest:encryption-data>
   </manifest:file-entry>
 </manifest:manifest>

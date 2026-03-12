@@ -1,0 +1,34 @@
+{
+  "generated_at_utc": "2026-03-12T23:02:23.655227+00:00",
+  "manifest": "/Users/ynse/projects/openxml-audit/data/odf/reference_corpus/manifest.json",
+  "fixtures_root": "/Users/ynse/projects/openxml-audit/tests/fixtures/odf",
+  "strict": true,
+  "duration_seconds": 0.229736,
+  "checks_total": 126,
+  "checks_matched": 126,
+  "checks_mismatched": 0,
+  "match_rate_percent": 100.0,
+  "by_profile": {
+    "invalid": 109,
+    "valid": 17
+  },
+  "by_category": {
+    "chart": 4,
+    "drawing": 7,
+    "font": 2,
+    "forms": 4,
+    "foundation": 3,
+    "metadata": 3,
+    "package": 12,
+    "presentation": 16,
+    "schema": 6,
+    "security": 11,
+    "semantic": 1,
+    "spreadsheet": 14,
+    "style": 18,
+    "text": 15,
+    "version": 10
+  },
+  "mismatch_examples": [],
+  "mismatch_families": []
+}

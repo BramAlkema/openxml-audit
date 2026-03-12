@@ -174,6 +174,12 @@ class OrphanedAutoStyleConstraint(OdfConstraint):
         for parent in parents.values():
             referenced.add(parent)
 
+        # Auto styles with a parent-style-name are part of a style chain
+        # and should not be flagged as orphaned
+        for name in list(auto_names):
+            if name in parents:
+                referenced.add(name)
+
         orphaned = sorted(auto_names - referenced)
         for name in orphaned:
             errors.append(
@@ -222,12 +228,27 @@ class DefaultStyleFamilyConstraint(OdfConstraint):
                     if family:
                         default_families.add(family)
 
-        # Collect families actually used in styles
+        # Only flag missing default-styles for families where automatic
+        # styles in content.xml use that family without an explicit
+        # parent-style-name.  Those styles implicitly inherit from the
+        # default-style, so a missing default-style would be problematic.
+        # Named styles (in office:styles) and automatic styles with an
+        # explicit parent don't rely on the default-style fallback.
         content = ctx.parsed_parts.get("content.xml")
-        used_families = _collect_style_names_by_family(content, styles)
+        needs_default: set[str] = set()
+        if content is not None:
+            auto_container = content.find(f"{{{OFFICE_NS}}}automatic-styles")
+            if auto_container is not None:
+                for child in auto_container:
+                    if not isinstance(child.tag, str):
+                        continue
+                    family = child.get(f"{{{STYLE_NS}}}family", "").strip()
+                    parent = child.get(f"{{{STYLE_NS}}}parent-style-name", "").strip()
+                    if family and not parent:
+                        needs_default.add(family)
 
         for family in self.COMMON_FAMILIES:
-            if family in used_families and family not in default_families:
+            if family in needs_default and family not in default_families:
                 errors.append(
                     self._error(
                         rule_id="ODFSEMCHAIN003",

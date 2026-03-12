@@ -184,7 +184,7 @@ def _odf_validator_kwargs_for_level(
             "security_validation": False,
             "relaxng_validation": True,
             "schema_routes": schema_routes,
-            "require_schema_routes": True,
+            "require_schema_routes": schema_routes is not None,
         }
     if level == "security-core":
         return {
@@ -267,7 +267,7 @@ def _odf_validator_kwargs_for_level(
     default=None,
     help=(
         "JSON schema-route mapping for ODF schema-core mode. "
-        "Required when --odf-level=schema-core."
+        "Optional: overrides or extends bundled OASIS schema routing."
     ),
 )
 @click.option(
@@ -345,12 +345,6 @@ def main(
                     strict=strict,
                 )
             else:
-                if odf_level == "schema-core" and schema_routes is None:
-                    error_console.print(
-                        "[red]Error:[/red] "
-                        "--odf-level=schema-core requires --odf-schema-routes."
-                    )
-                    sys.exit(1)
                 odf_kwargs = _odf_validator_kwargs_for_level(
                     odf_level,
                     schema_routes=schema_routes,

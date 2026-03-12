@@ -5,11 +5,907 @@
   "description": "Pinned fixture-backed ODF corpus with conformance edge cases for gap closure.",
   "samples": [
     {
-      "id": "valid_minimal_odt",
+      "id": "invalid_aux_declared_missing_styles",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/aux_declared_missing_styles",
+      "filename": "invalid_aux_declared_missing_styles.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_aux_invalid_styles_xml",
+      "profile": "invalid",
+      "category": "schema",
+      "fixture_dir": "invalid/aux_invalid_styles_xml",
+      "filename": "invalid_aux_invalid_styles_xml.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_broken_content_xml",
+      "profile": "invalid",
+      "category": "schema",
+      "fixture_dir": "invalid/broken_content_xml",
+      "filename": "invalid_broken_content_xml.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_chart_empty_range_address",
+      "profile": "invalid",
+      "category": "chart",
+      "fixture_dir": "invalid/chart_empty_range_address",
+      "filename": "invalid_chart_empty_range_address.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_chart_missing_plot_area",
+      "profile": "invalid",
+      "category": "chart",
+      "fixture_dir": "invalid/chart_missing_plot_area",
+      "filename": "invalid_chart_missing_plot_area.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_chart_no_axis",
+      "profile": "invalid",
+      "category": "chart",
+      "fixture_dir": "invalid/chart_no_axis",
+      "filename": "invalid_chart_no_axis.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_chart_style_ref_unresolved",
+      "profile": "invalid",
+      "category": "chart",
+      "fixture_dir": "invalid/chart_style_ref_unresolved",
+      "filename": "invalid_chart_style_ref_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_content_body_mismatch",
+      "profile": "invalid",
+      "category": "semantic",
+      "fixture_dir": "invalid/content_body_mismatch",
+      "filename": "invalid_content_body_mismatch.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_content_root_mismatch",
+      "profile": "invalid",
+      "category": "schema",
+      "fixture_dir": "invalid/content_root_mismatch",
+      "filename": "invalid_content_root_mismatch.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_draw_3d_scene_empty",
+      "profile": "invalid",
+      "category": "drawing",
+      "fixture_dir": "invalid/draw_3d_scene_empty",
+      "filename": "invalid_draw_3d_scene_empty.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_draw_connector_unresolved",
+      "profile": "invalid",
+      "category": "drawing",
+      "fixture_dir": "invalid/draw_connector_unresolved",
+      "filename": "invalid_draw_connector_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_draw_custom_shape_no_geometry",
+      "profile": "invalid",
+      "category": "drawing",
+      "fixture_dir": "invalid/draw_custom_shape_no_geometry",
+      "filename": "invalid_draw_custom_shape_no_geometry.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_draw_frame_href_missing_part",
+      "profile": "invalid",
+      "category": "drawing",
+      "fixture_dir": "invalid/draw_frame_href_missing_part",
+      "filename": "invalid_draw_frame_href_missing_part.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_draw_group_deep_nesting",
+      "profile": "invalid",
+      "category": "drawing",
+      "fixture_dir": "invalid/draw_group_deep_nesting",
+      "filename": "invalid_draw_group_deep_nesting.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_draw_shape_no_position",
+      "profile": "invalid",
+      "category": "drawing",
+      "fixture_dir": "invalid/draw_shape_no_position",
+      "filename": "invalid_draw_shape_no_position.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_draw_style_ref_unresolved",
+      "profile": "invalid",
+      "category": "drawing",
+      "fixture_dir": "invalid/draw_style_ref_unresolved",
+      "filename": "invalid_draw_style_ref_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_duplicate_manifest_entry",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/duplicate_manifest_entry",
+      "filename": "invalid_duplicate_manifest_entry.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_embedded_object_unresolved",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/embedded_object_unresolved",
+      "filename": "invalid_embedded_object_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_encrypted_checksum_partial",
+      "profile": "invalid",
+      "category": "security",
+      "fixture_dir": "invalid/encrypted_checksum_partial",
+      "filename": "invalid_encrypted_checksum_partial.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_encrypted_missing_key_derivation",
+      "profile": "invalid",
+      "category": "security",
+      "fixture_dir": "invalid/encrypted_missing_key_derivation",
+      "filename": "invalid_encrypted_missing_key_derivation.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_encrypted_root_entry_encrypted",
+      "profile": "invalid",
+      "category": "security",
+      "fixture_dir": "invalid/encrypted_root_entry_encrypted",
+      "filename": "invalid_encrypted_root_entry_encrypted.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_font_face_missing_svg_family",
+      "profile": "invalid",
+      "category": "font",
+      "fixture_dir": "invalid/font_face_missing_svg_family",
+      "filename": "invalid_font_face_missing_svg_family.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_form_column_ref_unresolved",
+      "profile": "invalid",
+      "category": "forms",
+      "fixture_dir": "invalid/form_column_ref_unresolved",
+      "filename": "invalid_form_column_ref_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_form_control_id_duplicate",
+      "profile": "invalid",
+      "category": "forms",
+      "fixture_dir": "invalid/form_control_id_duplicate",
+      "filename": "invalid_form_control_id_duplicate.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_form_control_name_duplicate",
+      "profile": "invalid",
+      "category": "forms",
+      "fixture_dir": "invalid/form_control_name_duplicate",
+      "filename": "invalid_form_control_name_duplicate.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_form_event_listener_no_href",
+      "profile": "invalid",
+      "category": "forms",
+      "fixture_dir": "invalid/form_event_listener_no_href",
+      "filename": "invalid_form_event_listener_no_href.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_image_href_unresolved",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/image_href_unresolved",
+      "filename": "invalid_image_href_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_invalid_mimetype",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/invalid_mimetype",
+      "filename": "invalid_invalid_mimetype.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_malformed_manifest",
+      "profile": "invalid",
+      "category": "schema",
+      "fixture_dir": "invalid/malformed_manifest",
+      "filename": "invalid_malformed_manifest.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_manifest_content_bad_media_type",
+      "profile": "invalid",
+      "category": "schema",
+      "fixture_dir": "invalid/manifest_content_bad_media_type",
+      "filename": "invalid_manifest_content_bad_media_type.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_manifest_missing_part",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/manifest_missing_part",
+      "filename": "invalid_manifest_missing_part.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_master_page_layout_unresolved",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/master_page_layout_unresolved",
+      "filename": "invalid_master_page_layout_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_meta_bad_statistics",
+      "profile": "invalid",
+      "category": "metadata",
+      "fixture_dir": "invalid/meta_bad_statistics",
+      "filename": "invalid_meta_bad_statistics.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_meta_missing_office_meta",
+      "profile": "invalid",
+      "category": "metadata",
+      "fixture_dir": "invalid/meta_missing_office_meta",
+      "filename": "invalid_meta_missing_office_meta.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_missing_content_xml",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/missing_content_xml",
+      "filename": "invalid_missing_content_xml.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_missing_manifest",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/missing_manifest",
+      "filename": "invalid_missing_manifest.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_missing_mimetype",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/missing_mimetype",
+      "filename": "invalid_missing_mimetype.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_missing_root_entry",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/missing_root_entry",
+      "filename": "invalid_missing_root_entry.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_animation_bad_target",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_animation_bad_target",
+      "filename": "invalid_presentation_animation_bad_target.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_bad_class",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_bad_class",
+      "filename": "invalid_presentation_bad_class.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_bad_transition_type",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_bad_transition_type",
+      "filename": "invalid_presentation_bad_transition_type.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_custom_show_bad_ref",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_custom_show_bad_ref",
+      "filename": "invalid_presentation_custom_show_bad_ref.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_duplicate_layer",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_duplicate_layer",
+      "filename": "invalid_presentation_duplicate_layer.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_duplicate_page_names",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_duplicate_page_names",
+      "filename": "invalid_presentation_duplicate_page_names.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_header_decl_duplicate",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_header_decl_duplicate",
+      "filename": "invalid_presentation_header_decl_duplicate.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_header_ref_unresolved",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_header_ref_unresolved",
+      "filename": "invalid_presentation_header_ref_unresolved.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_master_page_missing_styles",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_master_page_missing_styles",
+      "filename": "invalid_presentation_master_page_missing_styles.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_master_page_unresolved",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_master_page_unresolved",
+      "filename": "invalid_presentation_master_page_unresolved.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_no_pages",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_no_pages",
+      "filename": "invalid_presentation_no_pages.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_notes_bad_ref",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_notes_bad_ref",
+      "filename": "invalid_presentation_notes_bad_ref.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_page_layout_unresolved",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_page_layout_unresolved",
+      "filename": "invalid_presentation_page_layout_unresolved.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_settings_bad_start",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_settings_bad_start",
+      "filename": "invalid_presentation_settings_bad_start.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_presentation_sound_unresolved",
+      "profile": "invalid",
+      "category": "presentation",
+      "fixture_dir": "invalid/presentation_sound_unresolved",
+      "filename": "invalid_presentation_sound_unresolved.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_root_mimetype_mismatch",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/root_mimetype_mismatch",
+      "filename": "invalid_root_mimetype_mismatch.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_settings_missing_office_settings",
+      "profile": "invalid",
+      "category": "schema",
+      "fixture_dir": "invalid/settings_missing_office_settings",
+      "filename": "invalid_settings_missing_office_settings.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_signature_bad_media_type",
+      "profile": "invalid",
+      "category": "security",
+      "fixture_dir": "invalid/signature_bad_media_type",
+      "filename": "invalid_signature_bad_media_type.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_signature_bad_root",
+      "profile": "invalid",
+      "category": "security",
+      "fixture_dir": "invalid/signature_bad_root",
+      "filename": "invalid_signature_bad_root.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_signature_manifest_missing_xml",
+      "profile": "invalid",
+      "category": "security",
+      "fixture_dir": "invalid/signature_manifest_missing_xml",
+      "filename": "invalid_signature_manifest_missing_xml.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_signature_missing_signedinfo",
+      "profile": "invalid",
+      "category": "security",
+      "fixture_dir": "invalid/signature_missing_signedinfo",
+      "filename": "invalid_signature_missing_signedinfo.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_bad_repeat_count",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_bad_repeat_count",
+      "filename": "invalid_spreadsheet_bad_repeat_count.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_cell_style_unresolved",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_cell_style_unresolved",
+      "filename": "invalid_spreadsheet_cell_style_unresolved.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_column_overflow",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_column_overflow",
+      "filename": "invalid_spreadsheet_column_overflow.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_column_style_unresolved",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_column_style_unresolved",
+      "filename": "invalid_spreadsheet_column_style_unresolved.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_conditional_style_unresolved",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_conditional_style_unresolved",
+      "filename": "invalid_spreadsheet_conditional_style_unresolved.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_data_pilot_bad_source",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_data_pilot_bad_source",
+      "filename": "invalid_spreadsheet_data_pilot_bad_source.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_database_range_bad_table",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_database_range_bad_table",
+      "filename": "invalid_spreadsheet_database_range_bad_table.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_duplicate_table_names",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_duplicate_table_names",
+      "filename": "invalid_spreadsheet_duplicate_table_names.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_filter_bad_field",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_filter_bad_field",
+      "filename": "invalid_spreadsheet_filter_bad_field.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_named_range_bad_table",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_named_range_bad_table",
+      "filename": "invalid_spreadsheet_named_range_bad_table.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_no_tables",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_no_tables",
+      "filename": "invalid_spreadsheet_no_tables.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_validation_duplicate",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_validation_duplicate",
+      "filename": "invalid_spreadsheet_validation_duplicate.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_spreadsheet_validation_ref_unresolved",
+      "profile": "invalid",
+      "category": "spreadsheet",
+      "fixture_dir": "invalid/spreadsheet_validation_ref_unresolved",
+      "filename": "invalid_spreadsheet_validation_ref_unresolved.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_cycle",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_cycle",
+      "filename": "invalid_style_cycle.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_data_style_unresolved",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_data_style_unresolved",
+      "filename": "invalid_style_data_style_unresolved.ods",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_deep_inheritance",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_deep_inheritance",
+      "filename": "invalid_style_deep_inheritance.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_duplicate_name",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_duplicate_name",
+      "filename": "invalid_style_duplicate_name.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_family_mismatch",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_family_mismatch",
+      "filename": "invalid_style_family_mismatch.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_font_name_undeclared",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_font_name_undeclared",
+      "filename": "invalid_style_font_name_undeclared.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_list_style_unresolved",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_list_style_unresolved",
+      "filename": "invalid_style_list_style_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_map_target_unresolved",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_map_target_unresolved",
+      "filename": "invalid_style_map_target_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_master_next_unresolved",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_master_next_unresolved",
+      "filename": "invalid_style_master_next_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_master_page_no_layout",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_master_page_no_layout",
+      "filename": "invalid_style_master_page_no_layout.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_name_empty",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_name_empty",
+      "filename": "invalid_style_name_empty.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_next_unresolved",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_next_unresolved",
+      "filename": "invalid_style_next_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_no_default",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_no_default",
+      "filename": "invalid_style_no_default.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_orphaned_auto",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_orphaned_auto",
+      "filename": "invalid_style_orphaned_auto.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_style_parent_unresolved",
+      "profile": "invalid",
+      "category": "style",
+      "fixture_dir": "invalid/style_parent_unresolved",
+      "filename": "invalid_style_parent_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_bookmark_ref_unresolved",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_bookmark_ref_unresolved",
+      "filename": "invalid_text_bookmark_ref_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_heading_level_skip",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_heading_level_skip",
+      "filename": "invalid_text_heading_level_skip.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_list_style_unresolved",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_list_style_unresolved",
+      "filename": "invalid_text_list_style_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_note_ref_unresolved",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_note_ref_unresolved",
+      "filename": "invalid_text_note_ref_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_section_duplicate_name",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_section_duplicate_name",
+      "filename": "invalid_text_section_duplicate_name.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_sequence_decl_duplicate",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_sequence_decl_duplicate",
+      "filename": "invalid_text_sequence_decl_duplicate.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_style_reference_missing_styles",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_style_reference_missing_styles",
+      "filename": "invalid_text_style_reference_missing_styles.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_table_empty",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_table_empty",
+      "filename": "invalid_text_table_empty.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_tracked_change_dup_id",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_tracked_change_dup_id",
+      "filename": "invalid_text_tracked_change_dup_id.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_user_field_decl_duplicate",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_user_field_decl_duplicate",
+      "filename": "invalid_text_user_field_decl_duplicate.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_user_field_get_unresolved",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_user_field_get_unresolved",
+      "filename": "invalid_text_user_field_get_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_variable_decl_duplicate",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_variable_decl_duplicate",
+      "filename": "invalid_text_variable_decl_duplicate.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_text_variable_get_unresolved",
+      "profile": "invalid",
+      "category": "text",
+      "fixture_dir": "invalid/text_variable_get_unresolved",
+      "filename": "invalid_text_variable_get_unresolved.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_unlisted_xml_part",
+      "profile": "invalid",
+      "category": "package",
+      "fixture_dir": "invalid/unlisted_xml_part",
+      "filename": "invalid_unlisted_xml_part.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_version_anim_iterate_pre13",
+      "profile": "invalid",
+      "category": "version",
+      "fixture_dir": "invalid/version_anim_iterate_pre13",
+      "filename": "invalid_version_anim_iterate_pre13.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_version_change_tracking_pre12",
+      "profile": "invalid",
+      "category": "version",
+      "fixture_dir": "invalid/version_change_tracking_pre12",
+      "filename": "invalid_version_change_tracking_pre12.odt",
+      "file_format": "odf1.2"
+    },
+    {
+      "id": "invalid_version_draw_enhanced_pre13",
+      "profile": "invalid",
+      "category": "version",
+      "fixture_dir": "invalid/version_draw_enhanced_pre13",
+      "filename": "invalid_version_draw_enhanced_pre13.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_version_inconsistent",
+      "profile": "invalid",
+      "category": "version",
+      "fixture_dir": "invalid/version_inconsistent",
+      "filename": "invalid_version_inconsistent.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_version_missing_attr",
+      "profile": "invalid",
+      "category": "version",
+      "fixture_dir": "invalid/version_missing_attr",
+      "filename": "invalid_version_missing_attr.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "invalid_version_named_expr_pre12",
+      "profile": "invalid",
+      "category": "version",
+      "fixture_dir": "invalid/version_named_expr_pre12",
+      "filename": "invalid_version_named_expr_pre12.ods",
+      "file_format": "odf1.2"
+    },
+    {
+      "id": "invalid_version_rdf_pre12",
+      "profile": "invalid",
+      "category": "version",
+      "fixture_dir": "invalid/version_rdf_pre12",
+      "filename": "invalid_version_rdf_pre12.odt",
+      "file_format": "odf1.2"
+    },
+    {
+      "id": "invalid_version_signature_pre12",
+      "profile": "invalid",
+      "category": "version",
+      "fixture_dir": "invalid/version_signature_pre12",
+      "filename": "invalid_version_signature_pre12.odt",
+      "file_format": "odf1.2"
+    },
+    {
+      "id": "valid_encrypted_structural_odt",
+      "profile": "valid",
+      "category": "security",
+      "fixture_dir": "valid/encrypted_structural_odt",
+      "filename": "valid_encrypted_structural_odt.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "valid_encrypted_stub_odt",
+      "profile": "valid",
+      "category": "security",
+      "fixture_dir": "valid/encrypted_stub_odt",
+      "filename": "valid_encrypted_stub.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "valid_font_face_with_svg_family",
+      "profile": "valid",
+      "category": "font",
+      "fixture_dir": "valid/font_face_with_svg_family",
+      "filename": "valid_font_face_with_svg_family.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "valid_minimal_odp",
       "profile": "valid",
       "category": "foundation",
-      "fixture_dir": "valid/minimal_odt",
-      "filename": "valid_minimal.odt",
+      "fixture_dir": "valid/minimal_odp",
+      "filename": "valid_minimal.odp",
       "file_format": "odf1.3"
     },
     {
@@ -21,11 +917,11 @@
       "file_format": "odf1.3"
     },
     {
-      "id": "valid_minimal_odp",
+      "id": "valid_minimal_odt",
       "profile": "valid",
       "category": "foundation",
-      "fixture_dir": "valid/minimal_odp",
-      "filename": "valid_minimal.odp",
+      "fixture_dir": "valid/minimal_odt",
+      "filename": "valid_minimal.odt",
       "file_format": "odf1.3"
     },
     {
@@ -46,6 +942,38 @@
       "odf_version_marker": "1.4"
     },
     {
+      "id": "valid_minimal_odt_with_meta",
+      "profile": "valid",
+      "category": "metadata",
+      "fixture_dir": "valid/minimal_odt_with_meta",
+      "filename": "valid_minimal_odt_with_meta.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "valid_minimal_odt_with_styles",
+      "profile": "valid",
+      "category": "style",
+      "fixture_dir": "valid/minimal_odt_with_styles",
+      "filename": "valid_minimal_odt_with_styles.odt",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "valid_presentation_master_page_resolved",
+      "profile": "valid",
+      "category": "presentation",
+      "fixture_dir": "valid/presentation_master_page_resolved",
+      "filename": "valid_presentation_master_page_resolved.odp",
+      "file_format": "odf1.3"
+    },
+    {
+      "id": "valid_signed_structural_odt",
+      "profile": "valid",
+      "category": "security",
+      "fixture_dir": "valid/signed_structural_odt",
+      "filename": "valid_signed_structural_odt.odt",
+      "file_format": "odf1.3"
+    },
+    {
       "id": "valid_signed_stub_odt",
       "profile": "valid",
       "category": "security",
@@ -54,139 +982,35 @@
       "file_format": "odf1.3"
     },
     {
-      "id": "valid_encrypted_stub_odt",
+      "id": "valid_spreadsheet_named_range_valid",
       "profile": "valid",
-      "category": "security",
-      "fixture_dir": "valid/encrypted_stub_odt",
-      "filename": "valid_encrypted_stub.odt",
+      "category": "spreadsheet",
+      "fixture_dir": "valid/spreadsheet_named_range_valid",
+      "filename": "valid_spreadsheet_named_range_valid.ods",
       "file_format": "odf1.3"
     },
     {
-      "id": "invalid_missing_mimetype",
-      "profile": "invalid",
-      "category": "package",
-      "fixture_dir": "invalid/missing_mimetype",
-      "filename": "invalid_missing_mimetype.odt",
+      "id": "valid_style_parent_resolved",
+      "profile": "valid",
+      "category": "style",
+      "fixture_dir": "valid/style_parent_resolved",
+      "filename": "valid_style_parent_resolved.odt",
       "file_format": "odf1.3"
     },
     {
-      "id": "invalid_invalid_mimetype",
-      "profile": "invalid",
-      "category": "package",
-      "fixture_dir": "invalid/invalid_mimetype",
-      "filename": "invalid_invalid_mimetype.odt",
+      "id": "valid_text_bookmark_resolved",
+      "profile": "valid",
+      "category": "text",
+      "fixture_dir": "valid/text_bookmark_resolved",
+      "filename": "valid_text_bookmark_resolved.odt",
       "file_format": "odf1.3"
     },
     {
-      "id": "invalid_missing_manifest",
-      "profile": "invalid",
-      "category": "package",
-      "fixture_dir": "invalid/missing_manifest",
-      "filename": "invalid_missing_manifest.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_malformed_manifest",
-      "profile": "invalid",
-      "category": "schema",
-      "fixture_dir": "invalid/malformed_manifest",
-      "filename": "invalid_malformed_manifest.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_manifest_missing_part",
-      "profile": "invalid",
-      "category": "package",
-      "fixture_dir": "invalid/manifest_missing_part",
-      "filename": "invalid_manifest_missing_part.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_unlisted_xml_part",
-      "profile": "invalid",
-      "category": "package",
-      "fixture_dir": "invalid/unlisted_xml_part",
-      "filename": "invalid_unlisted_xml_part.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_duplicate_manifest_entry",
-      "profile": "invalid",
-      "category": "package",
-      "fixture_dir": "invalid/duplicate_manifest_entry",
-      "filename": "invalid_duplicate_manifest_entry.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_missing_root_entry",
-      "profile": "invalid",
-      "category": "package",
-      "fixture_dir": "invalid/missing_root_entry",
-      "filename": "invalid_missing_root_entry.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_root_mimetype_mismatch",
-      "profile": "invalid",
-      "category": "package",
-      "fixture_dir": "invalid/root_mimetype_mismatch",
-      "filename": "invalid_root_mimetype_mismatch.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_broken_content_xml",
-      "profile": "invalid",
-      "category": "schema",
-      "fixture_dir": "invalid/broken_content_xml",
-      "filename": "invalid_broken_content_xml.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_missing_content_xml",
-      "profile": "invalid",
-      "category": "package",
-      "fixture_dir": "invalid/missing_content_xml",
-      "filename": "invalid_missing_content_xml.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_content_body_mismatch",
-      "profile": "invalid",
-      "category": "semantic",
-      "fixture_dir": "invalid/content_body_mismatch",
-      "filename": "invalid_content_body_mismatch.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_content_root_mismatch",
-      "profile": "invalid",
-      "category": "schema",
-      "fixture_dir": "invalid/content_root_mismatch",
-      "filename": "invalid_content_root_mismatch.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_aux_declared_missing_styles",
-      "profile": "invalid",
-      "category": "package",
-      "fixture_dir": "invalid/aux_declared_missing_styles",
-      "filename": "invalid_aux_declared_missing_styles.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_aux_invalid_styles_xml",
-      "profile": "invalid",
-      "category": "schema",
-      "fixture_dir": "invalid/aux_invalid_styles_xml",
-      "filename": "invalid_aux_invalid_styles_xml.odt",
-      "file_format": "odf1.3"
-    },
-    {
-      "id": "invalid_signature_manifest_missing_xml",
-      "profile": "invalid",
-      "category": "security",
-      "fixture_dir": "invalid/signature_manifest_missing_xml",
-      "filename": "invalid_signature_manifest_missing_xml.odt",
+      "id": "valid_text_style_reference_with_styles",
+      "profile": "valid",
+      "category": "text",
+      "fixture_dir": "valid/text_style_reference_with_styles",
+      "filename": "valid_text_style_reference_with_styles.odt",
       "file_format": "odf1.3"
     }
   ]

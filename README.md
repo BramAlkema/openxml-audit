@@ -155,16 +155,16 @@ openxml-audit file.odt --validator odf --odf-level semantic-core
 openxml-audit file.odt --validator odf --odf-level security-core
 ```
 
-Schema-core requires a schema-route JSON file:
+Schema-core uses bundled OASIS Relax NG schemas by default:
 
 ```bash
 openxml-audit file.odt \
   --validator odf \
-  --odf-level schema-core \
-  --odf-schema-routes schemas/odf/routes.json
+  --odf-level schema-core
 ```
 
-`--odf-schema-routes` accepts either shape:
+Pass `--odf-schema-routes` only when you want to override or extend routing. It accepts either
+shape:
 
 - versioned mapping:
   - `{"1.3": {"content.xml": "schemas/odf/1.3/content.rng"}}`
@@ -194,8 +194,17 @@ foundation = OdfValidator(
     security_validation=False,
 )
 
-# schema-core (routes required)
+# schema-core (bundled schemas by default)
 schema_core = OdfValidator(
+    file_format=FileFormat.ODF_1_3,
+    schema_validation=True,
+    semantic_validation=False,
+    security_validation=False,
+    relaxng_validation=True,
+)
+
+# schema-core with custom routes
+schema_core_custom = OdfValidator(
     file_format=FileFormat.ODF_1_3,
     schema_validation=True,
     semantic_validation=False,
@@ -241,8 +250,8 @@ OOXML benchmark: `python scripts/benchmark_validation.py presentation.pptx`
 
 ### Known ODF Limitations
 
-- Full OASIS conformance parity is not yet complete.
-- Schema-core requires caller-provided Relax NG routes (`schema_routes`).
+- Schema-core validates bundled routed members by default; use `schema_routes` to extend or
+  override routing for additional XML parts.
 - Security-core validates structure/policy, not full cryptographic trust by default.
 - CLI `--odf-level` only applies when the selected/auto-detected validator is ODF.
 

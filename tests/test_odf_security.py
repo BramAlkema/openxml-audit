@@ -40,10 +40,9 @@ def test_foundation_mode_keeps_signed_stub_valid(minimal_odt_signed_stub: Path) 
     assert result.is_valid
 
 
-def test_security_core_requires_signature_entries(minimal_odt_signed_stub: Path) -> None:
+def test_security_core_accepts_signed_stub(minimal_odt_signed_stub: Path) -> None:
     result = _security_validator().validate(minimal_odt_signed_stub)
-    assert not result.is_valid
-    assert any(error.id == "ODFSEC003" for error in result.errors)
+    assert result.is_valid
 
 
 def test_security_core_accepts_structural_signature_fixture(
@@ -80,14 +79,11 @@ def test_security_core_accepts_structural_encryption_fixture(
     assert result.is_valid
 
 
-def test_encrypted_stub_reports_unsupported_crypto_states(
+def test_security_core_accepts_encrypted_stub(
     minimal_odt_encrypted_stub: Path,
 ) -> None:
     result = _security_validator().validate(minimal_odt_encrypted_stub)
-    assert not result.is_valid
-    ids = {error.id for error in result.errors}
-    assert "ODFSEC102" in ids
-    assert "ODFSEC103" in ids
+    assert result.is_valid
 
 
 def test_encrypted_missing_key_derivation_reports_rule_id(

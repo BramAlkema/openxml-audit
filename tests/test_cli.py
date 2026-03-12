@@ -121,7 +121,33 @@ def test_cli_odf_level_foundation_disables_semantic_schema(
     assert kwargs["relaxng_validation"] is False
 
 
-def test_cli_odf_schema_core_requires_routes(minimal_odt: Path) -> None:
+def test_cli_odf_schema_core_uses_bundled_routes_by_default(
+    monkeypatch,
+    minimal_odt: Path,
+) -> None:
+    kwargs_capture: list[dict[str, object]] = []
+
+    class DummyOdfValidator:
+        def __init__(
+            self,
+            file_format: FileFormat,
+            max_errors: int,
+            strict: bool,
+            **kwargs: object,
+        ) -> None:
+            kwargs_capture.append(kwargs)
+            self.file_format = file_format
+
+        def validate(self, path: Path) -> ValidationResult:
+            return ValidationResult(
+                is_valid=True,
+                errors=[],
+                file_path=str(path),
+                file_format=self.file_format,
+            )
+
+    monkeypatch.setattr(cli_module, "OdfValidator", DummyOdfValidator)
+
     runner = CliRunner()
     result = runner.invoke(
         cli_module.main,
@@ -136,8 +162,15 @@ def test_cli_odf_schema_core_requires_routes(minimal_odt: Path) -> None:
         ],
     )
 
-    assert result.exit_code == 1
-    assert "--odf-level=schema-core requires --odf-schema-routes" in result.output
+    assert result.exit_code == 0, result.output
+    assert kwargs_capture
+    kwargs = kwargs_capture[0]
+    assert kwargs["schema_validation"] is True
+    assert kwargs["semantic_validation"] is False
+    assert kwargs["security_validation"] is False
+    assert kwargs["relaxng_validation"] is True
+    assert kwargs["schema_routes"] is None
+    assert kwargs["require_schema_routes"] is False
 
 
 def test_cli_auto_routes_ooxml_to_ooxml_validator(monkeypatch, minimal_pptx: Path) -> None:
