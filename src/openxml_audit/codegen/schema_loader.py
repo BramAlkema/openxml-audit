@@ -9,15 +9,12 @@ from __future__ import annotations
 import json
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
+
+from openxml_audit.codegen.data_resources import get_openxml_data_dir
 
 if TYPE_CHECKING:
     pass
-
-# Path to SDK data files
-DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "openxml"
-SCHEMAS_DIR = DATA_DIR / "schemas"
 
 
 @dataclass
@@ -240,19 +237,22 @@ class SchemaRegistry:
         if self._loaded:
             return
 
+        data_dir = get_openxml_data_dir()
+        schemas_dir = data_dir / "schemas"
+
         # Load namespace mappings
-        ns_file = DATA_DIR / "namespaces.json"
+        ns_file = data_dir / "namespaces.json"
         if ns_file.exists():
-            with open(ns_file) as f:
+            with ns_file.open(encoding="utf-8") as f:
                 for ns in json.load(f):
                     if ns.get("Prefix") and ns.get("Uri"):
                         self._prefixes[ns["Prefix"]] = ns["Uri"]
 
         # Load all schema files
-        if SCHEMAS_DIR.exists():
-            for schema_file in SCHEMAS_DIR.glob("*.json"):
+        if schemas_dir.exists():
+            for schema_file in schemas_dir.glob("*.json"):
                 try:
-                    with open(schema_file) as f:
+                    with schema_file.open(encoding="utf-8") as f:
                         schema = SdkSchema.from_json(json.load(f))
                         self._schemas[schema.target_namespace] = schema
 

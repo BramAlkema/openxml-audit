@@ -27,6 +27,23 @@ jobs:
       - name: Build package
         run: python -m build
 
+      - name: Smoke test wheel
+        run: |
+          python -m venv .release-venv
+          .release-venv/bin/pip install dist/*.whl
+          .release-venv/bin/python - <<'PY'
+          from openxml_audit.codegen.schema_loader import get_registry as get_schema_registry
+          from openxml_audit.codegen.schematron_loader import get_registry as get_schematron_registry
+
+          schema_registry = get_schema_registry()
+          schema_registry.load()
+          schematron_registry = get_schematron_registry()
+          schematron_registry.load()
+
+          assert schema_registry.count_elements() > 0
+          assert schematron_registry.count_rules() > 0
+          PY
+
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:

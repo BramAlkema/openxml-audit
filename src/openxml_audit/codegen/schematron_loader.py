@@ -10,11 +10,9 @@ import json
 import re
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from pathlib import Path
 from typing import Any
 
-# Path to SDK data files
-DATA_DIR = Path(__file__).parent.parent.parent.parent / "data" / "openxml"
+from openxml_audit.codegen.data_resources import get_openxml_data_dir
 
 
 class SchematronType(Enum):
@@ -462,12 +460,12 @@ class SchematronRegistry:
         if self._loaded:
             return
 
-        schematron_file = DATA_DIR / "schematrons.json"
+        schematron_file = get_openxml_data_dir() / "schematrons.json"
         if not schematron_file.exists():
             self._loaded = True
             return
 
-        with open(schematron_file) as f:
+        with schematron_file.open(encoding="utf-8") as f:
             data = json.load(f)
 
         for item in data:
