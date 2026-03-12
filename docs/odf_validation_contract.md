@@ -1,16 +1,16 @@
 # ODF Validation Contract
 
-This document defines the Phase 4 calibration contract for ODF validation in `openxml-audit`.
+This document defines the parity contract for ODF validation in `openxml-audit`.
 
 ## Scope
 
-- Applies to OASIS OpenDocument (`.odt`, `.ods`, `.odp`) reference alignment workflows.
+- Applies to OASIS OpenDocument (`.odt`, `.ods`, `.odp`) validation.
 - Covers:
-  - pinned sample corpus shape
-  - normalized run-report schema from `scripts/odf/run_reference_validators.py`
-  - mismatch taxonomy schema from `scripts/odf/compare_reference_results.py`
+  - pinned sample corpus (126 samples) with profile expectations
+  - portable parity snapshot via `scripts/odf/run_odf_parity_snapshot.py`
+  - optional reference-tool calibration via `scripts/odf/run_reference_validators.py`
   - drift-gate policy and waiver model from `scripts/odf/check_reference_drift.py`
-- Does not define full ODF conformance parity requirements.
+- Current parity: **100%** (126/126 samples matched).
 
 ## Pinned Corpus
 
@@ -220,9 +220,9 @@ python scripts/odf/check_reference_drift.py \
 
 ## Known Limitations
 
-- Reference-tool adapters are command-template based and output parsing is best-effort.
-- Message-level parity is not guaranteed because external tool formats differ by version.
-- ODF calibration depends on external validator build/install success in CI.
+- Reference-tool adapters (optional) are command-template based and output parsing is best-effort.
+- Message-level parity against external tools is not guaranteed because output formats differ by version.
+- The primary parity gate (`run_odf_parity_snapshot.py`) requires no external tools.
 
 ## Reference Runner Troubleshooting
 

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo.svg" alt="OpenXML Audit" width="96">
+  <img src="docs/logo.png" alt="OpenXML Audit" width="96">
 </p>
 
 <h1 align="center">OpenXML Audit</h1>
@@ -10,6 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/BramAlkema/openxml-audit/actions/workflows/parity-gate.yml/badge.svg)](https://github.com/BramAlkema/openxml-audit/actions/workflows/parity-gate.yml)
 [![SDK Parity](https://img.shields.io/badge/SDK%20parity-100%25-brightgreen)](docs/parity_contract.md)
+[![ODF Parity](https://img.shields.io/badge/ODF%20parity-100%25-brightgreen)](docs/odf_validation_contract.md)
 [![pytest](https://img.shields.io/badge/pytest-plugin-orange)](https://pypi.org/project/openxml-audit/)
 
 Validate OOXML (PPTX/DOCX/XLSX) and ODF files in pure Python — no .NET required.
