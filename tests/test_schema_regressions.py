@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from lxml import etree
 
+import openxml_audit.schema.validator as schema_validator_module
 from openxml_audit.context import ValidationContext
 from openxml_audit.errors import FileFormat
 from openxml_audit.namespaces import DRAWINGML, DRAWINGML_CHART, MC, WORDPROCESSINGML
@@ -155,6 +156,23 @@ def test_schema_validator_ignores_mc_ignorable_extension_children() -> None:
     validator._validate_element(run, context)
 
     assert not any("Unexpected element 'sym'" in error.description for error in context.errors)
+
+
+def test_schema_validator_ignores_a_ext_extension_entries_in_fallback_mode(
+    monkeypatch,
+) -> None:
+    ext_lst = etree.fromstring(
+        (f'<a:extLst xmlns:a="{DRAWINGML}"><a:ext uri="{{123}}"/></a:extLst>').encode()
+    )
+    context = ValidationContext(max_errors=0)
+    validator = SchemaValidator()
+
+    monkeypatch.setattr(schema_validator_module, "_HAS_SDK_CONSTRAINTS", False)
+    validator._validate_element(ext_lst, context)
+
+    assert not any("Required attribute 'cx'" in error.description for error in context.errors)
+    assert not any("Required attribute 'cy'" in error.description for error in context.errors)
+    assert not context.errors
 
 
 def test_schema_validator_flags_undeclared_attributes() -> None:

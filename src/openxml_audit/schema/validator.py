@@ -10,7 +10,7 @@ from lxml import etree
 from openxml_audit.codegen.schema_loader import get_registry as get_schema_registry
 from openxml_audit.context import ElementContext, ValidationContext
 from openxml_audit.errors import FileFormat, ValidationError
-from openxml_audit.namespaces import MC, WORDPROCESSINGML
+from openxml_audit.namespaces import DRAWINGML, MC, WORDPROCESSINGML
 from openxml_audit.schema.constraints import get_constraint_for_tag as get_hardcoded_constraint
 from openxml_audit.schema.particle import (
     CompositeParticle,
@@ -161,6 +161,8 @@ class SchemaValidator:
 
             # Get constraint for this element
             constraint = get_constraint_for_tag(tag, element)
+            if self._should_filter_drawingml_ext_false_positive(element, constraint):
+                constraint = None
             if _is_version_excluded(constraint, context.file_format):
                 constraint = None
 
@@ -198,6 +200,8 @@ class SchemaValidator:
             lookup_start = perf_counter()
             constraint = get_constraint_for_tag(tag, element)
             self._metrics["constraint_lookup"] += perf_counter() - lookup_start
+            if self._should_filter_drawingml_ext_false_positive(element, constraint):
+                constraint = None
 
             if _is_version_excluded(constraint, context.file_format):
                 constraint = None
@@ -492,6 +496,33 @@ class SchemaValidator:
             candidates = self._schema_registry.get_element_type_candidates(tag)
             self._undeclared_validation_cache[tag] = len(candidates) == 1
         return self._undeclared_validation_cache[tag]
+
+    def _should_filter_drawingml_ext_false_positive(
+        self,
+        element: etree._Element,
+        constraint: ElementConstraint | None,
+    ) -> bool:
+        """Ignore extent-style constraints for extension-list entries.
+
+        DrawingML reuses ``a:ext`` for both geometry extents and extension
+        entries. When the resolved constraint does not declare ``uri`` for an
+        ``a:ext`` node under an ``extLst`` parent, validating it as an extent
+        produces false positives such as missing ``cx``/``cy``.
+        """
+        if constraint is None:
+            return False
+        if element.tag != f"{{{DRAWINGML}}}ext":
+            return False
+        if "uri" not in element.attrib:
+            return False
+
+        parent = element.getparent()
+        if parent is None or not isinstance(parent.tag, str):
+            return False
+        if self._extract_local_name(parent.tag) != "extLst":
+            return False
+
+        return all(attr.local_name != "uri" for attr in constraint.attributes)
 
     def _get_required_attributes(
         self, constraint: ElementConstraint
