@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo.png" alt="OpenXML Audit" width="96">
+  <img src="https://raw.githubusercontent.com/BramAlkema/openxml-audit/main/docs/logo.png" alt="OpenXML Audit" width="96">
 </p>
 
 <h1 align="center">OpenXML Audit</h1>
