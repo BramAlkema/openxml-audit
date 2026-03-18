@@ -10,6 +10,8 @@ from decimal import Decimal, InvalidOperation
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
+from openxml_audit.errors import FileFormat
+
 if TYPE_CHECKING:
     from openxml_audit.context import ValidationContext
 
@@ -439,6 +441,159 @@ class AnyURITypeValidator(XsdTypeValidator):
         return TypeValidationResult(is_valid=True, parsed_value=value)
 
 
+class QNameTypeValidator(XsdTypeValidator):
+    """Validates QName values."""
+
+    _ncname_validator = NCNameTypeValidator()
+
+    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+        if not value:
+            return TypeValidationResult(
+                is_valid=False,
+                error_message="QName cannot be empty",
+            )
+
+        parts = value.split(":")
+        if len(parts) > 2:
+            return TypeValidationResult(
+                is_valid=False,
+                error_message=f"Invalid QName: '{value}'",
+            )
+
+        if len(parts) == 2:
+            prefix, local_name = parts
+            if not prefix or not local_name:
+                return TypeValidationResult(
+                    is_valid=False,
+                    error_message=f"Invalid QName: '{value}'",
+                )
+
+            prefix_result = self._ncname_validator.validate(prefix, context)
+            if not prefix_result.is_valid:
+                return TypeValidationResult(
+                    is_valid=False,
+                    error_message=f"Invalid QName prefix: '{prefix}'",
+                )
+
+            if prefix != "xml" and context is not None and context.current_element is not None:
+                nsmap = context.current_element.nsmap
+                if prefix not in nsmap or nsmap[prefix] is None:
+                    return TypeValidationResult(
+                        is_valid=False,
+                        error_message=f"QName prefix '{prefix}' is not declared",
+                    )
+        else:
+            local_name = parts[0]
+
+        local_result = self._ncname_validator.validate(local_name, context)
+        if not local_result.is_valid:
+            return TypeValidationResult(
+                is_valid=False,
+                error_message=f"Invalid QName local name: '{local_name}'",
+            )
+
+        return TypeValidationResult(is_valid=True, parsed_value=value)
+
+
+class ListTypeValidator(XsdTypeValidator):
+    """Validates whitespace-separated XSD list values."""
+
+    def __init__(self, item_validator: XsdTypeValidator):
+        self.item_validator = item_validator
+
+    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+        items = value.split()
+        if not items:
+            return TypeValidationResult(
+                is_valid=False,
+                error_message="List value cannot be empty",
+            )
+
+        parsed_items: list[Any] = []
+        for index, item in enumerate(items, start=1):
+            result = self.item_validator.validate(item, context)
+            if not result.is_valid:
+                return TypeValidationResult(
+                    is_valid=False,
+                    error_message=f"List item {index} is invalid: {result.error_message}",
+                )
+            parsed_items.append(result.parsed_value)
+
+        return TypeValidationResult(is_valid=True, parsed_value=parsed_items)
+
+
+class UnionTypeValidator(XsdTypeValidator):
+    """Validates against multiple type alternatives (union type).
+
+    A value is valid if it matches ANY of the member validators.
+    """
+
+    def __init__(self, members: list[XsdTypeValidator]):
+        self.members = members
+
+    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+        if not self.members:
+            return TypeValidationResult(is_valid=True, parsed_value=value)
+
+        errors: list[str] = []
+        for member in self.members:
+            result = member.validate(value, context)
+            if result.is_valid:
+                return result
+            if result.error_message:
+                errors.append(result.error_message)
+
+        return TypeValidationResult(
+            is_valid=False,
+            error_message=(
+                f"Value '{value}' does not match any union member type"
+            ),
+        )
+
+
+class VersionedTypeValidator(XsdTypeValidator):
+    """Selects the newest validator branch supported by the file format."""
+
+    def __init__(self, branches: list[tuple[str | None, XsdTypeValidator]]):
+        self.branches = sorted(branches, key=lambda item: _version_sort_key(item[0]))
+
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
+        validator = self._select_validator(context.file_format if context else None)
+        if validator is None:
+            return TypeValidationResult(is_valid=True, parsed_value=value)
+        return validator.validate(value, context)
+
+    def _select_validator(self, file_format: FileFormat | None) -> XsdTypeValidator | None:
+        if not self.branches:
+            return None
+        if file_format is None:
+            return self.branches[-1][1]
+
+        applicable: XsdTypeValidator | None = None
+        for version, validator in self.branches:
+            if version is None:
+                applicable = validator
+                continue
+            introduced = FileFormat.from_version_string(version)
+            if introduced is None or file_format.includes_ooxml(introduced):
+                applicable = validator
+
+        return applicable or self.branches[0][1]
+
+
+def _version_sort_key(version: str | None) -> int:
+    if version is None:
+        return -1
+    file_format = FileFormat.from_version_string(version)
+    if file_format is None:
+        return 999
+    return file_format.ooxml_order()
+
+
 # Pre-built validators for common XSD types
 BUILTIN_VALIDATORS: dict[XsdBuiltinType, XsdTypeValidator] = {
     XsdBuiltinType.STRING: StringTypeValidator(),
@@ -457,8 +612,11 @@ BUILTIN_VALIDATORS: dict[XsdBuiltinType, XsdTypeValidator] = {
     XsdBuiltinType.UNSIGNED_SHORT: IntegerTypeValidator(min_value=0, max_value=65535),
     XsdBuiltinType.UNSIGNED_BYTE: IntegerTypeValidator(min_value=0, max_value=255),
     XsdBuiltinType.DECIMAL: DecimalTypeValidator(),
+    XsdBuiltinType.FLOAT: DecimalTypeValidator(),
+    XsdBuiltinType.DOUBLE: DecimalTypeValidator(),
     XsdBuiltinType.DATETIME: DateTimeTypeValidator(),
     XsdBuiltinType.HEX_BINARY: HexBinaryTypeValidator(),
+    XsdBuiltinType.QNAME: QNameTypeValidator(),
     XsdBuiltinType.NCNAME: NCNameTypeValidator(),
     XsdBuiltinType.ID: NCNameTypeValidator(),
     XsdBuiltinType.IDREF: NCNameTypeValidator(),

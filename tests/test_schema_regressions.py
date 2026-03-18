@@ -349,3 +349,22 @@ def test_chart_style_and_overlap_value_ranges_match_sdk_types() -> None:
     assert not any(
         "Value -27 is less than minimum 0" in error.description for error in context.errors
     )
+
+
+def test_spreadsheet_control_rejects_office2010_only_child_in_office2007() -> None:
+    control = etree.fromstring(
+        (
+            '<x:control '
+            'xmlns:x="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
+            'shapeId="1" r:id="rId1">'
+            "<x:controlPr/>"
+            "</x:control>"
+        ).encode()
+    )
+    context = ValidationContext(max_errors=0, file_format=FileFormat.OFFICE_2007)
+    validator = SchemaValidator()
+
+    validator._validate_element(control, context)
+
+    assert any("Unexpected element 'controlPr'" in error.description for error in context.errors)

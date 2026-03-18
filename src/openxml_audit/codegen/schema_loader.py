@@ -394,3 +394,183 @@ def get_xsd_type_name(sdk_type: str) -> str:
     if sdk_type.startswith("EnumValue<"):
         return "string"
     return SDK_TYPE_MAP.get(sdk_type, "string")
+
+
+def _extract_enum_type_name(sdk_type: str) -> str | None:
+    """Extract the full .NET enum type name from an EnumValue<T> type string."""
+    if sdk_type.startswith("EnumValue<") and sdk_type.endswith(">"):
+        return sdk_type[len("EnumValue<"):-1]
+    return None
+
+
+# Lazy-loaded enum value lookup
+_enum_values: dict[str, list[str]] | None = None
+_schema_enum_values_by_type: dict[str, list[str]] | None = None
+_schema_enum_values_by_name: dict[str, list[str]] | None = None
+_schema_enum_candidates_by_name: dict[str, list[tuple[str, list[str]]]] | None = None
+
+
+def get_enum_values(enum_type_name: str) -> list[str] | None:
+    """Get the allowed string values for an SDK enum type.
+
+    Args:
+        enum_type_name: Full .NET type name, e.g.
+            "DocumentFormat.OpenXml.Spreadsheet.TableStyleValues"
+
+    Returns:
+        List of valid XML string values, or None if not found.
+    """
+    global _enum_values
+    if _enum_values is None:
+        enums_path = get_openxml_data_dir() / "enums.json"
+        if enums_path.exists():
+            with open(enums_path, encoding="utf-8") as f:
+                _enum_values = json.load(f)
+        else:
+            _enum_values = {}
+    values = _enum_values.get(enum_type_name)
+    if values is not None:
+        return values
+
+    schema_values_by_type, schema_values_by_name, schema_candidates_by_name = _load_schema_enum_values()
+    values = schema_values_by_type.get(enum_type_name)
+    if values is not None:
+        return values
+
+    short_name = enum_type_name.rsplit(".", 1)[-1]
+    values = schema_values_by_name.get(short_name)
+    if values is not None:
+        return values
+
+    return _resolve_ambiguous_schema_enum_values(
+        enum_type_name,
+        schema_candidates_by_name.get(short_name, []),
+    )
+
+
+def _load_schema_enum_values(
+) -> tuple[
+    dict[str, list[str]],
+    dict[str, list[str]],
+    dict[str, list[tuple[str, list[str]]]],
+]:
+    global _schema_enum_values_by_type, _schema_enum_values_by_name, _schema_enum_candidates_by_name
+    if (
+        _schema_enum_values_by_type is not None
+        and _schema_enum_values_by_name is not None
+        and _schema_enum_candidates_by_name is not None
+    ):
+        return (
+            _schema_enum_values_by_type,
+            _schema_enum_values_by_name,
+            _schema_enum_candidates_by_name,
+        )
+
+    values_by_type: dict[str, list[str]] = {}
+    values_by_name: dict[str, list[str] | None] = {}
+    candidates_by_name: dict[str, list[tuple[str, list[str]]]] = {}
+    schemas_dir = get_openxml_data_dir() / "schemas"
+
+    for schema_path in schemas_dir.glob("*.json"):
+        with open(schema_path, encoding="utf-8") as f:
+            data = json.load(f)
+        for enum in data.get("Enums", []):
+            facets = [facet["Value"] for facet in enum.get("Facets", []) if "Value" in facet]
+            if not facets:
+                continue
+
+            enum_type = enum.get("Type")
+            if enum_type:
+                values_by_type[enum_type] = facets
+
+            enum_name = enum.get("Name")
+            if not enum_name:
+                continue
+
+            if enum_type:
+                candidates_by_name.setdefault(enum_name, []).append((enum_type, facets))
+
+            existing = values_by_name.get(enum_name)
+            if existing is None:
+                values_by_name[enum_name] = facets
+            elif existing != facets:
+                values_by_name[enum_name] = None
+
+    _schema_enum_values_by_type = values_by_type
+    _schema_enum_values_by_name = {
+        name: values
+        for name, values in values_by_name.items()
+        if values is not None
+    }
+    _schema_enum_candidates_by_name = candidates_by_name
+    return (
+        _schema_enum_values_by_type,
+        _schema_enum_values_by_name,
+        _schema_enum_candidates_by_name,
+    )
+
+
+def _resolve_ambiguous_schema_enum_values(
+    enum_type_name: str,
+    candidates: list[tuple[str, list[str]]],
+) -> list[str] | None:
+    if not candidates:
+        return None
+
+    preferred_prefixes = _preferred_enum_prefixes(enum_type_name)
+    if not preferred_prefixes:
+        return None
+
+    matching_values = [
+        values
+        for candidate_type, values in candidates
+        if _get_enum_prefix(candidate_type) in preferred_prefixes
+    ]
+    return _select_unique_enum_values(matching_values)
+
+
+def _preferred_enum_prefixes(enum_type_name: str) -> list[str]:
+    if ".Vml.Office." in enum_type_name:
+        return ["o"]
+    if ".Vml.Wordprocessing." in enum_type_name:
+        return ["w10"]
+    if ".Vml." in enum_type_name:
+        return ["v"]
+    if ".Drawing.Charts." in enum_type_name:
+        return ["c"]
+    if ".Drawing.Spreadsheet." in enum_type_name:
+        return ["xdr"]
+    if ".Office2010.Word." in enum_type_name:
+        return ["w14"]
+    if ".Wordprocessing." in enum_type_name:
+        return ["w"]
+    if ".Spreadsheet." in enum_type_name:
+        return ["x"]
+    if ".Presentation." in enum_type_name:
+        return ["p"]
+    if ".Math." in enum_type_name:
+        return ["m"]
+    if ".Drawing." in enum_type_name:
+        return ["a"]
+    return []
+
+
+def _get_enum_prefix(enum_type: str) -> str | None:
+    if ":" not in enum_type:
+        return None
+    return enum_type.split(":", 1)[0]
+
+
+def _select_unique_enum_values(candidates: list[list[str]]) -> list[str] | None:
+    unique: list[list[str]] = []
+    seen: set[tuple[str, ...]] = set()
+    for values in candidates:
+        key = tuple(values)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(values)
+
+    if len(unique) == 1:
+        return unique[0]
+    return None

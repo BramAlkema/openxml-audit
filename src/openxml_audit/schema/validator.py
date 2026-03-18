@@ -306,7 +306,39 @@ class SchemaValidator:
         context: ValidationContext,
     ) -> None:
         """Validate element children against content model."""
-        if isinstance(content_model, CompositeParticle):
+        if isinstance(content_model, ElementParticle):
+            # Bare ElementParticle (collapsed from single-child sequence).
+            # Validate occurrence count directly.
+            if _is_version_excluded(content_model, context.file_format):
+                for child in children:
+                    child_local = self._extract_local_name(child.tag)
+                    context.add_schema_error(
+                        f"Unexpected element '{child_local}' found",
+                        node=child_local,
+                    )
+                return
+            matching = sum(1 for c in children if c.tag == content_model.qualified_name)
+            if matching < content_model.min_occurs:
+                context.add_schema_error(
+                    f"Required element '{content_model.local_name}' is missing "
+                    f"(minOccurs={content_model.min_occurs}, found={matching})",
+                    node=content_model.local_name,
+                )
+            elif content_model.max_occurs >= 0 and matching > content_model.max_occurs:
+                context.add_schema_error(
+                    f"Element '{content_model.local_name}' exceeds maximum occurrences "
+                    f"(maxOccurs={content_model.max_occurs}, found={matching})",
+                    node=content_model.local_name,
+                )
+            # Report unexpected children
+            for child in children:
+                if child.tag != content_model.qualified_name:
+                    child_local = self._extract_local_name(child.tag)
+                    context.add_schema_error(
+                        f"Unexpected element '{child_local}' found",
+                        node=child_local,
+                    )
+        elif isinstance(content_model, CompositeParticle):
             filtered = self._filter_content_model_by_version(content_model, context.file_format)
             if filtered is not None and isinstance(filtered, CompositeParticle):
                 validator = get_validator(filtered.particle_type)

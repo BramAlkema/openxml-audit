@@ -54,16 +54,33 @@ class ContentTypes:
         return self.defaults.get(ext)
 
     @classmethod
-    def from_xml(cls, xml_content: bytes) -> ContentTypes:
-        """Parse [Content_Types].xml content."""
+    def from_xml(
+        cls, xml_content: bytes
+    ) -> tuple[ContentTypes, list[str]]:
+        """Parse [Content_Types].xml content.
+
+        Returns a tuple of (ContentTypes, list of warning messages).
+        """
         ct = cls()
+        warnings: list[str] = []
 
         try:
             root = etree.fromstring(xml_content)
         except etree.XMLSyntaxError:
-            return ct
+            return ct, warnings
 
         ns = {"ct": CONTENT_TYPES}
+
+        # Detect escaped XML elements in text content (e.g. &lt;Override ...&gt;)
+        all_text = (root.text or "") + "".join(
+            child.tail or "" for child in root
+        )
+        if "<Override " in all_text or "<Default " in all_text:
+            warnings.append(
+                "[Content_Types].xml contains escaped XML markup as text "
+                "content — elements are double-encoded and will be ignored "
+                "by the XML parser"
+            )
 
         # Parse Default elements
         for default in root.findall("ct:Default", ns):
@@ -79,7 +96,7 @@ class ContentTypes:
             if part_name and content_type:
                 ct.overrides[part_name] = content_type
 
-        return ct
+        return ct, warnings
 
 
 class OpenXmlPackage(ZipPackage):
@@ -123,7 +140,17 @@ class OpenXmlPackage(ZipPackage):
             return ContentTypes()
 
         try:
-            return ContentTypes.from_xml(content)
+            ct, warnings = ContentTypes.from_xml(content)
+            for warning in warnings:
+                self._errors.append(
+                    ValidationError(
+                        error_type=ValidationErrorType.PACKAGE,
+                        description=warning,
+                        part_uri="/[Content_Types].xml",
+                        severity=ValidationSeverity.ERROR,
+                    )
+                )
+            return ct
         except Exception as e:
             self._errors.append(
                 ValidationError(

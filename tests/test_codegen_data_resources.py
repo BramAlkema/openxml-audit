@@ -84,6 +84,133 @@ def test_schema_registry_loads_from_resolved_data_dir(
     assert registry.get_element_type("urn:test:presentation", "test") is not None
 
 
+def test_get_enum_values_falls_back_to_schema_enum_definitions(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Enum values should still resolve from schema JSON when enums.json is absent."""
+    data_dir = tmp_path / "openxml"
+    _write_json(
+        data_dir / "schemas" / "presentation.json",
+        {
+            "TargetNamespace": "urn:test:presentation",
+            "Types": [],
+            "Enums": [
+                {
+                    "Type": "p:ST_TLTimeIndefinite",
+                    "Name": "IndefiniteTimeDeclarationValues",
+                    "Facets": [
+                        {
+                            "Value": "indefinite",
+                        }
+                    ],
+                }
+            ],
+        },
+    )
+
+    monkeypatch.setattr(schema_loader, "get_openxml_data_dir", lambda: data_dir)
+    monkeypatch.setattr(schema_loader, "_enum_values", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_values_by_type", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_values_by_name", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_candidates_by_name", None)
+
+    assert schema_loader.get_enum_values("p:ST_TLTimeIndefinite") == ["indefinite"]
+    assert (
+        schema_loader.get_enum_values(
+            "DocumentFormat.OpenXml.Presentation.IndefiniteTimeDeclarationValues"
+        )
+        == ["indefinite"]
+    )
+
+
+def test_get_enum_values_uses_dotnet_namespace_to_resolve_ambiguous_enum_names(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    data_dir = tmp_path / "openxml"
+    _write_json(
+        data_dir / "schemas" / "ambiguous.json",
+        {
+            "TargetNamespace": "urn:test",
+            "Types": [],
+            "Enums": [
+                {
+                    "Type": "x:ST_Type",
+                    "Name": "RuleValues",
+                    "Facets": [
+                        {
+                            "Value": "none",
+                        },
+                        {
+                            "Value": "all",
+                        },
+                    ],
+                },
+                {
+                    "Type": "o:ST_RType",
+                    "Name": "RuleValues",
+                    "Facets": [
+                        {
+                            "Value": "arc",
+                        },
+                        {
+                            "Value": "callout",
+                        },
+                    ],
+                },
+                {
+                    "Type": "a:ST_ColorSchemeIndex",
+                    "Name": "ColorSchemeIndexValues",
+                    "Facets": [
+                        {
+                            "Value": "dk1",
+                        },
+                        {
+                            "Value": "lt1",
+                        },
+                    ],
+                },
+                {
+                    "Type": "w:ST_ColorSchemeIndex",
+                    "Name": "ColorSchemeIndexValues",
+                    "Facets": [
+                        {
+                            "Value": "dark1",
+                        },
+                        {
+                            "Value": "light1",
+                        },
+                    ],
+                },
+            ],
+        },
+    )
+
+    monkeypatch.setattr(schema_loader, "get_openxml_data_dir", lambda: data_dir)
+    monkeypatch.setattr(schema_loader, "_enum_values", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_values_by_type", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_values_by_name", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_candidates_by_name", None)
+
+    assert schema_loader.get_enum_values("DocumentFormat.OpenXml.Spreadsheet.RuleValues") == [
+        "none",
+        "all",
+    ]
+    assert schema_loader.get_enum_values("DocumentFormat.OpenXml.Vml.Office.RuleValues") == [
+        "arc",
+        "callout",
+    ]
+    assert schema_loader.get_enum_values("DocumentFormat.OpenXml.Drawing.ColorSchemeIndexValues") == [
+        "dk1",
+        "lt1",
+    ]
+    assert (
+        schema_loader.get_enum_values("DocumentFormat.OpenXml.Wordprocessing.ColorSchemeIndexValues")
+        == ["dark1", "light1"]
+    )
+
+
 def test_schematron_registry_loads_from_resolved_data_dir(
     tmp_path: Path,
     monkeypatch,

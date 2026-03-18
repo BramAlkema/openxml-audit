@@ -5,6 +5,8 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .venv/
+.release-venv/
+.release-venv-smoke/
 dist/
 build/
 

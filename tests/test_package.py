@@ -21,28 +21,46 @@ class TestContentTypes:
         """Test parsing default content types."""
         xml = load_fixture_bytes("content_types", "defaults.xml")
 
-        ct = ContentTypes.from_xml(xml)
+        ct, warnings = ContentTypes.from_xml(xml)
 
         assert ct.get_content_type("/test.rels") == "application/vnd.openxmlformats-package.relationships+xml"
         assert ct.get_content_type("/test.xml") == "application/xml"
+        assert warnings == []
 
     def test_parse_override_content_types(self) -> None:
         """Test parsing override content types."""
         xml = load_fixture_bytes("content_types", "override.xml")
 
-        ct = ContentTypes.from_xml(xml)
+        ct, warnings = ContentTypes.from_xml(xml)
 
         # Override takes precedence
         assert ct.get_content_type("/ppt/presentation.xml") == "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"
         # Default still works for other xml files
         assert ct.get_content_type("/other.xml") == "application/xml"
+        assert warnings == []
 
     def test_unknown_extension(self) -> None:
         """Test getting content type for unknown extension."""
         xml = load_fixture_bytes("content_types", "empty.xml")
 
-        ct = ContentTypes.from_xml(xml)
+        ct, warnings = ContentTypes.from_xml(xml)
         assert ct.get_content_type("/test.unknown") is None
+
+    def test_escaped_xml_detected(self) -> None:
+        """Test that escaped XML elements in text content are detected."""
+        xml = b"""<?xml version='1.0' encoding='UTF-8'?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="xml" ContentType="application/xml"/>
+  &lt;Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/&gt;
+</Types>"""
+
+        ct, warnings = ContentTypes.from_xml(xml)
+
+        # The escaped Override should NOT be parsed as an Override element
+        assert "/ppt/slides/slide1.xml" not in ct.overrides
+        # But should produce a warning
+        assert len(warnings) == 1
+        assert "escaped XML markup" in warnings[0]
 
 
 class TestOpenXmlPackage:
