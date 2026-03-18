@@ -470,6 +470,7 @@ def _load_schema_enum_values(
     values_by_name: dict[str, list[str] | None] = {}
     candidates_by_name: dict[str, list[tuple[str, list[str]]]] = {}
     schemas_dir = get_openxml_data_dir() / "schemas"
+    missing = object()
 
     for schema_path in schemas_dir.glob("*.json"):
         with open(schema_path, encoding="utf-8") as f:
@@ -490,8 +491,8 @@ def _load_schema_enum_values(
             if enum_type:
                 candidates_by_name.setdefault(enum_name, []).append((enum_type, facets))
 
-            existing = values_by_name.get(enum_name)
-            if existing is None:
+            existing = values_by_name.get(enum_name, missing)
+            if existing is missing:
                 values_by_name[enum_name] = facets
             elif existing != facets:
                 values_by_name[enum_name] = None
@@ -536,10 +537,16 @@ def _preferred_enum_prefixes(enum_type_name: str) -> list[str]:
         return ["w10"]
     if ".Vml." in enum_type_name:
         return ["v"]
+    if ".Office.CustomUI." in enum_type_name:
+        return ["mso"]
+    if ".Office2010.CustomUI." in enum_type_name:
+        return ["mso14"]
     if ".Drawing.Charts." in enum_type_name:
         return ["c"]
     if ".Drawing.Spreadsheet." in enum_type_name:
         return ["xdr"]
+    if ".Drawing.Diagrams." in enum_type_name:
+        return ["dgm"]
     if ".Office2010.Word." in enum_type_name:
         return ["w14"]
     if ".Wordprocessing." in enum_type_name:

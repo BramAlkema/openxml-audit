@@ -211,6 +211,193 @@ def test_get_enum_values_uses_dotnet_namespace_to_resolve_ambiguous_enum_names(
     )
 
 
+def test_get_enum_values_uses_dotnet_namespace_to_resolve_three_way_short_name_collisions(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    data_dir = tmp_path / "openxml"
+    _write_json(
+        data_dir / "schemas" / "ambiguous.json",
+        {
+            "TargetNamespace": "urn:test",
+            "Types": [],
+            "Enums": [
+                {
+                    "Type": "w:ST_StyleType",
+                    "Name": "StyleValues",
+                    "Facets": [
+                        {"Value": "paragraph"},
+                        {"Value": "character"},
+                        {"Value": "table"},
+                        {"Value": "numbering"},
+                    ],
+                },
+                {
+                    "Type": "w14:ST_Style",
+                    "Name": "StyleValues",
+                    "Facets": [
+                        {"Value": "normal"},
+                        {"Value": "warning"},
+                        {"Value": "error"},
+                    ],
+                },
+                {
+                    "Type": "m:ST_Style",
+                    "Name": "StyleValues",
+                    "Facets": [
+                        {"Value": "p"},
+                        {"Value": "b"},
+                        {"Value": "i"},
+                        {"Value": "bi"},
+                    ],
+                },
+            ],
+        },
+    )
+
+    monkeypatch.setattr(schema_loader, "get_openxml_data_dir", lambda: data_dir)
+    monkeypatch.setattr(schema_loader, "_enum_values", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_values_by_type", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_values_by_name", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_candidates_by_name", None)
+
+    assert schema_loader.get_enum_values(
+        "DocumentFormat.OpenXml.Wordprocessing.StyleValues"
+    ) == ["paragraph", "character", "table", "numbering"]
+    assert schema_loader.get_enum_values(
+        "DocumentFormat.OpenXml.Office2010.Word.StyleValues"
+    ) == ["normal", "warning", "error"]
+    assert schema_loader.get_enum_values(
+        "DocumentFormat.OpenXml.Math.StyleValues"
+    ) == ["p", "b", "i", "bi"]
+
+
+def test_get_enum_values_resolves_diagram_and_customui_short_name_collisions(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    data_dir = tmp_path / "openxml"
+    _write_json(
+        data_dir / "schemas" / "ambiguous.json",
+        {
+            "TargetNamespace": "urn:test",
+            "Types": [],
+            "Enums": [
+                {
+                    "Type": "dgm:ST_Direction",
+                    "Name": "DirectionValues",
+                    "Facets": [
+                        {"Value": "norm"},
+                        {"Value": "rev"},
+                    ],
+                },
+                {
+                    "Type": "p:ST_Direction",
+                    "Name": "DirectionValues",
+                    "Facets": [
+                        {"Value": "horz"},
+                        {"Value": "vert"},
+                    ],
+                },
+                {
+                    "Type": "w:ST_Direction",
+                    "Name": "DirectionValues",
+                    "Facets": [
+                        {"Value": "ltr"},
+                        {"Value": "rtl"},
+                    ],
+                },
+                {
+                    "Type": "mso14:ST_Style",
+                    "Name": "StyleValues",
+                    "Facets": [
+                        {"Value": "normal"},
+                        {"Value": "warning"},
+                        {"Value": "error"},
+                    ],
+                },
+                {
+                    "Type": "w:ST_StyleType",
+                    "Name": "StyleValues",
+                    "Facets": [
+                        {"Value": "paragraph"},
+                        {"Value": "character"},
+                    ],
+                },
+                {
+                    "Type": "m:ST_Style",
+                    "Name": "StyleValues",
+                    "Facets": [
+                        {"Value": "p"},
+                        {"Value": "b"},
+                    ],
+                },
+            ],
+        },
+    )
+
+    monkeypatch.setattr(schema_loader, "get_openxml_data_dir", lambda: data_dir)
+    monkeypatch.setattr(schema_loader, "_enum_values", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_values_by_type", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_values_by_name", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_candidates_by_name", None)
+
+    assert schema_loader.get_enum_values(
+        "DocumentFormat.OpenXml.Drawing.Diagrams.DirectionValues"
+    ) == ["norm", "rev"]
+    assert schema_loader.get_enum_values(
+        "DocumentFormat.OpenXml.Office2010.CustomUI.StyleValues"
+    ) == ["normal", "warning", "error"]
+
+
+def test_shipped_schema_enum_values_resolve_all_live_enum_types(monkeypatch) -> None:
+    data_dir = data_resources.get_openxml_data_dir()
+    actual_dotnet: set[str] = set()
+
+    def walk_types(payload: object) -> None:
+        if isinstance(payload, dict):
+            sdk_type = payload.get("Type")
+            if isinstance(sdk_type, str):
+                marker = "EnumValue<"
+                start = sdk_type.find(marker)
+                while start != -1:
+                    inner = sdk_type[start + len(marker):]
+                    depth = 1
+                    value: list[str] = []
+                    for char in inner:
+                        if char == "<":
+                            depth += 1
+                        elif char == ">":
+                            depth -= 1
+                            if depth == 0:
+                                break
+                        value.append(char)
+                    enum_type = "".join(value)
+                    if enum_type.startswith("DocumentFormat.OpenXml."):
+                        actual_dotnet.add(enum_type)
+                    start = sdk_type.find(marker, start + len(marker))
+            for child in payload.values():
+                walk_types(child)
+            return
+
+        if isinstance(payload, list):
+            for child in payload:
+                walk_types(child)
+
+    for schema_path in (data_dir / "schemas").glob("*.json"):
+        walk_types(json.loads(schema_path.read_text(encoding="utf-8")))
+
+    monkeypatch.setattr(schema_loader, "_enum_values", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_values_by_type", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_values_by_name", None)
+    monkeypatch.setattr(schema_loader, "_schema_enum_candidates_by_name", None)
+
+    unresolved = sorted(
+        enum_type for enum_type in actual_dotnet if schema_loader.get_enum_values(enum_type) is None
+    )
+    assert unresolved == []
+
+
 def test_schematron_registry_loads_from_resolved_data_dir(
     tmp_path: Path,
     monkeypatch,
