@@ -143,15 +143,18 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.check:
-        from scripts.sync_openxml_data import get_latest_commit, get_current_version
+        from scripts.sync_openxml_data import SDK_REF, get_current_ref, get_current_version, get_ref_commit
 
         print("Checking for updates...")
         try:
-            latest = get_latest_commit()
+            latest = get_ref_commit()
             current = get_current_version()
-            print(f"Latest SDK commit: {latest[:12]}")
-            print(f"Current version: {current[:12] if current else 'none'}")
-            if current == latest:
+            current_ref = get_current_ref()
+            print(f"Pinned SDK ref: {SDK_REF}")
+            print(f"Resolved SDK commit: {latest[:12]}")
+            print(f"Current synced ref: {current_ref or 'unknown'}")
+            print(f"Current synced commit: {current[:12] if current else 'none'}")
+            if current == latest and current_ref in (None, SDK_REF):
                 print("Up to date!")
             else:
                 print("Updates available!")

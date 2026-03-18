@@ -2,23 +2,20 @@
 """Sync Open XML SDK data files from Microsoft's GitHub repository.
 
 Downloads the schema definitions and schematron rules needed to generate
-validation constraints.
+validation constraints from a pinned SDK ref.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
-import shutil
-import tempfile
+import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 # Configuration
 SDK_REPO = "dotnet/Open-XML-SDK"
-SDK_BRANCH = "main"
-SDK_BASE_URL = f"https://raw.githubusercontent.com/{SDK_REPO}/{SDK_BRANCH}"
+SDK_REF = "v3.4.1"
+SDK_RAW_BASE_URL = f"https://raw.githubusercontent.com/{SDK_REPO}"
 SDK_API_URL = f"https://api.github.com/repos/{SDK_REPO}"
 
 # Files to download
@@ -33,9 +30,25 @@ DATA_DIR = PROJECT_ROOT / "data" / "openxml"
 SCHEMAS_DIR = DATA_DIR / "schemas"
 
 
-def get_latest_commit() -> str:
-    """Get the latest commit hash from the SDK repository."""
-    url = f"{SDK_API_URL}/commits/{SDK_BRANCH}"
+def _sdk_ref_file() -> Path:
+    """Return the file that records the pinned upstream SDK ref."""
+    return DATA_DIR / ".sdk_ref"
+
+
+def _sdk_commit_file() -> Path:
+    """Return the file that records the resolved upstream SDK commit."""
+    return DATA_DIR / ".sdk_version"
+
+
+def _sdk_base_url(ref: str) -> str:
+    """Build the raw GitHub base URL for a specific SDK ref."""
+    return f"{SDK_RAW_BASE_URL}/{ref}"
+
+
+def get_ref_commit(ref: str = SDK_REF) -> str:
+    """Resolve a tag/branch/ref name to a concrete SDK commit hash."""
+    quoted_ref = urllib.parse.quote(ref, safe="")
+    url = f"{SDK_API_URL}/commits/{quoted_ref}"
     req = urllib.request.Request(url)
     req.add_header("Accept", "application/vnd.github.v3+json")
     req.add_header("User-Agent", "openxml-audit")
@@ -45,18 +58,32 @@ def get_latest_commit() -> str:
         return data["sha"]
 
 
+def get_latest_commit() -> str:
+    """Backward-compatible alias for the pinned SDK ref commit."""
+    return get_ref_commit()
+
+
 def get_current_version() -> str | None:
-    """Get the currently synced SDK version."""
-    version_file = DATA_DIR / ".sdk_version"
+    """Get the currently synced SDK commit hash."""
+    version_file = _sdk_commit_file()
     if version_file.exists():
-        return version_file.read_text().strip()
+        return version_file.read_text(encoding="utf-8").strip()
     return None
 
 
-def save_version(commit_hash: str) -> None:
-    """Save the synced SDK version."""
-    version_file = DATA_DIR / ".sdk_version"
-    version_file.write_text(commit_hash)
+def get_current_ref() -> str | None:
+    """Get the currently synced SDK tag/branch/ref."""
+    ref_file = _sdk_ref_file()
+    if ref_file.exists():
+        return ref_file.read_text(encoding="utf-8").strip()
+    return None
+
+
+def save_version(commit_hash: str, sdk_ref: str = SDK_REF) -> None:
+    """Save the synced SDK ref and resolved commit."""
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    _sdk_commit_file().write_text(commit_hash, encoding="utf-8")
+    _sdk_ref_file().write_text(sdk_ref, encoding="utf-8")
 
 
 def download_file(url: str, dest: Path) -> None:
@@ -69,49 +96,57 @@ def download_file(url: str, dest: Path) -> None:
         dest.write_bytes(response.read())
 
 
-def get_schema_file_list() -> list[str]:
-    """Get list of schema files from the SDK repository."""
-    url = f"{SDK_API_URL}/contents/data/schemas"
+def get_schema_file_list(ref: str = SDK_REF) -> list[str]:
+    """Get list of schema files from the SDK repository for a specific ref."""
+    quoted_ref = urllib.parse.quote(ref, safe="")
+    url = f"{SDK_API_URL}/contents/data/schemas?ref={quoted_ref}"
     req = urllib.request.Request(url)
     req.add_header("Accept", "application/vnd.github.v3+json")
     req.add_header("User-Agent", "openxml-audit")
 
     with urllib.request.urlopen(req, timeout=30) as response:
         data = json.loads(response.read().decode())
-        return [item["name"] for item in data if item["name"].endswith(".json")]
+        return sorted(item["name"] for item in data if item["name"].endswith(".json"))
 
 
-def sync_data(force: bool = False) -> dict[str, int]:
+def sync_data(force: bool = False, ref: str = SDK_REF) -> dict[str, int]:
     """Sync data files from Open XML SDK.
 
     Args:
         force: If True, re-download even if already up to date.
+        ref: Git tag/branch/ref to sync from.
 
     Returns:
         Dictionary with counts of downloaded files.
     """
     print("Checking Open XML SDK repository...")
 
-    latest_commit = get_latest_commit()
+    latest_commit = get_ref_commit(ref)
     current_version = get_current_version()
+    current_ref = get_current_ref()
 
-    print(f"  Latest commit: {latest_commit[:12]}")
-    print(f"  Current version: {current_version[:12] if current_version else 'none'}")
+    print(f"  Pinned ref: {ref}")
+    print(f"  Resolved commit: {latest_commit[:12]}")
+    print(f"  Current ref: {current_ref or 'unknown'}")
+    print(f"  Current commit: {current_version[:12] if current_version else 'none'}")
 
-    if current_version == latest_commit and not force:
+    if current_version == latest_commit and current_ref in (None, ref) and not force:
+        if current_ref != ref:
+            save_version(latest_commit, sdk_ref=ref)
         print("Already up to date!")
         return {"schemas": 0, "data_files": 0, "skipped": True}
 
     # Create data directory
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     SCHEMAS_DIR.mkdir(parents=True, exist_ok=True)
+    sdk_base_url = _sdk_base_url(ref)
 
     stats = {"schemas": 0, "data_files": 0, "skipped": False}
 
     # Download data files
     print("\nDownloading data files...")
     for file_path in DATA_FILES:
-        url = f"{SDK_BASE_URL}/{file_path}"
+        url = f"{sdk_base_url}/{file_path}"
         dest = DATA_DIR / Path(file_path).name
         print(f"  {file_path}...", end=" ", flush=True)
         try:
@@ -123,11 +158,11 @@ def sync_data(force: bool = False) -> dict[str, int]:
 
     # Download schema files
     print("\nDownloading schema files...")
-    schema_files = get_schema_file_list()
+    schema_files = get_schema_file_list(ref=ref)
     print(f"  Found {len(schema_files)} schema files")
 
     for i, filename in enumerate(schema_files, 1):
-        url = f"{SDK_BASE_URL}/data/schemas/{filename}"
+        url = f"{sdk_base_url}/data/schemas/{filename}"
         dest = SCHEMAS_DIR / filename
         print(f"  [{i}/{len(schema_files)}] {filename}...", end=" ", flush=True)
         try:
@@ -138,12 +173,13 @@ def sync_data(force: bool = False) -> dict[str, int]:
             print(f"FAILED: {e}")
 
     # Save version
-    save_version(latest_commit)
+    save_version(latest_commit, sdk_ref=ref)
 
     print(f"\nSync complete!")
     print(f"  Schema files: {stats['schemas']}")
     print(f"  Data files: {stats['data_files']}")
-    print(f"  SDK version: {latest_commit[:12]}")
+    print(f"  SDK ref: {ref}")
+    print(f"  SDK commit: {latest_commit[:12]}")
 
     return stats
 
@@ -165,22 +201,30 @@ def main() -> None:
         action="store_true",
         help="Check for updates without downloading"
     )
+    parser.add_argument(
+        "--ref",
+        default=SDK_REF,
+        help=f"SDK tag/branch/ref to sync from (default: {SDK_REF})",
+    )
 
     args = parser.parse_args()
 
     if args.check:
         print("Checking for updates...")
-        latest = get_latest_commit()
+        latest = get_ref_commit(args.ref)
         current = get_current_version()
-        print(f"Latest: {latest[:12]}")
-        print(f"Current: {current[:12] if current else 'none'}")
-        if current == latest:
+        current_ref = get_current_ref()
+        print(f"Pinned ref: {args.ref}")
+        print(f"Resolved commit: {latest[:12]}")
+        print(f"Current ref: {current_ref or 'unknown'}")
+        print(f"Current commit: {current[:12] if current else 'none'}")
+        if current == latest and current_ref in (None, args.ref):
             print("Up to date!")
         else:
             print("Updates available!")
         return
 
-    sync_data(force=args.force)
+    sync_data(force=args.force, ref=args.ref)
 
 
 if __name__ == "__main__":

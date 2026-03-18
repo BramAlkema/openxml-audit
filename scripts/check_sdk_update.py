@@ -34,6 +34,7 @@ PINNED_FILES = [
     "scripts/corpus/run_parity_snapshot.py",
     "scripts/corpus/check_perf_budget.py",
     "scripts/corpus/compare_to_baseline.py",
+    "scripts/sync_openxml_data.py",
 ]
 
 BASELINE_DIR = PROJECT_ROOT / "data" / "corpus" / "parity_baseline"
