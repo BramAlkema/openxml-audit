@@ -531,6 +531,16 @@ def test_chart_and_spreadsheet_ambiguous_elements_choose_context_appropriate_can
         (
             (
                 f'<c:barChart xmlns:c="{_CHART_NS}">'
+                '<c:grouping val="clustered"/>'
+                '<c:ser><c:idx val="0"/><c:order val="0"/></c:ser>'
+                "</c:barChart>"
+            ),
+            "./c:grouping",
+            "BarGrouping",
+        ),
+        (
+            (
+                f'<c:barChart xmlns:c="{_CHART_NS}">'
                 '<c:ser><c:idx val="0"/><c:order val="0"/></c:ser>'
                 "</c:barChart>"
             ),
@@ -541,10 +551,21 @@ def test_chart_and_spreadsheet_ambiguous_elements_choose_context_appropriate_can
             (
                 f'<c:lineChart xmlns:c="{_CHART_NS}">'
                 '<c:ser><c:idx val="0"/><c:order val="0"/></c:ser>'
+                '<c:trendline><c:order val="2"/></c:trendline>'
                 "</c:lineChart>"
             ),
             "./c:ser",
             "LineChartSeries",
+        ),
+        (
+            (
+                f'<c:lineChart xmlns:c="{_CHART_NS}">'
+                '<c:ser><c:idx val="0"/><c:order val="0"/></c:ser>'
+                '<c:trendline><c:order val="2"/></c:trendline>'
+                "</c:lineChart>"
+            ),
+            "./c:trendline/c:order",
+            "PolynomialOrder",
         ),
         (
             f'<c:lineChart xmlns:c="{_CHART_NS}"><c:extLst/></c:lineChart>',

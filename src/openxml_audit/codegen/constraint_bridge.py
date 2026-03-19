@@ -160,6 +160,8 @@ _WORD_PARAGRAPH_PROPERTIES_CANDIDATE_BY_PARENT: dict[str, str] = {
     "tblStylePr": "StyleParagraphProperties",
 }
 
+_BAR_CHART_LOCALS = {"barChart", "bar3DChart"}
+
 
 def _convert_attribute(
     attr: SdkAttribute,
@@ -785,6 +787,18 @@ def _select_candidate_by_context(
             candidates,
             _CHART_SERIES_CANDIDATE_BY_PARENT.get(parent_local),
         )
+
+    if tag == f"{{{DRAWINGML_CHART}}}grouping":
+        if parent_local in _BAR_CHART_LOCALS:
+            return _select_candidate_by_class_name(candidates, "BarGrouping")
+        if parent_local and parent_local.endswith("Chart"):
+            return _select_candidate_by_class_name(candidates, "Grouping")
+
+    if tag == f"{{{DRAWINGML_CHART}}}order":
+        if parent_local == "ser":
+            return _select_candidate_by_class_name(candidates, "Order")
+        if parent_local == "trendline":
+            return _select_candidate_by_class_name(candidates, "PolynomialOrder")
 
     if tag == f"{{{DRAWINGML_CHART}}}extLst":
         return _select_candidate_by_class_name(

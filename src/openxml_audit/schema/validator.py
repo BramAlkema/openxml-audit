@@ -10,7 +10,7 @@ from lxml import etree
 from openxml_audit.codegen.schema_loader import get_registry as get_schema_registry
 from openxml_audit.context import ElementContext, ValidationContext
 from openxml_audit.errors import FileFormat, ValidationError
-from openxml_audit.namespaces import DRAWINGML, MC, WORDPROCESSINGML
+from openxml_audit.namespaces import DRAWINGML, MC
 from openxml_audit.schema.constraints import get_constraint_for_tag as get_hardcoded_constraint
 from openxml_audit.schema.particle import (
     CompositeParticle,
@@ -396,24 +396,12 @@ class SchemaValidator:
             child_ns = self._extract_namespace(child.tag)
             if child_ns is not None and child_ns in ignorable_namespaces:
                 continue
-            if self._is_version_ignored_child(element.tag, child.tag, context.file_format):
-                continue
             if child.tag == f"{{{MC}}}AlternateContent":
                 children.extend(self._resolve_alternate_content(child, context.file_format))
                 continue
             children.append(child)
 
         return children
-
-    def _is_version_ignored_child(
-        self, parent_tag: str, child_tag: str, file_format: FileFormat
-    ) -> bool:
-        if (
-            parent_tag == f"{{{WORDPROCESSINGML}}}settings"
-            and child_tag == f"{{{WORDPROCESSINGML}}}doNotEmbedSmartTags"
-        ):
-            return file_format.includes_ooxml(FileFormat.OFFICE_2013)
-        return False
 
     def _merge_ignorable_namespaces(
         self, element: etree._Element, inherited: frozenset[str]

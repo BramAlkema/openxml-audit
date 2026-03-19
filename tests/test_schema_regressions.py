@@ -7,7 +7,13 @@ from lxml import etree
 import openxml_audit.schema.validator as schema_validator_module
 from openxml_audit.context import ValidationContext
 from openxml_audit.errors import FileFormat
-from openxml_audit.namespaces import DRAWINGML, DRAWINGML_CHART, MC, WORDPROCESSINGML
+from openxml_audit.namespaces import (
+    DRAWINGML,
+    DRAWINGML_CHART,
+    MC,
+    SPREADSHEETML,
+    WORDPROCESSINGML,
+)
 from openxml_audit.schema.particle import (
     AllParticle,
     ChoiceParticle,
@@ -190,6 +196,51 @@ def test_schema_validator_flags_undeclared_attributes() -> None:
     assert any("attribute is not declared" in error.description for error in context.errors)
 
 
+def test_schema_validator_reports_later_version_attributes_as_undeclared_in_older_formats() -> None:
+    cases = [
+        (
+            etree.fromstring(
+                (
+                    f'<w:tblLook xmlns:w="{WORDPROCESSINGML}" '
+                    'w:val="0A" w:firstRow="1"/>'
+                ).encode()
+            ),
+            "firstRow",
+        ),
+        (
+            etree.fromstring(
+                (
+                    f'<w:cnfStyle xmlns:w="{WORDPROCESSINGML}" '
+                    'w:val="000000000000" w:firstRow="1"/>'
+                ).encode()
+            ),
+            "firstRow",
+        ),
+        (
+            etree.fromstring(
+                (
+                    f'<x:comment xmlns:x="{SPREADSHEETML}" '
+                    'ref="A1" authorId="0" shapeId="1"/>'
+                ).encode()
+            ),
+            "shapeId",
+        ),
+    ]
+
+    validator = SchemaValidator()
+    for element, attr_name in cases:
+        context = ValidationContext(file_format=FileFormat.OFFICE_2007, max_errors=0)
+        constraint = get_constraint_for_tag(element.tag, element)
+        assert constraint is not None
+
+        validator._validate_attributes(element, constraint, context)
+
+        assert any(
+            f"'{attr_name}' attribute is not declared" in error.description
+            for error in context.errors
+        )
+
+
 def test_schema_validator_selects_supplemental_font_constraint_for_a_font() -> None:
     font = etree.fromstring(load_fixture_text("schema", "supplemental_font.xml").encode("utf-8"))
     context = ValidationContext(max_errors=0)
@@ -277,16 +328,16 @@ def test_word_footnotes_allows_multiple_footnote_children() -> None:
     assert not any("Unexpected element 'footnote'" in error.description for error in context.errors)
 
 
-def test_word_settings_allows_do_not_embed_smart_tags_element() -> None:
+def test_word_settings_rejects_do_not_embed_smart_tags_for_office2013() -> None:
     settings = etree.fromstring(
         (f'<w:settings xmlns:w="{WORDPROCESSINGML}"><w:doNotEmbedSmartTags/></w:settings>').encode()
     )
-    context = ValidationContext(max_errors=0)
+    context = ValidationContext(file_format=FileFormat.OFFICE_2013, max_errors=0)
     validator = SchemaValidator()
 
     validator._validate_element(settings, context)
 
-    assert not any(
+    assert any(
         "Unexpected element 'doNotEmbedSmartTags'" in error.description for error in context.errors
     )
 
@@ -353,14 +404,12 @@ def test_chart_style_and_overlap_value_ranges_match_sdk_types() -> None:
 
 def test_spreadsheet_control_rejects_office2010_only_child_in_office2007() -> None:
     control = etree.fromstring(
-        (
-            '<x:control '
-            'xmlns:x="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
-            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
-            'shapeId="1" r:id="rId1">'
-            "<x:controlPr/>"
-            "</x:control>"
-        ).encode()
+        b'<x:control '
+        b'xmlns:x="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+        b'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
+        b'shapeId="1" r:id="rId1">'
+        b"<x:controlPr/>"
+        b"</x:control>"
     )
     context = ValidationContext(max_errors=0, file_format=FileFormat.OFFICE_2007)
     validator = SchemaValidator()
