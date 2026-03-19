@@ -197,6 +197,59 @@ def test_build_type_validator_uses_schema_enum_fallback_for_ambiguous_dotnet_enu
     assert not validator.validate("definitely-not-a-rule", context).is_valid
 
 
+def test_build_type_validator_preserves_enum_type_with_string_metadata(monkeypatch) -> None:
+    monkeypatch.setattr(
+        constraint_bridge_module,
+        "get_enum_values",
+        lambda enum_type: ["auto", "gray"] if enum_type == "DocumentFormat.OpenXml.Drawing.BlackWhiteModeValues" else None,
+    )
+
+    attr = SdkAttribute(
+        qname=":bwMode",
+        property_name="BlackWhiteMode",
+        type_name="EnumValue<DocumentFormat.OpenXml.Drawing.BlackWhiteModeValues>",
+        validators=[
+            {
+                "Name": "StringValidator",
+                "Arguments": [
+                    {
+                        "Name": "IsToken",
+                        "Value": "True",
+                    }
+                ],
+            }
+        ],
+    )
+
+    validator = _build_type_validator(attr)
+    assert validator is not None
+
+    context = ValidationContext()
+    assert validator.validate("auto", context).is_valid
+    assert not validator.validate("bogus", context).is_valid
+
+
+def test_build_type_validator_preserves_list_enum_type_from_sdk_type_name(monkeypatch) -> None:
+    monkeypatch.setattr(
+        constraint_bridge_module,
+        "get_enum_values",
+        lambda enum_type: ["acoustic", "tactile"] if enum_type == "DocumentFormat.OpenXml.EMMA.MediumValues" else None,
+    )
+
+    attr = SdkAttribute(
+        qname="emma:medium",
+        property_name="Medium",
+        type_name="ListValue<EnumValue<DocumentFormat.OpenXml.EMMA.MediumValues>>",
+    )
+
+    validator = _build_type_validator(attr)
+    assert validator is not None
+
+    context = ValidationContext()
+    assert validator.validate("acoustic tactile", context).is_valid
+    assert not validator.validate("acoustic bogus", context).is_valid
+
+
 def test_build_type_validator_preserves_number_list_validators() -> None:
     attr = SdkAttribute(
         qname=":ascender",

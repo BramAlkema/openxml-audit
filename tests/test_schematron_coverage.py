@@ -6,9 +6,14 @@ and that no rules are classified as UNKNOWN.
 
 from __future__ import annotations
 
+from collections import Counter
+
 from openxml_audit.codegen.schematron_bridge import (
+    _get_namespace_map,
+    _resolve_context_to_tag,
     create_constraint_from_schematron,
     get_sdk_constraint_stats,
+    load_sdk_constraints,
 )
 from openxml_audit.codegen.schematron_loader import (
     SchematronType,
@@ -25,6 +30,31 @@ from openxml_audit.semantic.constraints import (
 )
 from openxml_audit.semantic.references import UniqueAttributeValueConstraint
 from openxml_audit.semantic.relationships import RelationshipExistConstraint
+
+
+def _scan_schematron_bridge_rows() -> list[dict[str, object]]:
+    registry = get_registry()
+    registry.load()
+    namespace_map = _get_namespace_map()
+    rows: list[dict[str, object]] = []
+
+    for rule in registry._rules:
+        element_tag = _resolve_context_to_tag(rule.context, namespace_map)
+        constraint = None
+        if element_tag is not None:
+            constraint = create_constraint_from_schematron(rule, namespace_map)
+
+        rows.append(
+            {
+                "context": rule.context,
+                "app": rule.app,
+                "rule_type": rule.rule_type.name,
+                "element_tag": element_tag,
+                "constraint": constraint,
+            }
+        )
+
+    return rows
 
 
 class TestSchematronCoverage:
@@ -105,6 +135,79 @@ class TestSchematronCoverage:
             stats["converted"] + stats["skipped_no_context"] + stats["skipped_no_constraint"]
             == stats["total"]
         )
+
+    def test_shipped_schematron_bridge_totals_match_expected_snapshot(self) -> None:
+        rows = _scan_schematron_bridge_rows()
+        stats = get_sdk_constraint_stats()
+        converted = [row for row in rows if row["constraint"] is not None]
+        no_context = [row for row in rows if row["element_tag"] is None]
+        no_constraint = [
+            row
+            for row in rows
+            if row["element_tag"] is not None and row["constraint"] is None
+        ]
+
+        by_type = Counter(row["rule_type"] for row in rows)
+        converted_by_type = Counter(row["rule_type"] for row in converted)
+
+        assert len(rows) == 948
+        assert len(converted) == 948
+        assert len(no_context) == 0
+        assert len(no_constraint) == 0
+        assert stats["total"] == 948
+        assert stats["converted"] == 948
+        assert stats["skipped_no_context"] == 0
+        assert stats["skipped_no_constraint"] == 0
+        assert by_type == Counter({
+            "AND_CONDITION": 1,
+            "ATTRIBUTES_PRESENT": 14,
+            "ATTRIBUTE_COMPARISON": 6,
+            "ATTRIBUTE_EQUALS": 26,
+            "ATTRIBUTE_NOT_EQUAL": 21,
+            "ATTRIBUTE_VALUE_LENGTH": 191,
+            "ATTRIBUTE_VALUE_PATTERN": 22,
+            "ATTRIBUTE_VALUE_RANGE": 236,
+            "CONDITIONAL_VALUE": 17,
+            "CROSS_PART_COUNT": 53,
+            "ELEMENT_REFERENCE": 23,
+            "OR_CONDITION": 61,
+            "RELATIONSHIP_TYPE": 64,
+            "UNIQUE_ATTRIBUTE": 213,
+        })
+        assert converted_by_type == by_type
+
+    def test_shipped_schematron_bridge_forbidden_fallback_buckets_are_empty(self) -> None:
+        rows = _scan_schematron_bridge_rows()
+        no_context = [
+            row
+            for row in rows
+            if row["element_tag"] is None
+        ]
+        no_constraint = [
+            row
+            for row in rows
+            if row["element_tag"] is not None and row["constraint"] is None
+        ]
+
+        def format_rows(items: list[dict[str, object]]) -> list[str]:
+            return [
+                f"{row['context']} [{row['app']}] {row['rule_type']}"
+                for row in items[:10]
+            ]
+
+        assert no_context == [], format_rows(no_context)
+        assert no_constraint == [], format_rows(no_constraint)
+
+    def test_shipped_schematron_bridge_output_is_deterministic(self) -> None:
+        runs: list[list[tuple[str, str, str]]] = []
+
+        for _ in range(2):
+            rows: list[tuple[str, str, str]] = []
+            for tag, constraint in load_sdk_constraints():
+                rows.append((tag, type(constraint).__name__, repr(constraint)))
+            runs.append(rows)
+
+        assert runs[0] == runs[1]
 
 
 class TestSchematronRuleTypes:

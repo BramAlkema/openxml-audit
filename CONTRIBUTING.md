@@ -24,6 +24,36 @@ ruff format src/ tests/
 mypy src/openxml_audit
 ```
 
+## Schema and Codegen Changes
+
+If your change touches shipped SDK data or the OOXML bridge layer, treat the invariant suites as
+required coverage, not optional spot checks.
+
+This applies to changes in:
+
+- `data/openxml/`
+- `src/openxml_audit/codegen/schema_loader.py`
+- `src/openxml_audit/codegen/constraint_bridge.py`
+- `src/openxml_audit/codegen/schematron_bridge.py`
+- `src/openxml_audit/schema/`
+
+Run at least:
+
+```bash
+pytest tests/test_codegen_data_resources.py \
+  tests/test_codegen_bridge_invariants.py \
+  tests/test_schematron_coverage.py -q
+```
+
+The split is intentional:
+
+- `tests/test_codegen_data_resources.py` keeps fast loader/resource invariants.
+- `tests/test_codegen_bridge_invariants.py` holds the heavier whole-dataset bridge scans.
+- `tests/test_schematron_coverage.py` guards the shipped schematron conversion snapshot.
+
+All three stay in default `pytest` and CI coverage. Do not move them behind an opt-in marker or
+skip them for normal schema/codegen work.
+
 ## Pull Requests
 
 1. Fork the repo and create a branch from `main`

@@ -396,11 +396,21 @@ def get_xsd_type_name(sdk_type: str) -> str:
     return SDK_TYPE_MAP.get(sdk_type, "string")
 
 
+def _extract_wrapped_sdk_type_name(sdk_type: str, wrapper_name: str) -> str | None:
+    wrapper = f"{wrapper_name}<"
+    if sdk_type.startswith(wrapper) and sdk_type.endswith(">"):
+        return sdk_type[len(wrapper):-1]
+    return None
+
+
 def _extract_enum_type_name(sdk_type: str) -> str | None:
     """Extract the full .NET enum type name from an EnumValue<T> type string."""
-    if sdk_type.startswith("EnumValue<") and sdk_type.endswith(">"):
-        return sdk_type[len("EnumValue<"):-1]
-    return None
+    return _extract_wrapped_sdk_type_name(sdk_type, "EnumValue")
+
+
+def _extract_list_item_type_name(sdk_type: str) -> str | None:
+    """Extract the item type from a ListValue<T> type string."""
+    return _extract_wrapped_sdk_type_name(sdk_type, "ListValue")
 
 
 # Lazy-loaded enum value lookup

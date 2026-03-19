@@ -16,11 +16,17 @@ from openxml_audit.codegen.schema_loader import (
     SdkElementType,
     SdkParticle,
     _extract_enum_type_name,
+    _extract_list_item_type_name,
     get_enum_values,
     get_registry,
     get_xsd_type_name,
 )
-from openxml_audit.namespaces import SPREADSHEETML
+from openxml_audit.namespaces import (
+    DRAWINGML_CHART,
+    OFFICE_DOC_MATH,
+    SPREADSHEETML,
+    WORDPROCESSINGML,
+)
 from openxml_audit.schema.constraints import (
     AttributeConstraint,
     ElementConstraint,
@@ -71,6 +77,87 @@ _CUSTOM_NUMBER_TYPE_VALIDATORS: dict[str, XsdTypeValidator] = {
     "w:ST_TwipsMeasure_O12": IntegerTypeValidator(),
     "w:ST_UnsignedDecimalNumber": DecimalTypeValidator(min_value=0),
     "w:ST_UnsignedDecimalNumberMin1": DecimalTypeValidator(min_value=1),
+}
+
+_CHART_SERIES_CANDIDATE_BY_PARENT: dict[str, str] = {
+    "areaChart": "AreaChartSeries",
+    "area3DChart": "AreaChartSeries",
+    "barChart": "BarChartSeries",
+    "bar3DChart": "BarChartSeries",
+    "bubbleChart": "BubbleChartSeries",
+    "doughnutChart": "PieChartSeries",
+    "lineChart": "LineChartSeries",
+    "line3DChart": "LineChartSeries",
+    "ofPieChart": "PieChartSeries",
+    "pieChart": "PieChartSeries",
+    "pie3DChart": "PieChartSeries",
+    "radarChart": "RadarChartSeries",
+    "scatterChart": "ScatterChartSeries",
+    "stockChart": "LineChartSeries",
+    "surfaceChart": "SurfaceChartSeries",
+    "surface3DChart": "SurfaceChartSeries",
+}
+
+_CHART_EXTENSION_LIST_CANDIDATE_BY_PARENT: dict[str, str] = {
+    "areaChart": "AreaChartExtensionList",
+    "area3DChart": "Area3DChartExtensionList",
+    "barChart": "BarChartExtensionList",
+    "bar3DChart": "Bar3DChartExtensionList",
+    "bubbleChart": "BubbleChartExtensionList",
+    "chartSpace": "ChartSpaceExtensionList",
+    "dLbls": "DLblsExtensionList",
+    "lineChart": "LineChartExtensionList",
+    "line3DChart": "Line3DChartExtensionList",
+    "pieChart": "PieChartExtensionList",
+    "pie3DChart": "Pie3DChartExtensionList",
+    "radarChart": "RadarChartExtensionList",
+    "scatterChart": "ScatterChartExtensionList",
+    "stockChart": "StockChartExtensionList",
+    "surfaceChart": "SurfaceChartExtensionList",
+    "surface3DChart": "Surface3DChartExtensionList",
+}
+
+_CHART_EXTENSION_CANDIDATE_BY_PARENT: dict[str, str] = {
+    "areaChart": "AreaChartExtension",
+    "area3DChart": "Area3DChartExtension",
+    "barChart": "BarChartExtension",
+    "bar3DChart": "Bar3DChartExtension",
+    "bubbleChart": "BubbleChartExtension",
+    "chartSpace": "ChartSpaceExtension",
+    "dLbls": "DLblsExtension",
+    "lineChart": "LineChartExtension",
+    "line3DChart": "Line3DChartExtension",
+    "pieChart": "PieChartExtension",
+    "pie3DChart": "Pie3DChartExtension",
+    "radarChart": "RadarChartExtension",
+    "scatterChart": "ScatterChartExtension",
+    "stockChart": "StockChartExtension",
+    "surfaceChart": "SurfaceChartExtension",
+    "surface3DChart": "Surface3DChartExtension",
+}
+
+_SPREADSHEET_EXTENSION_LIST_CANDIDATE_BY_PARENT: dict[str, str] = {
+    "queryTable": "QueryTableExtensionList",
+    "worksheet": "WorksheetExtensionList",
+}
+
+_SPREADSHEET_EXTENSION_CANDIDATE_BY_PARENT: dict[str, str] = {
+    "queryTable": "QueryTableExtension",
+    "worksheet": "WorksheetExtension",
+}
+
+_WORD_RUN_PROPERTIES_CANDIDATE_BY_PARENT: dict[str, str] = {
+    "pPr": "ParagraphMarkRunProperties",
+    "rPrChange": "PreviousParagraphMarkRunProperties",
+    "style": "StyleRunProperties",
+}
+
+_WORD_PARAGRAPH_PROPERTIES_CANDIDATE_BY_PARENT: dict[str, str] = {
+    "lvl": "PreviousParagraphProperties",
+    "p": "ParagraphProperties",
+    "pPrChange": "ParagraphPropertiesExtended",
+    "style": "StyleParagraphProperties",
+    "tblStylePr": "StyleParagraphProperties",
 }
 
 
@@ -168,6 +255,7 @@ def _build_validator_from_group(
     a value is valid if it matches ANY of them.
     """
     is_hex = attr.type_name == "HexBinaryValue"
+    attr_enum_values = _get_enum_values_from_sdk_type(attr.type_name)
     members: list[XsdTypeValidator] = []
 
     for v in validators:
@@ -182,7 +270,10 @@ def _build_validator_from_group(
         elif name == "StringValidator":
             vtype = v.get("Type", "")
             hex_binary = is_hex or "Hex" in vtype
-            members.append(_build_string_validator(args, hex_binary=hex_binary))
+            member = _build_string_validator(args, hex_binary=hex_binary)
+            if attr_enum_values is not None:
+                member = _apply_enumeration_to_string_validator(member, attr_enum_values)
+            members.append(member)
 
         elif name == "NumberValidator":
             members.append(_build_number_validator(args, attr, v))
@@ -197,14 +288,44 @@ def _build_validator_from_group(
 
 def _build_default_type_validator(attr: SdkAttribute) -> XsdTypeValidator | None:
     """Build a validator from the attribute's type name alone."""
-    enum_type = _extract_enum_type_name(attr.type_name)
-    if enum_type is not None:
-        enum_values = get_enum_values(enum_type)
-        if enum_values is not None:
-            return StringTypeValidator(enumeration=enum_values)
+    return _build_type_validator_from_sdk_type_name(attr.type_name)
 
-    xsd_type = get_xsd_type_name(attr.type_name)
+
+def _build_type_validator_from_sdk_type_name(sdk_type_name: str) -> XsdTypeValidator | None:
+    list_item_type = _extract_list_item_type_name(sdk_type_name)
+    if list_item_type is not None:
+        item_validator = _build_type_validator_from_sdk_type_name(list_item_type)
+        return ListTypeValidator(item_validator) if item_validator is not None else None
+
+    enum_values = _get_enum_values_from_sdk_type(sdk_type_name)
+    if enum_values is not None:
+        return StringTypeValidator(enumeration=enum_values)
+
+    xsd_type = get_xsd_type_name(sdk_type_name)
     return get_type_validator(xsd_type)
+
+
+def _get_enum_values_from_sdk_type(sdk_type_name: str) -> list[str] | None:
+    enum_type = _extract_enum_type_name(sdk_type_name)
+    if enum_type is None:
+        return None
+    return get_enum_values(enum_type)
+
+
+def _apply_enumeration_to_string_validator(
+    validator: XsdTypeValidator,
+    enum_values: list[str],
+) -> XsdTypeValidator:
+    if not isinstance(validator, StringTypeValidator):
+        return validator
+
+    pattern = validator.pattern.pattern if validator.pattern is not None else None
+    return StringTypeValidator(
+        min_length=validator.min_length,
+        max_length=validator.max_length,
+        pattern=pattern,
+        enumeration=enum_values,
+    )
 
 
 def _resolve_enum_values(validator: dict, attr: SdkAttribute) -> list[str] | None:
@@ -231,9 +352,7 @@ def _parse_validator_args(v: dict) -> dict[str, str]:
     return args
 
 
-def _build_string_validator(
-    args: dict[str, str], *, hex_binary: bool = False
-) -> XsdTypeValidator:
+def _build_string_validator(args: dict[str, str], *, hex_binary: bool = False) -> XsdTypeValidator:
     """Build a StringTypeValidator from SDK StringValidator arguments.
 
     For HexBinaryValue attributes, SDK Length/MinLength/MaxLength refer to
@@ -597,13 +716,31 @@ def get_element_constraint_for_element(
         _single_candidate_cache[tag] = result
         return result
 
+    elem_type = _get_sdk_element_type_for_element(tag, element)
+    return convert_element_type(elem_type) if elem_type else None
+
+
+def _get_sdk_element_type_for_element(
+    tag: str,
+    element: etree._Element,
+) -> SdkElementType | None:
+    """Resolve the best SDK element type candidate for a specific element instance."""
+    registry = get_registry()
+    candidates = registry.get_element_type_candidates(tag)
+
+    if not candidates:
+        return registry.get_element_type_by_tag(tag)
+
+    if len(candidates) == 1:
+        return candidates[0]
+
     selected_by_context = _select_candidate_by_context(tag, element, candidates)
     if selected_by_context is not None:
-        return convert_element_type(selected_by_context)
+        return selected_by_context
 
     children = [c for c in element if isinstance(c.tag, str)]
     attribute_names = tuple(element.attrib.keys())
-    best: ElementConstraint | None = None
+    best: SdkElementType | None = None
     best_score: tuple[int, int, int, int, int, int] | None = None
 
     for candidate in candidates:
@@ -612,14 +749,13 @@ def get_element_constraint_for_element(
             continue
         score = _score_candidate(constraint, children, attribute_names)
         if best_score is None or score > best_score:
-            best = constraint
+            best = candidate
             best_score = score
 
     if best is not None:
         return best
 
-    elem_type = registry.get_element_type_by_tag(tag)
-    return convert_element_type(elem_type) if elem_type else None
+    return registry.get_element_type_by_tag(tag)
 
 
 def _select_candidate_by_context(
@@ -627,24 +763,98 @@ def _select_candidate_by_context(
     element: etree._Element,
     candidates: list[SdkElementType],
 ) -> SdkElementType | None:
-    if tag != f"{{{SPREADSHEETML}}}c":
+    parent = element.getparent()
+    parent_ns, parent_local = _split_element_tag(parent)
+    grandparent = parent.getparent() if parent is not None else None
+    _grandparent_ns, grandparent_local = _split_element_tag(grandparent)
+
+    if tag == f"{{{SPREADSHEETML}}}c":
+        in_calc_chain = parent_local == "calcChain"
+        for candidate in candidates:
+            is_calc_candidate = (
+                candidate.class_name == "CalculationCell" or "CT_CalcCell" in candidate.name
+            )
+            if in_calc_chain and is_calc_candidate:
+                return candidate
+            if not in_calc_chain and not is_calc_candidate:
+                return candidate
         return None
 
-    parent = element.getparent()
-    parent_local = None
-    if parent is not None and isinstance(parent.tag, str):
-        parent_local = parent.tag.split("}", 1)[-1] if parent.tag.startswith("{") else parent.tag
-    in_calc_chain = parent_local == "calcChain"
+    if tag == f"{{{DRAWINGML_CHART}}}ser":
+        return _select_candidate_by_class_name(
+            candidates,
+            _CHART_SERIES_CANDIDATE_BY_PARENT.get(parent_local),
+        )
 
-    def is_calc_candidate(candidate: SdkElementType) -> bool:
-        return candidate.class_name == "CalculationCell" or "CT_CalcCell" in candidate.name
+    if tag == f"{{{DRAWINGML_CHART}}}extLst":
+        return _select_candidate_by_class_name(
+            candidates,
+            _CHART_EXTENSION_LIST_CANDIDATE_BY_PARENT.get(parent_local),
+        )
 
+    if tag == f"{{{DRAWINGML_CHART}}}ext" and parent_local == "extLst":
+        return _select_candidate_by_class_name(
+            candidates,
+            _CHART_EXTENSION_CANDIDATE_BY_PARENT.get(grandparent_local),
+        )
+
+    if tag == f"{{{SPREADSHEETML}}}extLst":
+        return _select_candidate_by_class_name(
+            candidates,
+            _SPREADSHEET_EXTENSION_LIST_CANDIDATE_BY_PARENT.get(parent_local),
+        )
+
+    if tag == f"{{{SPREADSHEETML}}}ext" and parent_local == "extLst":
+        return _select_candidate_by_class_name(
+            candidates,
+            _SPREADSHEET_EXTENSION_CANDIDATE_BY_PARENT.get(grandparent_local),
+        )
+
+    if tag == f"{{{WORDPROCESSINGML}}}del":
+        if parent_ns == OFFICE_DOC_MATH and parent_local == "ctrlPr":
+            return _select_candidate_by_class_name(candidates, "DeletedMathControl")
+        if any(
+            isinstance(child.tag, str) and child.tag == f"{{{WORDPROCESSINGML}}}rPr"
+            for child in element
+        ):
+            return _select_candidate_by_class_name(candidates, "DeletedMathControl")
+        if parent_local == "trPr":
+            return _select_candidate_by_class_name(candidates, "Deleted")
+        return None
+
+    if tag == f"{{{WORDPROCESSINGML}}}rPr":
+        return _select_candidate_by_class_name(
+            candidates,
+            _WORD_RUN_PROPERTIES_CANDIDATE_BY_PARENT.get(parent_local),
+        )
+
+    if tag == f"{{{WORDPROCESSINGML}}}pPr":
+        return _select_candidate_by_class_name(
+            candidates,
+            _WORD_PARAGRAPH_PROPERTIES_CANDIDATE_BY_PARENT.get(parent_local),
+        )
+
+    return None
+
+
+def _split_element_tag(element: etree._Element | None) -> tuple[str | None, str | None]:
+    if element is None or not isinstance(element.tag, str):
+        return None, None
+    if element.tag.startswith("{"):
+        ns_end = element.tag.index("}")
+        return element.tag[1:ns_end], element.tag[ns_end + 1 :]
+    return None, element.tag
+
+
+def _select_candidate_by_class_name(
+    candidates: list[SdkElementType],
+    class_name: str | None,
+) -> SdkElementType | None:
+    if class_name is None:
+        return None
     for candidate in candidates:
-        if in_calc_chain and is_calc_candidate(candidate):
+        if candidate.class_name == class_name:
             return candidate
-        if not in_calc_chain and not is_calc_candidate(candidate):
-            return candidate
-
     return None
 
 

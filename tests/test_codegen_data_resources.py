@@ -8,6 +8,10 @@ from pathlib import Path
 import openxml_audit.codegen.data_resources as data_resources
 import openxml_audit.codegen.schema_loader as schema_loader
 import openxml_audit.codegen.schematron_loader as schematron_loader
+from tests.bridge_invariant_helpers import (
+    collect_live_enum_type_names,
+    collect_live_enum_type_owners,
+)
 
 
 def _write_json(path: Path, payload: object) -> None:
@@ -351,50 +355,20 @@ def test_get_enum_values_resolves_diagram_and_customui_short_name_collisions(
 
 
 def test_shipped_schema_enum_values_resolve_all_live_enum_types(monkeypatch) -> None:
-    data_dir = data_resources.get_openxml_data_dir()
-    actual_dotnet: set[str] = set()
-
-    def walk_types(payload: object) -> None:
-        if isinstance(payload, dict):
-            sdk_type = payload.get("Type")
-            if isinstance(sdk_type, str):
-                marker = "EnumValue<"
-                start = sdk_type.find(marker)
-                while start != -1:
-                    inner = sdk_type[start + len(marker):]
-                    depth = 1
-                    value: list[str] = []
-                    for char in inner:
-                        if char == "<":
-                            depth += 1
-                        elif char == ">":
-                            depth -= 1
-                            if depth == 0:
-                                break
-                        value.append(char)
-                    enum_type = "".join(value)
-                    if enum_type.startswith("DocumentFormat.OpenXml."):
-                        actual_dotnet.add(enum_type)
-                    start = sdk_type.find(marker, start + len(marker))
-            for child in payload.values():
-                walk_types(child)
-            return
-
-        if isinstance(payload, list):
-            for child in payload:
-                walk_types(child)
-
-    for schema_path in (data_dir / "schemas").glob("*.json"):
-        walk_types(json.loads(schema_path.read_text(encoding="utf-8")))
-
     monkeypatch.setattr(schema_loader, "_enum_values", None)
     monkeypatch.setattr(schema_loader, "_schema_enum_values_by_type", None)
     monkeypatch.setattr(schema_loader, "_schema_enum_values_by_name", None)
     monkeypatch.setattr(schema_loader, "_schema_enum_candidates_by_name", None)
 
-    unresolved = sorted(
-        enum_type for enum_type in actual_dotnet if schema_loader.get_enum_values(enum_type) is None
-    )
+    owners = collect_live_enum_type_owners()
+    unresolved = [
+        (
+            enum_type,
+            owners.get(enum_type, ()),
+        )
+        for enum_type in collect_live_enum_type_names()
+        if schema_loader.get_enum_values(enum_type) is None
+    ]
     assert unresolved == []
 
 
