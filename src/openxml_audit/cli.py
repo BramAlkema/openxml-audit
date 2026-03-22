@@ -377,6 +377,7 @@ def _output_text(results: list, quiet: bool) -> None:
     multi_file = len(results) > 1
     for result in results:
         errors = [e for e in result.errors if e.severity == ValidationSeverity.ERROR]
+        warnings = [e for e in result.errors if e.severity == ValidationSeverity.WARNING]
         if quiet and not errors:
             continue
 
@@ -389,7 +390,15 @@ def _output_text(results: list, quiet: bool) -> None:
             console.print(f"   Path: {error.path}")
             console.print(f"   Node: {error.node or ''}")
 
+        for idx, warning in enumerate(warnings, start=1):
+            console.print(f"W{idx}. {warning.description}")
+            console.print(f"   Part: {warning.part_uri}")
+            console.print(f"   Path: {warning.path}")
+            console.print(f"   Node: {warning.node or ''}")
+
         console.print(f"Errors: {len(errors)}")
+        if warnings:
+            console.print(f"Warnings: {len(warnings)}")
         if multi_file:
             console.print()
 

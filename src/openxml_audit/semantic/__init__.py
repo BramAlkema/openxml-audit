@@ -24,6 +24,12 @@ from openxml_audit.semantic.relationships import (
     RelationshipTypeConstraint,
     validate_part_relationships,
 )
+from openxml_audit.semantic.security import (
+    DangerousUriConstraint,
+    ExternalRelationshipConstraint,
+    validate_active_content,
+    validate_relationship_security,
+)
 from openxml_audit.semantic.validator import (
     SemanticValidator,
     create_pptx_semantic_validator,
@@ -46,6 +52,10 @@ __all__ = [
     "RelationshipTargetExistsConstraint",
     "RelationshipTypeConstraint",
     "validate_part_relationships",
+    "DangerousUriConstraint",
+    "ExternalRelationshipConstraint",
+    "validate_active_content",
+    "validate_relationship_security",
     # References
     "IdTracker",
     "IndexReferenceConstraint",

@@ -58,6 +58,12 @@ from openxml_audit.pptx.themes import ThemeValidator
 from openxml_audit.properties import PropertiesValidator
 from openxml_audit.relationships import get_rels_path
 from openxml_audit.schema.validator import SchemaValidator
+from openxml_audit.semantic.security import (
+    DangerousUriConstraint,
+    ExternalRelationshipConstraint,
+    validate_active_content,
+    validate_relationship_security,
+)
 from openxml_audit.semantic.validator import (
     SemanticValidator,
     create_pptx_semantic_validator,
@@ -142,6 +148,8 @@ class OpenXmlValidator:
             create_spreadsheet_semantic_validator() if semantic_validation else None
         )
         self._strict = strict
+        self._dangerous_uri_constraint = DangerousUriConstraint()
+        self._external_relationship_constraint = ExternalRelationshipConstraint()
 
         # PPTX-specific validators
         self._presentation_validator = PresentationValidator()
@@ -343,7 +351,16 @@ class OpenXmlValidator:
 
     def _validate_package_structure(self, package: OpenXmlPackage) -> list[ValidationError]:
         """Validate the OPC package structure."""
-        return package.validate_structure()
+        errors = package.validate_structure()
+        context = ValidationContext(
+            package=package,
+            file_format=self._file_format,
+            max_errors=self._max_errors,
+            strict=self._strict,
+        )
+        validate_active_content(package, context)
+        errors.extend(context.errors)
+        return errors
 
     def _validate_presentation_structure(
         self, package: OpenXmlPackage
@@ -534,6 +551,13 @@ class OpenXmlValidator:
         """Validate that all internal relationships point to existing parts."""
         errors: list[ValidationError] = []
         relationship_sources = ["/", *package.list_parts()]
+        context = ValidationContext(
+            package=package,
+            file_format=self._file_format,
+            max_errors=self._max_errors,
+            strict=self._strict,
+        )
+        can_scan_relationship_parts = callable(getattr(package, "get_part_content", None))
 
         for source_uri in relationship_sources:
             relationships = (
@@ -542,6 +566,15 @@ class OpenXmlValidator:
                 else package.get_part_relationships(source_uri)
             )
             rels_part_uri = get_rels_path(source_uri)
+
+            if can_scan_relationship_parts:
+                validate_relationship_security(
+                    package,
+                    rels_part_uri,
+                    context,
+                    dangerous_uri_constraint=self._dangerous_uri_constraint,
+                    external_relationship_constraint=self._external_relationship_constraint,
+                )
 
             for rel in relationships:
                 if rel.is_external:
@@ -564,6 +597,7 @@ class OpenXmlValidator:
                     )
                 )
 
+        errors.extend(context.errors)
         return errors
 
     def _validate_properties(self, package: OpenXmlPackage) -> list[ValidationError]:

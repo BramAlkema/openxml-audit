@@ -6,9 +6,9 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
-from openxml_audit import ValidationResult
+from openxml_audit import ValidationError, ValidationResult
 from openxml_audit import cli as cli_module
-from openxml_audit.errors import FileFormat
+from openxml_audit.errors import FileFormat, ValidationErrorType, ValidationSeverity
 
 
 def test_detect_validator_for_odf_extensions() -> None:
@@ -206,3 +206,26 @@ def test_cli_auto_routes_ooxml_to_ooxml_validator(monkeypatch, minimal_pptx: Pat
     assert result.exit_code == 0, result.output
     assert calls and calls[0][0] == "ooxml"
     assert calls[0][2] == FileFormat.OFFICE_2019
+
+
+def test_output_text_includes_warnings() -> None:
+    result = ValidationResult(
+        is_valid=True,
+        errors=[
+            ValidationError(
+                error_type=ValidationErrorType.SEMANTIC,
+                severity=ValidationSeverity.WARNING,
+                description="External relationship target: https://example.com",
+                part_uri="/ppt/slides/_rels/slide1.xml.rels",
+            )
+        ],
+        file_path="sample.pptx",
+        file_format=FileFormat.OFFICE_2019,
+    )
+
+    with cli_module.console.capture() as capture:
+        cli_module._output_text([result], quiet=False)
+
+    output = capture.get()
+    assert "External relationship target: https://example.com" in output
+    assert "Warnings: 1" in output
