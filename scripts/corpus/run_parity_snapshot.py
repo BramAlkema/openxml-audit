@@ -81,6 +81,7 @@ def _run_validator(
     validator = OpenXmlValidator(
         file_format=VERSION_MAP[version],
         max_errors=0,
+        security_validation=False,
         strict=strict,
     )
     result = validator.validate(file_path)

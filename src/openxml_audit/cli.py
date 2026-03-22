@@ -275,6 +275,11 @@ def _odf_validator_kwargs_for_level(
     default=False,
     help="Enable cryptographic verification hook in ODF security-core mode.",
 )
+@click.option(
+    "--ooxml-security/--no-ooxml-security",
+    default=False,
+    help="Enable OOXML security validation checks.",
+)
 def main(
     path: Path,
     file_format: str | None,
@@ -287,6 +292,7 @@ def main(
     odf_level: str,
     odf_schema_routes: Path | None,
     odf_verify_cryptography: bool,
+    ooxml_security: bool,
 ) -> None:
     """Validate Open XML or ODF files against their specifications.
 
@@ -342,6 +348,7 @@ def main(
                 validators[cache_key] = OpenXmlValidator(
                     file_format=format_enum,
                     max_errors=max_errors,
+                    security_validation=ooxml_security,
                     strict=strict,
                 )
             else:

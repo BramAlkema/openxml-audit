@@ -121,6 +121,7 @@ class OpenXmlValidator:
         max_errors: int = 1000,
         schema_validation: bool = True,
         semantic_validation: bool = True,
+        security_validation: bool = False,
         strict: bool = True,
     ):
         """Initialize the validator.
@@ -131,11 +132,14 @@ class OpenXmlValidator:
                        Set to 0 for unlimited.
             schema_validation: Enable schema validation of XML content.
             semantic_validation: Enable semantic validation (relationships, IDs, etc.).
+            security_validation: Enable OOXML security validation (dangerous URIs,
+                                 external relationships, active content).
         """
         self._file_format = file_format
         self._max_errors = max_errors
         self._schema_validation = schema_validation
         self._semantic_validation = semantic_validation
+        self._security_validation = security_validation
         self._schema_validator = SchemaValidator() if schema_validation else None
         self._last_schema_hot_path_metrics: dict[str, float] = {}
         self._semantic_validator_pptx = (
@@ -352,6 +356,8 @@ class OpenXmlValidator:
     def _validate_package_structure(self, package: OpenXmlPackage) -> list[ValidationError]:
         """Validate the OPC package structure."""
         errors = package.validate_structure()
+        if not self._security_validation:
+            return errors
         context = ValidationContext(
             package=package,
             file_format=self._file_format,
@@ -551,13 +557,16 @@ class OpenXmlValidator:
         """Validate that all internal relationships point to existing parts."""
         errors: list[ValidationError] = []
         relationship_sources = ["/", *package.list_parts()]
-        context = ValidationContext(
-            package=package,
-            file_format=self._file_format,
-            max_errors=self._max_errors,
-            strict=self._strict,
-        )
-        can_scan_relationship_parts = callable(getattr(package, "get_part_content", None))
+        context: ValidationContext | None = None
+        can_scan_relationship_parts = False
+        if self._security_validation:
+            context = ValidationContext(
+                package=package,
+                file_format=self._file_format,
+                max_errors=self._max_errors,
+                strict=self._strict,
+            )
+            can_scan_relationship_parts = callable(getattr(package, "get_part_content", None))
 
         for source_uri in relationship_sources:
             relationships = (
@@ -567,7 +576,7 @@ class OpenXmlValidator:
             )
             rels_part_uri = get_rels_path(source_uri)
 
-            if can_scan_relationship_parts:
+            if can_scan_relationship_parts and context is not None:
                 validate_relationship_security(
                     package,
                     rels_part_uri,
@@ -597,7 +606,8 @@ class OpenXmlValidator:
                     )
                 )
 
-        errors.extend(context.errors)
+        if context is not None:
+            errors.extend(context.errors)
         return errors
 
     def _validate_properties(self, package: OpenXmlPackage) -> list[ValidationError]:

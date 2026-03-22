@@ -174,15 +174,30 @@ def test_cli_odf_schema_core_uses_bundled_routes_by_default(
 
 
 def test_cli_auto_routes_ooxml_to_ooxml_validator(monkeypatch, minimal_pptx: Path) -> None:
-    calls: list[tuple[str, str, FileFormat, bool]] = []
+    calls: list[tuple[str, str, FileFormat, bool, bool]] = []
 
     class DummyOpenXmlValidator:
-        def __init__(self, file_format: FileFormat, max_errors: int, strict: bool) -> None:
+        def __init__(
+            self,
+            file_format: FileFormat,
+            max_errors: int,
+            strict: bool,
+            security_validation: bool,
+        ) -> None:
             self.file_format = file_format
             self.strict = strict
+            self.security_validation = security_validation
 
         def validate(self, path: Path) -> ValidationResult:
-            calls.append(("ooxml", str(path), self.file_format, self.strict))
+            calls.append(
+                (
+                    "ooxml",
+                    str(path),
+                    self.file_format,
+                    self.strict,
+                    self.security_validation,
+                )
+            )
             return ValidationResult(
                 is_valid=True,
                 errors=[],
@@ -206,6 +221,49 @@ def test_cli_auto_routes_ooxml_to_ooxml_validator(monkeypatch, minimal_pptx: Pat
     assert result.exit_code == 0, result.output
     assert calls and calls[0][0] == "ooxml"
     assert calls[0][2] == FileFormat.OFFICE_2019
+    assert calls[0][4] is False
+
+
+def test_cli_can_enable_ooxml_security(monkeypatch, minimal_pptx: Path) -> None:
+    calls: list[tuple[FileFormat, bool]] = []
+
+    class DummyOpenXmlValidator:
+        def __init__(
+            self,
+            file_format: FileFormat,
+            max_errors: int,
+            strict: bool,
+            security_validation: bool,
+        ) -> None:
+            del max_errors, strict
+            calls.append((file_format, security_validation))
+            self.file_format = file_format
+
+        def validate(self, path: Path) -> ValidationResult:
+            return ValidationResult(
+                is_valid=True,
+                errors=[],
+                file_path=str(path),
+                file_format=self.file_format,
+            )
+
+    monkeypatch.setattr(cli_module, "OpenXmlValidator", DummyOpenXmlValidator)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli_module.main,
+        [
+            str(minimal_pptx),
+            "--validator",
+            "ooxml",
+            "--ooxml-security",
+            "--output",
+            "json",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert calls == [(FileFormat.OFFICE_2019, True)]
 
 
 def test_output_text_includes_warnings() -> None:

@@ -68,7 +68,10 @@ def test_dangerous_uri_scheme_is_reported_as_error(
         {"ppt/slides/_rels/slide1.xml.rels": updated_rels},
     )
 
-    result = OpenXmlValidator(schema_validation=False).validate(package_path)
+    result = OpenXmlValidator(
+        schema_validation=False,
+        security_validation=True,
+    ).validate(package_path)
 
     assert not result.is_valid
     assert any(
@@ -99,7 +102,10 @@ def test_external_https_relationship_warns_but_stays_valid(
         {"ppt/slides/_rels/slide1.xml.rels": updated_rels},
     )
 
-    result = OpenXmlValidator(schema_validation=False).validate(package_path)
+    result = OpenXmlValidator(
+        schema_validation=False,
+        security_validation=True,
+    ).validate(package_path)
 
     assert result.is_valid
     assert any(
@@ -129,7 +135,10 @@ def test_ssrf_like_relationship_target_is_reported_as_warning(
         {"ppt/slides/_rels/slide1.xml.rels": updated_rels},
     )
 
-    result = OpenXmlValidator(schema_validation=False).validate(package_path)
+    result = OpenXmlValidator(
+        schema_validation=False,
+        security_validation=True,
+    ).validate(package_path)
 
     assert result.is_valid
     assert any(
@@ -155,7 +164,10 @@ def test_active_content_element_is_reported_as_error(
         {"ppt/slides/slide1.xml": updated_slide},
     )
 
-    result = OpenXmlValidator(schema_validation=False).validate(package_path)
+    result = OpenXmlValidator(
+        schema_validation=False,
+        security_validation=True,
+    ).validate(package_path)
 
     assert not result.is_valid
     assert any(
@@ -182,7 +194,10 @@ def test_macro_enabled_main_content_type_is_reported_as_error(
         {"[Content_Types].xml": updated_content_types},
     )
 
-    result = OpenXmlValidator(schema_validation=False).validate(package_path)
+    result = OpenXmlValidator(
+        schema_validation=False,
+        security_validation=True,
+    ).validate(package_path)
 
     assert not result.is_valid
     assert any(
@@ -192,3 +207,28 @@ def test_macro_enabled_main_content_type_is_reported_as_error(
         and error.part_uri == "/[Content_Types].xml"
         for error in result.errors
     )
+
+
+def test_security_validation_is_disabled_by_default(
+    minimal_pptx: Path,
+    tmp_path: Path,
+) -> None:
+    rels = _read_zip_text(minimal_pptx, "ppt/slides/_rels/slide1.xml.rels")
+    updated_rels = _append_relationship(
+        rels,
+        (
+            '    <Relationship Id="rId9" '
+            'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" '
+            'Target="https://example.com" TargetMode="External"/>'
+        ),
+    )
+    package_path = _clone_zip(
+        minimal_pptx,
+        tmp_path / "default-security-disabled.pptx",
+        {"ppt/slides/_rels/slide1.xml.rels": updated_rels},
+    )
+
+    result = OpenXmlValidator(schema_validation=False).validate(package_path)
+
+    assert result.is_valid
+    assert not any(error.id.startswith("Sec_") for error in result.errors)
