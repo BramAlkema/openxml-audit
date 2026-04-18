@@ -37,6 +37,9 @@ dev = [
     "ruff>=0.4.0",
     "mypy>=1.10.0",
 ]
+pptx-lab = [
+    "python-pptx>=1.0.0",
+]
 odf-crypto = [
     "signxml>=4.0.0",
 ]
@@ -49,6 +52,9 @@ Documentation = "https://bramalkema.github.io/openxml-audit/"
 
 [project.scripts]
 openxml-audit = "openxml_audit.cli:main"
+openxml-audit-pptx-check = "openxml_audit.pptx.capabilities:main"
+openxml-audit-pptx-lab = "openxml_audit.pptx.lab:main"
+openxml-audit-pptx-timing-oracle = "openxml_audit.pptx.timing_oracle_deck:main"
 
 [project.entry-points.pytest11]
 openxml-audit = "openxml_audit.pytest_plugin"
