@@ -38,8 +38,14 @@ from openxml_audit.errors import (
     ValidationResult,
     ValidationSeverity,
 )
-from openxml_audit.package import OpenXmlPackage
+from openxml_audit.evidence import CapabilityFinding, EvidenceTier
+from openxml_audit.helpers import (
+    require_valid_pptx,
+    validate_on_save,
+    validation_context,
+)
 from openxml_audit.odf import OdfPackage, OdfValidator
+from openxml_audit.package import OpenXmlPackage
 from openxml_audit.parts import (
     DocumentPart,
     OpenXmlPart,
@@ -51,11 +57,6 @@ from openxml_audit.parts import (
     WorkbookPart,
 )
 from openxml_audit.validator import OpenXmlValidator, is_valid_pptx, validate_pptx
-from openxml_audit.helpers import (
-    require_valid_pptx,
-    validate_on_save,
-    validation_context,
-)
 
 __version__ = "0.4.9"
 
@@ -72,6 +73,9 @@ __all__ = [
     "PackageValidationError",
     # Enums
     "FileFormat",
+    # Evidence ladder (format-neutral)
+    "EvidenceTier",
+    "CapabilityFinding",
     # Package and parts (for advanced usage)
     "OpenXmlPackage",
     "OdfPackage",
