@@ -13,15 +13,19 @@ from __future__ import annotations
 
 import argparse
 import logging
-import shutil
-import tempfile
-import zipfile
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from itertools import count
 from pathlib import Path
 
 from lxml import etree as ET
+
+from openxml_audit.pptx.oracle_deck_scaffold import (
+    NS_P as SCAFFOLD_NS_P,
+)
+from openxml_audit.pptx.oracle_deck_scaffold import (
+    save_oracle_presentation,
+)
 
 try:
     from pptx import Presentation
@@ -40,7 +44,7 @@ except ImportError as exc:  # pragma: no cover - dependency check
 else:
     _PPTX_IMPORT_ERROR = None
 
-NS_P = "http://schemas.openxmlformats.org/presentationml/2006/main"
+NS_P = SCAFFOLD_NS_P
 
 logger = logging.getLogger(__name__)
 
@@ -607,42 +611,6 @@ def _build_timing_xml(
             )
 
     return ET.tostring(timing, encoding="unicode")
-
-
-def _patch_slide_xml_with_timing(slide_xml: bytes, timing_xml: str) -> bytes:
-    slide_root = ET.fromstring(slide_xml)
-    for existing in slide_root.findall(f"{{{NS_P}}}timing"):
-        slide_root.remove(existing)
-    slide_root.append(ET.fromstring(timing_xml.encode("utf-8")))
-    return ET.tostring(
-        slide_root,
-        encoding="utf-8",
-        xml_declaration=True,
-        standalone="yes",
-    )
-
-
-def _inject_timing_map_into_pptx(pptx_path: Path, timing_by_slide_number: dict[int, str]) -> None:
-    temp_dir = Path(tempfile.mkdtemp(prefix="ppt-oracle-starter-"))
-    temp_pptx = temp_dir / pptx_path.name
-    try:
-        with zipfile.ZipFile(pptx_path, "r") as source, zipfile.ZipFile(
-            temp_pptx,
-            "w",
-            compression=zipfile.ZIP_DEFLATED,
-        ) as target:
-            for info in source.infolist():
-                payload = source.read(info.filename)
-                if info.filename.startswith("ppt/slides/slide") and info.filename.endswith(".xml"):
-                    slide_name = Path(info.filename).stem
-                    slide_number = int(slide_name.replace("slide", ""))
-                    timing_xml = timing_by_slide_number.get(slide_number)
-                    if timing_xml:
-                        payload = _patch_slide_xml_with_timing(payload, timing_xml)
-                target.writestr(info, payload)
-        shutil.move(temp_pptx, pptx_path)
-    finally:
-        shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 def _oracle_note(slide, source: str, summary: str) -> None:
@@ -1529,16 +1497,17 @@ def build_oracle_starter_deck(output_path: Path) -> Path:
     ]
     artifacts = [builder(presentation) for builder in slide_builders]
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    presentation.save(output_path)
-
     timing_by_slide_number = {
         slide_number: artifact.timing_xml
         for slide_number, artifact in enumerate(artifacts, start=1)
         if artifact.timing_xml
     }
-    _inject_timing_map_into_pptx(output_path, timing_by_slide_number)
-    return output_path
+    return save_oracle_presentation(
+        presentation,
+        output_path,
+        timing_by_slide_number=timing_by_slide_number,
+        temp_prefix="ppt-oracle-starter-",
+    )
 
 
 def _parse_args() -> argparse.Namespace:

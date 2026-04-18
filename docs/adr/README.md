@@ -83,3 +83,32 @@ Consequences:
   corpus under `docs/<format>_oracle/`, format-specific capability registry
   under `src/openxml_audit/<format>/capabilities.py`, all tiered via the same
   `EvidenceTier` enum — no new abstractions required
+
+### Oracle Deck Scaffold Layer (ADR-003)
+
+The earliest PPTX oracle builders used `python-pptx` directly to create a
+blank deck, place a few shapes, save the package, and then patch authored
+`<p:timing>` XML into the resulting slides. That was a pragmatic way to move
+fast, but it blurred two different concerns:
+
+- the evidence-bearing XML fragments we are actually trying to prove
+- the disposable package scaffold used to hold those fragments
+
+Decision:
+
+- PPTX oracle builders should depend on a first-class scaffold layer under
+  `src/openxml_audit/pptx/oracle_deck_scaffold.py`
+- builders own the authored fragment semantics; the scaffold layer owns
+  package persistence and slide-part patching
+- `python-pptx` is treated as the current scaffold implementation, not as the
+  architectural source of truth for oracle evidence
+- future template-backed or fragment-backed deck scaffolds should slot in
+  behind this seam without forcing every oracle builder to change again
+
+Consequences:
+
+- duplicated zip-patching logic stays in one place
+- the code makes the current compromise explicit instead of letting it leak
+  into every builder
+- committed oracle evidence can move toward checked-in templates or lower-level
+  OOXML package writers without another broad refactor

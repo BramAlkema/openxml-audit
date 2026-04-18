@@ -39,17 +39,17 @@ else:
 
 from lxml import etree as ET
 
+from openxml_audit.pptx.oracle_deck_scaffold import save_oracle_presentation
 from openxml_audit.pptx.oracle_starter_deck import (
-    BuildEntry,
     NS_P,
     SLIDE_HEIGHT_IN,
     SLIDE_WIDTH_IN,
+    BuildEntry,
     StartCondition,
     _add_oracle_marker,
     _add_textbox,
     _build_anim_motion,
     _build_effect_par,
-    _inject_timing_map_into_pptx,
     p_elem,
     p_sub,
 )
@@ -768,10 +768,12 @@ def build_timing_oracle_deck(output_path: Path) -> Path:
         if timing_xml:
             timing_by_slide_number[slide_number] = timing_xml
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    presentation.save(output_path)
-    _inject_timing_map_into_pptx(output_path, timing_by_slide_number)
-    return output_path
+    return save_oracle_presentation(
+        presentation,
+        output_path,
+        timing_by_slide_number=timing_by_slide_number,
+        temp_prefix="ppt-timing-oracle-",
+    )
 
 
 def _parse_args() -> argparse.Namespace:
