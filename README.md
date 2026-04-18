@@ -19,10 +19,30 @@ A Python port of Microsoft's [Open XML SDK](https://github.com/OfficeDev/Open-XM
 
 Also supports OASIS OpenDocument Format (ODT/ODS/ODP) with staged conformance levels.
 
+## Evidence ladder
+
+Validation is the floor tier. Whether a file *survives* depends on more than ECMA legality — it also has to load in the target app, survive a save, behave correctly at runtime, and ideally match what the app itself would author. `openxml-audit` organizes this as an evidence ladder (`openxml_audit.EvidenceTier`):
+
+1. **`schema-valid`** — parses against ECMA/OASIS schemas *(this is what `openxml-audit validate` checks)*
+2. **`loadable`** — the target app opens without repair
+3. **`roundtrip-preserved`** — the app's save does not rewrite the intent
+4. **`slideshow-verified`** — runtime behavior matches intent
+5. **`ui-authored`** — the app itself produced this structure
+
+Tiers 2–5 are backed by curated corpora of target-app-authored XML. The first corpus lives at [`docs/pptx_oracle/`](docs/pptx_oracle/README.md) — PowerPoint animation/timing, where "schema-valid but silently rewritten" is the dominant failure mode. DOCX and XLSX corpora can follow the same layout when the research starts.
+
+```python
+from openxml_audit import EvidenceTier
+from openxml_audit.pptx import check_capability
+
+check_capability("pptx.anim.effect.entr.fade", minimum_tier=EvidenceTier.LOADABLE)
+```
+
 ## Features
 
 - **OOXML Validation**: Package structure, schema, semantic, properties, and format-specific checks for PPTX/DOCX/XLSX — 100% parity with Open XML SDK v3.4.1 without the .NET dependency
 - **ODF Validation**: Staged conformance levels — foundation, schema-core (Relax NG), semantic-core, and security-core for ODT/ODS/ODP
+- **Evidence ladder**: Validation is the floor tier. Curated PPTX corpora (`docs/pptx_oracle/`) verify loadability, roundtrip preservation, and runtime behavior above it — for features like animation/timing where "schema-valid" isn't enough
 - **Fast**: 1.2x the .NET SDK cold, 2.2x warm — validates a 798K DOCX in 101ms
 - **pytest Plugin**: `assert_valid_pptx`, `assert_valid_docx`, `assert_valid_xlsx`, `assert_valid_odf` — zero config
 - **CI Ready**: GitHub Action, pre-commit hook, and parallel batch validation
@@ -123,6 +143,13 @@ validator = OpenXmlValidator(
 )
 result = validator.validate("presentation.pptx")
 ```
+
+## Documentation
+
+- [ADRs](docs/adr/README.md) — evidence-ladder mission and PPTX evidence ownership
+- [PPTX oracle corpus](docs/pptx_oracle/README.md) — curated PowerPoint timing
+  fixtures and XML-first methodology
+- [Parity contract](docs/parity_contract.md) — SDK calibration and drift rules
 
 ## ODF Validation Depth
 
