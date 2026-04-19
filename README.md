@@ -351,7 +351,7 @@ Options:
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/BramAlkema/openxml-audit
-    rev: v0.4.9
+    rev: v0.5.0
     hooks:
       - id: openxml-audit
 ```

@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-04-20
+
+### Added
+- committed PPTX oracle deck scaffolds under `data/pptx_oracle/scaffolds/`,
+  shipped inside the wheel so oracle starter decks can be materialized from
+  packaged assets instead of scratch-only local files
+- scaffold materialization helpers for committed PPTX oracle packages, with
+  coverage asserting the wheel contains the expected PowerPoint package parts
+
+### Changed
+- `build_oracle_starter_deck()` and `build_timing_oracle_deck()` now rebuild
+  decks from scaffold package trees instead of requiring `python-pptx` at
+  runtime
+- PPTX oracle builder and lab modules now target the shipped scaffold data as
+  their runtime source of truth, while keeping the maintenance path available
+  for scaffold regeneration
+- repository linting was normalized so `ruff check .` passes again across the
+  shipped package, scripts, and tests
+
 ## [0.4.3] - 2026-03-12
 
 ### Added
@@ -108,7 +127,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integration helpers: context managers, decorators, pytest fixtures
 - Support for Office 2007 through Microsoft 365 format versions
 
-[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.9...v0.5.0
 [0.4.3]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.0...v0.4.1
