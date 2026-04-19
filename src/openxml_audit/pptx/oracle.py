@@ -14,7 +14,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from lxml import etree as ET
+from lxml import etree
 
 P_NS = "http://schemas.openxmlformats.org/presentationml/2006/main"
 NS = {"p": P_NS}
@@ -114,15 +114,15 @@ def _collect_pptx_paths(inputs: Sequence[Path]) -> list[Path]:
     return unique
 
 
-def _pretty_xml(element: ET._Element) -> str:
-    return ET.tostring(
+def _pretty_xml(element: etree._Element) -> str:
+    return etree.tostring(
         element,
         encoding="unicode",
         pretty_print=True,
     )
 
 
-def _normalize_timing_tree(timing: ET._Element) -> ET._Element:
+def _normalize_timing_tree(timing: etree._Element) -> etree._Element:
     normalized = deepcopy(timing)
     id_map: dict[str, str] = {}
     grp_map: dict[str, str] = {}
@@ -147,14 +147,14 @@ def _normalize_timing_tree(timing: ET._Element) -> ET._Element:
         if "spid" in element.attrib:
             element.set("spid", map_spid(element.get("spid", "")))
 
-        if ET.QName(element).localname == "tn" and "val" in element.attrib:
+        if etree.QName(element).localname == "tn" and "val" in element.attrib:
             raw = element.get("val", "")
             element.set("val", map_id(raw))
 
     return normalized
 
 
-def _collect_unique_text(elements: Iterable[ET._Element]) -> list[str]:
+def _collect_unique_text(elements: Iterable[etree._Element]) -> list[str]:
     seen: set[str] = set()
     values: list[str] = []
     for element in elements:
@@ -166,7 +166,10 @@ def _collect_unique_text(elements: Iterable[ET._Element]) -> list[str]:
     return values
 
 
-def _collect_unique_attrs(elements: Iterable[ET._Element], attribute: str) -> list[str]:
+def _collect_unique_attrs(
+    elements: Iterable[etree._Element],
+    attribute: str,
+) -> list[str]:
     seen: set[str] = set()
     values: list[str] = []
     for element in elements:
@@ -201,17 +204,23 @@ def _pattern_family_signature(pattern: EffectPattern) -> str:
     )
 
 
-def _summarize_effect_patterns(slide_xml: ET._Element, slide_file: str) -> list[EffectPattern]:
+def _summarize_effect_patterns(
+    slide_xml: etree._Element,
+    slide_file: str,
+) -> list[EffectPattern]:
     patterns: list[EffectPattern] = []
     containers = slide_xml.xpath(
-        ".//p:timing//p:cTn[@presetClass or @nodeType='clickEffect' or @nodeType='withEffect' or @nodeType='afterEffect']",
+        (
+            ".//p:timing//p:cTn[@presetClass or @nodeType='clickEffect' "
+            "or @nodeType='withEffect' or @nodeType='afterEffect']"
+        ),
         namespaces=NS,
     )
     for ctn in containers:
         child_tn_lst = ctn.find("p:childTnLst", NS)
         child_tags = []
         if child_tn_lst is not None:
-            child_tags = [ET.QName(child).localname for child in child_tn_lst]
+            child_tags = [etree.QName(child).localname for child in child_tn_lst]
 
         pattern = EffectPattern(
             slide_file=slide_file,
@@ -222,7 +231,10 @@ def _summarize_effect_patterns(slide_xml: ET._Element, slide_file: str) -> list[
             preset_subtype=ctn.get("presetSubtype"),
             grp_id=ctn.get("grpId"),
             child_tags=child_tags,
-            target_shapes=_collect_unique_attrs(ctn.xpath(".//p:spTgt", namespaces=NS), "spid"),
+            target_shapes=_collect_unique_attrs(
+                ctn.xpath(".//p:spTgt", namespaces=NS),
+                "spid",
+            ),
             attr_names=_collect_unique_text(
                 ctn.xpath(".//p:attrNameLst/p:attrName", namespaces=NS)
             ),
@@ -244,7 +256,7 @@ def _summarize_effect_patterns(slide_xml: ET._Element, slide_file: str) -> list[
 
 
 def _summarize_slide(slide_file: str, slide_xml_text: bytes) -> SlideOracle:
-    slide_xml = ET.fromstring(slide_xml_text)
+    slide_xml = etree.fromstring(slide_xml_text)
     timing = slide_xml.find("p:timing", NS)
     tag_counts = Counter()
     for tag in TIMING_TAGS:
@@ -254,7 +266,11 @@ def _summarize_slide(slide_file: str, slide_xml_text: bytes) -> SlideOracle:
         has_timing=timing is not None,
         has_build_list=bool(slide_xml.xpath(".//p:timing/p:bldLst", namespaces=NS)),
         tag_counts=dict(tag_counts),
-        effect_patterns=_summarize_effect_patterns(slide_xml, slide_file) if timing is not None else [],
+        effect_patterns=(
+            _summarize_effect_patterns(slide_xml, slide_file)
+            if timing is not None
+            else []
+        ),
     )
 
 
@@ -274,7 +290,7 @@ def _extract_deck(deck_path: Path, deck_output_dir: Path) -> DeckOracle:
             slide_summary = _summarize_slide(slide_name, slide_xml_text)
             slides.append(slide_summary)
 
-            slide_xml = ET.fromstring(slide_xml_text)
+            slide_xml = etree.fromstring(slide_xml_text)
             timing = slide_xml.find("p:timing", NS)
             if timing is None:
                 continue

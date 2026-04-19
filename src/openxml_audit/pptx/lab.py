@@ -7,12 +7,12 @@ import difflib
 import json
 import sys
 import zipfile
+from collections.abc import Callable, Sequence
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Callable, Sequence
 
-from lxml import etree as ET
+from lxml import etree
 
 from openxml_audit.pptx.oracle import (
     _build_pattern_index,
@@ -249,8 +249,8 @@ def write_pptx_snapshot(pptx_path: Path, output_dir: Path) -> dict[str, object]:
 
 
 def _extract_slide_views(slide_bytes: bytes) -> dict[str, object]:
-    parser = ET.XMLParser(remove_blank_text=True, recover=True)
-    slide_xml = ET.fromstring(slide_bytes, parser=parser)
+    parser = etree.XMLParser(remove_blank_text=True, recover=True)
+    slide_xml = etree.fromstring(slide_bytes, parser=parser)
     timings = []
     for label, timing in _iter_slide_timing_nodes(slide_xml):
         timings.append(
@@ -266,8 +266,8 @@ def _extract_slide_views(slide_bytes: bytes) -> dict[str, object]:
     }
 
 
-def _iter_slide_timing_nodes(slide_xml: ET._Element) -> list[tuple[str, ET._Element]]:
-    nodes: list[tuple[str, ET._Element]] = []
+def _iter_slide_timing_nodes(slide_xml: etree._Element) -> list[tuple[str, etree._Element]]:
+    nodes: list[tuple[str, etree._Element]] = []
 
     direct_timing = slide_xml.find("p:timing", namespaces=NS)
     if direct_timing is not None:
@@ -310,9 +310,9 @@ def _load_package_parts(pptx_path: Path) -> dict[str, dict[str, bytes]]:
 
 def _canonicalize_xml(data: bytes) -> bytes:
     try:
-        parser = ET.XMLParser(remove_blank_text=True, recover=True)
-        root = ET.fromstring(data, parser=parser)
-        return ET.tostring(root, method="c14n")
+        parser = etree.XMLParser(remove_blank_text=True, recover=True)
+        root = etree.fromstring(data, parser=parser)
+        return etree.tostring(root, method="c14n")
     except Exception:
         return data.strip()
 
@@ -355,12 +355,12 @@ def _write_part_diff(
 
 
 def _pretty_part_text(data: bytes) -> str:
-    parser = ET.XMLParser(remove_blank_text=True, recover=True)
+    parser = etree.XMLParser(remove_blank_text=True, recover=True)
     try:
-        root = ET.fromstring(data, parser=parser)
-    except ET.XMLSyntaxError:
+        root = etree.fromstring(data, parser=parser)
+    except etree.XMLSyntaxError:
         return data.decode("utf-8", errors="replace")
-    return ET.tostring(root, encoding="unicode", pretty_print=True)
+    return etree.tostring(root, encoding="unicode", pretty_print=True)
 
 
 def _sanitize_part_name(name: str) -> str:

@@ -4,7 +4,7 @@ import sys
 import zipfile
 from pathlib import Path
 
-from lxml import etree as ET
+from lxml import etree
 
 from openxml_audit.pptx.lab import (
     _forward_legacy_main,
@@ -19,7 +19,7 @@ def _write_test_pptx(path: Path, slide_xml: str) -> None:
 
 
 def test_iter_slide_timing_nodes_includes_direct_and_alternate_content() -> None:
-    slide_xml = ET.fromstring(
+    slide_xml = etree.fromstring(
         """
         <p:sld
           xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"

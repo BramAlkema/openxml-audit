@@ -104,6 +104,8 @@ Decision:
   architectural source of truth for oracle evidence
 - future template-backed or fragment-backed deck scaffolds should slot in
   behind this seam without forcing every oracle builder to change again
+- committed PPTX oracle decks may be materialized directly from checked-in
+  scaffold package trees under `data/pptx_oracle/scaffolds/`
 
 Consequences:
 

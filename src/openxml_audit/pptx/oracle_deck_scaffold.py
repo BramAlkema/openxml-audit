@@ -1,11 +1,9 @@
 """Shared scaffold helpers for PPTX oracle decks.
 
-Oracle builders should author the evidence-bearing XML fragments directly and
-depend on this module for package persistence. The current implementation saves
-through a python-pptx presentation object and then patches authored timing XML
-into the package, but the deck builders should not care whether the scaffold
-ultimately comes from python-pptx, a checked-in template, or a lower-level XML
-package writer.
+Runtime oracle builders should materialize committed scaffold packages from
+``data/pptx_oracle/scaffolds``. A maintenance-only path still exists for
+saving through a python-pptx presentation object and then patching authored
+timing XML into the package, which is useful when regenerating scaffolds.
 """
 
 from __future__ import annotations
@@ -16,18 +14,57 @@ import zipfile
 from collections.abc import Mapping
 from pathlib import Path
 
-from lxml import etree as ET
+from lxml import etree
 
 NS_P = "http://schemas.openxmlformats.org/presentationml/2006/main"
+_INSTALLED_PACKAGE_SCAFFOLD_ROOT = (
+    Path(__file__).resolve().parents[1] / "data" / "pptx_oracle" / "scaffolds"
+)
+_SOURCE_TREE_SCAFFOLD_ROOT = (
+    Path(__file__).resolve().parents[3] / "data" / "pptx_oracle" / "scaffolds"
+)
+
+
+def _candidate_scaffold_roots() -> tuple[Path, ...]:
+    return tuple(
+        root
+        for root in (_INSTALLED_PACKAGE_SCAFFOLD_ROOT, _SOURCE_TREE_SCAFFOLD_ROOT)
+        if root.is_dir()
+    )
+
+
+def scaffold_root(name: str) -> Path:
+    """Return the on-disk directory containing a committed PPTX scaffold."""
+    for root in _candidate_scaffold_roots():
+        path = root / name
+        if path.is_dir():
+            return path
+    raise FileNotFoundError(f"Unknown PPTX oracle scaffold: {name}")
+
+
+def materialize_scaffold_package(scaffold_name: str, output_path: Path) -> Path:
+    """Build a PPTX by zipping a committed scaffold directory."""
+    root = scaffold_root(scaffold_name)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    files = sorted(path for path in root.rglob("*") if path.is_file())
+    with zipfile.ZipFile(
+        output_path,
+        "w",
+        compression=zipfile.ZIP_DEFLATED,
+        compresslevel=9,
+    ) as archive:
+        for path in files:
+            archive.write(path, path.relative_to(root).as_posix())
+    return output_path
 
 
 def patch_slide_xml_with_timing(slide_xml: bytes, timing_xml: str) -> bytes:
     """Replace the slide's ``<p:timing>`` block with authored timing XML."""
-    slide_root = ET.fromstring(slide_xml)
+    slide_root = etree.fromstring(slide_xml)
     for existing in slide_root.findall(f"{{{NS_P}}}timing"):
         slide_root.remove(existing)
-    slide_root.append(ET.fromstring(timing_xml.encode("utf-8")))
-    return ET.tostring(
+    slide_root.append(etree.fromstring(timing_xml.encode("utf-8")))
+    return etree.tostring(
         slide_root,
         encoding="utf-8",
         xml_declaration=True,
@@ -52,7 +89,10 @@ def inject_timing_map_into_pptx(
         ) as target:
             for info in source.infolist():
                 payload = source.read(info.filename)
-                if info.filename.startswith("ppt/slides/slide") and info.filename.endswith(".xml"):
+                if (
+                    info.filename.startswith("ppt/slides/slide")
+                    and info.filename.endswith(".xml")
+                ):
                     slide_name = Path(info.filename).stem
                     slide_number = int(slide_name.replace("slide", ""))
                     timing_xml = timing_by_slide_number.get(slide_number)
@@ -89,6 +129,8 @@ def save_oracle_presentation(
 __all__ = [
     "NS_P",
     "inject_timing_map_into_pptx",
+    "materialize_scaffold_package",
     "patch_slide_xml_with_timing",
     "save_oracle_presentation",
+    "scaffold_root",
 ]

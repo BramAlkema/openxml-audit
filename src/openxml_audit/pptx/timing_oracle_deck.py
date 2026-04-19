@@ -37,12 +37,11 @@ except ImportError as exc:  # pragma: no cover - dependency check
 else:
     _PPTX_IMPORT_ERROR = None
 
-from lxml import etree as ET
+from lxml import etree
 
-from openxml_audit.pptx.oracle_deck_scaffold import save_oracle_presentation
+from openxml_audit.pptx.oracle_deck_scaffold import materialize_scaffold_package
 from openxml_audit.pptx.oracle_starter_deck import (
     NS_P,
-    SLIDE_HEIGHT_IN,
     SLIDE_WIDTH_IN,
     BuildEntry,
     StartCondition,
@@ -262,7 +261,7 @@ def _motion_effect(
 
 def _apply_native_timing_overrides(
     *,
-    par: ET._Element,
+    par: etree._Element,
     repeat_duration_ms: int | None = None,
     restart: str | None = None,
     end_triggers: list[Trigger] | None = None,
@@ -296,7 +295,7 @@ def _apply_native_timing_overrides(
 
 def _append_end_conditions(
     *,
-    end_cond_lst: ET._Element,
+    end_cond_lst: etree._Element,
     end_triggers: list[Trigger],
     default_target_shape: str | None,
 ) -> None:
@@ -394,7 +393,7 @@ def _build_auto_timing_xml(
                 animBg="1",
             )
 
-    return ET.tostring(timing, encoding="unicode")
+    return etree.tostring(timing, encoding="unicode")
 
 
 def _title_slide(presentation) -> str | None:
@@ -430,7 +429,10 @@ def _title_slide(presentation) -> str | None:
         5.2,
         11.2,
         0.7,
-        "Run in slideshow mode. Use the buttons on each slide instead of blank-area clicks so the trigger path stays explicit.",
+        (
+            "Run in slideshow mode. Use the buttons on each slide instead of "
+            "blank-area clicks so the trigger path stays explicit."
+        ),
         font_size=15,
         color=(75, 85, 99),
         align=PP_ALIGN.CENTER,
@@ -443,7 +445,10 @@ def _end_offset_slide(presentation) -> str:
     _note(
         slide,
         "Time End Condition",
-        "On slide entry, the control should finish the lane; the lower runner should stop at the 2s marker.",
+        (
+            "On slide entry, the control should finish the lane; the lower runner "
+            "should stop at the 2s marker."
+        ),
     )
 
     top_lane = 2.15
@@ -452,7 +457,13 @@ def _end_offset_slide(presentation) -> str:
     _add_lane_label(slide, top=bottom_lane, text="end=2s")
     _add_track(slide, top=top_lane)
     _add_track(slide, top=bottom_lane)
-    _add_oracle_marker(slide, left=START_LEFT_IN + (LANE_WIDTH_IN * 0.4), top=1.82, height=2.5, label="2s")
+    _add_oracle_marker(
+        slide,
+        left=START_LEFT_IN + (LANE_WIDTH_IN * 0.4),
+        top=1.82,
+        height=2.5,
+        label="2s",
+    )
     _add_oracle_marker(slide, left=START_LEFT_IN + LANE_WIDTH_IN, top=1.82, height=2.5, label="5s")
 
     control = _add_runner(
@@ -507,7 +518,11 @@ def _end_click_slide(presentation) -> str:
     _note(
         slide,
         "Click End Condition",
-        "On slide entry, both runners should start. Click STOP while they are moving; the lower runner should stop immediately while the control keeps going.",
+        (
+            "On slide entry, both runners should start. Click STOP while they are "
+            "moving; the lower runner should stop immediately while the control "
+            "keeps going."
+        ),
     )
     stop_button = _add_button(
         slide,
@@ -524,7 +539,13 @@ def _end_click_slide(presentation) -> str:
     _add_lane_label(slide, top=bottom_lane, text="stop.click")
     _add_track(slide, top=top_lane)
     _add_track(slide, top=bottom_lane)
-    _add_oracle_marker(slide, left=START_LEFT_IN + LANE_WIDTH_IN, top=1.82, height=2.5, label="finish")
+    _add_oracle_marker(
+        slide,
+        left=START_LEFT_IN + LANE_WIDTH_IN,
+        top=1.82,
+        height=2.5,
+        label="finish",
+    )
 
     control = _add_runner(
         slide,
@@ -579,7 +600,10 @@ def _repeat_duration_slide(presentation) -> str:
     _note(
         slide,
         "Repeat Duration",
-        "On slide entry, both runners should loop the short hop; the lower runner should stop after about 2.5 seconds.",
+        (
+            "On slide entry, both runners should loop the short hop; the lower "
+            "runner should stop after about 2.5 seconds."
+        ),
     )
 
     top_lane = 2.15
@@ -639,7 +663,10 @@ def _restart_overlap_slide(presentation) -> str:
     _note(
         slide,
         "Restart During Active Playback",
-        "On slide entry, a second begin fires at 1s. Only 'always' should restart mid-run; the other two should keep their first run.",
+        (
+            "On slide entry, a second begin fires at 1s. Only 'always' should "
+            "restart mid-run; the other two should keep their first run."
+        ),
     )
 
     lane_tops = (1.95, 3.15, 4.35)
@@ -658,7 +685,13 @@ def _restart_overlap_slide(presentation) -> str:
                 fill_rgb=fill,
             )
         )
-    _add_oracle_marker(slide, left=START_LEFT_IN + (LANE_WIDTH_IN * 0.25), top=1.62, height=3.35, label="1s")
+    _add_oracle_marker(
+        slide,
+        left=START_LEFT_IN + (LANE_WIDTH_IN * 0.25),
+        top=1.62,
+        height=3.35,
+        label="1s",
+    )
 
     start_conditions = (
         StartCondition(delay_ms=0),
@@ -696,7 +729,11 @@ def _restart_idle_slide(presentation) -> str:
     _note(
         slide,
         "Restart After Idle",
-        "On slide entry, a second begin fires at 5s after the first run is over. 'always' and 'whenNotActive' should run again; 'never' should stay put.",
+        (
+            "On slide entry, a second begin fires at 5s after the first run is "
+            "over. 'always' and 'whenNotActive' should run again; 'never' should "
+            "stay put."
+        ),
     )
 
     lane_tops = (1.95, 3.15, 4.35)
@@ -715,7 +752,13 @@ def _restart_idle_slide(presentation) -> str:
                 fill_rgb=fill,
             )
         )
-    _add_oracle_marker(slide, left=START_LEFT_IN + LANE_WIDTH_IN, top=1.62, height=3.35, label="finish")
+    _add_oracle_marker(
+        slide,
+        left=START_LEFT_IN + LANE_WIDTH_IN,
+        top=1.62,
+        height=3.35,
+        label="finish",
+    )
 
     start_conditions = (
         StartCondition(delay_ms=0),
@@ -749,31 +792,7 @@ def _restart_idle_slide(presentation) -> str:
 
 
 def build_timing_oracle_deck(output_path: Path) -> Path:
-    _require_python_pptx()
-    presentation = Presentation()
-    presentation.slide_width = Inches(SLIDE_WIDTH_IN)
-    presentation.slide_height = Inches(SLIDE_HEIGHT_IN)
-
-    timing_by_slide_number: dict[int, str] = {}
-    builders = (
-        _title_slide,
-        _end_offset_slide,
-        _end_click_slide,
-        _repeat_duration_slide,
-        _restart_overlap_slide,
-        _restart_idle_slide,
-    )
-    for slide_number, builder in enumerate(builders, start=1):
-        timing_xml = builder(presentation)
-        if timing_xml:
-            timing_by_slide_number[slide_number] = timing_xml
-
-    return save_oracle_presentation(
-        presentation,
-        output_path,
-        timing_by_slide_number=timing_by_slide_number,
-        temp_prefix="ppt-timing-oracle-",
-    )
+    return materialize_scaffold_package("timing_oracle", output_path)
 
 
 def _parse_args() -> argparse.Namespace:

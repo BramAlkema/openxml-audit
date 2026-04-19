@@ -3,7 +3,7 @@ from __future__ import annotations
 import zipfile
 from itertools import count
 
-from lxml import etree as ET
+from lxml import etree
 
 from openxml_audit.pptx.oracle_starter_deck import (
     BuildEntry,
@@ -68,7 +68,7 @@ def test_build_timing_xml_includes_main_and_interactive_sequences() -> None:
         ],
     )
 
-    root = ET.fromstring(timing_xml.encode("utf-8"))
+    root = etree.fromstring(timing_xml.encode("utf-8"))
     assert root.xpath("count(.//p:cTn[@nodeType='mainSeq'])", namespaces=NS) == 1.0
     assert root.xpath("count(.//p:cTn[@nodeType='interactiveSeq'])", namespaces=NS) == 1.0
     assert root.xpath("count(.//p:bldP)", namespaces=NS) == 2.0
@@ -103,7 +103,7 @@ def test_build_timing_xml_preserves_multiple_click_triggers() -> None:
         ],
     )
 
-    root = ET.fromstring(timing_xml.encode("utf-8"))
+    root = etree.fromstring(timing_xml.encode("utf-8"))
     assert (
         root.xpath(
             "count(.//p:cTn[@nodeType='interactiveSeq']/p:stCondLst/p:cond[@evt='onClick'])",
@@ -126,7 +126,7 @@ def test_oracle_starter_deck_includes_native_width_scale_semantics(tmp_path) -> 
     with zipfile.ZipFile(deck_path) as pptx:
         slide_xml = pptx.read("ppt/slides/slide12.xml").decode("utf-8")
 
-    root = ET.fromstring(slide_xml.encode("utf-8"))
+    root = etree.fromstring(slide_xml.encode("utf-8"))
     by_values = [
         (node.get("x"), node.get("y"))
         for node in root.xpath(".//p:animScale/p:by", namespaces=NS)
@@ -137,3 +137,13 @@ def test_oracle_starter_deck_includes_native_width_scale_semantics(tmp_path) -> 
     assert ("70588", "100000") in by_values
     assert ("16667", "100000") in by_values
     assert root.xpath("count(.//p:bldP[@animBg='1'])", namespaces=NS) == 5.0
+
+
+def test_oracle_starter_deck_build_does_not_require_python_pptx(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr("openxml_audit.pptx.oracle_starter_deck.Presentation", None)
+    monkeypatch.setattr("openxml_audit.pptx.oracle_starter_deck.Inches", None)
+    monkeypatch.setattr("openxml_audit.pptx.oracle_starter_deck.Pt", None)
+
+    deck_path = build_oracle_starter_deck(tmp_path / "oracle-no-pptx.pptx")
+
+    assert deck_path.exists()

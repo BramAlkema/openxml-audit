@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import zipfile
 
-from lxml import etree as ET
+from lxml import etree
 
 from openxml_audit.pptx.timing_oracle_deck import build_timing_oracle_deck
 
 NS = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
 
 
-def _slide_root(pptx_path, slide_number: int) -> ET._Element:
+def _slide_root(pptx_path, slide_number: int) -> etree._Element:
     with zipfile.ZipFile(pptx_path) as pptx:
         slide_xml = pptx.read(f"ppt/slides/slide{slide_number}.xml")
-    return ET.fromstring(slide_xml)
+    return etree.fromstring(slide_xml)
 
 
 def test_timing_oracle_deck_contains_expected_native_timing_fields(tmp_path) -> None:
@@ -91,3 +91,13 @@ def test_timing_oracle_deck_contains_expected_native_timing_fields(tmp_path) -> 
         )
         == 1.0
     )
+
+
+def test_timing_oracle_deck_build_does_not_require_python_pptx(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr("openxml_audit.pptx.timing_oracle_deck.Presentation", None)
+    monkeypatch.setattr("openxml_audit.pptx.timing_oracle_deck.Inches", None)
+    monkeypatch.setattr("openxml_audit.pptx.timing_oracle_deck.Pt", None)
+
+    deck_path = build_timing_oracle_deck(tmp_path / "timing-oracle-no-pptx.pptx")
+
+    assert deck_path.exists()

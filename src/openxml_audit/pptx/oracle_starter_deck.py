@@ -18,13 +18,13 @@ from dataclasses import dataclass
 from itertools import count
 from pathlib import Path
 
-from lxml import etree as ET
+from lxml import etree
 
 from openxml_audit.pptx.oracle_deck_scaffold import (
     NS_P as SCAFFOLD_NS_P,
 )
 from openxml_audit.pptx.oracle_deck_scaffold import (
-    save_oracle_presentation,
+    materialize_scaffold_package,
 )
 
 try:
@@ -52,15 +52,19 @@ SLIDE_WIDTH_IN = 13.333
 SLIDE_HEIGHT_IN = 7.5
 
 
-def p_elem(tag: str, **attrs: str | int | float) -> ET._Element:
-    elem = ET.Element(f"{{{NS_P}}}{tag}")
+def p_elem(tag: str, **attrs: str | int | float) -> etree._Element:
+    elem = etree.Element(f"{{{NS_P}}}{tag}")
     for key, value in attrs.items():
         elem.set(key, str(value))
     return elem
 
 
-def p_sub(parent: ET._Element, tag: str, **attrs: str | int | float) -> ET._Element:
-    elem = ET.SubElement(parent, f"{{{NS_P}}}{tag}")
+def p_sub(
+    parent: etree._Element,
+    tag: str,
+    **attrs: str | int | float,
+) -> etree._Element:
+    elem = etree.SubElement(parent, f"{{{NS_P}}}{tag}")
     for key, value in attrs.items():
         elem.set(key, str(value))
     return elem
@@ -82,7 +86,7 @@ class BuildEntry:
 @dataclass(frozen=True, slots=True)
 class InteractiveSequence:
     trigger_shape_ids: tuple[int, ...]
-    effect_pars: tuple[ET._Element, ...]
+    effect_pars: tuple[etree._Element, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -309,7 +313,10 @@ def _add_group_triplet(
     return group, (a, b, c)
 
 
-def _append_conditions(parent: ET._Element, conditions: Iterable[StartCondition]) -> None:
+def _append_conditions(
+    parent: etree._Element,
+    conditions: Iterable[StartCondition],
+) -> None:
     for condition in conditions:
         attrs: dict[str, str] = {"delay": str(condition.delay_ms)}
         if condition.event:
@@ -325,7 +332,7 @@ def _build_set_visibility(
     id_counter: Iterator[int],
     target_shape_id: int,
     visibility: str,
-) -> ET._Element:
+) -> etree._Element:
     set_elem = p_elem("set")
     c_bhvr = p_sub(set_elem, "cBhvr")
     c_tn = p_sub(
@@ -353,7 +360,7 @@ def _build_anim_effect(
     duration_ms: int,
     transition: str,
     filter_name: str,
-) -> ET._Element:
+) -> etree._Element:
     anim_effect = p_elem(
         "animEffect",
         transition=transition,
@@ -373,7 +380,7 @@ def _build_anim_scale(
     duration_ms: int,
     by_x: int,
     by_y: int,
-) -> ET._Element:
+) -> etree._Element:
     anim_scale = p_elem("animScale")
     c_bhvr = p_sub(anim_scale, "cBhvr")
     p_sub(
@@ -398,7 +405,7 @@ def _build_native_width_scale_segment(
     grp_id: int,
     by_x: int,
     by_y: int = 100000,
-) -> ET._Element:
+) -> etree._Element:
     return _build_effect_par(
         id_counter=id_counter,
         duration_ms=duration_ms,
@@ -426,7 +433,7 @@ def _build_anim_motion(
     target_shape_id: int,
     duration_ms: int,
     path: str,
-) -> ET._Element:
+) -> etree._Element:
     anim_motion = p_elem(
         "animMotion",
         origin="layout",
@@ -455,14 +462,14 @@ def _build_effect_par(
     id_counter: Iterator[int],
     duration_ms: int,
     node_type: str,
-    child_elements: Iterable[ET._Element],
+    child_elements: Iterable[etree._Element],
     delay_ms: int = 0,
     preset_id: int | None = None,
     preset_class: str | None = None,
     preset_subtype: int | None = 0,
     grp_id: int | str = "0",
     start_conditions: Iterable[StartCondition] | None = None,
-) -> ET._Element:
+) -> etree._Element:
     par = p_elem("par")
     c_tn_attrs: dict[str, str] = {
         "id": str(next(id_counter)),
@@ -491,8 +498,8 @@ def _build_interactive_seq(
     *,
     id_counter: Iterator[int],
     trigger_shape_ids: Iterable[int],
-    effect_pars: Iterable[ET._Element],
-) -> ET._Element:
+    effect_pars: Iterable[etree._Element],
+) -> etree._Element:
     trigger_ids = tuple(trigger_shape_ids)
     seq = p_elem("seq", concurrent="1", nextAc="seek")
     c_tn = p_sub(
@@ -541,7 +548,7 @@ def _build_interactive_seq(
 def _build_timing_xml(
     *,
     start_id: int,
-    main_effect_pars: Iterable[ET._Element] = (),
+    main_effect_pars: Iterable[etree._Element] = (),
     interactive_sequences: Iterable[InteractiveSequence] = (),
     build_entries: Iterable[BuildEntry] = (),
 ) -> str:
@@ -610,7 +617,7 @@ def _build_timing_xml(
                 animBg="1",
             )
 
-    return ET.tostring(timing, encoding="unicode")
+    return etree.tostring(timing, encoding="unicode")
 
 
 def _oracle_note(slide, source: str, summary: str) -> None:
@@ -658,7 +665,10 @@ def _title_slide(presentation) -> SlideArtifact:
         1.3,
         11.3,
         0.55,
-        "Built from mined PowerPoint timing patterns. Open this in PowerPoint, tweak, then feed the edited deck back into the oracle extractor.",
+        (
+            "Built from mined PowerPoint timing patterns. Open this in PowerPoint, "
+            "tweak, then feed the edited deck back into the oracle extractor."
+        ),
         font_size=14,
         color=(55, 65, 81),
         align=PP_ALIGN.CENTER,
@@ -1060,7 +1070,10 @@ def _on_other_begin_slide(presentation) -> SlideArtifact:
     _oracle_note(
         slide,
         "Probe case: trigger event should be onBegin of another shape.",
-        "Click once: the trigger box should pulse, and the blue target should reveal when that starts.",
+        (
+            "Click once: the trigger box should pulse, and the blue target should "
+            "reveal when that starts."
+        ),
     )
     trigger = _add_named_box(
         slide,
@@ -1286,7 +1299,10 @@ def _native_width_scale_oracle_slide(presentation) -> SlideArtifact:
     _oracle_note(
         slide,
         "Oracle addition: native width animScale semantics from W3C calcMode debugging.",
-        "Click once: good factor shrink preserves height; delta-style shrink is the bad control; segmented shrink needs one build entry per segment.",
+        (
+            "Click once: good factor shrink preserves height; delta-style shrink is "
+            "the bad control; segmented shrink needs one build entry per segment."
+        ),
     )
     _add_textbox(
         slide,
@@ -1391,7 +1407,10 @@ def _native_width_scale_oracle_slide(presentation) -> SlideArtifact:
         4.88,
         8.6,
         0.45,
-        "Segments: 300->255 uses x=85000, 255->180 uses x=70588, 180->30 uses x=16667. Untouched axis stays y=100000.",
+        (
+            "Segments: 300->255 uses x=85000, 255->180 uses x=70588, "
+            "180->30 uses x=16667. Untouched axis stays y=100000."
+        ),
         font_size=10,
         color=(75, 85, 99),
     )
@@ -1476,38 +1495,7 @@ def _native_width_scale_oracle_slide(presentation) -> SlideArtifact:
 
 
 def build_oracle_starter_deck(output_path: Path) -> Path:
-    _require_python_pptx()
-    presentation = Presentation()
-    presentation.slide_width = Inches(SLIDE_WIDTH_IN)
-    presentation.slide_height = Inches(SLIDE_HEIGHT_IN)
-
-    slide_builders = [
-        _title_slide,
-        _group_reveal_slide,
-        _group_hide_slide,
-        _group_reveal_hide_reveal_slide,
-        _group_reveal_plus_child_motion_slide,
-        _click_self_pulse_slide,
-        _click_other_reveal_fade_slide,
-        _click_other_motion_slide,
-        _on_other_begin_slide,
-        _on_other_end_slide,
-        _multi_trigger_slide,
-        _native_width_scale_oracle_slide,
-    ]
-    artifacts = [builder(presentation) for builder in slide_builders]
-
-    timing_by_slide_number = {
-        slide_number: artifact.timing_xml
-        for slide_number, artifact in enumerate(artifacts, start=1)
-        if artifact.timing_xml
-    }
-    return save_oracle_presentation(
-        presentation,
-        output_path,
-        timing_by_slide_number=timing_by_slide_number,
-        temp_prefix="ppt-oracle-starter-",
-    )
+    return materialize_scaffold_package("oracle_starter", output_path)
 
 
 def _parse_args() -> argparse.Namespace:

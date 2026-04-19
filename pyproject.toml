@@ -64,6 +64,7 @@ packages = ["src/openxml_audit"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "data/openxml" = "openxml_audit/data/openxml"
+"data/pptx_oracle" = "openxml_audit/data/pptx_oracle"
 
 [tool.ruff]
 target-version = "py310"
@@ -72,6 +73,16 @@ src = ["src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# These validator modules intentionally mirror OOXML element names from the spec.
+"src/openxml_audit/pptx/slides.py" = ["N802", "N803", "N806"]
+"src/openxml_audit/pptx/masters.py" = ["N802", "N806"]
+"src/openxml_audit/pptx/themes.py" = ["N806"]
+"src/openxml_audit/schema/constraints.py" = ["N806"]
+# Raw XML fixture payloads are kept readable as copied package fragments.
+"tests/test_properties.py" = ["E501"]
+"tests/test_supertheme.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.10"

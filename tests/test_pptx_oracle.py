@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from lxml import etree as ET
+from lxml import etree
 
 from openxml_audit.pptx.oracle import _normalize_timing_tree, _summarize_slide
 
 
 def test_normalize_timing_tree_rewrites_ids_group_ids_and_shape_ids() -> None:
-    timing = ET.fromstring(
+    timing = etree.fromstring(
         """
         <p:timing xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
           <p:tnLst>
@@ -55,7 +55,12 @@ def test_summarize_slide_collects_effect_patterns() -> None:
             <p:cTn id="1" dur="indefinite" nodeType="tmRoot">
               <p:childTnLst>
                 <p:par>
-                  <p:cTn id="5" nodeType="clickEffect" presetID="1" presetClass="entr" presetSubtype="0">
+                  <p:cTn
+                    id="5"
+                    nodeType="clickEffect"
+                    presetID="1"
+                    presetClass="entr"
+                    presetSubtype="0">
                     <p:stCondLst><p:cond delay="0"/></p:stCondLst>
                     <p:childTnLst>
                       <p:set>

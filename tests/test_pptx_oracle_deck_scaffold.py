@@ -3,10 +3,11 @@ from __future__ import annotations
 import zipfile
 from pathlib import Path
 
-from lxml import etree as ET
+from lxml import etree
 
 from openxml_audit.pptx.oracle_deck_scaffold import (
     inject_timing_map_into_pptx,
+    materialize_scaffold_package,
     patch_slide_xml_with_timing,
     save_oracle_presentation,
 )
@@ -26,7 +27,7 @@ def test_patch_slide_xml_with_timing_replaces_existing_node() -> None:
     )
 
     patched = patch_slide_xml_with_timing(slide_xml, timing_xml)
-    root = ET.fromstring(patched)
+    root = etree.fromstring(patched)
 
     assert root.xpath("count(.//p:timing)", namespaces=NS) == 1.0
     assert root.xpath("count(.//p:timing/p:tnLst/p:par)", namespaces=NS) == 1.0
@@ -52,7 +53,7 @@ def test_inject_timing_map_into_pptx_patches_target_slide(tmp_path: Path) -> Non
     inject_timing_map_into_pptx(pptx_path, {1: timing_xml})
 
     with zipfile.ZipFile(pptx_path) as archive:
-        root = ET.fromstring(archive.read("ppt/slides/slide1.xml"))
+        root = etree.fromstring(archive.read("ppt/slides/slide1.xml"))
 
     assert root.xpath("count(.//p:timing/p:tnLst/p:par)", namespaces=NS) == 1.0
 
@@ -88,6 +89,19 @@ def test_save_oracle_presentation_uses_scaffold_then_patches_timing(tmp_path: Pa
 
     assert deck_path == output_path
     with zipfile.ZipFile(deck_path) as archive:
-        root = ET.fromstring(archive.read("ppt/slides/slide1.xml"))
+        root = etree.fromstring(archive.read("ppt/slides/slide1.xml"))
 
     assert root.xpath("count(.//p:timing/p:tnLst/p:par)", namespaces=NS) == 1.0
+
+
+def test_materialize_scaffold_package_builds_zip_from_committed_tree(tmp_path: Path) -> None:
+    deck_path = materialize_scaffold_package(
+        "timing_oracle",
+        tmp_path / "timing-oracle.pptx",
+    )
+
+    assert deck_path.exists()
+    with zipfile.ZipFile(deck_path) as archive:
+        assert "[Content_Types].xml" in archive.namelist()
+        assert "ppt/presentation.xml" in archive.namelist()
+        assert "ppt/slides/slide6.xml" in archive.namelist()
