@@ -442,7 +442,11 @@ def get_enum_values(enum_type_name: str) -> list[str] | None:
     if values is not None:
         return values
 
-    schema_values_by_type, schema_values_by_name, schema_candidates_by_name = _load_schema_enum_values()
+    (
+        schema_values_by_type,
+        schema_values_by_name,
+        schema_candidates_by_name,
+    ) = _load_schema_enum_values()
     values = schema_values_by_type.get(enum_type_name)
     if values is not None:
         return values

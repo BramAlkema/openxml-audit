@@ -205,10 +205,9 @@ def test_get_enum_values_uses_dotnet_namespace_to_resolve_ambiguous_enum_names(
         "arc",
         "callout",
     ]
-    assert schema_loader.get_enum_values("DocumentFormat.OpenXml.Drawing.ColorSchemeIndexValues") == [
-        "dk1",
-        "lt1",
-    ]
+    assert schema_loader.get_enum_values(
+        "DocumentFormat.OpenXml.Drawing.ColorSchemeIndexValues"
+    ) == ["dk1", "lt1"]
     assert (
         schema_loader.get_enum_values("DocumentFormat.OpenXml.Wordprocessing.ColorSchemeIndexValues")
         == ["dark1", "light1"]

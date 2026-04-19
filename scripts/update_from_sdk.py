@@ -57,7 +57,7 @@ def verify_loaders() -> bool:
         type_count = schema_reg.count_types()
         element_count = schema_reg.count_elements()
 
-        print(f"\nSchema Registry:")
+        print("\nSchema Registry:")
         print(f"  Namespaces: {schema_count}")
         print(f"  Types: {type_count}")
         print(f"  Elements: {element_count}")
@@ -81,9 +81,10 @@ def verify_loaders() -> bool:
         schematron_reg = get_schematron_registry()
         stats = schematron_reg.get_stats()
 
-        print(f"\nSchematron Registry:")
+        print("\nSchematron Registry:")
         print(f"  Total rules: {stats['total']}")
-        print(f"  Interpretable: {stats['interpretable']} ({100 * stats['interpretable'] // stats['total']}%)")
+        interpretable_pct = 100 * stats["interpretable"] // stats["total"]
+        print(f"  Interpretable: {stats['interpretable']} ({interpretable_pct}%)")
         print(f"  Unique contexts: {stats['unique_contexts']}")
         print("  By type:")
         for t, c in stats["by_type"].items():
@@ -143,7 +144,12 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.check:
-        from scripts.sync_openxml_data import SDK_REF, get_current_ref, get_current_version, get_ref_commit
+        from scripts.sync_openxml_data import (
+            SDK_REF,
+            get_current_ref,
+            get_current_version,
+            get_ref_commit,
+        )
 
         print("Checking for updates...")
         try:

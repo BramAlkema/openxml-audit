@@ -11,7 +11,7 @@ from tempfile import TemporaryDirectory
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
 
-from openxml_audit import OpenXmlValidator, FileFormat
+from openxml_audit import FileFormat, OpenXmlValidator
 
 
 def generate_spreadsheet(path: Path) -> None:

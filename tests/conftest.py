@@ -553,57 +553,101 @@ def odf_encrypted_checksum_partial(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_meta_missing_office_meta(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/meta_missing_office_meta", filename="meta_missing.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/meta_missing_office_meta",
+        filename="meta_missing.odt",
+    )
 
 
 @pytest.fixture
 def odf_settings_missing_office_settings(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/settings_missing_office_settings", filename="settings_missing.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/settings_missing_office_settings",
+        filename="settings_missing.odt",
+    )
 
 
 @pytest.fixture
 def odf_font_face_missing_svg_family(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/font_face_missing_svg_family", filename="font_face_bad.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/font_face_missing_svg_family",
+        filename="font_face_bad.odt",
+    )
 
 
 @pytest.fixture
 def odf_style_parent_unresolved(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/style_parent_unresolved", filename="parent_unresolved.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/style_parent_unresolved",
+        filename="parent_unresolved.odt",
+    )
 
 
 @pytest.fixture
 def odf_style_data_style_unresolved(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/style_data_style_unresolved", filename="data_style_unresolved.ods")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/style_data_style_unresolved",
+        filename="data_style_unresolved.ods",
+    )
 
 
 @pytest.fixture
 def odf_style_list_style_unresolved(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/style_list_style_unresolved", filename="list_style_unresolved.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/style_list_style_unresolved",
+        filename="list_style_unresolved.odt",
+    )
 
 
 @pytest.fixture
 def odf_master_page_layout_unresolved(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/master_page_layout_unresolved", filename="master_layout_unresolved.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/master_page_layout_unresolved",
+        filename="master_layout_unresolved.odt",
+    )
 
 
 @pytest.fixture
 def odf_text_list_style_unresolved(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/text_list_style_unresolved", filename="text_list_unresolved.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/text_list_style_unresolved",
+        filename="text_list_unresolved.odt",
+    )
 
 
 @pytest.fixture
 def odf_text_bookmark_ref_unresolved(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/text_bookmark_ref_unresolved", filename="bookmark_unresolved.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/text_bookmark_ref_unresolved",
+        filename="bookmark_unresolved.odt",
+    )
 
 
 @pytest.fixture
 def odf_spreadsheet_named_range_bad_table(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/spreadsheet_named_range_bad_table", filename="named_range_bad.ods")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/spreadsheet_named_range_bad_table",
+        filename="named_range_bad.ods",
+    )
 
 
 @pytest.fixture
 def odf_spreadsheet_column_overflow(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/spreadsheet_column_overflow", filename="column_overflow.ods")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/spreadsheet_column_overflow",
+        filename="column_overflow.ods",
+    )
 
 
 @pytest.fixture
@@ -613,22 +657,38 @@ def odf_presentation_no_pages(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_presentation_page_layout_unresolved(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/presentation_page_layout_unresolved", filename="page_layout_unresolved.odp")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/presentation_page_layout_unresolved",
+        filename="page_layout_unresolved.odp",
+    )
 
 
 @pytest.fixture
 def odf_embedded_object_unresolved(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/embedded_object_unresolved", filename="object_unresolved.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/embedded_object_unresolved",
+        filename="object_unresolved.odt",
+    )
 
 
 @pytest.fixture
 def odf_image_href_unresolved(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/image_href_unresolved", filename="image_unresolved.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/image_href_unresolved",
+        filename="image_unresolved.odt",
+    )
 
 
 @pytest.fixture
 def odf_meta_bad_statistics(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "invalid/meta_bad_statistics", filename="meta_bad_stats.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "invalid/meta_bad_statistics",
+        filename="meta_bad_stats.odt",
+    )
 
 
 @pytest.fixture
@@ -638,7 +698,11 @@ def odf_valid_meta(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_valid_font_face(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "valid/font_face_with_svg_family", filename="valid_font.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/font_face_with_svg_family",
+        filename="valid_font.odt",
+    )
 
 
 @pytest.fixture
@@ -648,12 +712,20 @@ def odf_valid_style_parent(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_valid_named_range(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "valid/spreadsheet_named_range_valid", filename="valid_named_range.ods")
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/spreadsheet_named_range_valid",
+        filename="valid_named_range.ods",
+    )
 
 
 @pytest.fixture
 def odf_valid_bookmark(tmp_path: Path) -> Path:
-    return _build_odf_fixture(tmp_path, "valid/text_bookmark_resolved", filename="valid_bookmark.odt")
+    return _build_odf_fixture(
+        tmp_path,
+        "valid/text_bookmark_resolved",
+        filename="valid_bookmark.odt",
+    )
 
 
 # ── M2: Text fixtures ───────────────────────────────────────────────────

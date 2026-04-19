@@ -130,9 +130,12 @@ class ValidationContext:
         if self.max_errors > 0 and self.error_count >= self.max_errors:
             return
 
-        if not self.strict and severity == ValidationSeverity.ERROR:
-            if error_type != ValidationErrorType.PACKAGE:
-                severity = ValidationSeverity.WARNING
+        if (
+            not self.strict
+            and severity == ValidationSeverity.ERROR
+            and error_type != ValidationErrorType.PACKAGE
+        ):
+            severity = ValidationSeverity.WARNING
 
         error = ValidationError(
             error_type=error_type,

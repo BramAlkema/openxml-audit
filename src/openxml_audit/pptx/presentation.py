@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from lxml import etree
 
 from openxml_audit.context import ElementContext
-from openxml_audit.errors import ValidationError, ValidationErrorType, ValidationSeverity
+from openxml_audit.errors import ValidationError
 from openxml_audit.namespaces import PRESENTATIONML, REL_SLIDE, REL_SLIDE_MASTER
 
 if TYPE_CHECKING:
@@ -27,7 +27,7 @@ class PresentationValidator:
         self._rel_ns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
     def validate(
-        self, part: "PresentationPart", context: "ValidationContext"
+        self, part: PresentationPart, context: ValidationContext
     ) -> list[ValidationError]:
         """Validate a presentation part.
 
@@ -70,7 +70,7 @@ class PresentationValidator:
         errors.extend(context.errors)
         return errors
 
-    def _validate_root(self, xml: etree._Element, context: "ValidationContext") -> None:
+    def _validate_root(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate the root presentation element."""
         expected_tag = f"{{{PRESENTATIONML}}}presentation"
         if xml.tag != expected_tag:
@@ -88,8 +88,8 @@ class PresentationValidator:
     def _validate_slide_master_list(
         self,
         xml: etree._Element,
-        part: "PresentationPart",
-        context: "ValidationContext",
+        part: PresentationPart,
+        context: ValidationContext,
     ) -> None:
         """Validate slide master references."""
         master_list = xml.find("p:sldMasterIdLst", self._ns)
@@ -144,8 +144,8 @@ class PresentationValidator:
     def _validate_slide_list(
         self,
         xml: etree._Element,
-        part: "PresentationPart",
-        context: "ValidationContext",
+        part: PresentationPart,
+        context: ValidationContext,
     ) -> None:
         """Validate slide references."""
         slide_list = xml.find("p:sldIdLst", self._ns)
@@ -192,8 +192,8 @@ class PresentationValidator:
     def _validate_notes_master(
         self,
         xml: etree._Element,
-        part: "PresentationPart",
-        context: "ValidationContext",
+        part: PresentationPart,
+        context: ValidationContext,
     ) -> None:
         """Validate notes master reference."""
         notes_list = xml.find("p:notesMasterIdLst", self._ns)
@@ -209,8 +209,8 @@ class PresentationValidator:
     def _validate_handout_master(
         self,
         xml: etree._Element,
-        part: "PresentationPart",
-        context: "ValidationContext",
+        part: PresentationPart,
+        context: ValidationContext,
     ) -> None:
         """Validate handout master reference."""
         handout_list = xml.find("p:handoutMasterIdLst", self._ns)
@@ -224,7 +224,7 @@ class PresentationValidator:
             )
 
     def _validate_slide_size(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate slide size element."""
         slide_size = xml.find("p:sldSz", self._ns)
@@ -264,7 +264,7 @@ class PresentationValidator:
                 )
 
     def _validate_notes_size(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate notes size element."""
         notes_size = xml.find("p:notesSz", self._ns)
@@ -286,7 +286,7 @@ class PresentationValidator:
 
 
 def validate_presentation(
-    part: "PresentationPart", context: "ValidationContext"
+    part: PresentationPart, context: ValidationContext
 ) -> list[ValidationError]:
     """Validate a presentation part.
 

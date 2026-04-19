@@ -66,7 +66,11 @@ class XsdTypeValidator(ABC):
     """Base class for XSD type validators."""
 
     @abstractmethod
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         """Validate a string value against this type.
 
         Args:
@@ -94,7 +98,11 @@ class StringTypeValidator(XsdTypeValidator):
         self.pattern = re.compile(pattern) if pattern else None
         self.enumeration = set(enumeration) if enumeration else None
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         # Check length constraints
         if self.min_length is not None and len(value) < self.min_length:
             return TypeValidationResult(
@@ -119,7 +127,10 @@ class StringTypeValidator(XsdTypeValidator):
         if self.enumeration is not None and value not in self.enumeration:
             return TypeValidationResult(
                 is_valid=False,
-                error_message=f"Value '{value}' is not in allowed values: {sorted(self.enumeration)}",
+                error_message=(
+                    f"Value '{value}' is not in allowed values: "
+                    f"{sorted(self.enumeration)}"
+                ),
             )
 
         return TypeValidationResult(is_valid=True, parsed_value=value)
@@ -130,7 +141,11 @@ class BooleanTypeValidator(XsdTypeValidator):
 
     VALID_VALUES = {"true", "false", "1", "0"}
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         if value.lower() not in self.VALID_VALUES:
             return TypeValidationResult(
                 is_valid=False,
@@ -156,7 +171,11 @@ class IntegerTypeValidator(XsdTypeValidator):
         self.min_inclusive = min_inclusive
         self.max_inclusive = max_inclusive
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         try:
             parsed = int(value)
         except ValueError:
@@ -213,7 +232,11 @@ class DecimalTypeValidator(XsdTypeValidator):
         self.total_digits = total_digits
         self.fraction_digits = fraction_digits
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         try:
             parsed = Decimal(value)
         except InvalidOperation:
@@ -260,7 +283,11 @@ class DateTimeTypeValidator(XsdTypeValidator):
         r"(?P<fraction>\.\d+)?(?P<tz>Z|[+-]\d{2}:\d{2})?$"
     )
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         match = self.DATETIME_PATTERN.match(value)
         if not match:
             return TypeValidationResult(
@@ -377,7 +404,11 @@ class HexBinaryTypeValidator(XsdTypeValidator):
     def __init__(self, length: int | None = None):
         self.length = length
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         if not self.HEX_PATTERN.match(value):
             return TypeValidationResult(
                 is_valid=False,
@@ -393,7 +424,10 @@ class HexBinaryTypeValidator(XsdTypeValidator):
         if self.length is not None and len(value) // 2 != self.length:
             return TypeValidationResult(
                 is_valid=False,
-                error_message=f"hexBinary length {len(value) // 2} does not match required {self.length}",
+                error_message=(
+                    f"hexBinary length {len(value) // 2} "
+                    f"does not match required {self.length}"
+                ),
             )
 
         return TypeValidationResult(is_valid=True, parsed_value=bytes.fromhex(value))
@@ -402,10 +436,15 @@ class HexBinaryTypeValidator(XsdTypeValidator):
 class NCNameTypeValidator(XsdTypeValidator):
     """Validates NCName (non-colonized name) values."""
 
-    # NCName pattern: starts with letter or underscore, followed by letters, digits, hyphens, underscores, periods
+    # NCName pattern: starts with letter or underscore, then letters,
+    # digits, hyphens, underscores, or periods.
     NCNAME_PATTERN = re.compile(r"^[a-zA-Z_][\w.\-]*$")
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         if not value:
             return TypeValidationResult(
                 is_valid=False,
@@ -424,7 +463,11 @@ class NCNameTypeValidator(XsdTypeValidator):
 class AnyURITypeValidator(XsdTypeValidator):
     """Validates anyURI values."""
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         # Basic URI validation - allow most strings that could be URIs
         # A more complete implementation would parse according to RFC 3986
         if not value:
@@ -435,7 +478,7 @@ class AnyURITypeValidator(XsdTypeValidator):
         if any(c in value for c in invalid_chars):
             return TypeValidationResult(
                 is_valid=False,
-                error_message=f"Invalid URI: contains invalid characters",
+                error_message="Invalid URI: contains invalid characters",
             )
 
         return TypeValidationResult(is_valid=True, parsed_value=value)
@@ -446,7 +489,11 @@ class QNameTypeValidator(XsdTypeValidator):
 
     _ncname_validator = NCNameTypeValidator()
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         if not value:
             return TypeValidationResult(
                 is_valid=False,
@@ -501,7 +548,11 @@ class ListTypeValidator(XsdTypeValidator):
     def __init__(self, item_validator: XsdTypeValidator):
         self.item_validator = item_validator
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         items = value.split()
         if not items:
             return TypeValidationResult(
@@ -531,7 +582,11 @@ class UnionTypeValidator(XsdTypeValidator):
     def __init__(self, members: list[XsdTypeValidator]):
         self.members = members
 
-    def validate(self, value: str, context: ValidationContext | None = None) -> TypeValidationResult:
+    def validate(
+        self,
+        value: str,
+        context: ValidationContext | None = None,
+    ) -> TypeValidationResult:
         if not self.members:
             return TypeValidationResult(is_valid=True, parsed_value=value)
 
@@ -603,7 +658,10 @@ BUILTIN_VALIDATORS: dict[XsdBuiltinType, XsdTypeValidator] = {
     XsdBuiltinType.NON_NEGATIVE_INTEGER: IntegerTypeValidator(min_value=0),
     XsdBuiltinType.NEGATIVE_INTEGER: IntegerTypeValidator(max_value=-1),
     XsdBuiltinType.NON_POSITIVE_INTEGER: IntegerTypeValidator(max_value=0),
-    XsdBuiltinType.LONG: IntegerTypeValidator(min_value=-9223372036854775808, max_value=9223372036854775807),
+    XsdBuiltinType.LONG: IntegerTypeValidator(
+        min_value=-9223372036854775808,
+        max_value=9223372036854775807,
+    ),
     XsdBuiltinType.INT: IntegerTypeValidator(min_value=-2147483648, max_value=2147483647),
     XsdBuiltinType.SHORT: IntegerTypeValidator(min_value=-32768, max_value=32767),
     XsdBuiltinType.BYTE: IntegerTypeValidator(min_value=-128, max_value=127),

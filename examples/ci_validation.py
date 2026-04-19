@@ -20,7 +20,7 @@ import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
-from openxml_audit import OpenXmlValidator, FileFormat
+from openxml_audit import FileFormat, OpenXmlValidator
 
 OOXML_EXTENSIONS = {".pptx", ".docx", ".xlsx", ".pptm", ".docm", ".xlsm"}
 ODF_EXTENSIONS = {".odt", ".ods", ".odp"}

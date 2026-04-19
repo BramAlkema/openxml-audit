@@ -852,7 +852,9 @@ def _collect_expectations(
                 validator_aliases,
             )
             stats["raw_expectations"] += len(extracted)
-            stats["raw_expectations_base"] += sum(1 for item in extracted if item.scenario == "base")
+            stats["raw_expectations_base"] += sum(
+                1 for item in extracted if item.scenario == "base"
+            )
             stats["raw_expectations_mutation"] += sum(
                 1 for item in extracted if item.scenario == "mutation"
             )

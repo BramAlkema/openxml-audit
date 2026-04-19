@@ -23,7 +23,10 @@ class TestContentTypes:
 
         ct, warnings = ContentTypes.from_xml(xml)
 
-        assert ct.get_content_type("/test.rels") == "application/vnd.openxmlformats-package.relationships+xml"
+        assert (
+            ct.get_content_type("/test.rels")
+            == "application/vnd.openxmlformats-package.relationships+xml"
+        )
         assert ct.get_content_type("/test.xml") == "application/xml"
         assert warnings == []
 
@@ -34,7 +37,10 @@ class TestContentTypes:
         ct, warnings = ContentTypes.from_xml(xml)
 
         # Override takes precedence
-        assert ct.get_content_type("/ppt/presentation.xml") == "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"
+        assert (
+            ct.get_content_type("/ppt/presentation.xml")
+            == "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"
+        )
         # Default still works for other xml files
         assert ct.get_content_type("/other.xml") == "application/xml"
         assert warnings == []
@@ -51,7 +57,8 @@ class TestContentTypes:
         xml = b"""<?xml version='1.0' encoding='UTF-8'?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="xml" ContentType="application/xml"/>
-  &lt;Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/&gt;
+  &lt;Override PartName="/ppt/slides/slide1.xml"
+      ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/&gt;
 </Types>"""
 
         ct, warnings = ContentTypes.from_xml(xml)
@@ -137,9 +144,8 @@ class TestOpenXmlPackage:
 
     def test_invalid_zip_raises_error(self, not_a_zip: Path) -> None:
         """Test that invalid ZIP raises PackageValidationError."""
-        with pytest.raises(PackageValidationError) as exc_info:
-            with OpenXmlPackage(not_a_zip):
-                pass
+        with pytest.raises(PackageValidationError) as exc_info, OpenXmlPackage(not_a_zip):
+            pass
 
         assert any("ZIP" in e.description for e in exc_info.value.errors)
 

@@ -26,7 +26,7 @@ class ThemeValidator:
         self._ns = {"a": DRAWINGML}
 
     def validate(
-        self, part: "ThemePart", context: "ValidationContext"
+        self, part: ThemePart, context: ValidationContext
     ) -> list[ValidationError]:
         """Validate a theme part.
 
@@ -63,7 +63,7 @@ class ThemeValidator:
         errors.extend(context.errors)
         return errors
 
-    def _validate_root(self, xml: etree._Element, context: "ValidationContext") -> None:
+    def _validate_root(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate the root theme element."""
         expected_tag = f"{{{DRAWINGML}}}theme"
         if xml.tag != expected_tag:
@@ -80,7 +80,7 @@ class ThemeValidator:
             )
 
     def _validate_theme_elements(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate theme elements structure."""
         themeElements = xml.find("a:themeElements", self._ns)
@@ -99,7 +99,7 @@ class ThemeValidator:
                 )
 
     def _validate_clr_scheme(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate color scheme."""
         themeElements = xml.find("a:themeElements", self._ns)
@@ -148,7 +148,7 @@ class ThemeValidator:
         self,
         color_elem: etree._Element,
         color_name: str,
-        context: "ValidationContext",
+        context: ValidationContext,
     ) -> None:
         """Validate a color element has a proper color definition."""
         # Color can be defined by various elements
@@ -173,7 +173,7 @@ class ThemeValidator:
             )
 
     def _validate_font_scheme(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate font scheme."""
         themeElements = xml.find("a:themeElements", self._ns)
@@ -213,7 +213,7 @@ class ThemeValidator:
         self,
         font_coll: etree._Element,
         name: str,
-        context: "ValidationContext",
+        context: ValidationContext,
     ) -> None:
         """Validate a font collection (majorFont or minorFont)."""
         # Must have latin font
@@ -245,7 +245,7 @@ class ThemeValidator:
             )
 
     def _validate_fmt_scheme(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate format scheme."""
         themeElements = xml.find("a:themeElements", self._ns)
@@ -288,7 +288,7 @@ class ThemeValidator:
 
 
 def validate_theme(
-    part: "ThemePart", context: "ValidationContext"
+    part: ThemePart, context: ValidationContext
 ) -> list[ValidationError]:
     """Validate a theme part.
 

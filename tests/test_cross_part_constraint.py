@@ -11,7 +11,6 @@ from openxml_audit.parts import OpenXmlPart
 from openxml_audit.semantic.constraints import CrossPartCountConstraint
 from tests.fixture_loader import load_fixture_bytes
 
-
 SPREADSHEET_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 NSMAP = {"x": SPREADSHEET_NS}
 

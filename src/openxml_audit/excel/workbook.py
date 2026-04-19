@@ -35,7 +35,7 @@ class WorkbookValidator:
         }
 
     def validate(
-        self, part: "WorkbookPart", context: "ValidationContext"
+        self, part: WorkbookPart, context: ValidationContext
     ) -> list[ValidationError]:
         """Validate a workbook part."""
         context.set_part(part)
@@ -52,7 +52,7 @@ class WorkbookValidator:
         errors.extend(context.errors)
         return errors
 
-    def _validate_root(self, xml: etree._Element, context: "ValidationContext") -> None:
+    def _validate_root(self, xml: etree._Element, context: ValidationContext) -> None:
         expected_tag = f"{{{SPREADSHEETML}}}workbook"
         if xml.tag != expected_tag:
             context.add_schema_error(
@@ -62,8 +62,8 @@ class WorkbookValidator:
     def _validate_sheet_list(
         self,
         xml: etree._Element,
-        part: "WorkbookPart",
-        context: "ValidationContext",
+        part: WorkbookPart,
+        context: ValidationContext,
     ) -> None:
         sheet_list = xml.find("s:sheets", self._ns)
         if sheet_list is None:

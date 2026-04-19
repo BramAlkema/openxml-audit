@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from openxml_audit.relationships import Relationship, RelationshipCollection, get_rels_path
 from tests.fixture_loader import load_fixture_bytes
 

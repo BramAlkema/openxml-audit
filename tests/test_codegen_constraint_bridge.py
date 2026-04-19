@@ -201,7 +201,11 @@ def test_build_type_validator_preserves_enum_type_with_string_metadata(monkeypat
     monkeypatch.setattr(
         constraint_bridge_module,
         "get_enum_values",
-        lambda enum_type: ["auto", "gray"] if enum_type == "DocumentFormat.OpenXml.Drawing.BlackWhiteModeValues" else None,
+        lambda enum_type: (
+            ["auto", "gray"]
+            if enum_type == "DocumentFormat.OpenXml.Drawing.BlackWhiteModeValues"
+            else None
+        ),
     )
 
     attr = SdkAttribute(
@@ -233,7 +237,11 @@ def test_build_type_validator_preserves_list_enum_type_from_sdk_type_name(monkey
     monkeypatch.setattr(
         constraint_bridge_module,
         "get_enum_values",
-        lambda enum_type: ["acoustic", "tactile"] if enum_type == "DocumentFormat.OpenXml.EMMA.MediumValues" else None,
+        lambda enum_type: (
+            ["acoustic", "tactile"]
+            if enum_type == "DocumentFormat.OpenXml.EMMA.MediumValues"
+            else None
+        ),
     )
 
     attr = SdkAttribute(

@@ -6,8 +6,6 @@ import io
 import zipfile
 from pathlib import Path
 
-import pytest
-
 from openxml_audit import OpenXmlValidator
 
 # Shared XML fragments for building test .thmx packages

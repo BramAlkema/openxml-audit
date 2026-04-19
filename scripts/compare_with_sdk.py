@@ -130,10 +130,7 @@ def _local_runner(pptx_path: Path) -> list[dict]:
 
 
 def run_sdk_validator(pptx_path: Path, runner: str) -> list[dict]:
-    if runner == "docker":
-        raw = _docker_runner([pptx_path])
-    else:
-        raw = _local_runner(pptx_path)
+    raw = _docker_runner([pptx_path]) if runner == "docker" else _local_runner(pptx_path)
     if not raw:
         return []
     if isinstance(raw, list) and isinstance(raw[0], dict) and "Errors" in raw[0]:

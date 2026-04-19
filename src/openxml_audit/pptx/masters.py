@@ -15,7 +15,7 @@ from openxml_audit.namespaces import DRAWINGML, PRESENTATIONML
 
 if TYPE_CHECKING:
     from openxml_audit.context import ValidationContext
-    from openxml_audit.parts import OpenXmlPart, SlideLayoutPart, SlideMasterPart
+    from openxml_audit.parts import SlideLayoutPart, SlideMasterPart
 
 
 class MasterValidator:
@@ -29,7 +29,7 @@ class MasterValidator:
         self._rel_ns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
     def validate_master(
-        self, part: "SlideMasterPart", context: "ValidationContext"
+        self, part: SlideMasterPart, context: ValidationContext
     ) -> list[ValidationError]:
         """Validate a slide master part.
 
@@ -70,7 +70,7 @@ class MasterValidator:
         return errors
 
     def validate_layout(
-        self, part: "SlideLayoutPart", context: "ValidationContext"
+        self, part: SlideLayoutPart, context: ValidationContext
     ) -> list[ValidationError]:
         """Validate a slide layout part.
 
@@ -105,7 +105,7 @@ class MasterValidator:
         return errors
 
     def _validate_master_root(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate the slide master root element."""
         expected_tag = f"{{{PRESENTATIONML}}}sldMaster"
@@ -115,7 +115,7 @@ class MasterValidator:
             )
 
     def _validate_layout_root(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate the slide layout root element."""
         expected_tag = f"{{{PRESENTATIONML}}}sldLayout"
@@ -148,7 +148,7 @@ class MasterValidator:
         self,
         xml: etree._Element,
         parent_type: str,
-        context: "ValidationContext",
+        context: ValidationContext,
     ) -> None:
         """Validate common slide data."""
         cSld = xml.find("p:cSld", self._ns)
@@ -180,7 +180,7 @@ class MasterValidator:
             )
 
     def _validate_clr_map(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate color map in slide master."""
         clrMap = xml.find("p:clrMap", self._ns)
@@ -205,7 +205,7 @@ class MasterValidator:
                 )
 
     def _validate_clr_map_ovr(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate color map override in slide layout."""
         clrMapOvr = xml.find("p:clrMapOvr", self._ns)
@@ -224,8 +224,8 @@ class MasterValidator:
     def _validate_sld_layout_id_lst(
         self,
         xml: etree._Element,
-        part: "SlideMasterPart",
-        context: "ValidationContext",
+        part: SlideMasterPart,
+        context: ValidationContext,
     ) -> None:
         """Validate slide layout references in master."""
         layoutIdLst = xml.find("p:sldLayoutIdLst", self._ns)
@@ -278,7 +278,7 @@ class MasterValidator:
                 )
 
     def _validate_theme_relationship(
-        self, part: "SlideMasterPart", context: "ValidationContext"
+        self, part: SlideMasterPart, context: ValidationContext
     ) -> None:
         """Validate slide master has a theme relationship."""
         theme_type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme"
@@ -294,7 +294,7 @@ class MasterValidator:
             )
 
     def _validate_master_relationship(
-        self, part: "SlideLayoutPart", context: "ValidationContext"
+        self, part: SlideLayoutPart, context: ValidationContext
     ) -> None:
         """Validate slide layout has a master relationship."""
         master_type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster"
@@ -310,7 +310,7 @@ class MasterValidator:
             )
 
     def _validate_tx_styles(
-        self, xml: etree._Element, context: "ValidationContext"
+        self, xml: etree._Element, context: ValidationContext
     ) -> None:
         """Validate text styles in slide master."""
         txStyles = xml.find("p:txStyles", self._ns)
@@ -327,7 +327,7 @@ class MasterValidator:
 
 
 def validate_slide_master(
-    part: "SlideMasterPart", context: "ValidationContext"
+    part: SlideMasterPart, context: ValidationContext
 ) -> list[ValidationError]:
     """Validate a slide master part.
 
@@ -343,7 +343,7 @@ def validate_slide_master(
 
 
 def validate_slide_layout(
-    part: "SlideLayoutPart", context: "ValidationContext"
+    part: SlideLayoutPart, context: ValidationContext
 ) -> list[ValidationError]:
     """Validate a slide layout part.
 

@@ -1,10 +1,10 @@
 """Schema validation for Open XML documents."""
 
 from openxml_audit.schema.constraints import (
+    PPTX_CONSTRAINTS,
     AttributeConstraint,
     ElementConstraint,
     ElementConstraintRegistry,
-    PPTX_CONSTRAINTS,
     get_constraint_for_tag,
     get_element_constraint,
 )

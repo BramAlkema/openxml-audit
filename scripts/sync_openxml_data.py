@@ -175,7 +175,7 @@ def sync_data(force: bool = False, ref: str = SDK_REF) -> dict[str, int]:
     # Save version
     save_version(latest_commit, sdk_ref=ref)
 
-    print(f"\nSync complete!")
+    print("\nSync complete!")
     print(f"  Schema files: {stats['schemas']}")
     print(f"  Data files: {stats['data_files']}")
     print(f"  SDK ref: {ref}")

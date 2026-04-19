@@ -8,8 +8,8 @@ import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))

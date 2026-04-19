@@ -23,7 +23,7 @@ class DocumentValidator:
         self._rel_ns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
     def validate(
-        self, part: "DocumentPart", context: "ValidationContext"
+        self, part: DocumentPart, context: ValidationContext
     ) -> list[ValidationError]:
         """Validate a Word document part."""
         context.set_part(part)
@@ -41,14 +41,14 @@ class DocumentValidator:
         errors.extend(context.errors)
         return errors
 
-    def _validate_root(self, xml: etree._Element, context: "ValidationContext") -> None:
+    def _validate_root(self, xml: etree._Element, context: ValidationContext) -> None:
         expected_tag = f"{{{WORDPROCESSINGML}}}document"
         if xml.tag != expected_tag:
             context.add_schema_error(
                 f"Root element should be 'document', got '{xml.tag}'",
             )
 
-    def _validate_body(self, xml: etree._Element, context: "ValidationContext") -> None:
+    def _validate_body(self, xml: etree._Element, context: ValidationContext) -> None:
         body = xml.find("w:body", self._ns)
         if body is None:
             context.add_schema_error(
@@ -59,8 +59,8 @@ class DocumentValidator:
     def _validate_header_footer_refs(
         self,
         xml: etree._Element,
-        part: "DocumentPart",
-        context: "ValidationContext",
+        part: DocumentPart,
+        context: ValidationContext,
     ) -> None:
         for tag, rel_type in (
             ("headerReference", REL_HEADER),

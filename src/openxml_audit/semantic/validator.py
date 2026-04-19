@@ -10,11 +10,11 @@ from openxml_audit.context import ElementContext
 from openxml_audit.errors import FileFormat, ValidationError
 from openxml_audit.namespaces import MC, OFFICE_DOC_RELATIONSHIPS
 from openxml_audit.semantic.attributes import SemanticConstraint
+from openxml_audit.semantic.references import IdTracker, validate_unique_ids
+from openxml_audit.semantic.relationships import validate_part_relationships
 
 _MC_ALTERNATE_CONTENT = f"{{{MC}}}AlternateContent"
 _MC_NS = {"mc": MC}
-from openxml_audit.semantic.references import IdTracker, validate_unique_ids
-from openxml_audit.semantic.relationships import validate_part_relationships
 
 if TYPE_CHECKING:
     from openxml_audit.context import ValidationContext

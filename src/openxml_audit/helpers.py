@@ -9,10 +9,10 @@ Provides convenient utilities for integrating validation into various workflows:
 from __future__ import annotations
 
 import functools
-import tempfile
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Generator, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from openxml_audit.errors import FileFormat, ValidationResult
 from openxml_audit.validator import OpenXmlValidator

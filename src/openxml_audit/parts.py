@@ -119,7 +119,10 @@ class PresentationPart(OpenXmlPart):
             for sld_id in sld_id_lst.findall("p:sldId", ns):
                 id_val = sld_id.get("id", "")
                 # r:id attribute uses relationships namespace
-                rel_id = sld_id.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id", "")
+                rel_id = sld_id.get(
+                    "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id",
+                    "",
+                )
                 if id_val and rel_id:
                     slides.append((id_val, rel_id))
 
@@ -140,7 +143,10 @@ class PresentationPart(OpenXmlPart):
         if master_id_lst is not None:
             for master_id in master_id_lst.findall("p:sldMasterId", ns):
                 id_val = master_id.get("id", "")
-                rel_id = master_id.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id", "")
+                rel_id = master_id.get(
+                    "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id",
+                    "",
+                )
                 if rel_id:  # id is optional for masters
                     masters.append((id_val, rel_id))
 

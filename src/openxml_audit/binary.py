@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from openxml_audit.errors import ValidationSeverity
 
@@ -118,9 +118,14 @@ def _get_extension(part_uri: str) -> str:
 
 def _is_font_candidate(content_type: str | None, part_uri: str) -> bool:
     ext = _get_extension(part_uri)
-    if content_type:
-        if content_type in FONT_CONTENT_TYPES or content_type in OBFUSCATED_FONT_CONTENT_TYPES:
-            return True
+    if (
+        content_type
+        and (
+            content_type in FONT_CONTENT_TYPES
+            or content_type in OBFUSCATED_FONT_CONTENT_TYPES
+        )
+    ):
+        return True
     return ext in FONT_EXTENSIONS
 
 
@@ -140,7 +145,7 @@ def parse_font_key(value: str) -> bytes | None:
     if len(parts) != 5:
         return None
     lengths = (8, 4, 4, 4, 12)
-    if any(len(part) != expected for part, expected in zip(parts, lengths)):
+    if any(len(part) != expected for part, expected in zip(parts, lengths, strict=True)):
         return None
     try:
         data1 = bytes.fromhex(parts[0])

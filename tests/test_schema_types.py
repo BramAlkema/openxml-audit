@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from openxml_audit.schema.types import (
     AnyURITypeValidator,
     BooleanTypeValidator,
@@ -34,7 +32,10 @@ class TestStringTypeValidator:
 
         result = validator.validate("ab")
         assert not result.is_valid
-        assert "minimum" in result.error_message.lower() or "less than" in result.error_message.lower()
+        assert (
+            "minimum" in result.error_message.lower()
+            or "less than" in result.error_message.lower()
+        )
 
     def test_max_length(self) -> None:
         """Test max length constraint."""
@@ -45,7 +46,10 @@ class TestStringTypeValidator:
 
         result = validator.validate("hello!")
         assert not result.is_valid
-        assert "maximum" in result.error_message.lower() or "exceeds" in result.error_message.lower()
+        assert (
+            "maximum" in result.error_message.lower()
+            or "exceeds" in result.error_message.lower()
+        )
 
     def test_pattern(self) -> None:
         """Test pattern constraint."""
@@ -70,7 +74,10 @@ class TestStringTypeValidator:
 
         result = validator.validate("yellow")
         assert not result.is_valid
-        assert "allowed values" in result.error_message.lower() or "not in" in result.error_message.lower()
+        assert (
+            "allowed values" in result.error_message.lower()
+            or "not in" in result.error_message.lower()
+        )
 
 
 class TestBooleanTypeValidator:
