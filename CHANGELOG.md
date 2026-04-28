@@ -49,17 +49,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   test specific orderings, roundtrips each through Word, and emits a
   JSON baseline at `tools/oracle/baselines/`.
 - First committed oracle baseline:
-  `tools/oracle/baselines/word_trpr_pairwise.json` — covers the four
-  CT_TrPr children that can appear empty (trHeight, hidden, cantSplit,
-  tblHeader), all 8 possible orderings (baseline + 6 pairwise swaps +
-  full reverse). Word for Mac M365 16.89.1 **preserved every ordering
-  with no repair dialog**, including issue #3's specific
-  `tblHeader`-before-`cantSplit` pattern. This contradicts the
-  assumption underlying spec 010 Phase 1's `CT_TrPr` constraint on at
-  least this Word build. WARNING severity (not ERROR) is now clearly
-  the right call. The remaining 8 canonical CT_TrPr children require
-  attributes and weren't covered in this baseline; future oracle runs
-  will extend coverage.
+  `tools/oracle/baselines/word_trpr_pairwise.json` — covers all 12
+  canonical CT_TrPr children with minimum-valid attributes, 68
+  scenarios (baseline + 66 pairwise swaps + full reverse). Word for
+  Mac M365 16.89.1 **preserved every ordering with no repair dialog**,
+  including issue #3's specific `tblHeader`-before-`cantSplit` pattern
+  AND the canonical fully reversed. This is a complete refutation of
+  the assumption underlying spec 010 Phase 1's `CT_TrPr` constraint
+  on at least this Word build. WARNING severity (not ERROR) is now
+  clearly the right call; the constraint may be removed in a future
+  release once additional Word builds are surveyed.
 
 ### Changed
 - the existing "stylesWithEffects contains styles not in styles.xml" check

@@ -74,14 +74,16 @@ class ChildSequence:
 # CT_TrPr canonical child order, derived from SDK schema metadata
 # `w:CT_TrPr/w:trPr` Children. The constraint shipped under the
 # assumption (per issue #3) that Word's repair dialog enforces this
-# order. The first oracle run (spec 011 Phase 2,
-# tools/oracle/baselines/word_trpr_pairwise.json) found that Word for
-# Mac M365 16.89.1 preserves every tested ordering of the four
-# attribute-optional children with no repair dialog — meaning this
-# constraint may flag false positives on at least that Word build.
-# WARNING severity is intentionally conservative; do not promote to
-# ERROR until further oracle runs validate the assumption on at least
-# one Word build that does enforce ordering.
+# order. The current oracle baseline
+# (tools/oracle/baselines/word_trpr_pairwise.json) covers all 12
+# canonical children with minimum-valid attributes and 68 scenarios
+# (baseline + 66 pairwise swaps + full reverse): Word for Mac M365
+# 16.89.1 preserves every ordering with no repair dialog, including
+# the canonical fully reversed and issue #3's exact pattern. The
+# constraint as written may flag only false positives on that Word
+# build. WARNING severity is intentionally conservative; do not
+# promote to ERROR until oracle runs on additional Word builds (esp.
+# Windows or earlier macOS releases) demonstrate ordering enforcement.
 _CT_TR_PR = ChildSequence(
     parent_tag=_w("trPr"),
     parent_local="trPr",

@@ -32,6 +32,32 @@ class ScenarioSpec:
     description: str
 
 
+# Minimum-valid attribute set per CT_TrPr child element, keyed on
+# attribute local name (without the w: prefix). Empty dict means "no
+# attributes required — element can stand alone." Values were chosen
+# to be ECMA-376-conformant and inert (no measurable effect on layout).
+TRPR_CHILD_ATTRS: dict[str, dict[str, str]] = {
+    # ST_DecimalNumber-typed val
+    "divId": {"val": "0"},
+    "gridBefore": {"val": "0"},
+    "gridAfter": {"val": "0"},
+    # ST_Cnf — 12-bit conditional-formatting bitstring
+    "cnfStyle": {"val": "000000000000"},
+    # ST_TblWidth — value with type
+    "wBefore": {"w": "0", "type": "dxa"},
+    "wAfter": {"w": "0", "type": "dxa"},
+    "tblCellSpacing": {"w": "0", "type": "dxa"},
+    # ST_JcTable — limited to center/end/start in M365; "center" is a
+    # safe choice across versions.
+    "jc": {"val": "center"},
+    # OnOff and other empty-OK children
+    "trHeight": {},
+    "hidden": {},
+    "cantSplit": {},
+    "tblHeader": {},
+}
+
+
 def materialize_trpr_scenario(spec: ScenarioSpec, dest: Path) -> Path:
     """Build a DOCX with a one-row table whose `trPr` contains
     `spec.input_children` in the requested order. Saves to `dest` and
@@ -40,7 +66,9 @@ def materialize_trpr_scenario(spec: ScenarioSpec, dest: Path) -> Path:
     Uses python-docx so the document inherits a real Word-blessed
     template (full styles, fonts, font table, relationships). We then
     rewrite the row's trPr via lxml to inject our exact ordering — the
-    same approach Shaun used in issue #3.
+    same approach Shaun used in issue #3. Each child receives its
+    minimum-valid attribute set from `TRPR_CHILD_ATTRS` so Word opens
+    the file rather than rejecting it as malformed.
     """
     if spec.parent_local != "trPr":
         raise ValueError(
@@ -60,7 +88,9 @@ def materialize_trpr_scenario(spec: ScenarioSpec, dest: Path) -> Path:
     trPr = etree.Element(f"{WNS}trPr")
     tr.insert(0, trPr)
     for child_local in spec.input_children:
-        etree.SubElement(trPr, f"{WNS}{child_local}")
+        child = etree.SubElement(trPr, f"{WNS}{child_local}")
+        for attr_local, attr_val in TRPR_CHILD_ATTRS.get(child_local, {}).items():
+            child.set(f"{WNS}{attr_local}", attr_val)
 
     dest.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(dest))
@@ -107,23 +137,22 @@ def trpr_full_reverse(canonical: tuple[str, ...]) -> ScenarioSpec:
     )
 
 
-# CT_TrPr children that can appear as empty elements (no required attributes
-# per ECMA-376 §17.4.79). Used so the materialized DOCX is structurally
-# valid with respect to attributes — this isolates *ordering* as the only
-# variable, instead of conflating with "missing required attribute" repairs.
-#
-# The other canonical children (cnfStyle, divId, gridBefore, gridAfter,
-# wBefore, wAfter, tblCellSpacing, jc) all require attributes; emitting
-# them empty triggers Word's "Word experienced an error trying to open
-# the file" dialog (a harder failure than the "unreadable content"
-# repair). They can be added to the matrix later by passing valid attrs.
-#
-# Note: this subset still contains issue #3's exact pair (cantSplit and
-# tblHeader), so the open question of whether Word for Mac M365 enforces
-# their ordering remains directly testable here.
+# Canonical CT_TrPr child order per ECMA-376 §17.4.79, restricted to the
+# core 12 (no w14:conflictIns/Del track-change extensions). Each child
+# receives a minimum-valid attribute set from TRPR_CHILD_ATTRS during
+# materialization so Word opens the file cleanly — that isolates
+# ordering as the only variable.
 TRPR_CANONICAL_CORE: tuple[str, ...] = (
+    "cnfStyle",
+    "divId",
+    "gridBefore",
+    "gridAfter",
+    "wBefore",
+    "wAfter",
     "trHeight",
     "hidden",
     "cantSplit",
     "tblHeader",
+    "tblCellSpacing",
+    "jc",
 )
