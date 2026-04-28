@@ -1,157 +1,122 @@
 <!-- /autoplan restore point: /Users/ynse/.gstack/projects/BramAlkema-openxml-audit/spec-012-parity-gate-recovery-autoplan-restore-20260429-000449.md -->
-# Spec: Parity Gate Recovery After Spec 010 Phase 2
+# Spec: Demote SDK Parity Gate to Advisory; Re-baseline; Defer Sovereign-Gate Design to Spec 013
 
 ## Status
 
-Proposed (April 29, 2026). Parity gate has been red on `main` since commit `0f8a986` (Spec 010 Phase 2, April 28) — four pushes have landed under a failing gate.
+Proposed v2 (April 29, 2026). v1 ("recover the gate by investigating each new family") was rewritten after `/autoplan` review surfaced two strong cross-phase themes: (1) the SDK is no longer the right sovereign, (2) the bisect-and-classify procedure was operationally broken even within v1's frame. Both User Challenges accepted by the user. The full v1 plan and the autoplan review are preserved below as audit trail.
 
 ## Problem
 
-The Parity gate (`.github/workflows/parity-gate.yml`) compares our Python validator's findings against a frozen `Open XML SDK v3.4.1` baseline (`data/corpus/parity_baseline/v3.4.1/parity_snapshot.json`). Baseline policy is strict no-drift: max 0 mismatch growth, 0 new families, 0pp match-rate drop.
+The Parity gate (`.github/workflows/parity-gate.yml`) has been red on `main` since `0f8a986` (Spec 010 Phase 2, April 28), through 4 pushes. The repo's branch protection has not been actively enforcing it, so commits keep landing — that's a process-level finding flagged by both autoplan voices.
 
-Since Spec 010 Phase 2 landed, every push to `main` has tripped all three gates:
+The deeper problem is the gate's *role*, not its current state:
 
-```
-Mismatch growth:           4   (threshold 0)
-New mismatch families:     5   (unwaived 5, waived 0)
-Match-rate drop:          5.19pp  (threshold 0.00pp)
-```
+- The repo's stated mission per `CLAUDE.md` is "validate OOXML files to determine if they will open successfully in their target apps."
+- Specs 010 and 011 *deliberately* ship divergence from the .NET Open XML SDK because the SDK accepts files Word rejects (CT_TrPr/CT_TblPr/CT_TcPr/CT_SectPr child ordering; future CT_PPr/CT_RPr empirical canonical work).
+- The current parity gate enforces strict-no-drift against the SDK as if the SDK were ground truth. Each intentional divergence either needs a waiver or breaks CI.
+- Six months out at the current cadence: 5–15 expiring waivers, all saying "Word disagrees with SDK," with the waiver list becoming the validator's actual spec, expressed negatively against an obsolete reference.
 
-The 4 mismatched checks are all on `TestFiles/Document.docx`:
-
-| Validator version | Expected (SDK) | Actual (us) | Delta |
-|---|---|---|---|
-| Office2007 (inline_version_count) | 415 | 416 | +1 |
-| Office2010 (inline_version_count) | 0 | 1 | +1 |
-| Office2013 (inline_version_count) | 1 | 2 | +1 |
-| Office2013 (assert_single_validator) | 1 | 2 | +1 |
-
-The 5 new mismatch families are:
-
-| # | Family | Count | Expected vs surprising |
-|---|---|---|---|
-| 1 | `Sch_UndeclaredAttribute` — `…/sdt/sdtContent/tbl/tr/trPr/cnfStyle` | 12 | **Surprising** |
-| 2 | `Sch_UndeclaredAttribute` — `…/sdt/sdtContent/tbl/tblPr/tblLook` | 6 | **Surprising** |
-| 3 | `Sem_SemanticError` — sectPr child reordering | 4 | **Expected** (this is what Phase 2 ships) |
-| 4 | `Sem_UniqueAttributeValue` — `…/AlternateContent/Fallback/pict/shapetype` | 2 | **Surprising** |
-| 5 | `Sch_UndeclaredAttribute` — `…/sdt/sdtContent/tbl/tr/tc/tcPr/cnfStyle` | 1 | **Surprising** |
-
-The "expected" family aligns with what Phase 2 was built to ship: the sectPr canonical-ordering check now flags Document.docx's section properties. Adding a `new_mismatch_family` waiver for that family is the documented contract path (`docs/parity_contract.md` §Waiver Process).
-
-The four "surprising" families are not from Phase 2's diff. The diff between `5c40485` (last green) and `0f8a986` (first red) modifies exactly one source file: `src/openxml_audit/word/compat.py`. That file only emits `Sem_SemanticError` findings via `WordCompatValidator.validate()`. It cannot directly emit `Sch_UndeclaredAttribute` or `Sem_UniqueAttributeValue`. Either:
-
-- **(A)** Phase 2 has an indirect side effect that surfaces dormant schema findings (e.g., it perturbs an element-iteration order that other validators implicitly depend on), or
-- **(B)** These findings have been emitted by us all along but the baseline was extracted in a state where they were not present (e.g., the SDK corpus archive at the parity-gate URL differs from what was used to seed the baseline), or
-- **(C)** A third commit on the path (build/install env, scripts, etc.) altered how the snapshot script normalizes output.
-
-The spec must determine which of (A)/(B)/(C) is true *before* deciding fix-vs-waive on each family. Waiving a regression silently is a parity-contract anti-pattern.
+The current spec 012 v1 ("recover green by investigating") was a symptom-fix. v2 reframes: stop treating SDK as sovereign, treat it as one of three signals.
 
 ## Why This Matters
 
-- **The gate is the contract.** A red gate on `main` for 4 commits means every subsequent change ships under unverified parity. The signal is now noise.
-- **Waiver-without-investigation is forbidden by the contract.** `docs/parity_contract.md` requires `reason` per waiver and treats waivers as *temporary*. We don't yet have a defensible reason for families 1, 2, 4, 5.
-- **Re-baselining without investigation hides regressions.** The baseline is meant to track our validator's *intentional* divergence from the SDK. Bumping it without understanding what changed converts every silent regression into the new normal.
-- **Spec 010 Phase 3 + Spec 011 are blocked behind this.** Phase 3 (CT_PPr/CT_RPr empirical canonical) will introduce more deliberate divergence from the SDK and needs a clean gate to land safely. The oracle work in Spec 011 will too.
+- **Validator's competitive moat is app-survival prediction**, not SDK parity. A validator that says "matches SDK" is commodity software (the SDK itself is open and re-usable). A validator that predicts Word/PowerPoint/Excel survival is the moat.
+- **The gate has been red 4 commits and `main` kept moving.** Either it's a required check or it isn't. The current half-state is the worst configuration: signal that everyone has learned to ignore.
+- **Spec 011 (Word roundtrip oracle) is structurally the right ground truth** for app-survival claims. It should *unblock* parity decisions, not wait behind them.
+- **Recurrence is structural, not anomalous.** Spec 010 Phase 3 (CT_PPr/CT_RPr empirical canonical) and every future Spec 011 oracle finding will trigger the same drift event. A symptom-fix today guarantees the same recovery work in 6 weeks.
 
 ## Normative References
 
-- `docs/parity_contract.md` — comparison contract, waiver process, perf budget
-- `.github/workflows/parity-gate.yml` — strict-no-drift policy enforced on every PR/push
-- `.github/workflows/calibrate-parity.yml` — re-baselining workflow (manual + weekly cron)
+- `CLAUDE.md` — repo mission ("will this file open in target apps?")
+- `docs/parity_contract.md` — current comparison contract, waiver process, perf budget (will be revised to reflect advisory status)
+- `.github/workflows/parity-gate.yml` — current strict-no-drift gate
+- `.github/workflows/calibrate-parity.yml` — re-baselining workflow
 - `data/corpus/parity_baseline/v3.4.1/` — current baseline (snapshot, waivers, perf budget)
-- `scripts/corpus/run_parity_snapshot.py` — produces current snapshot
-- `scripts/corpus/compare_to_baseline.py` — comparator + gate
-- Spec 010 Phase 2 commit `0f8a986` — the change that broke the gate
-- Spec 010 Phase 1 commit `5c40485` — last green parity gate run
-
-## Current Failure Pattern
-
-1. Push to `main` containing `src/**` change.
-2. Parity gate downloads corpus archive from `vars.PARITY_CORPUS_ARCHIVE_URL`.
-3. `run_parity_snapshot.py` validates the corpus, produces `parity_current.json`.
-4. `compare_to_baseline.py` compares against `parity_snapshot.json`, emits 5 new families and 4 mismatched checks.
-5. Gate fails.
-6. Subsequent pushes inherit the failure unchanged — none of the 4 commits since Phase 2 modify the validator core, so the gate output is identical.
+- `scripts/corpus/run_parity_snapshot.py`, `scripts/corpus/compare_to_baseline.py` — snapshot + comparator
+- Spec 010 Phase 2 commit `0f8a986` — the change that surfaced this; not the cause of the wrong-sovereign problem (that predates it)
+- Spec 011 — Word roundtrip oracle (the eventual sovereign for Word-survival claims)
+- Autoplan review of v1 — preserved below
 
 ## Approach
 
-A four-phase recovery: **investigate → triage → land fixes/waivers → verify → close**.
+Three phases: **demote → re-baseline (advisory) → defer**.
 
-### Phase 1 — Reproduce locally and identify the source of each surprising family
+### Phase 1 — Demote SDK parity gate to advisory in this PR
 
-Goal: convert "surprising" into "explained" for families 1, 2, 4, 5.
+Goal: stop the gate failing builds on intentional SDK divergence, while preserving the signal it provides.
 
 Steps:
 
-1. **First concrete step: bisect.** Reproduce the snapshot at `5c40485` (Phase 1 HEAD, last green) and `0f8a986` (Phase 2 HEAD, first red), diff the outputs. This is the cheap definitive test for hypotheses (A) vs (B) vs (C) — five minutes settles which surprising families are actually new at Phase 2 vs preexisting. All snapshot outputs land under `docs/parity_recovery_2026-04/transcripts/{short-sha}-snapshot.json` (committed) for reproducibility.
-   - Download `openxml-parity-corpus-v3.4.1.tar.zst` from the release URL into `/tmp`.
-   - Run `python scripts/corpus/run_parity_snapshot.py --manifest data/corpus/sdk_seed/manifest.json --files-root /tmp/.../files --output docs/parity_recovery_2026-04/transcripts/5c40485-snapshot.json` against Phase 1 HEAD.
-   - Run again against `0f8a986` and `f1eeee0` (current `main` HEAD), writing each to its own `{short-sha}-snapshot.json`.
-   - Diff the snapshots; confirm or refute that families 1, 2, 4, 5 first appear at `0f8a986`.
-2. If Phase 1 already shows families 1, 2, 4, 5: hypothesis (A) is wrong; the regression predates Phase 2. Bisect further back to find the actual introduction commit.
-3. For each surprising family, find the actual finding text in the validator output (the `<value>` in the family description templates out the real attribute name) and identify the validator code path that emits it.
-4. Cross-check: did Spec 010 Phase 1 actually pass the gate? Inspect the green run's report artifact (`gh run download 25037832958 -n parity-gate-reports`) to confirm the green snapshot did not contain these families.
-5. Decide for each surprising family whether it is:
-   - **(F) Real regression** — fix the validator (or whatever caused the change in output)
-   - **(W) Intentional new finding** — add a waiver with `reason` documenting why we now diverge from the SDK
-   - **(B) Baseline drift** — the baseline was extracted under different conditions; re-baseline is appropriate
+1. Modify `.github/workflows/parity-gate.yml`:
+   - Add `continue-on-error: true` to the `parity` job, OR split the workflow into two jobs: a blocking "parity-perf" job (perf-budget only) and an advisory "parity-sdk" job (current strict-no-drift comparison, advisory).
+   - Update the workflow's failure surface (step summary, artifact name) to make clear it is informational. The summary should show match-rate trend, not pass/fail.
+   - Keep the workflow running on every push/PR. The signal is still useful — just not blocking.
+2. Update `docs/parity_contract.md`:
+   - Add a section "Gate Roles" stating: SDK parity is *advisory* as of Spec 012; self-parity (Spec 013) and oracle gates (Spec 011) are the future blocking gates. The SDK signal is preserved for trend visibility.
+   - Soften the "Default policy is strict no-drift" wording — strict-no-drift remains the *measurement* policy, but it no longer fails the build.
+   - Note: when the SDK ref is bumped (separate spec), the advisory snapshot should be re-extracted so the trend stays meaningful.
+3. Update branch protection on `main`: remove the parity gate from required checks. (User to perform via GitHub UI; spec records the expectation.)
 
-### Phase 2 — Triage and document each family
+### Phase 2 — Re-baseline once, with explicit acknowledgement of unknown root cause
 
-For each of the 5 families, record in `docs/parity_recovery_2026-04.md` (or extend the existing parity contract):
+Goal: refresh `parity_snapshot.json` so the advisory gate's trend starts from "0 mismatches" again. We do *not* claim to have classified the 5 new families; we explicitly mark them as "snapshot at re-baseline time, root cause not investigated, treated as the new informational baseline."
 
-| Field | Content |
-|---|---|
-| family | Description and path |
-| count | Total instances in current snapshot |
-| classification | F / W / B (per Phase 1 step 5) |
-| root cause | One-paragraph explanation |
-| action | "fix in commit X" / "waive with reason Y" / "re-baseline because Z" |
-| owner | Who is on the hook |
-| follow-up | Any deferred work |
+Steps:
 
-Family 3 (sectPr reordering) is already classified W — Phase 2 was built to ship it. Action: waiver with reason "Spec 010 Phase 2 — intentional divergence from SDK; SDK accepts reordered sectPr children, Word does not."
+1. **Resolve codex finding #6 first.** The `calibrate-parity` workflow runs `extract_sdk_expectations.py` and writes a *runtime* manifest, while the gate uses the checked-in `data/corpus/sdk_seed/manifest.json`. Re-baselining via the calibrate workflow may produce a snapshot with a different *check universe* than what the gate compares against. Either:
+   - **(a)** Modify `calibrate-parity.yml` to use the checked-in manifest verbatim (matches the gate; loses any extraction-time changes), or
+   - **(b)** Synchronize: run `extract_sdk_expectations.py` first, commit the updated `manifest.json`, *then* re-run snapshot.
+   Recommended: (b), with the manifest update as a separate commit on the recovery PR.
+2. Trigger `Calibrate parity` workflow: `gh workflow run calibrate-parity.yml -f sdk_ref=v3.4.1`.
+3. Download the artifact, diff against the current `parity_snapshot.json` to confirm the *check universe* is the same shape as before — only the family counts and match rate should differ. If the check universe differs, halt and resolve before committing.
+4. Replace `parity_snapshot.json` with the new artifact. Commit with a message explicitly stating "re-baselined under advisory policy; 5 new families adopted as informational baseline; root cause not investigated."
+5. Verify the new snapshot reports `match_rate_percent: 100.0` (or whatever the current state is when compared against itself).
+6. Add an in-tree note at `docs/parity_recovery_2026-04.md` recording: the 5 new families adopted, the validator commit at re-baseline (`f1eeee0` + recovery PR's HEAD), and the explicit acknowledgement that A/B/C from v1 was not resolved. Include the snapshot's `generated_at_utc` for traceability.
 
-### Phase 3 — Land fixes and waivers
+### Phase 3 — Open Spec 013 stub for the future sovereign gates
 
-- For (F) families: land code fixes in atomic commits, each one bisectable. Re-run the snapshot locally between commits to confirm progress.
-- For (W) families: extend `data/corpus/parity_baseline/v3.4.1/waivers.json` per the contract format (kind=`new_mismatch_family`, target=family description, owner, reason, expires=YYYY-MM-DD). Default expiry: 6 months out (2026-10-31), forces a review.
-- **Pre-push validation:** run `python scripts/corpus/compare_to_baseline.py --baseline data/corpus/parity_baseline/v3.4.1/parity_snapshot.json --current docs/parity_recovery_2026-04/transcripts/post-fix-snapshot.json --waivers data/corpus/parity_baseline/v3.4.1/waivers.json --output /tmp/parity_compare.json --summary /tmp/parity_compare.md --max-mismatch-growth 0 --max-new-families 0 --max-match-rate-drop 0.0 --max-missing-files 0` locally. Confirm exit 0 and no `waiver_warnings` before pushing. This catches typos in `waivers.json` before the gate sees them.
-- For (B) families: trigger `Calibrate parity` workflow (`gh workflow run calibrate-parity.yml -f sdk_ref=v3.4.1`), download the artifact, replace `parity_snapshot.json` and re-commit. Document the trigger in the same recovery doc.
+Goal: capture the design space for self-parity + oracle gates without doing the design work in this PR.
 
-### Phase 4 — Verify and close
+Steps:
 
-- Re-run `Parity gate` workflow on the recovery PR.
-- Confirm: 0 mismatch growth, 0 new unwaived families, 0 match-rate drop.
-- If perf budget tripped during investigation, address separately (out of scope here unless we accidentally regressed perf).
-- Land the recovery PR. Verify gate is green on `main`.
-- Update `CHANGELOG.md` with the recovery summary (what changed, what waivers added, expiries).
+1. Create `specs/013-validator-output-sovereign-gates.md` (Status: Proposed). Stub sections:
+   - Problem: SDK is no longer sovereign for app-survival claims; we need self-parity (regression detection on our own output) + oracle-driven (Spec 011) gates as the actual blockers.
+   - Approach sketches (not committed): self-parity baseline format; how to integrate with existing `compare_to_baseline.py`; how oracle findings get tagged at emission time so they can be filtered out of the advisory SDK comparison; severity model tied to customer harm (codex CEO finding).
+   - Open questions: how to baseline our own output deterministically (bytes? family-set? error-id-set?); how often to refresh; how to handle intentional changes (e.g. new oracle finding lands → self-parity gate flags it; how does the human resolver bless it?).
+   - Decision needed: does Spec 013 own the eventual deletion/refactor of the advisory SDK gate, or do we keep advisory forever as a third signal?
+2. The stub is enough — implementation is a future spec's work. Goal here is just to make sure the work is *recorded* so it doesn't get forgotten.
 
 ## Acceptance Criteria
 
-1. Parity gate passes on `main` HEAD with strict-no-drift policy unchanged (`--max-mismatch-growth 0 --max-new-families 0 --max-match-rate-drop 0.0`).
-2. Every waiver in `waivers.json` has an explicit `reason` field that names the spec or commit that justifies the divergence.
-3. `docs/parity_recovery_2026-04.md` (or equivalent in-tree note) records the classification (F/W/B) and root cause for all 5 families. No silent classifications.
-4. No code regression hides under a waiver: every (F) family has a corresponding fix commit referenced in the recovery doc.
-5. The recovery PR includes local reproduction transcripts at `docs/parity_recovery_2026-04/transcripts/{short-sha}-snapshot.json` for at minimum: `5c40485` (last green), `0f8a986` (first red), and `main` post-fix (verified green) — so a future maintainer can reproduce the bisect and the recovery delta.
-6. Every (B)-classified family in the recovery doc cites the specific transcript file and finding(s) that justify the re-baseline. No (B) classification without an evidence pointer.
-7. Spec 010 Phase 2 (`specs/010-word-compat-element-ordering.md`) is updated with a back-link to the recovery doc once classifications are complete, so the next person tracing the parity gate failure finds the resolution from either direction.
+1. **Parity gate is non-blocking on `main`.** Either via `continue-on-error: true` or via job split; either way, the workflow runs on every push but does not fail the build.
+2. **Branch protection updated** so the parity gate is no longer a required check.
+3. **`docs/parity_contract.md` updated** with the "Gate Roles" section explaining advisory status and the future Spec 013 sovereign-gate plan.
+4. **Baseline refreshed** (`parity_snapshot.json` updated) with an explicit commit message stating "advisory re-baseline; 5 new families adopted; root cause not investigated."
+5. **Manifest sync resolved** (codex finding #6): either calibrate-parity uses the checked-in manifest, or the manifest is regenerated and committed in the same PR. Confirmed by check-universe diff.
+6. **`docs/parity_recovery_2026-04.md` written** as the in-tree resolution note (one page; not bulky transcripts). Records what changed, why, and what was deferred.
+7. **`specs/013-validator-output-sovereign-gates.md` stub committed** so the next spec has a starting point.
+8. **`CHANGELOG.md` updated** describing the policy change (advisory SDK gate; sovereign-gate design deferred to Spec 013).
+9. **Spec 011 unblocked.** The advisory gate no longer blocks oracle-driven changes from landing.
 
 ## Out of Scope
 
-- **Refactoring the parity comparator itself** (`compare_to_baseline.py`) — keep the contract stable; this spec adapts to it.
-- **Changing the strict-no-drift policy** — loosening `--max-new-families` or `--max-match-rate-drop` to make the gate pass would defeat the purpose. If the policy needs tuning, that's a separate spec.
-- **Perf-budget regressions** — only address if we accidentally introduce one during recovery; otherwise track separately.
-- **SDK reference bump** (e.g., to v3.5.x) — orthogonal; let it be its own spec.
-- **Spec 010 Phase 3 (CT_PPr/CT_RPr empirical canonical)** — explicitly blocked on this recovery, but its design and execution belong in spec 010, not here.
-- **Generalizing the recovery into a "drift triage runbook"** — appealing but not now; we'll have one data point. Revisit after the next drift event.
+- **Designing the self-parity gate format.** Spec 013's job. This PR only opens the stub.
+- **Designing the oracle-driven gate integration.** Same — Spec 013.
+- **Investigating root cause of the 4 surprising families** (`Sch_UndeclaredAttribute` on cnfStyle/tblLook, `Sem_UniqueAttributeValue` on shapetype). The advisory re-baseline absorbs them. If a future Spec-013 sovereign-gate setup needs the answer, that's its problem; this PR explicitly does not pretend to know.
+- **Bisect at `5c40485` / `0f8a986` / `f1eeee0`**. Both autoplan voices flagged the bisect as operationally inadequate (`sys.path` shadowing, `family_key` drift across SHAs, top-50 cap, top-20-tuples-per-version cap, no provenance recording). It's not worth fixing the procedure for a one-off result whose value is now zero (we're not classifying families anyway).
+- **Committed reproduction transcripts.** Out per codex's "ceremony" finding; the recovery doc summarizes, doesn't archive blobs.
+- **Per-family waivers.** Now redundant — advisory re-baseline absorbs all 5 families together.
+- **`waivers.json` schema validation tests** (eng claude M2 + codex finding #3). Useful future work but not load-bearing now that we're not adding waivers in this PR. Add as TODO for Spec 013.
+- **SDK reference bump (v3.4.1 → v3.5.x).** Orthogonal; own spec.
+- **`docs/parity_contract.md` full rewrite.** Only the "Gate Roles" addition + "Default policy" softening; full overhaul belongs with Spec 013.
 
 ## Risks
 
-- **Local reproduction may diverge from CI.** The Parity gate uses `python 3.11` on `ubuntu-24.04` with a specific archive URL. Reproducing on darwin may produce different output. Mitigation: if local repro fails, replicate in a docker container or rely on CI artifact downloads (`gh run download`) for ground truth.
-- **Phase 1 step 2 (bisect) might show the regression predates Phase 2.** If the green Phase 1 run masked these findings due to corpus or harness differences, the "surprising" families could be much older. The plan still applies — investigate, classify, act — but the writeup needs to acknowledge the pre-existing condition.
-- **Re-baselining (B-classified families) is irreversible without rolling back the snapshot file.** Mitigation: any (B) action requires explicit user sign-off in the recovery PR description, not a silent baseline bump.
-- **Waivers expire.** A 6-month expiry forces a review but also creates a future cliff. Mitigation: each waiver's `reason` must be specific enough that the renewer can re-evaluate cheaply. Vague reasons ("inherited from spec 010") are forbidden.
+- **Demoting the gate could silently mask future regressions.** The advisory signal is still emitted in workflow summaries and run artifacts; a maintainer who never looks at them won't notice drift. Mitigation: Spec 013 prioritization — self-parity gate must land before any v0.6.x release that depends on stable validator output.
+- **Re-baselining hides whatever the 4 surprising families actually were.** Acknowledged. The PR description and `parity_recovery_2026-04.md` must explicitly state this so future archeology is possible. If a downstream consumer surfaces a regression that traces back to one of these families, the recovery doc + git history + autoplan review give them everything they'd need to investigate.
+- **Manifest sync (codex #6) is non-trivial.** If running `extract_sdk_expectations.py` produces a substantially different manifest from the checked-in one, the re-baseline could shift the check universe and we'd be comparing apples to oranges. Mitigation: Phase 2 step 3 explicitly diffs the check universe before committing; if it shifts, halt.
+- **Spec 013 doesn't get done.** Opening a stub doesn't guarantee the work happens. Mitigation: track in `TODOS.md` (when one exists) or as a GitHub issue with the recovery PR; tie to next release planning.
+- **Branch protection update is a manual GitHub UI step.** If the user forgets, the gate is technically advisory in YAML but still required by GitHub. Mitigation: spec includes acceptance criterion #2; PR description must include the GitHub UI step as an explicit item.
 
 ---
 
