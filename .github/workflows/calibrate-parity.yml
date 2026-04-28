@@ -52,7 +52,13 @@ jobs:
             --sdk-root "$SDK_ROOT" \
             --output-root "$CORPUS_ROOT"
 
-      - name: Build runtime manifest with extracted expectations
+      - name: Build runtime manifest with extracted expectations (informational)
+        # Per spec 012, the parity gate compares against the committed
+        # manifest at data/corpus/sdk_seed/manifest.json. Calibration
+        # extracts a fresh manifest as an artifact for diffing/inspection
+        # (e.g. when bumping SDK ref) but does NOT use it for the
+        # baseline snapshot below — that ensures the calibration snapshot
+        # is taken against the same check universe the gate sees.
         run: |
           cp data/corpus/sdk_seed/manifest.json "$RUNTIME_MANIFEST"
           python scripts/corpus/extract_sdk_expectations.py \
@@ -60,11 +66,11 @@ jobs:
             --manifest "$RUNTIME_MANIFEST" \
             --output "$RUNTIME_MANIFEST"
 
-      - name: Run parity snapshot
+      - name: Run parity snapshot (against committed manifest)
         run: |
           mkdir -p reports
           python scripts/corpus/run_parity_snapshot.py \
-            --manifest "$RUNTIME_MANIFEST" \
+            --manifest data/corpus/sdk_seed/manifest.json \
             --files-root "$CORPUS_ROOT/files" \
             --output reports/parity_snapshot.json
 

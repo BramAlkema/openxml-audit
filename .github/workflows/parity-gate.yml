@@ -1,4 +1,4 @@
-name: Parity gate
+name: Parity gate (SDK advisory + perf blocking)
 
 on:
   pull_request:
@@ -102,7 +102,13 @@ jobs:
             --files-root "${{ steps.corpus.outputs.files_root }}" \
             --output "$CURRENT_SNAPSHOT"
 
-      - name: Compare against baseline
+      - name: Compare against baseline (ADVISORY — Spec 012)
+        # Per spec 012, SDK parity comparison is advisory: the threshold flags
+        # are still computed and surfaced in the step summary for trend
+        # visibility, but a failure here does NOT fail the workflow. The
+        # sovereign blocking gates (self-parity + Word/PowerPoint/Excel oracle)
+        # are deferred to spec 013. Perf budget below remains blocking.
+        continue-on-error: true
         run: |
           python scripts/corpus/compare_to_baseline.py \
             --baseline "$BASELINE_SNAPSHOT" \
@@ -133,6 +139,16 @@ jobs:
       - name: Workflow summary
         if: always()
         run: |
+          {
+            echo "# Parity gate"
+            echo ""
+            echo "**SDK comparison: advisory** — drift against the .NET Open XML SDK v3.4.1 baseline is informational. Track trend over time; do not treat individual diffs as build failures. Sovereign blocking gates are deferred to spec 013 (self-parity + Word/PowerPoint/Excel roundtrip oracle)."
+            echo ""
+            echo "**Perf budget: blocking** — runtime budget against \`perf_budget.json\` still fails the build."
+            echo ""
+            echo "---"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
           if [ -f "$SUMMARY_REPORT" ]; then
             cat "$SUMMARY_REPORT" >> "$GITHUB_STEP_SUMMARY"
           else
