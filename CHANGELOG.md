@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when the package is internally self-consistent (relationship and
   content-type entries removed too). ECMA-376 makes them optional, but
   this is empirically required by PowerPoint.
+- Word compatibility ordering check (Phase 1: `CT_TrPr`). Flags child
+  element reorderings inside `w:trPr` that trigger Word's "unreadable
+  content" repair dialog despite the .NET Open XML SDK accepting the
+  same files (e.g. `cantSplit` after `tblHeader`). Severity WARNING —
+  this is an empirical Word-app-compat finding, not a strict OOXML
+  violation. See spec 010 for the rollout plan and the proxy-not-oracle
+  caveat. Phases 2–3 (`CT_PPr`, `CT_RPr`, `CT_TblPr`, `CT_TcPr`) are
+  gated on a corpus signal from issue #3.
 
 ### Changed
 - the existing "stylesWithEffects contains styles not in styles.xml" check
