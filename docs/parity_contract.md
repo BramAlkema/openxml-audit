@@ -2,6 +2,21 @@
 
 This document defines the comparison contract and CI gate behavior used by parity workflows.
 
+## Gate Roles (as of Spec 012, April 2026)
+
+The repo's mission per `CLAUDE.md` is "validate OOXML files to determine if they will open successfully in their target apps." Specs 010 and 011 deliberately ship divergence from the .NET Open XML SDK because the SDK accepts files Word rejects. The parity-gate roles reflect that:
+
+| Gate | Role | Status |
+|---|---|---|
+| **SDK parity comparison** (`compare_to_baseline.py`) | Advisory — trend visibility on validator output drift against SDK v3.4.1 | **NON-BLOCKING** in `.github/workflows/parity-gate.yml` (`continue-on-error: true` on the comparison step). Runs every push/PR; surfaces in workflow summary; does not fail the build. |
+| **Perf budget** (`check_perf_budget.py`) | Runtime regression guard | **BLOCKING** — perf-budget violations still fail CI. |
+| **Self-parity** (validator output vs our last green output) | Catches our own regressions, keyed on our output rather than SDK's | DEFERRED to Spec 013 (`specs/013-validator-output-sovereign-gates.md`). |
+| **Word/PowerPoint/Excel roundtrip oracle** | Sovereign for app-survival claims | DEFERRED to Spec 011 + Spec 013. |
+
+The strict-no-drift *measurement* policy (max 0 mismatch growth, 0 new families, 0pp match-rate drop) is unchanged — the comparison still uses those thresholds when deciding what to surface in the summary. The change is what happens when those thresholds are exceeded: the build no longer fails. SDK divergence is now a trend signal, not a gate.
+
+When the SDK reference is bumped (separate spec), the advisory snapshot must be re-extracted so the trend stays meaningful.
+
 ## Scope
 
 - Applies to OOXML parity calibration and PR parity-drift gating.
@@ -66,7 +81,7 @@ Default parity snapshots run against `base` expectations only.
 
 Family drift is keyed by `family_key` when present (falls back to `description` for older snapshots).
 
-Default policy is strict no-drift:
+Default *measurement* policy is strict no-drift (advisory; see "Gate Roles" above for the build-failure semantics):
 
 - `--max-mismatch-growth 0`
 - `--max-new-families 0`
@@ -75,15 +90,17 @@ Default policy is strict no-drift:
 - `--require-same-strict`
 - disallow `checks_total` drop
 
+These thresholds determine what the comparator surfaces as drift; they no longer determine whether the build passes. Per Spec 012, the SDK comparison is non-blocking.
+
 ## PR Gate Behavior
 
 Workflow: `.github/workflows/parity-gate.yml`
 
 - Runs snapshot with current code.
-- Compares to baseline via `compare_to_baseline.py`.
-- Enforces runtime budget via `check_perf_budget.py`.
+- Compares to baseline via `compare_to_baseline.py` (advisory; see "Gate Roles").
+- Enforces runtime budget via `check_perf_budget.py` (blocking).
 - Uploads reports and step summary.
-- Fails PR on policy violations.
+- Fails PR only on perf-budget violations. SDK comparison drift is surfaced in the step summary but does not fail the build.
 
 Corpus source for gate:
 
