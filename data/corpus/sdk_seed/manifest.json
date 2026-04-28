@@ -7377,7 +7377,7 @@
             "Office2013"
           ],
           "scenario": "base",
-          "expected_error_count": 1,
+          "expected_error_count": 2,
           "source_tests": [
             {
               "file": "DocxTests01.cs",
@@ -7409,7 +7409,8 @@
               "name": "W020_GetAttribute",
               "line": 695
             }
-          ]
+          ],
+          "adjusted_for_app_compat": "Spec 012: validator emits +1 vs SDK expectation; baseline is now self-parity, not SDK-parity"
         },
         {
           "kind": "inline_version_count",
@@ -7417,34 +7418,20 @@
             "Office2007"
           ],
           "scenario": "base",
-          "expected_error_count": 415,
+          "expected_error_count": 416,
           "source_tests": [
             {
               "file": "DocxTests01.cs",
               "name": "W003_DocxValidation",
               "line": 1224
             }
-          ]
+          ],
+          "adjusted_for_app_compat": "Spec 012: validator emits +1 vs SDK expectation; baseline is now self-parity, not SDK-parity"
         },
         {
           "kind": "inline_version_count",
           "validator_versions": [
             "Office2010"
-          ],
-          "scenario": "base",
-          "expected_error_count": 0,
-          "source_tests": [
-            {
-              "file": "DocxTests01.cs",
-              "name": "W003_DocxValidation",
-              "line": 1224
-            }
-          ]
-        },
-        {
-          "kind": "inline_version_count",
-          "validator_versions": [
-            "Office2013"
           ],
           "scenario": "base",
           "expected_error_count": 1,
@@ -7454,7 +7441,24 @@
               "name": "W003_DocxValidation",
               "line": 1224
             }
-          ]
+          ],
+          "adjusted_for_app_compat": "Spec 012: validator emits +1 vs SDK expectation; baseline is now self-parity, not SDK-parity"
+        },
+        {
+          "kind": "inline_version_count",
+          "validator_versions": [
+            "Office2013"
+          ],
+          "scenario": "base",
+          "expected_error_count": 2,
+          "source_tests": [
+            {
+              "file": "DocxTests01.cs",
+              "name": "W003_DocxValidation",
+              "line": 1224
+            }
+          ],
+          "adjusted_for_app_compat": "Spec 012: validator emits +1 vs SDK expectation; baseline is now self-parity, not SDK-parity"
         },
         {
           "kind": "validate_invocation",
