@@ -12,7 +12,14 @@ from lxml import etree
 
 from openxml_audit.context import ElementContext
 from openxml_audit.errors import ValidationError
-from openxml_audit.namespaces import PRESENTATIONML, REL_SLIDE, REL_SLIDE_MASTER
+from openxml_audit.namespaces import (
+    PRESENTATIONML,
+    REL_PRES_PROPS,
+    REL_SLIDE,
+    REL_SLIDE_MASTER,
+    REL_TABLE_STYLES,
+    REL_VIEW_PROPS,
+)
 
 if TYPE_CHECKING:
     from openxml_audit.context import ValidationContext
@@ -66,6 +73,9 @@ class PresentationValidator:
 
             # Validate notes size
             self._validate_notes_size(xml, context)
+
+            # Validate PowerPoint-required parts that ECMA-376 leaves optional
+            self._validate_app_compat_parts(part, context)
 
         errors.extend(context.errors)
         return errors
@@ -261,6 +271,33 @@ class PresentationValidator:
                 context.add_schema_error(
                     f"Invalid slide height: {cy}",
                     node="cy",
+                )
+
+    def _validate_app_compat_parts(
+        self, part: PresentationPart, context: ValidationContext
+    ) -> None:
+        """Flag missing parts that PowerPoint requires beyond ECMA-376.
+
+        ECMA-376 §13.3 makes presProps, viewProps, and tableStyles optional,
+        but PowerPoint triggers its "unreadable content" repair dialog when
+        any of them are absent — even when the package is internally
+        self-consistent (relationship and content-type entries removed too).
+        The existing relationship-target check catches the half-broken case
+        where rels still point at missing parts; this fills the gap when the
+        rels are gone too.
+        """
+        required = (
+            (REL_PRES_PROPS, "presProps"),
+            (REL_VIEW_PROPS, "viewProps"),
+            (REL_TABLE_STYLES, "tableStyles"),
+        )
+        for rel_type, label in required:
+            if part.relationships.get_first_by_type(rel_type) is None:
+                context.add_semantic_error(
+                    f"Presentation is missing {label} relationship — "
+                    "PowerPoint will trigger its 'unreadable content' repair "
+                    "dialog when this part is absent",
+                    node=label,
                 )
 
     def _validate_notes_size(

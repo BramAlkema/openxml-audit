@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `styles.xml` but missing from `stylesWithEffects.xml` (the python-docx
   failure mode that produces Word's "unreadable content" repair dialog),
   and flags differing or one-sided `w:docDefaults` between the two parts.
+- PPTX presentation validator now flags missing `presProps`, `viewProps`,
+  and `tableStyles` relationships as ERROR. PowerPoint triggers its
+  "unreadable content" repair dialog when these parts are absent, even
+  when the package is internally self-consistent (relationship and
+  content-type entries removed too). ECMA-376 makes them optional, but
+  this is empirically required by PowerPoint.
 
 ### Changed
 - the existing "stylesWithEffects contains styles not in styles.xml" check
