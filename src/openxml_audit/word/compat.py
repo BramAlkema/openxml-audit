@@ -111,8 +111,13 @@ _CT_TR_PR = ChildSequence(
 
 
 # CT_TblPr canonical child order, derived from SDK schema metadata
-# `w:CT_TblPr/w:tblPr` Children. Validated against TokenMoulds corpus
-# (4,847 observations, 100% pass) — proxy holds.
+# `w:CT_TblPr/w:tblPr` Children. Initially validated against TokenMoulds
+# corpus (4,847 observations, 100% pass against the proxy). The oracle
+# baseline at `tools/oracle/baselines/word_tblpr_pairwise.json` then
+# tested all 93 ordering scenarios (baseline + 91 pairwise swaps + full
+# reverse) against Word for Mac M365 16.89.1 and recorded 93 preserved,
+# 0 repaired, 0 dialogs. The constraint as written may flag false
+# positives on this Word build; WARNING severity remains correct.
 _CT_TBL_PR = ChildSequence(
     parent_tag=_w("tblPr"),
     parent_local="tblPr",
@@ -139,8 +144,13 @@ _CT_TBL_PR = ChildSequence(
 
 
 # CT_TcPr canonical child order, derived from SDK schema metadata
-# `w:CT_TcPr/w:tcPr` Children. Validated against TokenMoulds corpus
-# (28,667 observations, 100% pass) — proxy holds.
+# `w:CT_TcPr/w:tcPr` Children. Initially validated against TokenMoulds
+# corpus (28,667 observations, 100% pass against the proxy). The oracle
+# baseline at `tools/oracle/baselines/word_tcpr_pairwise.json` then
+# tested all 80 ordering scenarios (baseline + 78 pairwise swaps + full
+# reverse) against Word for Mac M365 16.89.1 and recorded 80 preserved,
+# 0 repaired, 0 dialogs. The constraint as written may flag false
+# positives on this Word build; WARNING severity remains correct.
 _CT_TC_PR = ChildSequence(
     parent_tag=_w("tcPr"),
     parent_local="tcPr",
@@ -168,8 +178,13 @@ _CT_TC_PR = ChildSequence(
 
 
 # CT_SectPr canonical child order, derived from SDK schema metadata
-# `w:CT_SectPr/w:sectPr` Children. Validated against TokenMoulds corpus
-# (40 observations, 100% pass) — proxy holds, sample is small.
+# `w:CT_SectPr/w:sectPr` Children. Initially validated against
+# TokenMoulds corpus (40 observations, 100% pass; small sample). The
+# oracle baseline at `tools/oracle/baselines/word_sectpr_pairwise.json`
+# then tested all 155 ordering scenarios (baseline + 153 pairwise swaps
+# + full reverse) against Word for Mac M365 16.89.1 and recorded 155
+# preserved, 0 repaired, 0 dialogs. The constraint as written may flag
+# false positives on this Word build; WARNING severity remains correct.
 _CT_SECT_PR = ChildSequence(
     parent_tag=_w("sectPr"),
     parent_local="sectPr",

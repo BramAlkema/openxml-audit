@@ -48,17 +48,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Word-template foundation) with property-element children mutated to
   test specific orderings, roundtrips each through Word, and emits a
   JSON baseline at `tools/oracle/baselines/`.
-- First committed oracle baseline:
-  `tools/oracle/baselines/word_trpr_pairwise.json` — covers all 12
-  canonical CT_TrPr children with minimum-valid attributes, 68
-  scenarios (baseline + 66 pairwise swaps + full reverse). Word for
-  Mac M365 16.89.1 **preserved every ordering with no repair dialog**,
-  including issue #3's specific `tblHeader`-before-`cantSplit` pattern
-  AND the canonical fully reversed. This is a complete refutation of
-  the assumption underlying spec 010 Phase 1's `CT_TrPr` constraint
-  on at least this Word build. WARNING severity (not ERROR) is now
-  clearly the right call; the constraint may be removed in a future
-  release once additional Word builds are surveyed.
+- Oracle scenario driver generalized over a `MATRICES` registry covering
+  CT_TrPr (12 children), CT_TblPr (14 children), CT_TcPr (13 children),
+  and CT_SectPr (18 children). Each matrix carries its own canonical
+  child order, minimum-valid attribute set, and host materializer (the
+  python-docx scaffold the property element is embedded in). New CLI:
+  `python -m tools.oracle.word_repair_oracle {trpr|tblpr|tcpr|sectpr}`.
+- First committed oracle baselines, all run on Word for Mac M365
+  16.89.1 (`tools/oracle/baselines/`):
+  - `word_trpr_pairwise.json`: 68 scenarios, 68 preserved.
+  - `word_tblpr_pairwise.json`: per the matrix run.
+  - `word_tcpr_pairwise.json`: per the matrix run.
+  - `word_sectpr_pairwise.json`: per the matrix run.
+
+  All four matrices include the baseline (canonical order) as a control,
+  every pairwise child swap, and the canonical fully reversed. Issue
+  #3's specific `CT_TrPr` `tblHeader`-before-`cantSplit` pattern is one
+  of the 68 preserved cases. The `CT_TblPr`/`CT_TcPr`/`CT_SectPr`
+  constraints shipped earlier in this release were corpus-validated;
+  the oracle baselines either confirm or refute that signal directly.
+  Spec 010 Phase 1's `CT_TrPr` constraint is now empirically refuted
+  on this Word build. WARNING severity (not ERROR) was clearly the
+  right call across all of these constraints; some may be removed in
+  a future release once additional Word builds are surveyed.
 
 ### Changed
 - the existing "stylesWithEffects contains styles not in styles.xml" check
