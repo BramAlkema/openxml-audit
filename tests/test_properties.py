@@ -342,7 +342,9 @@ class TestStylesWithEffects:
         assert any("invalid" in d.lower() and "bogus" in d for d in descs), descs
 
     def test_swe_orphaned_styles(self, tmp_path: Path) -> None:
-        """Styles in stylesWithEffects but not in styles.xml should warn."""
+        """Styles in stylesWithEffects but not in styles.xml are an ERROR."""
+        from openxml_audit.errors import ValidationSeverity
+
         swe = """\
 <?xml version="1.0" encoding="UTF-8"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
@@ -357,5 +359,120 @@ class TestStylesWithEffects:
         files = self._word_files_with_swe(swe, styles_xml=styles)
         pkg = _build_pkg(tmp_path, "orphan_swe.docx", files)
         result = OpenXmlValidator(schema_validation=False).validate(pkg)
-        descs = [e.description for e in result.errors]
-        assert any("OrphanStyle" in d for d in descs), descs
+        matching = [e for e in result.errors if "OrphanStyle" in e.description]
+        assert matching, [e.description for e in result.errors]
+        assert all(
+            e.severity == ValidationSeverity.ERROR for e in matching
+        ), [(e.severity, e.description) for e in matching]
+
+    def test_swe_styles_missing_from_effects(self, tmp_path: Path) -> None:
+        """Styles in styles.xml but not in stylesWithEffects are an ERROR.
+
+        This is the python-docx failure mode: tools that modify styles.xml
+        without updating stylesWithEffects produce documents that Word
+        flags as unreadable content.
+        """
+        from openxml_audit.errors import ValidationSeverity
+
+        swe = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:style w:type="paragraph" w:styleId="Normal"/>
+</w:styles>"""
+        styles = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:style w:type="paragraph" w:styleId="Normal"/>
+  <w:style w:type="character" w:styleId="Hyperlink"/>
+  <w:style w:type="paragraph" w:styleId="Header"/>
+</w:styles>"""
+        files = self._word_files_with_swe(swe, styles_xml=styles)
+        pkg = _build_pkg(tmp_path, "missing_in_swe.docx", files)
+        result = OpenXmlValidator(schema_validation=False).validate(pkg)
+        matching = [
+            e for e in result.errors
+            if "stylesWithEffects" in e.description and "Hyperlink" in e.description
+        ]
+        assert matching, [e.description for e in result.errors]
+        assert all(
+            e.severity == ValidationSeverity.ERROR for e in matching
+        ), [(e.severity, e.description) for e in matching]
+        assert any("Header" in e.description for e in matching)
+
+    def test_swe_doc_defaults_differ(self, tmp_path: Path) -> None:
+        """Differing docDefaults between styles.xml and stylesWithEffects → ERROR."""
+        from openxml_audit.errors import ValidationSeverity
+
+        swe = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri"/></w:rPr></w:rPrDefault>
+  </w:docDefaults>
+  <w:style w:type="paragraph" w:styleId="Normal"/>
+</w:styles>"""
+        styles = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Aptos"/></w:rPr></w:rPrDefault>
+  </w:docDefaults>
+  <w:style w:type="paragraph" w:styleId="Normal"/>
+</w:styles>"""
+        files = self._word_files_with_swe(swe, styles_xml=styles)
+        pkg = _build_pkg(tmp_path, "doc_defaults_differ.docx", files)
+        result = OpenXmlValidator(schema_validation=False).validate(pkg)
+        matching = [e for e in result.errors if "docDefaults" in e.description]
+        assert matching, [e.description for e in result.errors]
+        assert all(e.severity == ValidationSeverity.ERROR for e in matching)
+
+    def test_swe_doc_defaults_one_sided(self, tmp_path: Path) -> None:
+        """docDefaults present in only one of the two parts → ERROR."""
+        from openxml_audit.errors import ValidationSeverity
+
+        swe = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:style w:type="paragraph" w:styleId="Normal"/>
+</w:styles>"""
+        styles = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Aptos"/></w:rPr></w:rPrDefault>
+  </w:docDefaults>
+  <w:style w:type="paragraph" w:styleId="Normal"/>
+</w:styles>"""
+        files = self._word_files_with_swe(swe, styles_xml=styles)
+        pkg = _build_pkg(tmp_path, "doc_defaults_one_sided.docx", files)
+        result = OpenXmlValidator(schema_validation=False).validate(pkg)
+        matching = [
+            e for e in result.errors
+            if "docDefaults" in e.description and "missing" in e.description
+        ]
+        assert matching, [e.description for e in result.errors]
+        assert all(e.severity == ValidationSeverity.ERROR for e in matching)
+
+    def test_swe_consistent_with_styles(self, tmp_path: Path) -> None:
+        """Identical styles.xml and stylesWithEffects produce no consistency errors."""
+        body = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri"/></w:rPr></w:rPrDefault>
+  </w:docDefaults>
+  <w:style w:type="paragraph" w:styleId="Normal">
+    <w:rPr><w:rFonts w:ascii="Calibri"/></w:rPr>
+  </w:style>
+</w:styles>"""
+        files = self._word_files_with_swe(body, styles_xml=body)
+        pkg = _build_pkg(tmp_path, "consistent.docx", files)
+        result = OpenXmlValidator(schema_validation=False).validate(pkg)
+        consistency_errors = [
+            e for e in result.errors
+            if any(
+                marker in e.description
+                for marker in ("docDefaults", "differ", "not in styles.xml", "not in stylesWithEffects")
+            )
+        ]
+        assert consistency_errors == [], [e.description for e in consistency_errors]

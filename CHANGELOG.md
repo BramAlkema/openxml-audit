@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `stylesWithEffects` consistency validator now flags styles present in
+  `styles.xml` but missing from `stylesWithEffects.xml` (the python-docx
+  failure mode that produces Word's "unreadable content" repair dialog),
+  and flags differing or one-sided `w:docDefaults` between the two parts.
+
+### Changed
+- the existing "stylesWithEffects contains styles not in styles.xml" check
+  is now reported as ERROR instead of WARNING, matching the severity of the
+  reverse-direction check and the Word-application impact (file repair).
+  Files that previously passed with this warning will now fail validation.
+
 ## [0.5.0] - 2026-04-20
 
 ### Added

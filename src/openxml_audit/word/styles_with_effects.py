@@ -10,7 +10,7 @@ and content type
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from lxml import etree
 
@@ -140,7 +140,23 @@ class StylesWithEffectsValidator:
         package: OpenXmlPackage,
         context: ValidationContext,
     ) -> None:
-        """Check that stylesWithEffects styleIds are consistent with styles.xml."""
+        """Check that stylesWithEffects is consistent with styles.xml.
+
+        Word cross-checks these two parts and shows the "unreadable content"
+        repair dialog when they diverge. The .NET Open XML SDK does not detect
+        this; tools that modify only styles.xml (e.g. python-docx) routinely
+        produce drift. We check three things:
+
+        - styles missing from stylesWithEffects (present in styles.xml only)
+        - styles missing from styles.xml (present in stylesWithEffects only)
+        - w:docDefaults differing between the two parts
+
+        We deliberately do not compare matching style definitions: by design,
+        stylesWithEffects mirrors styles.xml *plus* DrawingML effects, so
+        per-style content drift is expected for any style that carries an
+        effect (text outline, shadow, glow, etc.) and would produce a flood
+        of false positives on legitimate Word-generated files.
+        """
         main_uri = package.get_main_document_uri()
         if not main_uri:
             return
@@ -154,32 +170,89 @@ class StylesWithEffectsValidator:
         if styles_xml is None:
             return
 
-        # Collect style IDs from styles.xml
-        styles_ids: set[str] = set()
-        for style in styles_xml.findall(
-            f"{{{WORDPROCESSINGML}}}style"
-        ):
-            sid = style.get(f"{{{WORDPROCESSINGML}}}styleId", "").strip()
-            if sid:
-                styles_ids.add(sid)
-
-        # Collect style IDs from stylesWithEffects
-        effects_ids: set[str] = set()
-        for style in effects_xml.findall("w:style", self._ns):
-            sid = style.get(f"{{{WORDPROCESSINGML}}}styleId", "").strip()
-            if sid:
-                effects_ids.add(sid)
+        styles_by_id = self._collect_styles_by_id(styles_xml)
+        effects_by_id = self._collect_styles_by_id(effects_xml)
 
         # Styles in effects but not in styles.xml
-        orphaned = effects_ids - styles_ids
-        if orphaned:
-            sample = sorted(orphaned)[:5]
+        only_in_effects = sorted(set(effects_by_id) - set(styles_by_id))
+        if only_in_effects:
             context.add_error(
                 error_type=ValidationErrorType.SEMANTIC,
                 description=(
-                    f"stylesWithEffects contains {len(orphaned)} style(s) not "
-                    f"in styles.xml: {', '.join(sample)}"
+                    f"stylesWithEffects contains {len(only_in_effects)} style(s) "
+                    f"not in styles.xml: {', '.join(only_in_effects[:5])}"
                 ),
                 node="styleId",
-                severity=ValidationSeverity.WARNING,
+                severity=ValidationSeverity.ERROR,
             )
+
+        # Styles in styles.xml but not in effects (the python-docx failure mode)
+        only_in_styles = sorted(set(styles_by_id) - set(effects_by_id))
+        if only_in_styles:
+            context.add_error(
+                error_type=ValidationErrorType.SEMANTIC,
+                description=(
+                    f"styles.xml contains {len(only_in_styles)} style(s) not in "
+                    f"stylesWithEffects: {', '.join(only_in_styles[:5])}"
+                ),
+                node="styleId",
+                severity=ValidationSeverity.ERROR,
+            )
+
+        self._compare_doc_defaults(styles_xml, effects_xml, context)
+
+    def _collect_styles_by_id(
+        self, root: etree._Element
+    ) -> dict[str, etree._Element]:
+        result: dict[str, etree._Element] = {}
+        for style in root.findall("w:style", self._ns):
+            sid = style.get(f"{{{WORDPROCESSINGML}}}styleId", "").strip()
+            if sid and sid not in result:
+                result[sid] = style
+        return result
+
+    def _compare_doc_defaults(
+        self,
+        styles_xml: etree._Element,
+        effects_xml: etree._Element,
+        context: ValidationContext,
+    ) -> None:
+        styles_dd = styles_xml.find("w:docDefaults", self._ns)
+        effects_dd = effects_xml.find("w:docDefaults", self._ns)
+
+        if styles_dd is None and effects_dd is None:
+            return
+
+        if styles_dd is None or effects_dd is None:
+            present = "styles.xml" if styles_dd is not None else "stylesWithEffects"
+            missing = "stylesWithEffects" if styles_dd is not None else "styles.xml"
+            context.add_error(
+                error_type=ValidationErrorType.SEMANTIC,
+                description=(
+                    f"docDefaults present in {present} but missing from {missing}"
+                ),
+                node="docDefaults",
+                severity=ValidationSeverity.ERROR,
+            )
+            return
+
+        if _canonicalize(styles_dd) != _canonicalize(effects_dd):
+            context.add_error(
+                error_type=ValidationErrorType.SEMANTIC,
+                description=(
+                    "docDefaults differ between styles.xml and stylesWithEffects "
+                    "(Word may treat this as unreadable content)"
+                ),
+                node="docDefaults",
+                severity=ValidationSeverity.ERROR,
+            )
+
+def _canonicalize(elem: etree._Element) -> bytes:
+    """Return a canonical byte form of `elem` for content-equality checks.
+
+    Re-roots the subtree so namespace declarations are local before c14n2,
+    which otherwise rejects elements whose namespaces are declared on an
+    ancestor outside the slice being serialized.
+    """
+    rerooted = etree.fromstring(etree.tostring(elem))
+    return cast(bytes, etree.tostring(rerooted, method="c14n2"))
