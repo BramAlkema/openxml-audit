@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed (April 28, 2026)
+Proposed (April 28, 2026). Phase 1 shipped; phase ordering revised after empirical scan of TokenMoulds corpus (April 28, 2026).
 
 ## Problem
 
@@ -181,27 +181,54 @@ The expected overhead per DOCX is well under 1ms — far below schema validation
 5. Full pytest suite remains green; no existing test breaks.
 6. CHANGELOG entry under Unreleased documenting the new check and its WARNING severity.
 
+## Empirical Scan (April 28, 2026)
+
+Mined 35 DOCX/DOTX files from the sibling [TokenMoulds](https://github.com/BramAlkema/TokenMoulds) project — a corporate template generator that emits real, Word-acceptable DOCX. 68,752 property subtrees observed. Validated each observed child ordering against the SDK Children list as a subsequence:
+
+| Property type | Subtrees observed | Pass SDK proxy | Fail | Verdict |
+|---|---:|---:|---:|---|
+| `tblPr` | 4,847 | 4,847 | 0 | Proxy holds |
+| `tcPr` | 28,667 | 28,667 | 0 | Proxy holds |
+| `sectPr` | 40 | 40 | 0 | Proxy holds (small sample) |
+| `pPr` | 11,420 | 11,395 | 25 | Proxy mostly holds (0.2% deviation) |
+| `rPr` | 23,754 | 23,420 | 334 | **Proxy fails (1.4% deviation)** |
+| `trPr` | 0 | 0 | 0 | No corpus data |
+
+Phase 1 (`CT_TrPr`) produced **zero false positives** on the corpus.
+
+The `rPr` failures cluster around `color` appearing before `sz`/`szCs`/`b`/`bCs` — a pattern that repeats across 334 observations, all from working DOCX output. Either every consumer of TokenMoulds output silently accepts Word's repair dialog (implausible given PyPI distribution and downstream test coverage) or **Word's actual `rPr` tolerance is wider than ECMA-376's `xs:sequence`**. Same conclusion for `pPr` at smaller scale.
+
+This inverts the usual framing of issue #3. The original report ("Word stricter than SDK") is true for `trPr`. The corpus shows the opposite is also true: **Word is more permissive than the spec for `rPr` and `pPr`**. Both errors point the same direction: the XSD-derived sequence is a proxy, not an oracle.
+
 ## Rollout Plan
 
-### Phase 1 — `CT_TrPr`
+### Phase 1 — `CT_TrPr` (shipped, commit `5c40485`)
 
-Goal: ship the smallest viable thing, prove the engine + module layout, validate the proxy-vs-oracle question on a single complex type with a confirmed repro.
+Goal: smallest viable thing, prove the engine + module layout, validate the proxy-vs-oracle question on a single complex type with a confirmed repro.
 
-Phase exit gate: issue #3 repro flagged, no false positives on a `python-docx` baseline, no performance regression on the full test suite.
+Outcome: issue #3 repro flagged at WARNING, zero false positives on corpus, full pytest suite green.
 
-### Phase 2 — `CT_PPr`, `CT_RPr`
+### Phase 2 — `CT_TblPr`, `CT_TcPr`, `CT_SectPr` (corpus-validated)
 
-Goal: high-frequency types where most real-world DOCX content lives. Hand-transcribe their canonical sequences. Add tests mirroring Phase 1.
+Goal: ship the types where the empirical scan shows the SDK proxy holds (100% pass on corpus). Lower risk of false positives, immediate validator coverage gain.
 
-Phase exit gate: corpus-shaped data — even a handful of "Word repaired this, here's the property tree" data points from issue #3's reporter — should validate or invalidate the proxy assumption before Phase 3 ships.
+Phase exit gate: same shape as Phase 1 — pytest green, zero false positives on TokenMoulds corpus, integration test per type using the issue's repro shape.
 
-### Phase 3 — `CT_TblPr`, `CT_TcPr`
+### Phase 3 — Empirical-canonical mining tool + `CT_PPr`, `CT_RPr`
 
-Goal: complete the table-property family. Lower-frequency than Phase 2 but the table-related complex types form a coherent sub-system with `CT_TrPr` and likely share repair-dialog triggers.
+Goal: replace the XSD-derived proxy with a corpus-derived empirical canonical for the types where the proxy fails (`rPr` certainly, `pPr` borderline). Steps:
 
-### Phase 4 (optional) — Empirical calibration
+1. Build `scripts/mine_word_property_orderings.py` — consumes a DOCX/DOTX glob, mines property subtrees, produces an empirical canonical ordering per type, and emits a structured report.
+2. Run the mining tool against TokenMoulds + any additional corpus the user can point at (Word's bundled samples, LibreOffice resaves, public DOCX archives).
+3. Hand-derive a canonical ordering per type from the mined data — using the dominant patterns and validating that no large cluster contradicts the chosen order.
+4. Commit the empirical canonical with the source corpus statistics in a comment for traceability.
+5. Add `pPr`/`rPr` constraint entries using the empirical canonical, not the SDK Children list.
 
-Goal: replace XSD-sequence proxy with a Word-tolerance oracle for any type where the corpus shows the proxy systematically over- or under-flags. This phase is conditional on having a corpus and is not committed by this spec.
+Phase exit gate: false-positive rate < 0.1% on the corpus the canonical was derived from (mostly tautological), AND the constraint catches at least one synthetic reorder that *should* trigger Word repair (validates the canonical actually constrains something).
+
+### Phase 4 (optional) — `CT_TrPr` empirical refinement
+
+Goal: only if Shaun (or someone) provides a corpus of "Word repaired this trPr" data points, validate or refine the Phase 1 SDK-derived `trPr` canonical. Currently Phase 1 rests on a single anecdote; a corpus would either confirm the SDK proxy or surface specific allowed swaps that the WARNING shouldn't flag.
 
 ## Risk Register
 

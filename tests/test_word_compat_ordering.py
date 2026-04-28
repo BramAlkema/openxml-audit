@@ -85,6 +85,16 @@ def test_constraint_table_well_formed() -> None:
         assert entry.parent_local, f"missing parent_local for {parent_tag}"
 
 
+def test_phase2_constraints_present() -> None:
+    """Phase 2 covers tblPr, tcPr, sectPr — all corpus-validated."""
+    from openxml_audit.namespaces import WORDPROCESSINGML
+
+    for prop in ("tblPr", "tcPr", "sectPr"):
+        parent = f"{{{WORDPROCESSINGML}}}{prop}"
+        assert parent in CONSTRAINT_TABLE, f"missing {prop} entry"
+        assert CONSTRAINT_TABLE[parent].children
+
+
 def test_ct_trpr_canonical_order_includes_known_children() -> None:
     """Sanity check: the CT_TrPr entry covers the children the issue lists."""
     from openxml_audit.namespaces import WORDPROCESSINGML
@@ -187,6 +197,100 @@ def test_issue_3_repro_fires_warning(tmp_path: Path) -> None:
         [e.description for e in matches]
     )
     assert any("tblHeader" in e.description for e in matches)
+
+
+def test_tblpr_reorder_fires_warning(tmp_path: Path) -> None:
+    """Phase 2: tblPr — placing tblBorders before tblW (which precedes it
+    canonically) should fire WARNING."""
+    body = """\
+<w:tbl>
+  <w:tblPr>
+    <w:tblBorders/>
+    <w:tblW w:w="0" w:type="auto"/>
+  </w:tblPr>
+  <w:tr><w:tc><w:p/></w:tc></w:tr>
+</w:tbl>"""
+    pkg = _build_docx(tmp_path, "tblpr_reorder.docx", body)
+    result = OpenXmlValidator(schema_validation=False).validate(pkg)
+    matches = [e for e in result.errors if "tblPr child" in e.description]
+    assert matches, [e.description for e in result.errors]
+    assert all(e.severity == ValidationSeverity.WARNING for e in matches)
+    assert any("§17.4.60" in e.description for e in matches)
+
+
+def test_tcpr_reorder_fires_warning(tmp_path: Path) -> None:
+    """Phase 2: tcPr — shd before tcBorders is a reordering."""
+    body = """\
+<w:tbl>
+  <w:tr>
+    <w:tc>
+      <w:tcPr>
+        <w:shd w:val="clear"/>
+        <w:tcBorders/>
+      </w:tcPr>
+      <w:p/>
+    </w:tc>
+  </w:tr>
+</w:tbl>"""
+    pkg = _build_docx(tmp_path, "tcpr_reorder.docx", body)
+    result = OpenXmlValidator(schema_validation=False).validate(pkg)
+    matches = [e for e in result.errors if "tcPr child" in e.description]
+    assert matches, [e.description for e in result.errors]
+    assert any("tcBorders" in e.description for e in matches)
+    assert any("§17.4.70" in e.description for e in matches)
+
+
+def test_sectpr_reorder_fires_warning(tmp_path: Path) -> None:
+    """Phase 2: sectPr — pgMar before pgSz is a reordering."""
+    body = """\
+<w:p>
+  <w:pPr>
+    <w:sectPr>
+      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="0" w:footer="0" w:gutter="0"/>
+      <w:pgSz w:w="12240" w:h="15840"/>
+    </w:sectPr>
+  </w:pPr>
+</w:p>"""
+    pkg = _build_docx(tmp_path, "sectpr_reorder.docx", body)
+    result = OpenXmlValidator(schema_validation=False).validate(pkg)
+    matches = [e for e in result.errors if "sectPr child" in e.description]
+    assert matches, [e.description for e in result.errors]
+    assert any("pgSz" in e.description for e in matches)
+
+
+def test_phase2_in_order_inputs_pass(tmp_path: Path) -> None:
+    """In-order tblPr/tcPr/sectPr children produce no Phase 2 warnings."""
+    body = """\
+<w:p>
+  <w:pPr>
+    <w:sectPr>
+      <w:pgSz w:w="12240" w:h="15840"/>
+      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="0" w:footer="0" w:gutter="0"/>
+    </w:sectPr>
+  </w:pPr>
+</w:p>
+<w:tbl>
+  <w:tblPr>
+    <w:tblW w:w="0" w:type="auto"/>
+    <w:tblBorders/>
+  </w:tblPr>
+  <w:tr>
+    <w:tc>
+      <w:tcPr>
+        <w:tcBorders/>
+        <w:shd w:val="clear"/>
+      </w:tcPr>
+      <w:p/>
+    </w:tc>
+  </w:tr>
+</w:tbl>"""
+    pkg = _build_docx(tmp_path, "phase2_clean.docx", body)
+    result = OpenXmlValidator(schema_validation=False).validate(pkg)
+    matches = [
+        e for e in result.errors
+        if any(prop in e.description for prop in ("tblPr child", "tcPr child", "sectPr child"))
+    ]
+    assert matches == [], [e.description for e in matches]
 
 
 def test_unknown_child_in_trpr_is_not_flagged(tmp_path: Path) -> None:

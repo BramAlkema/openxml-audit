@@ -34,6 +34,7 @@ if TYPE_CHECKING:
 
 
 W14_NS = "http://schemas.microsoft.com/office/word/2010/wordml"
+W15_NS = "http://schemas.microsoft.com/office/word/2012/wordml"
 
 
 def _w(local: str) -> str:
@@ -42,6 +43,10 @@ def _w(local: str) -> str:
 
 def _w14(local: str) -> str:
     return f"{{{W14_NS}}}{local}"
+
+
+def _w15(local: str) -> str:
+    return f"{{{W15_NS}}}{local}"
 
 
 def _local_name(clark_tag: str) -> str:
@@ -95,8 +100,103 @@ _CT_TR_PR = ChildSequence(
 )
 
 
+# CT_TblPr canonical child order, derived from SDK schema metadata
+# `w:CT_TblPr/w:tblPr` Children. Validated against TokenMoulds corpus
+# (4,847 observations, 100% pass) — proxy holds.
+_CT_TBL_PR = ChildSequence(
+    parent_tag=_w("tblPr"),
+    parent_local="tblPr",
+    spec_section="ECMA-376 §17.4.60",
+    children=(
+        _w("tblStyle"),
+        _w("tblpPr"),
+        _w("tblOverlap"),
+        _w("bidiVisual"),
+        _w("tblW"),
+        _w("jc"),
+        _w("tblCellSpacing"),
+        _w("tblInd"),
+        _w("tblBorders"),
+        _w("shd"),
+        _w("tblLayout"),
+        _w("tblCellMar"),
+        _w("tblLook"),
+        _w("tblCaption"),
+        _w("tblDescription"),
+        _w("tblPrChange"),
+    ),
+)
+
+
+# CT_TcPr canonical child order, derived from SDK schema metadata
+# `w:CT_TcPr/w:tcPr` Children. Validated against TokenMoulds corpus
+# (28,667 observations, 100% pass) — proxy holds.
+_CT_TC_PR = ChildSequence(
+    parent_tag=_w("tcPr"),
+    parent_local="tcPr",
+    spec_section="ECMA-376 §17.4.70",
+    children=(
+        _w("cnfStyle"),
+        _w("tcW"),
+        _w("gridSpan"),
+        _w("hMerge"),
+        _w("vMerge"),
+        _w("tcBorders"),
+        _w("shd"),
+        _w("noWrap"),
+        _w("tcMar"),
+        _w("textDirection"),
+        _w("tcFitText"),
+        _w("vAlign"),
+        _w("hideMark"),
+        _w("cellIns"),
+        _w("cellDel"),
+        _w("cellMerge"),
+        _w("tcPrChange"),
+    ),
+)
+
+
+# CT_SectPr canonical child order, derived from SDK schema metadata
+# `w:CT_SectPr/w:sectPr` Children. Validated against TokenMoulds corpus
+# (40 observations, 100% pass) — proxy holds, sample is small.
+_CT_SECT_PR = ChildSequence(
+    parent_tag=_w("sectPr"),
+    parent_local="sectPr",
+    spec_section="ECMA-376 §17.6.18",
+    children=(
+        _w("headerReference"),
+        _w("footerReference"),
+        _w("footnotePr"),
+        _w("endnotePr"),
+        _w("type"),
+        _w("pgSz"),
+        _w("pgMar"),
+        _w("paperSrc"),
+        _w("pgBorders"),
+        _w("lnNumType"),
+        _w("pgNumType"),
+        _w("cols"),
+        _w("formProt"),
+        _w("vAlign"),
+        _w("noEndnote"),
+        _w("titlePg"),
+        _w("textDirection"),
+        _w("bidi"),
+        _w("rtlGutter"),
+        _w("docGrid"),
+        _w("printerSettings"),
+        _w15("footnoteColumns"),
+        _w("sectPrChange"),
+    ),
+)
+
+
 CONSTRAINT_TABLE: dict[str, ChildSequence] = {
     _CT_TR_PR.parent_tag: _CT_TR_PR,
+    _CT_TBL_PR.parent_tag: _CT_TBL_PR,
+    _CT_TC_PR.parent_tag: _CT_TC_PR,
+    _CT_SECT_PR.parent_tag: _CT_SECT_PR,
 }
 
 

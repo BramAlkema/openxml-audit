@@ -18,14 +18,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when the package is internally self-consistent (relationship and
   content-type entries removed too). ECMA-376 makes them optional, but
   this is empirically required by PowerPoint.
-- Word compatibility ordering check (Phase 1: `CT_TrPr`). Flags child
-  element reorderings inside `w:trPr` that trigger Word's "unreadable
-  content" repair dialog despite the .NET Open XML SDK accepting the
-  same files (e.g. `cantSplit` after `tblHeader`). Severity WARNING —
-  this is an empirical Word-app-compat finding, not a strict OOXML
-  violation. See spec 010 for the rollout plan and the proxy-not-oracle
-  caveat. Phases 2–3 (`CT_PPr`, `CT_RPr`, `CT_TblPr`, `CT_TcPr`) are
-  gated on a corpus signal from issue #3.
+- Word compatibility ordering check, Phase 1 + Phase 2. Flags child
+  element reorderings inside WordprocessingML property complex types
+  that trigger Word's "unreadable content" repair dialog despite the
+  .NET Open XML SDK accepting the same files. Severity WARNING — this
+  is an empirical Word-app-compat finding, not a strict OOXML violation.
+  - Phase 1 covers `CT_TrPr` (e.g. `cantSplit` after `tblHeader`,
+    issue #3's repro).
+  - Phase 2 covers `CT_TblPr`, `CT_TcPr`, `CT_SectPr` — corpus-validated
+    against the TokenMoulds template-generator output (33,554 property
+    subtrees, 100% pass against the SDK proxy).
+  - `CT_PPr` and `CT_RPr` are deferred to Phase 3: empirical mining of
+    the same corpus shows the SDK proxy is too strict for `rPr` (~1.4%
+    deviation rate) and so cannot ship without a corpus-derived
+    canonical ordering.
+- New mining tool `scripts/mine_word_property_orderings.py` and docs at
+  `docs/word_compat/` — given a DOCX corpus, produces an empirical
+  ordering report that validates or refutes the SDK proxy per type.
 
 ### Changed
 - the existing "stylesWithEffects contains styles not in styles.xml" check
