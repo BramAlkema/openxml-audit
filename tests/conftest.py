@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import sys
 import zipfile
 from pathlib import Path
 
@@ -11,6 +12,34 @@ from lxml import etree
 
 from openxml_audit import OpenXmlValidator
 from tests.fixture_loader import FIXTURES_DIR
+
+# Make the developer-machine `tools/` directory importable so smoke tests
+# in tests/test_word_oracle_*.py can import tools.oracle.* without a
+# packaging dance.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    """Skip tests marked `requires_word_app` when Microsoft Word for Mac
+    is not reachable via osascript."""
+    skip_marker = pytest.mark.skip(
+        reason="Microsoft Word for Mac not reachable; see tools/oracle/preflight.py"
+    )
+    word_available: bool | None = None
+    for item in items:
+        if "requires_word_app" not in item.keywords:
+            continue
+        if word_available is None:
+            try:
+                from tools.oracle.preflight import check
+            except ImportError:
+                word_available = False
+            else:
+                word_available = check().ok
+        if not word_available:
+            item.add_marker(skip_marker)
 
 
 @pytest.fixture

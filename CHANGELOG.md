@@ -35,6 +35,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New mining tool `scripts/mine_word_property_orderings.py` and docs at
   `docs/word_compat/` — given a DOCX corpus, produces an empirical
   ordering report that validates or refutes the SDK proxy per type.
+- Word roundtrip oracle infrastructure (`tools/oracle/`, spec 011
+  Phase 1). Developer-machine tool that opens a DOCX in Microsoft Word
+  for Mac, saves it back through Word, and exposes the input/output diff
+  as ground truth for "would Word repair this?" questions. Stages
+  files under `~/Documents/.word_oracle_runs/` (Word's App Sandbox
+  blocks tmpfs paths). Smoke-tested on Word M365 16.89.1; the close-
+  with-save persist path works, but Word's bespoke `save as` and the
+  inherited Cocoa `save` both return -1708 despite their dictionary
+  declarations. First empirical finding: Word M365 16.89.1 did NOT
+  repair the issue #3 repro pattern in synthetic minimal DOCX —
+  contradicting the assumption underlying spec 010 Phase 1's `CT_TrPr`
+  constraint. See `tools/oracle/README.md` for the three hypotheses
+  to investigate.
 
 ### Changed
 - the existing "stylesWithEffects contains styles not in styles.xml" check

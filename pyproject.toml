@@ -84,6 +84,8 @@ select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
 "tests/test_properties.py" = ["E501"]
 "tests/test_supertheme.py" = ["E501"]
 "tests/test_word_compat_ordering.py" = ["E501"]
+"tests/test_word_oracle_engine.py" = ["E501"]
+"tests/test_word_oracle_smoke.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.10"
@@ -93,3 +95,6 @@ packages = ["openxml_audit"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v"
+markers = [
+    "requires_word_app: integration test that depends on Microsoft Word for Mac being installed and reachable via osascript. Skipped by default.",
+]
