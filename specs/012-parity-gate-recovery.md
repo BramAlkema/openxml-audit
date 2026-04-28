@@ -1,3 +1,4 @@
+<!-- /autoplan restore point: /Users/ynse/.gstack/projects/BramAlkema-openxml-audit/spec-012-parity-gate-recovery-autoplan-restore-20260429-000449.md -->
 # Spec: Parity Gate Recovery After Spec 010 Phase 2
 
 ## Status
@@ -82,14 +83,12 @@ Goal: convert "surprising" into "explained" for families 1, 2, 4, 5.
 
 Steps:
 
-1. Reproduce the parity-gate flow locally:
+1. **First concrete step: bisect.** Reproduce the snapshot at `5c40485` (Phase 1 HEAD, last green) and `0f8a986` (Phase 2 HEAD, first red), diff the outputs. This is the cheap definitive test for hypotheses (A) vs (B) vs (C) — five minutes settles which surprising families are actually new at Phase 2 vs preexisting. All snapshot outputs land under `docs/parity_recovery_2026-04/transcripts/{short-sha}-snapshot.json` (committed) for reproducibility.
    - Download `openxml-parity-corpus-v3.4.1.tar.zst` from the release URL into `/tmp`.
-   - Run `python scripts/corpus/run_parity_snapshot.py --manifest data/corpus/sdk_seed/manifest.json --files-root /tmp/.../files --output /tmp/parity_current.json` against `main` HEAD (commit `f1eeee0`).
-   - Confirm we reproduce the 5 new families.
-2. Bisect to confirm Phase 2 (`0f8a986`) is the actual transition point:
-   - Run the snapshot at `5c40485` (Phase 1 HEAD).
-   - Run at `0f8a986` (Phase 2 HEAD).
-   - If Phase 1 already shows families 1, 2, 4, 5: hypothesis (A) is wrong; the regression predates Phase 2. Bisect further back.
+   - Run `python scripts/corpus/run_parity_snapshot.py --manifest data/corpus/sdk_seed/manifest.json --files-root /tmp/.../files --output docs/parity_recovery_2026-04/transcripts/5c40485-snapshot.json` against Phase 1 HEAD.
+   - Run again against `0f8a986` and `f1eeee0` (current `main` HEAD), writing each to its own `{short-sha}-snapshot.json`.
+   - Diff the snapshots; confirm or refute that families 1, 2, 4, 5 first appear at `0f8a986`.
+2. If Phase 1 already shows families 1, 2, 4, 5: hypothesis (A) is wrong; the regression predates Phase 2. Bisect further back to find the actual introduction commit.
 3. For each surprising family, find the actual finding text in the validator output (the `<value>` in the family description templates out the real attribute name) and identify the validator code path that emits it.
 4. Cross-check: did Spec 010 Phase 1 actually pass the gate? Inspect the green run's report artifact (`gh run download 25037832958 -n parity-gate-reports`) to confirm the green snapshot did not contain these families.
 5. Decide for each surprising family whether it is:
@@ -133,7 +132,7 @@ Family 3 (sectPr reordering) is already classified W — Phase 2 was built to sh
 2. Every waiver in `waivers.json` has an explicit `reason` field that names the spec or commit that justifies the divergence.
 3. `docs/parity_recovery_2026-04.md` (or equivalent in-tree note) records the classification (F/W/B) and root cause for all 5 families. No silent classifications.
 4. No code regression hides under a waiver: every (F) family has a corresponding fix commit referenced in the recovery doc.
-5. The recovery PR includes a local reproduction transcript (snapshot output before/after) committed under `docs/parity_recovery_2026-04/transcripts/` so a future maintainer can reproduce.
+5. The recovery PR includes local reproduction transcripts at `docs/parity_recovery_2026-04/transcripts/{short-sha}-snapshot.json` for at minimum: `5c40485` (last green), `0f8a986` (first red), and `main` post-fix (verified green) — so a future maintainer can reproduce the bisect and the recovery delta.
 
 ## Out of Scope
 
