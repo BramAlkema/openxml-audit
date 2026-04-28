@@ -40,14 +40,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for Mac, saves it back through Word, and exposes the input/output diff
   as ground truth for "would Word repair this?" questions. Stages
   files under `~/Documents/.word_oracle_runs/` (Word's App Sandbox
-  blocks tmpfs paths). Smoke-tested on Word M365 16.89.1; the close-
-  with-save persist path works, but Word's bespoke `save as` and the
-  inherited Cocoa `save` both return -1708 despite their dictionary
-  declarations. First empirical finding: Word M365 16.89.1 did NOT
-  repair the issue #3 repro pattern in synthetic minimal DOCX —
-  contradicting the assumption underlying spec 010 Phase 1's `CT_TrPr`
-  constraint. See `tools/oracle/README.md` for the three hypotheses
-  to investigate.
+  blocks tmpfs paths). The close-with-save persist path works; Word's
+  bespoke `save as` and the inherited Cocoa `save` both return -1708
+  despite their dictionary declarations.
+- Spec 010 oracle driver (`tools/oracle/word_repair_oracle.py`, spec 011
+  Phase 2). Generates a DOCX scenario matrix using python-docx (real
+  Word-template foundation) with property-element children mutated to
+  test specific orderings, roundtrips each through Word, and emits a
+  JSON baseline at `tools/oracle/baselines/`.
+- First committed oracle baseline:
+  `tools/oracle/baselines/word_trpr_pairwise.json` — covers the four
+  CT_TrPr children that can appear empty (trHeight, hidden, cantSplit,
+  tblHeader), all 8 possible orderings (baseline + 6 pairwise swaps +
+  full reverse). Word for Mac M365 16.89.1 **preserved every ordering
+  with no repair dialog**, including issue #3's specific
+  `tblHeader`-before-`cantSplit` pattern. This contradicts the
+  assumption underlying spec 010 Phase 1's `CT_TrPr` constraint on at
+  least this Word build. WARNING severity (not ERROR) is now clearly
+  the right call. The remaining 8 canonical CT_TrPr children require
+  attributes and weren't covered in this baseline; future oracle runs
+  will extend coverage.
 
 ### Changed
 - the existing "stylesWithEffects contains styles not in styles.xml" check

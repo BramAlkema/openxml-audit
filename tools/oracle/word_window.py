@@ -29,6 +29,11 @@ REPAIR_DIALOG_PATTERNS = (
     "contains unreadable",
     "errors were detected",
     "do you want to recover",
+    # The "harder failure" dialog: Word can't open the file at all rather
+    # than offering to repair. Different from the unreadable-content dialog
+    # but for our oracle purposes both signal "Word rejected the input."
+    "experienced an error",
+    "error trying to open",
 )
 
 

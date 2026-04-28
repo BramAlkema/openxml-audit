@@ -1,0 +1,201 @@
+{
+  "constraint": "CT_TrPr",
+  "spec_section": "ECMA-376 \u00a717.4.79",
+  "canonical_children_tested": [
+    "trHeight",
+    "hidden",
+    "cantSplit",
+    "tblHeader"
+  ],
+  "engine": "spec 011 Phase 1 (AppleScript open + close-with-save)",
+  "word_version": "16.89.1",
+  "platform": "Darwin 25.3.0",
+  "run_at": "2026-04-28T08:26:55+00:00",
+  "summary": {
+    "total": 8,
+    "preserved": 8,
+    "repaired": 0,
+    "missing": 0,
+    "engine_error": 0,
+    "any_repair_dialog": false,
+    "repair_dialogs_count": 0
+  },
+  "scenarios": [
+    {
+      "id": "trPr-baseline",
+      "parent_local": "trPr",
+      "description": "Canonical CT_TrPr child order (control)",
+      "input_children": [
+        "trHeight",
+        "hidden",
+        "cantSplit",
+        "tblHeader"
+      ],
+      "output_children": [
+        "trHeight",
+        "hidden",
+        "cantSplit",
+        "tblHeader"
+      ],
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "verdict": "preserved",
+      "elapsed_seconds": 3.474206749815494,
+      "error": null
+    },
+    {
+      "id": "trPr-swap-trHeight-hidden",
+      "parent_local": "trPr",
+      "description": "Swap 'trHeight' and 'hidden' in CT_TrPr",
+      "input_children": [
+        "hidden",
+        "trHeight",
+        "cantSplit",
+        "tblHeader"
+      ],
+      "output_children": [
+        "hidden",
+        "trHeight",
+        "cantSplit",
+        "tblHeader"
+      ],
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "verdict": "preserved",
+      "elapsed_seconds": 2.22859050007537,
+      "error": null
+    },
+    {
+      "id": "trPr-swap-trHeight-cantSplit",
+      "parent_local": "trPr",
+      "description": "Swap 'trHeight' and 'cantSplit' in CT_TrPr",
+      "input_children": [
+        "cantSplit",
+        "hidden",
+        "trHeight",
+        "tblHeader"
+      ],
+      "output_children": [
+        "cantSplit",
+        "hidden",
+        "trHeight",
+        "tblHeader"
+      ],
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "verdict": "preserved",
+      "elapsed_seconds": 2.0814746250398457,
+      "error": null
+    },
+    {
+      "id": "trPr-swap-trHeight-tblHeader",
+      "parent_local": "trPr",
+      "description": "Swap 'trHeight' and 'tblHeader' in CT_TrPr",
+      "input_children": [
+        "tblHeader",
+        "hidden",
+        "cantSplit",
+        "trHeight"
+      ],
+      "output_children": [
+        "tblHeader",
+        "hidden",
+        "cantSplit",
+        "trHeight"
+      ],
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "verdict": "preserved",
+      "elapsed_seconds": 2.185659915674478,
+      "error": null
+    },
+    {
+      "id": "trPr-swap-hidden-cantSplit",
+      "parent_local": "trPr",
+      "description": "Swap 'hidden' and 'cantSplit' in CT_TrPr",
+      "input_children": [
+        "trHeight",
+        "cantSplit",
+        "hidden",
+        "tblHeader"
+      ],
+      "output_children": [
+        "trHeight",
+        "cantSplit",
+        "hidden",
+        "tblHeader"
+      ],
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "verdict": "preserved",
+      "elapsed_seconds": 2.1365461661480367,
+      "error": null
+    },
+    {
+      "id": "trPr-swap-hidden-tblHeader",
+      "parent_local": "trPr",
+      "description": "Swap 'hidden' and 'tblHeader' in CT_TrPr",
+      "input_children": [
+        "trHeight",
+        "tblHeader",
+        "cantSplit",
+        "hidden"
+      ],
+      "output_children": [
+        "trHeight",
+        "tblHeader",
+        "cantSplit",
+        "hidden"
+      ],
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "verdict": "preserved",
+      "elapsed_seconds": 2.232031624764204,
+      "error": null
+    },
+    {
+      "id": "trPr-swap-cantSplit-tblHeader",
+      "parent_local": "trPr",
+      "description": "Swap 'cantSplit' and 'tblHeader' in CT_TrPr",
+      "input_children": [
+        "trHeight",
+        "hidden",
+        "tblHeader",
+        "cantSplit"
+      ],
+      "output_children": [
+        "trHeight",
+        "hidden",
+        "tblHeader",
+        "cantSplit"
+      ],
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "verdict": "preserved",
+      "elapsed_seconds": 2.1732810833491385,
+      "error": null
+    },
+    {
+      "id": "trPr-reverse",
+      "parent_local": "trPr",
+      "description": "CT_TrPr children fully reversed",
+      "input_children": [
+        "tblHeader",
+        "cantSplit",
+        "hidden",
+        "trHeight"
+      ],
+      "output_children": [
+        "tblHeader",
+        "cantSplit",
+        "hidden",
+        "trHeight"
+      ],
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "verdict": "preserved",
+      "elapsed_seconds": 2.242692332714796,
+      "error": null
+    }
+  ]
+}
