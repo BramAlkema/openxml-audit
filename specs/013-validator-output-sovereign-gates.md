@@ -65,6 +65,29 @@ These are starting points for design, not decisions.
 
 This enables a clean separation: the SDK signal is purely about SDK-equivalent findings; app-compat findings live in their own gate(s).
 
+### SDK signal source — frozen expectations vs live runtime
+
+**Core question:** what *is* the SDK signal? Two shapes:
+
+- **(A) Frozen expectations (status quo).** `extract_sdk_expectations.py` parses SDK test sources at calibration time, distills expected error counts per (file, validator version) into `data/corpus/sdk_seed/manifest.json`. The advisory comparison diffs our validator's output against those frozen counts.
+- **(B) Live runtime.** A small .NET wrapper exe (built via `actions/setup-dotnet@v5`, already wired in `calibrate-parity.yml`) invokes `OpenXmlValidator` directly against each corpus file, emits JSON. The advisory comparison diffs our Python validator's output against the SDK's *actual* runtime output on the same input.
+
+**Why this matters as an anchor:** the SDK gate's purpose has been an anchor against future drift — a stable reference point we can drift away from intentionally and detect when we drift unintentionally. Both forms work as anchors:
+
+| Form | Anchored to | Catches | Misses |
+|---|---|---|---|
+| Frozen (A) | SDK ref + extraction time | Our drift relative to a *specific* SDK snapshot | SDK behavior changes (we're pinned); expectations the SDK's tests don't cover |
+| Runtime (B) | SDK ref (pinned) | Our drift; SDK runtime drift between SDK ref bumps; behavior on files the SDK's own tests don't cover | Nothing in this dimension (until SDK ref bumps, in which case the diff is intentional) |
+
+**Trade-offs:**
+
+- (A) is what we have. It's stable, predictable, but the extraction layer is the source of multiple landmines surfaced in Spec 012's autoplan review (`<value>` templating loses raw attribute names; `descriptions_by_version` collected but not written; manifest now mixed-semantics after the Spec 012 self-parity adjustments). The expected counts are also an artifact of the SDK *test author's* assertions, not the SDK's actual behavior — for files where no test asserts a count, we have no expectation at all.
+- (B) sheds the extraction layer entirely. Same input → two outputs (Python validator + .NET SDK runtime) → diff. Can be done at every gate run, no calibration step needed. SDK ref bump becomes a one-line workflow change, no manifest regeneration. Downside: ~30s additional CI time for the .NET runtime; runtime SDK output may include findings the test-extracted expectations didn't cover (which is mostly an upside — more anchor, not less — but could surface noise on files where the SDK's runtime emits volume the team hasn't reviewed).
+
+**Sketch (if (B) chosen):** new tool `tools/parity/dotnet_validator_runner/` — a tiny .NET project that takes `--input <path> --version <Office2007|2010|2013|2016|Microsoft365>` and emits JSON: `{"file": ..., "version": ..., "errors": [{"id": ..., "type": ..., "part": ..., "path": ..., "description": ...}]}`. The parity-gate workflow runs this against each corpus file in parallel with the Python snapshot. The comparator then operates on two fresh snapshots (ours + SDK's) instead of one snapshot vs frozen counts. `extract_sdk_expectations.py` and the manifest's per-file `expectations[]` list become obsolete; the manifest collapses to just file metadata + `source_tests` for traceability.
+
+This also resolves Open Question 6 (manifest split): with (B), no manifest expectations exist to split. Self-parity uses our snapshot; SDK signal uses the SDK's snapshot.
+
 ### Severity model tied to customer harm
 
 **Core question (per autoplan codex CEO finding):** all drift is currently treated equally. It shouldn't be — unknown schema drift may matter more than expected-Word-rejection divergence; some findings are silent corruption, some are non-issues.
@@ -80,13 +103,15 @@ This enables a clean separation: the SDK signal is purely about SDK-equivalent f
 5. **Does this spec own the eventual deletion of the advisory SDK gate?** Or do we keep it forever as a third informational signal? (The autoplan voices were split: codex implied "keep as third signal"; claude implied "delete once self-parity + oracle are real.")
 6. **Manifest split** — Spec 012 left `data/corpus/sdk_seed/manifest.json` as mixed-semantics (some entries SDK-extracted, some manually adjusted to self-parity). Should this spec split it cleanly into two files, or formalize the mixed mode?
 7. **Severity model — who classifies?** Heuristic from finding text? Per-finding metadata at emission time? Curated overrides file?
+8. **SDK signal source — frozen vs runtime?** (See sketch above.) Frozen-expectations is the status quo and is stable; live-runtime sheds the extraction layer entirely and is a stronger anchor (catches SDK runtime drift between ref bumps too). If (B) is picked, the manifest's expectations list and `extract_sdk_expectations.py` go away — that's a big simplification but a one-time migration cost.
 
 ## Decisions Needed Before Implementation
 
 - Pick a baseline format (open question 1).
 - Decide oracle gate integration strategy (open question 4).
 - Decide on the SDK gate's long-term role (open question 5).
-- Resolve the manifest split (open question 6).
+- Resolve the manifest split (open question 6) — though this is moot if open question 8 chooses (B) live-runtime.
+- **Pick SDK signal source: frozen or runtime (open question 8).** This is the highest-leverage decision in the spec — (B) makes most other open questions simpler.
 
 ## Out of Scope (for this spec stub)
 
