@@ -21,6 +21,7 @@ from openxml_audit.errors import (
     ValidationResult,
     ValidationSeverity,
 )
+from openxml_audit.excel.canonical_form import ExcelCanonicalFormValidator
 from openxml_audit.excel.workbook import WorkbookValidator
 from openxml_audit.namespaces import (
     OFFICE_DOC_RELATIONSHIPS,
@@ -167,6 +168,7 @@ class OpenXmlValidator:
         self._styles_with_effects_validator = StylesWithEffectsValidator()
         self._properties_validator = PropertiesValidator()
         self._workbook_validator = WorkbookValidator()
+        self._excel_canonical_form_validator = ExcelCanonicalFormValidator()
         self._profiles: dict[DocumentKind, DocumentProfile] = {
             DocumentKind.PRESENTATION: DocumentProfile(
                 kind=DocumentKind.PRESENTATION,
@@ -550,6 +552,7 @@ class OpenXmlValidator:
         )
 
         self._workbook_validator.validate(workbook, context)
+        self._excel_canonical_form_validator.validate(package, context)
         errors.extend(context.errors)
         return errors
 

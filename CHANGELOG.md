@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-04-30
+
+### Added
+- First Excel canonical-form validator (Spec 029, Phase 1).
+  Detects patterns Excel will silently rewrite on save — even
+  when the file passes our schema/semantic validation cleanly.
+  Triggered by the v0.7.2 baseline finding that every TokenMoulds-
+  emitted `.xlsx` came back with 10 changed parts and no repair
+  dialog.
+  - **`src/openxml_audit/excel/canonical_form.py`** —
+    `ExcelCanonicalFormValidator` class. Wired into the main
+    validator's `_validate_spreadsheet_structure`.
+  - **First check: `Excel_InlineStrCells`.** Flags worksheets
+    with `<c t="inlineStr">` cells when the package has no
+    populated `xl/sharedStrings.xml`. This is the dominant cause
+    of the v0.7.2 silent-canonicalization finding: Excel migrates
+    every inline string to a freshly-created shared-strings table
+    on save. Severity WARNING, `source_class=EXCEL_APP_COMPAT`,
+    one finding per affected worksheet with cell count in the
+    description.
+  - 7 new tests in `tests/test_excel_canonical_form.py` cover
+    the positive cases (no SST + inlineStr cells, empty SST +
+    inlineStr cells, both v0.7.2 corpus fixtures), the negative
+    cases (no inlineStr, populated SST with `<c t="s">` refs,
+    inlineStr with populated SST — locks the scope decision),
+    and the v0.7.2 corpus smoke (`acme-us.xlsx` and
+    `globex-gb.xlsx` flagged with count 9 each, matching what
+    the manual probe found).
+- `specs/029-excel-canonical-form-validators.md` documenting
+  Phase 1 + the deferred Phase 2 (chart externalLinks
+  materialization detection) and Phase 3 (non-canonical
+  attribute order).
+
+### Verified
+- Self-parity against the v0.7.1 baseline: **zero drift.** The
+  new check only fires on inlineStr-without-SST patterns; the
+  SDK seed corpus doesn't have that shape, so the v0.7.1
+  baseline passes against itself with the new check active. No
+  baseline refresh needed.
+
 ## [0.7.2] - 2026-04-29
 
 ### Added
