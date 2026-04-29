@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-04-29
+
+### Added
+- PowerPoint roundtrip oracle (Spec 020, Phase 1). The orchestrator
+  is the third in the family — sibling of the Word oracle (Spec 011)
+  and the ODF oracle (Spec 019, 0.6.3). Deliberately built on top of
+  the existing PPTX layers rather than duplicating them:
+  - **Extends `src/openxml_audit/pptx/osa.py`** with the primitives
+    that were already present in `docx.osa` and `xlsx.osa` but missing
+    from PowerPoint: `list_open_presentation_names`,
+    `is_presentation_open`, `save_presentation`, `close_presentation`,
+    `close_presentation_saving`, `find_repair_dialog_text`, and the
+    public `REPAIR_DIALOG_PATTERNS` match list.
+  - **`tools/oracle/pptx_repair_oracle.py`** wires the existing
+    `pptx.osa` window control + `pptx.lab.compare_pptx_packages`
+    per-part diff into the standard `RoundtripObservation` shape used
+    by Word and ODF. Stages the input under
+    `~/Documents/.pptx_oracle_runs/<id>/` (PowerPoint App Sandbox
+    grants access there by default; `PPTX_ORACLE_STAGE` env var
+    overrides). CLI:
+    `python tools/oracle/pptx_repair_oracle.py FILES... [--output X]`.
+  - 7 new tests in `tests/test_pptx_roundtrip_oracle.py` (5
+    always-on + 2 PowerPoint-required, skipped cleanly when
+    PowerPoint or osascript is unavailable).
+  - `specs/020-pptx-roundtrip-oracle.md` documenting the design,
+    the existing layers it composes (PPTX timing oracle, PPTX
+    package differ, oracle starter decks), and deferred Phase 2
+    work (TokenMoulds corpus, repair categorization, pairwise
+    scenario mutations).
+
+  Phase 1 detects PowerPoint's repair dialog but does not yet
+  auto-dismiss it (the Word oracle has the button-click ceremony;
+  PowerPoint analog deferred to Phase 2).
+
 ## [0.6.3] - 2026-04-29
 
 ### Added

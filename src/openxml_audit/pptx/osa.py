@@ -20,16 +20,39 @@ __all__ = [
     "POWERPOINT_APP_BUNDLE",
     "POWERPOINT_APP_ID",
     "POWERPOINT_PROCESS_NAME",
+    "REPAIR_DIALOG_PATTERNS",
+    "close_presentation",
+    "close_presentation_saving",
+    "find_repair_dialog_text",
     "get_front_window_id",
     "get_slideshow_window_id",
+    "is_presentation_open",
     "launch_powerpoint",
+    "list_open_presentation_names",
     "open_presentation_via_ui",
+    "save_presentation",
 ]
 
 
 POWERPOINT_APP_ID = "com.microsoft.Powerpoint"
 POWERPOINT_PROCESS_NAME = "Microsoft PowerPoint"
 POWERPOINT_APP_BUNDLE = Path("/Applications/Microsoft PowerPoint.app")
+
+
+# Repair-dialog text patterns. PowerPoint surfaces a "found a problem"
+# / "unreadable content" modal when it repairs a file on open. Generous
+# match list — different builds and different repair categories
+# produce different exact strings.
+REPAIR_DIALOG_PATTERNS: tuple[str, ...] = (
+    "found a problem",
+    "unreadable content",
+    "repair",
+    "recover",
+    "could not be opened",
+    "experienced an error",
+    "error trying to open",
+    "errors were detected",
+)
 
 
 def launch_powerpoint() -> None:
@@ -104,6 +127,134 @@ return winId
     if not win_id:
         win_id = get_window_id_via_jxa((POWERPOINT_PROCESS_NAME,))
     return win_id
+
+
+def list_open_presentation_names() -> list[str]:
+    """Return the names of presentations currently open in PowerPoint."""
+    script = f"""
+tell application "{POWERPOINT_PROCESS_NAME}"
+    set names_ to {{}}
+    repeat with p in presentations
+        set end of names_ to name of p
+    end repeat
+    return names_
+end tell
+"""
+    try:
+        out = osascript(script, timeout=10.0)
+    except RuntimeError:
+        return []
+    if not out:
+        return []
+    return [token.strip() for token in out.split(",") if token.strip()]
+
+
+def is_presentation_open(path: Path) -> bool:
+    """True if a presentation matching `path.name` is currently open."""
+    return path.name in list_open_presentation_names()
+
+
+def save_presentation(*, timeout: float | None = 30.0) -> None:
+    """Save the active PowerPoint presentation via Cmd-S (overwrite in place).
+
+    Mirrors `docx.osa.save_document`: PowerPoint's AppleScript `save`
+    on a presentation is sometimes flaky between builds; routing
+    through System Events keystrokes is the proven path.
+    """
+    script = f"""
+tell application "System Events"
+    tell process "{POWERPOINT_PROCESS_NAME}"
+        set frontmost to true
+        delay 0.2
+        keystroke "s" using {{command down}}
+        delay 0.5
+    end tell
+end tell
+"""
+    osascript(script, timeout=timeout)
+
+
+def close_presentation(*, timeout: float | None = 30.0) -> None:
+    """Close the active presentation without saving (mirror docx.osa.close_document)."""
+    script = f"""
+tell application "{POWERPOINT_PROCESS_NAME}"
+    if (count presentations) > 0 then
+        close active presentation saving no
+    end if
+end tell
+"""
+    osascript(script, timeout=timeout)
+
+
+def close_presentation_saving(*, timeout: float | None = 30.0) -> None:
+    """Close the active presentation, persisting via the close handler.
+
+    PowerPoint writes the modified presentation back to its open path
+    before tearing down the window. Use when the caller has staged a
+    working copy and wants the post-PowerPoint XML at that path.
+    """
+    script = f"""
+tell application "{POWERPOINT_PROCESS_NAME}"
+    if (count presentations) > 0 then
+        close active presentation saving yes
+    end if
+end tell
+"""
+    osascript(script, timeout=timeout)
+
+
+def find_repair_dialog_text(
+    patterns: tuple[str, ...] = REPAIR_DIALOG_PATTERNS,
+) -> str | None:
+    """If a modal alert is currently presented by PowerPoint and its
+    body text matches any of `patterns` (case-insensitive substring),
+    return the full text. Otherwise None.
+
+    Uses System Events UI scripting; relies on PowerPoint presenting
+    the alert as a child sheet/window of its main frame. Tested
+    empirically; subject to PowerPoint UI changes.
+    """
+    script = f"""
+tell application "System Events"
+    if not (exists process "{POWERPOINT_PROCESS_NAME}") then return ""
+    tell process "{POWERPOINT_PROCESS_NAME}"
+        set out to ""
+        try
+            repeat with w in windows
+                try
+                    set sh to sheets of w
+                    repeat with s in sh
+                        try
+                            set sts to static texts of s
+                            repeat with t in sts
+                                set out to out & " " & (value of t as string)
+                            end repeat
+                        end try
+                    end repeat
+                end try
+                try
+                    set sts to static texts of w
+                    repeat with t in sts
+                        set out to out & " " & (value of t as string)
+                    end repeat
+                end try
+            end repeat
+        end try
+        return out
+    end tell
+end tell
+"""
+    try:
+        text = osascript(script, timeout=5.0)
+    except RuntimeError:
+        return None
+    if not text:
+        return None
+    haystack = text.lower()
+    for needle in patterns:
+        if needle.lower() in haystack:
+            return text
+    return None
 
 
 def get_slideshow_window_id(timeout: float = 5.0) -> str:
