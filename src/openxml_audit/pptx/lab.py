@@ -1,9 +1,15 @@
-"""Unified PPTX lab entrypoint for oracle extraction, snapshots, and diffs."""
+"""Unified PPTX lab entrypoint for oracle extraction, snapshots, and diffs.
+
+Per-part diff primitives moved to `openxml_audit.package_diff` in 0.6.8 so
+the XLSX, ODF, and Word oracles can share the same canonical-c14n + diff
+machinery. This module keeps the PPTX-specific public API
+(`compare_pptx_packages`, `write_pptx_snapshot`, the timing-tree change
+collector) and delegates the format-agnostic parts via thin wrappers.
+"""
 
 from __future__ import annotations
 
 import argparse
-import difflib
 import json
 import sys
 import zipfile
@@ -14,6 +20,14 @@ from pathlib import Path
 
 from lxml import etree
 
+from openxml_audit.package_diff import (
+    canonicalize_xml as _canonicalize_xml,
+    compare_package_parts as _compare_package_parts,
+    load_package_parts as _load_package_parts,
+    pretty_part_text as _pretty_part_text,
+    sanitize_part_name as _sanitize_part_name,
+    write_part_diff as _write_part_diff,
+)
 from openxml_audit.pptx.oracle import (
     _build_pattern_index,
     _collect_pptx_paths,
@@ -294,77 +308,12 @@ def _iter_slide_timing_nodes(slide_xml: etree._Element) -> list[tuple[str, etree
     return nodes
 
 
-def _load_package_parts(pptx_path: Path) -> dict[str, dict[str, bytes]]:
-    parts: dict[str, dict[str, bytes]] = {}
-    with zipfile.ZipFile(pptx_path) as archive:
-        for name in archive.namelist():
-            if not (name.endswith(".xml") or name.endswith(".rels")):
-                continue
-            raw = archive.read(name)
-            parts[name] = {
-                "raw": raw,
-                "canonical": _canonicalize_xml(raw),
-            }
-    return parts
-
-
-def _canonicalize_xml(data: bytes) -> bytes:
-    try:
-        parser = etree.XMLParser(remove_blank_text=True, recover=True)
-        root = etree.fromstring(data, parser=parser)
-        return etree.tostring(root, method="c14n")
-    except Exception:
-        return data.strip()
-
-
-def _compare_package_parts(
-    base_parts: dict[str, dict[str, bytes]],
-    head_parts: dict[str, dict[str, bytes]],
-) -> dict[str, list[str]]:
-    base_names = set(base_parts)
-    head_names = set(head_parts)
-    changed = sorted(
-        name
-        for name in base_names & head_names
-        if base_parts[name]["canonical"] != head_parts[name]["canonical"]
-    )
-    return {
-        "changed": changed,
-        "added": sorted(head_names - base_names),
-        "removed": sorted(base_names - head_names),
-    }
-
-
-def _write_part_diff(
-    *,
-    part_name: str,
-    base_data: bytes,
-    head_data: bytes,
-    output_path: Path,
-) -> None:
-    base_lines = _pretty_part_text(base_data).splitlines()
-    head_lines = _pretty_part_text(head_data).splitlines()
-    diff_lines = difflib.unified_diff(
-        base_lines,
-        head_lines,
-        fromfile=f"base/{part_name}",
-        tofile=f"head/{part_name}",
-        lineterm="",
-    )
-    output_path.write_text("\n".join(diff_lines) + "\n", encoding="utf-8")
-
-
-def _pretty_part_text(data: bytes) -> str:
-    parser = etree.XMLParser(remove_blank_text=True, recover=True)
-    try:
-        root = etree.fromstring(data, parser=parser)
-    except etree.XMLSyntaxError:
-        return data.decode("utf-8", errors="replace")
-    return etree.tostring(root, encoding="unicode", pretty_print=True)
-
-
-def _sanitize_part_name(name: str) -> str:
-    return name.replace("/", "__")
+# Per-part diff primitives now live in openxml_audit.package_diff —
+# imported above as _load_package_parts / _canonicalize_xml /
+# _compare_package_parts / _write_part_diff / _pretty_part_text /
+# _sanitize_part_name. Existing PPTX consumers keep working through
+# the same private names; the canonical-c14n + diff logic itself is
+# now shared with the XLSX / ODF / Word oracles.
 
 
 def _collect_timing_changes(

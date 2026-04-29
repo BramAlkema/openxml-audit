@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.8] - 2026-04-29
+
+### Added
+- **Shared per-part diff module** `openxml_audit.package_diff`
+  (Spec 024). Format-agnostic c14n + unified-diff machinery
+  extracted from `pptx.lab` so the XLSX, ODF, and Word corpus
+  oracles can replace their hash-only diff with per-part text
+  diffs. Public API: `canonicalize_xml`, `load_package_parts`,
+  `compare_package_parts`, `compare_packages`, `pretty_part_text`,
+  `sanitize_part_name`, `write_part_diff`.
+- **Meta-CLI** `python -m openxml_audit.oracle <engine> ...`
+  dispatching to all four corpus oracles plus the preflight
+  check. Subcommands: `word`, `excel` (alias `xlsx`), `pptx`
+  (alias `powerpoint`), `odf`, `preflight`. One verb across
+  formats — useful for shell history and for downstream
+  callers that don't need to remember which file each oracle
+  lives in under `tools/oracle/`.
+- 11 new tests in `tests/test_package_diff.py` covering
+  canonicalization (whitespace-only diffs collapse), custom
+  `parts_filter`, parse-error fallbacks, end-to-end report
+  shape, and unified-diff output.
+
+### Changed
+- XLSX, ODF, and Word corpus oracles now emit **per-part text
+  diffs** instead of just hash deltas.
+  - `RoundtripObservation` for all three formats gains
+    `added_parts: list[str]`, `removed_parts: list[str]`, and
+    `diff_dir: str | None` (None unless `--keep-artifacts`).
+  - Each oracle CLI gains a `--keep-artifacts` flag. Without it,
+    diff dirs are cleaned up after the run; with it, callers can
+    inspect `<work_dir>/compare/diffs/<sanitized-part>.diff` to
+    see what the target app actually rewrote on save.
+  - Phase 1 of the per-part repair categorization Phase 2 of
+    Specs 019/020/021/022 needs.
+- `pptx.lab` now imports its diff primitives from
+  `openxml_audit.package_diff` rather than defining them locally.
+  Public API (`compare_pptx_packages`, `write_pptx_snapshot`)
+  unchanged. PPTX-specific timing-tree change collector stays
+  put.
+
+### Fixed
+- Latent bug in `pretty_part_text` (the function moved into the
+  new shared module): with `recover=True` set on the parser,
+  malformed XML returns `None` from `etree.fromstring` rather
+  than raising — the code path then crashed in `etree.tostring`.
+  Now falls back to raw decoded text. This bug existed in
+  `pptx.lab._pretty_part_text` since at least 0.5.0 but was
+  unreachable in PPTX practice (PPTX inputs are well-formed).
+  The new test suite surfaced it.
+
 ## [0.6.7] - 2026-04-29
 
 ### Added

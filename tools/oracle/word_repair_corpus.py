@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Literal
 
 from openxml_audit.docx import osa as docx_osa  # for app-bundle path / preflight
+from openxml_audit.package_diff import compare_packages
 
 # word_roundtrip imports `from tools.oracle import word_window`, which
 # requires the repo root (not the tools/ dir) on sys.path. Insert it
@@ -92,6 +93,9 @@ class RoundtripObservation:
     input_parts: list[PartFingerprint] = field(default_factory=list)
     output_parts: list[PartFingerprint] = field(default_factory=list)
     changed_parts: list[str] = field(default_factory=list)
+    added_parts: list[str] = field(default_factory=list)
+    removed_parts: list[str] = field(default_factory=list)
+    diff_dir: str | None = None
     repair_dialog_seen: bool = False
     repair_dialog_text: str | None = None
     word_version: str | None = None
@@ -119,6 +123,7 @@ def observe(
     input_docx: Path,
     *,
     timeout_seconds: float = 60.0,
+    keep_artifacts: bool = False,
 ) -> RoundtripObservation:
     input_docx = input_docx.resolve()
     if not input_docx.exists():
@@ -162,26 +167,40 @@ def observe(
         )
 
     output_parts = _fingerprint_docx(result.output_path)
-    input_hashes = {p.name: p.sha256 for p in input_parts}
-    output_hashes = {p.name: p.sha256 for p in output_parts}
-    changed = sorted(
-        name for name in (set(input_hashes) | set(output_hashes))
-        if input_hashes.get(name) != output_hashes.get(name)
-    )
 
-    # Best-effort cleanup of the staging tree (the working copy plus
-    # the original side-by-side). word_roundtrip leaves it for
-    # debuggability; baseline collection doesn't need to.
-    if result.output_path.parent != input_docx.parent:
-        shutil.rmtree(result.output_path.parent, ignore_errors=True)
+    # Per-part canonical-c14n diff via the shared package_diff module.
+    # Output dir lives next to the post-Word file in the staging tree
+    # so callers can `--keep-artifacts` to inspect what Word changed.
+    compare_dir = result.output_path.parent / "compare"
+    diff_report = compare_packages(
+        base_path=input_docx,
+        head_path=result.output_path,
+        output_dir=compare_dir,
+        parts_filter=_is_fingerprinted_part,
+    )
+    changed = list(diff_report.get("changed_files", []))
+    added = list(diff_report.get("added_files", []))
+    removed = list(diff_report.get("removed_files", []))
+
+    diff_dir_str: str | None = None
+    if keep_artifacts:
+        diff_dir_str = str(compare_dir)
+    else:
+        # word_roundtrip leaves the staging tree in place by default
+        # for debuggability; baseline collection doesn't need it.
+        if result.output_path.parent != input_docx.parent:
+            shutil.rmtree(result.output_path.parent, ignore_errors=True)
 
     return RoundtripObservation(
         source_relpath=str(input_docx.name),
-        outcome="preserved" if not changed else "repaired",
+        outcome="preserved" if not (changed or added or removed) else "repaired",
         duration_seconds=result.elapsed_seconds,
         input_parts=input_parts,
         output_parts=output_parts,
         changed_parts=changed,
+        added_parts=added,
+        removed_parts=removed,
+        diff_dir=diff_dir_str,
         repair_dialog_seen=result.repair_dialog_seen,
         repair_dialog_text=result.repair_dialog_text,
         word_version=result.word_version,
@@ -192,8 +211,12 @@ def observe_batch(
     inputs: list[Path],
     *,
     timeout_seconds: float = 60.0,
+    keep_artifacts: bool = False,
 ) -> list[RoundtripObservation]:
-    return [observe(p, timeout_seconds=timeout_seconds) for p in inputs]
+    return [
+        observe(p, timeout_seconds=timeout_seconds, keep_artifacts=keep_artifacts)
+        for p in inputs
+    ]
 
 
 def _to_jsonable(observations: list[RoundtripObservation]) -> dict:
@@ -221,6 +244,8 @@ def main() -> int:
                    help="path to write the JSON observation report")
     p.add_argument("--timeout", type=float, default=60.0,
                    help="per-file Word timeout in seconds (default 60)")
+    p.add_argument("--keep-artifacts", action="store_true",
+                   help="leave staging dirs in place for inspection")
     args = p.parse_args()
 
     if not docx_osa.WORD_APP_BUNDLE.exists():
@@ -241,7 +266,9 @@ def main() -> int:
         print("no .docx inputs found", file=sys.stderr)
         return 2
 
-    observations = observe_batch(inputs, timeout_seconds=args.timeout)
+    observations = observe_batch(
+        inputs, timeout_seconds=args.timeout, keep_artifacts=args.keep_artifacts,
+    )
     report = _to_jsonable(observations)
 
     if args.output:

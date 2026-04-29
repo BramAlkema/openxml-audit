@@ -52,8 +52,14 @@ from oracle.odf_window import (  # noqa: E402  (path setup must happen first)
     roundtrip,
 )
 
+from openxml_audit.package_diff import compare_packages  # noqa: E402
+
 
 _CANONICAL_PARTS = ("content.xml", "styles.xml", "meta.xml", "settings.xml")
+
+
+def _is_canonical_odf_part(name: str) -> bool:
+    return name in _CANONICAL_PARTS
 _FORMAT_BY_EXT = {
     ".odt": "odt",
     ".ods": "ods",
@@ -89,6 +95,9 @@ class RoundtripObservation:
     input_parts: list[PartFingerprint] = field(default_factory=list)
     output_parts: list[PartFingerprint] = field(default_factory=list)
     changed_parts: list[str] = field(default_factory=list)
+    added_parts: list[str] = field(default_factory=list)
+    removed_parts: list[str] = field(default_factory=list)
+    diff_dir: str | None = None
     soffice_outcome: str = ""
     notes: list[str] = field(default_factory=list)
 
@@ -132,12 +141,15 @@ def observe(
     work_dir: Path,
     *,
     timeout_seconds: float = 60.0,
+    keep_artifacts: bool = False,
 ) -> RoundtripObservation:
     """Roundtrip one file and observe the outcome.
 
     `work_dir` is used for the soffice output. The caller is responsible
     for choosing a per-file directory if avoiding name collisions in
-    batch mode.
+    batch mode. When `keep_artifacts=True` the per-part diff directory
+    under `work_dir/compare/` is preserved so the caller can inspect
+    what soffice actually changed.
     """
     target_format = _detect_format(input_path)
     input_parts = _fingerprint_parts(input_path)
@@ -194,21 +206,33 @@ def observe(
 
     output_parts = _fingerprint_parts(run.output_path)
 
-    input_hashes = {p.name: p.sha256 for p in input_parts}
-    output_hashes = {p.name: p.sha256 for p in output_parts}
-    changed = sorted(
-        name for name in (set(input_hashes) | set(output_hashes))
-        if input_hashes.get(name) != output_hashes.get(name)
+    # Per-part canonical-c14n diff via the shared package_diff module.
+    # Replaces hash-only diff used through 0.6.7; the report includes
+    # per-part text diffs under work_dir/compare/diffs/ so callers
+    # can inspect what soffice actually changed (cosmetic XML reflow
+    # vs substantive content edit).
+    compare_dir = work_dir / "compare"
+    diff_report = compare_packages(
+        base_path=input_path,
+        head_path=run.output_path,
+        output_dir=compare_dir,
+        parts_filter=_is_canonical_odf_part,
     )
+    changed = list(diff_report.get("changed_files", []))
+    added = list(diff_report.get("added_files", []))
+    removed = list(diff_report.get("removed_files", []))
 
     return RoundtripObservation(
         source_relpath=str(input_path.name),
         target_format=target_format,
-        outcome="preserved" if not changed else "repaired",
+        outcome="preserved" if not (changed or added or removed) else "repaired",
         duration_seconds=run.duration_seconds,
         input_parts=input_parts,
         output_parts=output_parts,
         changed_parts=changed,
+        added_parts=added,
+        removed_parts=removed,
+        diff_dir=str(compare_dir) if keep_artifacts else None,
         soffice_outcome=run.outcome,
         notes=run.notes,
     )
@@ -219,13 +243,18 @@ def observe_batch(
     work_root: Path,
     *,
     timeout_seconds: float = 60.0,
+    keep_artifacts: bool = False,
 ) -> list[RoundtripObservation]:
     """Run `observe` over a batch, allocating per-file work dirs."""
     observations: list[RoundtripObservation] = []
     for index, input_path in enumerate(inputs):
         work_dir = work_root / f"{index:04d}-{input_path.stem}"
         try:
-            obs = observe(input_path, work_dir, timeout_seconds=timeout_seconds)
+            obs = observe(
+                input_path, work_dir,
+                timeout_seconds=timeout_seconds,
+                keep_artifacts=keep_artifacts,
+            )
         except ValueError as exc:
             obs = RoundtripObservation(
                 source_relpath=str(input_path.name),
@@ -264,6 +293,8 @@ def main() -> int:
                    help="optional path to write the JSON observation report")
     p.add_argument("--timeout", type=float, default=60.0,
                    help="per-file soffice timeout in seconds (default 60)")
+    p.add_argument("--keep-artifacts", action="store_true",
+                   help="leave per-file work dirs in place for inspection")
     args = p.parse_args()
 
     try:
@@ -287,7 +318,11 @@ def main() -> int:
         return 2
 
     args.work_root.mkdir(parents=True, exist_ok=True)
-    observations = observe_batch(inputs, args.work_root, timeout_seconds=args.timeout)
+    observations = observe_batch(
+        inputs, args.work_root,
+        timeout_seconds=args.timeout,
+        keep_artifacts=args.keep_artifacts,
+    )
     report = _to_jsonable(observations)
 
     if args.output:

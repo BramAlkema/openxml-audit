@@ -63,6 +63,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Literal
 
+from openxml_audit.package_diff import compare_packages
 from openxml_audit.xlsx import osa as xlsx_osa
 
 
@@ -124,6 +125,9 @@ class RoundtripObservation:
     input_parts: list[PartFingerprint] = field(default_factory=list)
     output_parts: list[PartFingerprint] = field(default_factory=list)
     changed_parts: list[str] = field(default_factory=list)
+    added_parts: list[str] = field(default_factory=list)
+    removed_parts: list[str] = field(default_factory=list)
+    diff_dir: str | None = None  # path to per-part diff artifacts
     repair_dialog_seen: bool = False
     repair_dialog_text: str | None = None
     repair_dialog_button_clicked: str | None = None
@@ -186,6 +190,7 @@ def observe(
     input_xlsx: Path,
     *,
     timeout_seconds: float = 60.0,
+    keep_artifacts: bool = False,
 ) -> RoundtripObservation:
     """Roundtrip one workbook through Excel and record the outcome."""
     input_xlsx = input_xlsx.resolve()
@@ -307,34 +312,56 @@ def observe(
             )
 
         output_parts = _fingerprint_xlsx(staged)
-        input_hashes = {p.name: p.sha256 for p in input_parts}
-        output_hashes = {p.name: p.sha256 for p in output_parts}
-        changed = sorted(
-            name for name in (set(input_hashes) | set(output_hashes))
-            if input_hashes.get(name) != output_hashes.get(name)
+
+        # Per-part canonical-c14n diff via the shared package_diff
+        # module. Replaces the hash-only diff used through 0.6.7;
+        # the report includes per-part text diffs under
+        # work_dir/compare/diffs/ so callers can inspect what
+        # Excel actually changed (rather than just "something
+        # changed in this file").
+        compare_dir = work_dir / "compare"
+        report = compare_packages(
+            base_path=input_xlsx,
+            head_path=staged,
+            output_dir=compare_dir,
+            parts_filter=_is_fingerprinted_part,
+        )
+        changed = list(report.get("changed_files", []))
+        added = list(report.get("added_files", []))
+        removed = list(report.get("removed_files", []))
+        outcome: Literal["preserved", "repaired"] = (
+            "preserved" if not (changed or added or removed) else "repaired"
         )
 
         return RoundtripObservation(
             source_relpath=str(input_xlsx.name),
-            outcome="preserved" if not changed else "repaired",
+            outcome=outcome,
             duration_seconds=time.monotonic() - started,
             input_parts=input_parts,
             output_parts=output_parts,
             changed_parts=changed,
+            added_parts=added,
+            removed_parts=removed,
+            diff_dir=str(compare_dir) if keep_artifacts else None,
             repair_dialog_seen=repair_seen,
             repair_dialog_text=repair_text,
             repair_dialog_button_clicked=repair_button_clicked,
         )
     finally:
-        shutil.rmtree(work_dir, ignore_errors=True)
+        if not keep_artifacts:
+            shutil.rmtree(work_dir, ignore_errors=True)
 
 
 def observe_batch(
     inputs: list[Path],
     *,
     timeout_seconds: float = 60.0,
+    keep_artifacts: bool = False,
 ) -> list[RoundtripObservation]:
-    return [observe(p, timeout_seconds=timeout_seconds) for p in inputs]
+    return [
+        observe(p, timeout_seconds=timeout_seconds, keep_artifacts=keep_artifacts)
+        for p in inputs
+    ]
 
 
 def _to_jsonable(observations: list[RoundtripObservation]) -> dict:
@@ -363,6 +390,8 @@ def main() -> int:
                    help="optional path to write the JSON observation report")
     p.add_argument("--timeout", type=float, default=60.0,
                    help="per-file Excel timeout in seconds (default 60)")
+    p.add_argument("--keep-artifacts", action="store_true",
+                   help="leave staging dirs in place for inspection")
     args = p.parse_args()
 
     if not xlsx_osa.EXCEL_APP_BUNDLE.exists():
@@ -386,7 +415,9 @@ def main() -> int:
         print("no Excel inputs found", file=sys.stderr)
         return 2
 
-    observations = observe_batch(inputs, timeout_seconds=args.timeout)
+    observations = observe_batch(
+        inputs, timeout_seconds=args.timeout, keep_artifacts=args.keep_artifacts,
+    )
     report = _to_jsonable(observations)
 
     if args.output:
