@@ -19,6 +19,19 @@ if TYPE_CHECKING:
     from openxml_audit.parts import OpenXmlPart
 
 
+def _sibling_position(element: etree._Element) -> int:
+    """Return the 1-indexed position of `element` among its same-tag siblings."""
+    parent = element.getparent()
+    if parent is None:
+        return 1
+    position = 1
+    for sibling in parent.iterchildren(element.tag):
+        if sibling is element:
+            return position
+        position += 1
+    return position
+
+
 @dataclass
 class ElementInfo:
     """Information about an element being validated."""
@@ -35,13 +48,23 @@ class ValidationStack:
         self._stack: list[ElementInfo] = []
 
     def push(self, element: etree._Element, name: str) -> None:
-        """Push an element onto the stack."""
+        """Push an element onto the stack.
+
+        The path segment includes a 1-indexed sibling-position predicate
+        (`name[N]`) computed from the element's position among same-tag
+        siblings under its parent. This matches the .NET Open XML SDK's
+        `XPathFinder` output and lets parity comparison disambiguate
+        repeated children (e.g. multiple `<w:sdt>` siblings at body level).
+        """
         depth = len(self._stack)
+        position = _sibling_position(element)
+        segment = f"{name}[{position}]"
+
         if self._stack:
             parent_path = self._stack[-1].path
-            path = f"{parent_path}/{name}"
+            path = f"{parent_path}/{segment}"
         else:
-            path = f"/{name}"
+            path = f"/{segment}"
 
         self._stack.append(ElementInfo(element=element, path=path, depth=depth))
 

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-04-29
+
+### Fixed
+- Validation error paths now include 1-indexed sibling-position predicates
+  (e.g. `/document[1]/body[1]/sdt[5]/...`), matching the .NET Open XML SDK's
+  `XPathFinder` output. Previously every segment was emitted without a
+  position predicate and the parity normalizer blindly appended `[1]`,
+  collapsing distinct elements with the same tag into a single
+  `family_key`. Verified against the live SDK runtime via
+  `tools/parity/dotnet_validator_runner` on `TestFiles/Document.docx`:
+  Office2007 family deltas dropped from 50+ to zero. The remaining
+  Spec-012 "+1 mystery" is now traceable to a single structural
+  divergence (our validator flattens through `<w:sdt>` wrappers; SDK
+  preserves them — separate follow-up).
+
 ## [0.6.0] - 2026-04-29
 
 ### Breaking
