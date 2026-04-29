@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "openxml-audit"
-version = "0.6.9"
+version = "0.7.0"
 description = "Validate OOXML and ODF files in pure Python — no .NET required"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -52,6 +52,7 @@ Documentation = "https://bramalkema.github.io/openxml-audit/"
 
 [project.scripts]
 openxml-audit = "openxml_audit.cli:main"
+openxml-audit-oracle = "openxml_audit.oracle.__main__:main"
 openxml-audit-pptx-check = "openxml_audit.pptx.capabilities:main"
 openxml-audit-pptx-lab = "openxml_audit.pptx.lab:main"
 openxml-audit-pptx-timing-oracle = "openxml_audit.pptx.timing_oracle_deck:main"

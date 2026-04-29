@@ -7,6 +7,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-04-29
+
+### Cutover release
+
+This is the consolidation of the 0.6.x staircase. The substantive work
+shipped in 0.6.1 → 0.6.9; 0.7.0 is the moment to acknowledge it as a
+coherent feature set with one notable user-visible polish — the
+`openxml-audit-oracle` console script — and a SemVer minor bump to
+mark the new shape of the validator.
+
+**Where 0.7.0 leaves the project:**
+
+- **All four formats have a roundtrip oracle** that drives the target
+  app, observes save behavior, and emits a structured observation
+  report. Word (Spec 011, since 0.5.0), ODF (Spec 019, 0.6.3),
+  PowerPoint (Spec 020, 0.6.4), Excel (Spec 021, 0.6.5).
+- **Per-part canonical-c14n diffs** in the observation reports
+  (Spec 024, 0.6.8) — replaces the hash-only diff that earlier
+  releases shipped on three of the four oracles. PPTX's existing
+  per-part text diff was extracted into the new shared
+  `openxml_audit.package_diff` module so XLSX, ODF, and Word now
+  emit the same shape.
+- **Auto-dismiss for repair dialogs** in PPTX and XLSX
+  (Spec 023, 0.6.7) — closes the symmetry gap with Word's oracle.
+  ~12× speedup in roundtrip wall-clock time on files that trigger
+  Office's repair flow.
+- **Source-class tagging on `ValidationError`** (Spec 018, 0.6.2)
+  — `SourceClass.SDK_PROXY` / `WORD_APP_COMPAT` / `EXCEL_APP_COMPAT`
+  / `POWERPOINT_APP_COMPAT` / `ODF_NATIVE` / `PACKAGE_INTEGRITY`,
+  exported at package top level. Consumers (the future Spec 013
+  sovereign gate, downstream pytest plugins) can filter findings
+  by source.
+- **Path-indexing fix** so error paths match the SDK's XPath
+  conventions (Spec 014, 0.6.1). On
+  `Document.docx` Office2007, the parity gate's "+1 mystery" from
+  Spec 012 reduced from 50+ phantom family deltas to a single real
+  structural difference.
+- **macOS preflight + permissions documentation** (Spec 023, 0.6.5).
+  `python -m tools.oracle.preflight` checks all four engines;
+  `docs/oracle_permissions.md` is the setup checklist.
+- **Two committed baseline runs** under `tools/oracle/baselines/`
+  (Specs 022 & 025, 0.6.6 & 0.6.9). The validator has *evidence*,
+  not just tools.
+
+### Added
+- New console script: `openxml-audit-oracle <engine> FILES...`
+  Replaces the longer `python -m openxml_audit.oracle <engine>`
+  introduced in 0.6.8 — same dispatcher, friendlier name, on-PATH
+  after `pip install`. Engines: `word` / `excel` (alias `xlsx`) /
+  `pptx` (alias `powerpoint`) / `odf` / `preflight`.
+
+### Deferred to future releases (explicitly tracked)
+
+- **Self-parity sovereign gate** (Spec 013) — the eventual
+  blocking gate consumes oracle output across all four formats.
+  0.7.x or 0.8.x candidate.
+- **Word oracle migration to in-package `osa` layer** —
+  `tools/oracle/word_window.py` and `word_roundtrip.py` predate the
+  `src/openxml_audit/docx/osa.py` consolidation pattern and still
+  duplicate primitives. Worth folding before 0.8.0 but the
+  matrix-driven Word oracle (Spec 010 / 011) depends on the
+  current layout, so this is its own focused release.
+- **Clean re-baseline against fresh TokenMoulds-API output**
+  (Spec 025 Phase 2) — the corpus-curation problem flagged in the
+  0.6.9 baseline. Needs a small `tools/oracle/build_corpus.py`
+  helper that drives TokenMoulds emitters programmatically to
+  produce concrete `.docx`/`.xlsx`/`.pptx`/`.odt` (not templates).
+- **Repair categorization on top of per-part diffs** (Phase 2 of
+  Specs 019/020/021/022) — distinguish cosmetic XML reflow from
+  substantive content changes.
+- **Pattern-list expansions** for dialog wordings observed during
+  the 0.6.9 walk (Word "Open and Repair" button-label edge case,
+  PowerPoint "[Repaired]" secondary modal). Cataloged in
+  `tools/oracle/baselines/README.md`.
+
 ## [0.6.9] - 2026-04-29
 
 ### Added
