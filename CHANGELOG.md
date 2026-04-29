@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-04-29
+
+### Added
+- ODF roundtrip oracle infrastructure (Spec 019, Phase 1). Sibling of
+  the existing Word roundtrip oracle, but uses LibreOffice's headless
+  `soffice --convert-to` rather than osascript-driven Microsoft Word.
+  - `tools/oracle/odf_window.py` — crash-resistant soffice harness.
+    Each call gets a fresh `UserInstallation` profile dir (no
+    single-instance lock contention), runs under a hard wall-clock
+    timeout, and reaps descendant helper processes (oosplash etc.)
+    via pgrep + SIGKILL on the process group when the timeout fires.
+    Returns a structured `SofficeRunResult` rather than raising on
+    soft errors, so corpus walks record "this file crashed soffice"
+    as data instead of stalling the run.
+  - `tools/oracle/odf_repair_oracle.py` — observation layer. For each
+    input ODF, fingerprints the canonical parts (`content.xml`,
+    `styles.xml`, `meta.xml`, `settings.xml`) before and after the
+    soffice roundtrip, classifies the outcome as `preserved` /
+    `repaired` / `crash` / `timeout` / `open_failed` / `missing_output`,
+    and emits a JSON observation report. CLI:
+    `python tools/oracle/odf_repair_oracle.py FILES... [--output X]`.
+  - 8 new tests in `tests/test_odf_roundtrip_oracle.py` (6 always-on
+    pure-logic tests + 2 soffice-required integration tests that skip
+    cleanly when no LibreOffice is installed).
+  - `specs/019-odf-roundtrip-oracle.md` documenting the design and
+    deferred phases (corpus generation via TokenMoulds, structural
+    XML diff, pairwise scenario mutations).
+
+  Phase 1 only ships the harness and observation skeleton. Phase 2
+  (0.6.4) adds the TokenMoulds-driven corpus + structural diff that
+  distinguishes cosmetic repairs from substantive ones.
+
 ## [0.6.2] - 2026-04-29
 
 ### Added
