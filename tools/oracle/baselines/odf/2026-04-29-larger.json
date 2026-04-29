@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "observations": [
+    {
+      "source_relpath": "Untitled 1.odt",
+      "target_format": "odt",
+      "outcome": "open_failed",
+      "duration_seconds": 1.0800136248581111,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "b5a2e21d50b42b8d3129c9df48e3d2941ee56730755839acdab4b5311f8b37b2",
+          "size_bytes": 6785
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "de81007e2392173aa824ac6cf7cf6e081c04bb3a8ce128a6e0c0140d04bd2fbb",
+          "size_bytes": 25463
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "3305f42a67ed373fe9a281085cd3482f8a7be5d4ff4c43b212db1c41e6de723f",
+          "size_bytes": 1045
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "7a47be1537645c07b54a7a2f6514f64cec73e7d06be0ba8d5c9191d11c73d41c",
+          "size_bytes": 14532
+        }
+      ],
+      "output_parts": [],
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "exit_nonzero",
+      "notes": [
+        "soffice exited 255",
+        "return_code=255",
+        ""
+      ]
+    },
+    {
+      "source_relpath": "Untitled 2.odt",
+      "target_format": "odt",
+      "outcome": "open_failed",
+      "duration_seconds": 3.3029540828429163,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "be9acabcc35628c3269cc5ac6ab95ecb2adba02155db51977ab451ee79ab4214",
+          "size_bytes": 5470
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "5e6988b562ab8a39e64cf849bbf841d374d15b74402fb1b008aa3869e020530e",
+          "size_bytes": 27004
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "ccc1981a596b873518340ddfecb7d8d0ecec7109c7270d97388ad15dd96f0e7d",
+          "size_bytes": 1045
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "1ffd79a2ccba4ae76bbfe21e6302d63a382ff3061de9844988e7ee486ada3a04",
+          "size_bytes": 14531
+        }
+      ],
+      "output_parts": [],
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "exit_nonzero",
+      "notes": [
+        "soffice exited 255",
+        "return_code=255",
+        ""
+      ]
+    },
+    {
+      "source_relpath": "Untitled 3.odt",
+      "target_format": "odt",
+      "outcome": "open_failed",
+      "duration_seconds": 3.3061684579588473,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "be9acabcc35628c3269cc5ac6ab95ecb2adba02155db51977ab451ee79ab4214",
+          "size_bytes": 5470
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "5e6988b562ab8a39e64cf849bbf841d374d15b74402fb1b008aa3869e020530e",
+          "size_bytes": 27004
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "8e965ae38b80993a3945a6244dbac351182fb2cd21f660a4a79abf9d1bac979e",
+          "size_bytes": 1045
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "4c16ccb14dfcff748e4642d3aa90b93df82580bb08d79b2337fbfd46ccc7054b",
+          "size_bytes": 14532
+        }
+      ],
+      "output_parts": [],
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "exit_nonzero",
+      "notes": [
+        "soffice exited 255",
+        "return_code=255",
+        ""
+      ]
+    },
+    {
+      "source_relpath": "embeddingtest.odt",
+      "target_format": "odt",
+      "outcome": "open_failed",
+      "duration_seconds": 3.3693707496859133,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "e260faa16004a2195565fe56ca6def1e11914eb4407c7cf013e657370df86da2",
+          "size_bytes": 9870
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "425288b6b0b18222cc9a924d7775b7ae919a075ad6ab7681f98381e549e9f50d",
+          "size_bytes": 46305
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "d0618c22fac84870314dbe291649fd6b43872a6c207ccf4502cd3e3b5cc91519",
+          "size_bytes": 1205
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "2cfcd21bd06ca474699158922dc45c4bfac13f94a12f8423c41f0fabb5096b5b",
+          "size_bytes": 15554
+        }
+      ],
+      "output_parts": [],
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "exit_nonzero",
+      "notes": [
+        "soffice exited 255",
+        "return_code=255",
+        ""
+      ]
+    },
+    {
+      "source_relpath": "winsemius.tokens.libreoffice.odp",
+      "target_format": "odp",
+      "outcome": "open_failed",
+      "duration_seconds": 3.005239499732852,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "288143b4dce88aaa745beb8359f104887a25097f7cc35206b426610412e1aa0b",
+          "size_bytes": 15870
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "7ceb0fdaf9aaf0bbbc3098f3c04ab40dc1c5b86c75f69b2f5738102c4d9ed71f",
+          "size_bytes": 57002
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "f70d02f972f68c69e5039addbe735f4272c6e3536b0a29ebb9d2a3c850b8ce2f",
+          "size_bytes": 939
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "e2e24a659166a7a2bff01a25b7d2dd43d0c4bb45881735b9c3668d352b1c8c67",
+          "size_bytes": 5515
+        }
+      ],
+      "output_parts": [],
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "exit_nonzero",
+      "notes": [
+        "soffice exited 255",
+        "return_code=255",
+        "2026-04-29 21:30:45.174 soffice[27277:36251760] Task policy set failed: 4 ((os/kern) invalid argument)"
+      ]
+    },
+    {
+      "source_relpath": "winsemius.tokens.odp",
+      "target_format": "odp",
+      "outcome": "open_failed",
+      "duration_seconds": 2.6964801247231662,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "7cc7fe8f8d9db287fd76e0797264415c0f2a2f892320a92368b97b1246b9a7c7",
+          "size_bytes": 6439
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "a66d9a8ac024150ba080b48c22cb561effccb39b13bd05d1c4d0c91d6b30ed4c",
+          "size_bytes": 4374
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "b73e1cd1249ba6cba5bde5401143746bded12a76dfa45d3bff41110ed7cc8795",
+          "size_bytes": 397
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "22c65269f8fb8055b666a6785e949573d23b8e81d400925d09f104cdc8122341",
+          "size_bytes": 959
+        }
+      ],
+      "output_parts": [],
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "exit_nonzero",
+      "notes": [
+        "soffice exited 255",
+        "return_code=255",
+        ""
+      ]
+    },
+    {
+      "source_relpath": "winsemius.tokens.odt",
+      "target_format": "odt",
+      "outcome": "repaired",
+      "duration_seconds": 2.90250579174608,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "9a656111c55e57b1190a43ca079d6d8fd6d82c77093bc7f43e8633b93650e0a9",
+          "size_bytes": 556
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "9b098350597a7e1cf6af250df2200c42d2873435ccbb5baf7d3defc15e32a9fc",
+          "size_bytes": 11275
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "305fd667b45245c8c9a33b3ad320b317785a50af1c93c7d424b26d359a9e029c",
+          "size_bytes": 442
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "44c43b1a78afd44f71be4f2f6f50127d258c8253a7fe36913b84375e38ae5d04",
+          "size_bytes": 3740
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "5601df9ee154fb2cec058b70abd859578558ddb74f5efe41b3f7cc62e5823679",
+          "size_bytes": 15280
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "56a55d4bafbfee78ddd9f66aa47f2b68cbc8e0d87bbddc0021d5e5710b950e34",
+          "size_bytes": 894
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "d7d44cdc9359b9f4d5d2cd77a4c520da60dd93d27c4b59fd03f65cc16d9308c7",
+          "size_bytes": 13345
+        }
+      ],
+      "changed_parts": [
+        "content.xml",
+        "meta.xml",
+        "styles.xml"
+      ],
+      "added_parts": [
+        "settings.xml"
+      ],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "preserved": 0,
+    "repaired": 1,
+    "crash": 0,
+    "timeout": 0,
+    "open_failed": 6,
+    "missing_output": 0
+  }
+}

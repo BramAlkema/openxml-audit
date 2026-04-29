@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.9] - 2026-04-29
+
+### Added
+- Second baseline run across all four formats (Spec 025), 4× larger
+  corpus than the first baseline (0.6.6). Written under
+  `tools/oracle/baselines/{word,odf,pptx,xlsx}/2026-04-29-larger.json`.
+  Made tractable by 0.6.7's auto-dismiss; annotated with the per-part
+  diffs (`added_parts` / `removed_parts` / `diff_dir`) shipped in 0.6.8.
+  First release-grade use of the meta-CLI from 0.6.8
+  (`python -m openxml_audit.oracle <engine>`).
+
+### Documented
+- `tools/oracle/baselines/README.md` extended with a "2026-04-29
+  second run" section covering aggregate results, the corpus-quality
+  caveat (the assembled corpus mixed release-quality TokenMoulds
+  emitter output with troubleshooting-session leftovers — the
+  elevated repair-dialog rate likely reflects the latter), and a
+  catalog of operational follow-up patterns observed during the
+  walk:
+  - Word "Open and Repair" button-label match was inconsistent —
+    possibly a System Events label-string variant.
+  - PowerPoint "[Repaired] and removed it. View / Delete"
+    secondary info modal needs a button label outside the current
+    accept list (or title-bar "[Repaired]" detection + Escape).
+  - Excel post-`pkill` recovery sheet (already documented from
+    the first run; same benign behavior).
+- `specs/025-larger-corpus-baselines.md` documenting design,
+  Phase 2 deferrals (clean re-baseline against fresh TokenMoulds-
+  API-driven output), and risks.
+
 ## [0.6.8] - 2026-04-29
 
 ### Added

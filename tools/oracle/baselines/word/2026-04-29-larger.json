@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "observations": [
+    {
+      "source_relpath": "demo-workflow.docx",
+      "outcome": "open_failed",
+      "duration_seconds": 101.60344758303836,
+      "input_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "63574f67e1903f6e43f905ae56914abfd9d13ac25ac7a501f68de82680bb7332",
+          "size_bytes": 1824
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "a9ae57efe9186f07d48303bcac5d54c7e359bf3f503939c03ad2954e5c59a5c4",
+          "size_bytes": 734
+        },
+        {
+          "name": "word/_rels/document.xml.rels",
+          "sha256": "1e7f0eb144a98e199249314f61ff32a8de2a27e56d8e9ee6b524e1c6b235d377",
+          "size_bytes": 1227
+        },
+        {
+          "name": "word/document.xml",
+          "sha256": "c7611e156de53f3fef01e371e6546c932a63f74e1a07ca5cca1a324080beb891",
+          "size_bytes": 3001
+        },
+        {
+          "name": "word/numbering.xml",
+          "sha256": "70976f19cbcd896e51890859fe6ecb3467a5a7ad0c040160fedc5a1993cb09ce",
+          "size_bytes": 5513
+        },
+        {
+          "name": "word/settings.xml",
+          "sha256": "51a0d348fe85965c66e4748a03c3c0d055d78455514f03cb121c334af7d73689",
+          "size_bytes": 2535
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "8e6cce92918b8544ef6ba4562e6ad2d3f0f86639d0878c5a5e98b3014f6b123e",
+          "size_bytes": 350303
+        },
+        {
+          "name": "word/stylesWithEffects.xml",
+          "sha256": "463ae0928cf0d84775dbf8cf18d6c3029f6707c81bf590f6d6dd8757a5e93f15",
+          "size_bytes": 438131
+        },
+        {
+          "name": "word/theme/theme1.xml",
+          "sha256": "c6a9d7a1cc75541943cb06b389ce0f856e84755e9b9306d737dcbc157b2c0115",
+          "size_bytes": 10803
+        }
+      ],
+      "output_parts": [],
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "word_version": null,
+      "notes": [
+        "RoundtripError: Word did not register 'demo-workflow.docx' as open within 90.0s (reachable docs: ['missing value'])"
+      ]
+    },
+    {
+      "source_relpath": "mcp-word.docx",
+      "outcome": "open_failed",
+      "duration_seconds": 91.24016283405945,
+      "input_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "038b43a805548ac18531d8d80d24086153ecd55a5dee71effc4bef89ca22d3a8",
+          "size_bytes": 1592
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "e7d6d408632875ec77a89ca9213c033fc79d0164661f4cb8272fe968de2de15a",
+          "size_bytes": 583
+        },
+        {
+          "name": "word/_rels/document.xml.rels",
+          "sha256": "42584751a9a0973621c16cde4facada8fc4c67185f44c2d52061602fb3659517",
+          "size_bytes": 1108
+        },
+        {
+          "name": "word/document.xml",
+          "sha256": "b34a3410851c64fe3be70012197dc54d3dac9f7b7a4038eadcabc7d09912daa3",
+          "size_bytes": 7755
+        },
+        {
+          "name": "word/numbering.xml",
+          "sha256": "c30d35094ece96a438c7ece2f5b9e783cf9fe4db6fbcba8e35411140f73f64b0",
+          "size_bytes": 1568
+        },
+        {
+          "name": "word/settings.xml",
+          "sha256": "bbf657ff22e11abe58616e452e5a21cedcc89f64bf36ceabc7250ff271dec8ca",
+          "size_bytes": 2162
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "e4b8746def2269158811ae6085e9b57c7ca93539b87e10472385fb35cea29a7e",
+          "size_bytes": 32656
+        },
+        {
+          "name": "word/stylesWithEffects.xml",
+          "sha256": "e4b8746def2269158811ae6085e9b57c7ca93539b87e10472385fb35cea29a7e",
+          "size_bytes": 32656
+        },
+        {
+          "name": "word/theme/theme1.xml",
+          "sha256": "b24e0ed2c46a5a605664ec610da28b062477c1388cef5fa181ab17ccecf07d1a",
+          "size_bytes": 4515
+        }
+      ],
+      "output_parts": [],
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "word_version": null,
+      "notes": [
+        "RoundtripError: Word did not register 'mcp-word.docx' as open within 90.0s (reachable docs: ['missing value'])"
+      ]
+    },
+    {
+      "source_relpath": "table-test.docx",
+      "outcome": "preserved",
+      "duration_seconds": 51.87662724964321,
+      "input_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "66c84fb7a6aa3c4ead49f895e4a7044df1fb57de1ed76d09b2686e91f5bed5b4",
+          "size_bytes": 1738
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "a9ae57efe9186f07d48303bcac5d54c7e359bf3f503939c03ad2954e5c59a5c4",
+          "size_bytes": 734
+        },
+        {
+          "name": "word/_rels/document.xml.rels",
+          "sha256": "1e7f0eb144a98e199249314f61ff32a8de2a27e56d8e9ee6b524e1c6b235d377",
+          "size_bytes": 1227
+        },
+        {
+          "name": "word/document.xml",
+          "sha256": "cb69d4cff744f2d91ab1e2f20efe78e83fffaf8d2f622c1211cdb8f47948cad5",
+          "size_bytes": 1755
+        },
+        {
+          "name": "word/numbering.xml",
+          "sha256": "70976f19cbcd896e51890859fe6ecb3467a5a7ad0c040160fedc5a1993cb09ce",
+          "size_bytes": 5513
+        },
+        {
+          "name": "word/settings.xml",
+          "sha256": "ae22c820289555fe52c2cddadea4324c2836823ab2c2340f1a6e8d7583d78550",
+          "size_bytes": 2518
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "c38f2c6ae94065ca411fb59e07c5e887737857b2e74bae683d5d7fadd6e3a9be",
+          "size_bytes": 351219
+        },
+        {
+          "name": "word/stylesWithEffects.xml",
+          "sha256": "463ae0928cf0d84775dbf8cf18d6c3029f6707c81bf590f6d6dd8757a5e93f15",
+          "size_bytes": 438131
+        },
+        {
+          "name": "word/theme/theme1.xml",
+          "sha256": "c6a9d7a1cc75541943cb06b389ce0f856e84755e9b9306d737dcbc157b2c0115",
+          "size_bytes": 10803
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "66c84fb7a6aa3c4ead49f895e4a7044df1fb57de1ed76d09b2686e91f5bed5b4",
+          "size_bytes": 1738
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "a9ae57efe9186f07d48303bcac5d54c7e359bf3f503939c03ad2954e5c59a5c4",
+          "size_bytes": 734
+        },
+        {
+          "name": "word/_rels/document.xml.rels",
+          "sha256": "1e7f0eb144a98e199249314f61ff32a8de2a27e56d8e9ee6b524e1c6b235d377",
+          "size_bytes": 1227
+        },
+        {
+          "name": "word/document.xml",
+          "sha256": "cb69d4cff744f2d91ab1e2f20efe78e83fffaf8d2f622c1211cdb8f47948cad5",
+          "size_bytes": 1755
+        },
+        {
+          "name": "word/numbering.xml",
+          "sha256": "70976f19cbcd896e51890859fe6ecb3467a5a7ad0c040160fedc5a1993cb09ce",
+          "size_bytes": 5513
+        },
+        {
+          "name": "word/settings.xml",
+          "sha256": "ae22c820289555fe52c2cddadea4324c2836823ab2c2340f1a6e8d7583d78550",
+          "size_bytes": 2518
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "c38f2c6ae94065ca411fb59e07c5e887737857b2e74bae683d5d7fadd6e3a9be",
+          "size_bytes": 351219
+        },
+        {
+          "name": "word/stylesWithEffects.xml",
+          "sha256": "463ae0928cf0d84775dbf8cf18d6c3029f6707c81bf590f6d6dd8757a5e93f15",
+          "size_bytes": 438131
+        },
+        {
+          "name": "word/theme/theme1.xml",
+          "sha256": "c6a9d7a1cc75541943cb06b389ce0f856e84755e9b9306d737dcbc157b2c0115",
+          "size_bytes": 10803
+        }
+      ],
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": true,
+      "repair_dialog_text": "Microsoft Word Word was unable to read this document.  It may be corrupt.\nTry one or more of the following:\n* Open and Repair the file.\n* Open the file with the Text Recovery converter.\n(demo-workflow.docx)",
+      "word_version": "16.89.1",
+      "notes": []
+    },
+    {
+      "source_relpath": "winsemius-demo.docx",
+      "outcome": "preserved",
+      "duration_seconds": 2.21569108357653,
+      "input_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "66c84fb7a6aa3c4ead49f895e4a7044df1fb57de1ed76d09b2686e91f5bed5b4",
+          "size_bytes": 1738
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "a9ae57efe9186f07d48303bcac5d54c7e359bf3f503939c03ad2954e5c59a5c4",
+          "size_bytes": 734
+        },
+        {
+          "name": "word/_rels/document.xml.rels",
+          "sha256": "1e7f0eb144a98e199249314f61ff32a8de2a27e56d8e9ee6b524e1c6b235d377",
+          "size_bytes": 1227
+        },
+        {
+          "name": "word/document.xml",
+          "sha256": "6eb2b617eea11870c30afe91e785cd6305851d987842899b7ada3bf683e7c2bb",
+          "size_bytes": 4466
+        },
+        {
+          "name": "word/numbering.xml",
+          "sha256": "f9ca263a42a40f09192b877fe7e0509342f8069b0648b87c3cafa679c4da2790",
+          "size_bytes": 5549
+        },
+        {
+          "name": "word/settings.xml",
+          "sha256": "ae22c820289555fe52c2cddadea4324c2836823ab2c2340f1a6e8d7583d78550",
+          "size_bytes": 2518
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "17a36f431e3c3f7e699aa8e062ec9a07d118eaede895888bef06b0520817f125",
+          "size_bytes": 360397
+        },
+        {
+          "name": "word/stylesWithEffects.xml",
+          "sha256": "463ae0928cf0d84775dbf8cf18d6c3029f6707c81bf590f6d6dd8757a5e93f15",
+          "size_bytes": 438131
+        },
+        {
+          "name": "word/theme/theme1.xml",
+          "sha256": "18952277e666bfd833d9e99301dc8ae01828781a512edc990a7db3201243970f",
+          "size_bytes": 10804
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "66c84fb7a6aa3c4ead49f895e4a7044df1fb57de1ed76d09b2686e91f5bed5b4",
+          "size_bytes": 1738
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "a9ae57efe9186f07d48303bcac5d54c7e359bf3f503939c03ad2954e5c59a5c4",
+          "size_bytes": 734
+        },
+        {
+          "name": "word/_rels/document.xml.rels",
+          "sha256": "1e7f0eb144a98e199249314f61ff32a8de2a27e56d8e9ee6b524e1c6b235d377",
+          "size_bytes": 1227
+        },
+        {
+          "name": "word/document.xml",
+          "sha256": "6eb2b617eea11870c30afe91e785cd6305851d987842899b7ada3bf683e7c2bb",
+          "size_bytes": 4466
+        },
+        {
+          "name": "word/numbering.xml",
+          "sha256": "f9ca263a42a40f09192b877fe7e0509342f8069b0648b87c3cafa679c4da2790",
+          "size_bytes": 5549
+        },
+        {
+          "name": "word/settings.xml",
+          "sha256": "ae22c820289555fe52c2cddadea4324c2836823ab2c2340f1a6e8d7583d78550",
+          "size_bytes": 2518
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "17a36f431e3c3f7e699aa8e062ec9a07d118eaede895888bef06b0520817f125",
+          "size_bytes": 360397
+        },
+        {
+          "name": "word/stylesWithEffects.xml",
+          "sha256": "463ae0928cf0d84775dbf8cf18d6c3029f6707c81bf590f6d6dd8757a5e93f15",
+          "size_bytes": 438131
+        },
+        {
+          "name": "word/theme/theme1.xml",
+          "sha256": "18952277e666bfd833d9e99301dc8ae01828781a512edc990a7db3201243970f",
+          "size_bytes": 10804
+        }
+      ],
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "word_version": "16.89.1",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "preserved": 2,
+    "repaired": 0,
+    "crash": 0,
+    "timeout": 0,
+    "open_failed": 2,
+    "missing_output": 0,
+    "repair_dialog_seen": 1
+  }
+}

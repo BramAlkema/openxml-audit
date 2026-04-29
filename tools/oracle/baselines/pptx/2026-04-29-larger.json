@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "observations": [
+    {
+      "source_relpath": "clean-embed.pptx",
+      "outcome": "open_failed",
+      "duration_seconds": 121.44179220870137,
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": true,
+      "repair_dialog_text": "PowerPoint found a problem with content in clean-embed.pptx.\nPowerPoint can attempt to repair the presentation.\n\nIf you trust the source of this presentation, click Repair.",
+      "repair_dialog_button_clicked": "Repair",
+      "notes": [
+        "PowerPoint did not register 'clean-embed.pptx' as open within 120s"
+      ]
+    },
+    {
+      "source_relpath": "grid-layouts.pptx",
+      "outcome": "open_failed",
+      "duration_seconds": 121.12726704217494,
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": true,
+      "repair_dialog_text": "PowerPoint couldn't read some content in clean-embed [Repaired] and removed it.\n\nPlease check your presentation to see if the rest of it looks ok.",
+      "repair_dialog_button_clicked": "OK",
+      "notes": [
+        "PowerPoint did not register 'grid-layouts.pptx' as open within 120s"
+      ]
+    },
+    {
+      "source_relpath": "mcp-swot.pptx",
+      "outcome": "preserved",
+      "duration_seconds": 2.47608929220587,
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "repair_dialog_button_clicked": null,
+      "notes": []
+    },
+    {
+      "source_relpath": "standard-layouts.pptx",
+      "outcome": "preserved",
+      "duration_seconds": 2.105594167020172,
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "repair_dialog_button_clicked": null,
+      "notes": []
+    },
+    {
+      "source_relpath": "winsemius.pptx",
+      "outcome": "preserved",
+      "duration_seconds": 2.099238417111337,
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "repair_dialog_button_clicked": null,
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "preserved": 3,
+    "repaired": 0,
+    "crash": 0,
+    "timeout": 0,
+    "open_failed": 2,
+    "missing_output": 0,
+    "repair_dialog_seen": 2
+  }
+}

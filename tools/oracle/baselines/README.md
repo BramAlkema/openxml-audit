@@ -115,6 +115,86 @@ Excel's repair flow.**
 - `word_roundtrip._try_dismiss_repair_dialog`'s alt-button list
   extended with `("Open and Repair", "Cancel")`.
 
+## 2026-04-29 second run — larger corpus, partial completion
+
+A second run on the same date with an expanded corpus, queued under
+`{word,odf,pptx,xlsx}/2026-04-29-larger.json`. The motivation was Phase
+2 of Spec 022 (more files per format) made tractable by Spec 023's
+auto-dismiss in 0.6.7. The 0.6.8 shared per-part differ now annotates
+the observations with `added_parts` / `removed_parts` / `diff_dir` —
+real per-part signal where 0.6.6 had hash-only.
+
+### Aggregate
+
+| Format | Files | Preserved | Repaired | Open-failed | Repair dialog seen |
+|---|---|---|---|---|---|
+| ODF | 7 | 0 | 1 | 6 | n/a |
+| Word | 4 | 2 | 0 | 2 | 1 |
+| PPTX | 5 | 3 | 0 | 2 | 2 |
+| XLSX | not re-run | — | — | — | — |
+
+### What the data says
+
+- **3/4 PPTX files came back `preserved`** — the auto-dismiss path (0.6.7) caught the repair dialog on 1 of 2 problematic files cleanly.
+- **2/4 Word files came back `preserved`** — `table-test.docx` triggered a repair dialog and the auto-dismiss successfully clicked through.
+- **The remaining open-failed cases all hit dialog variants the pattern lists don't yet cover**, plus PowerPoint's secondary "[Repaired]" info modal which has button labels (`View` / `Delete` / X) outside our `REPAIR_DIALOG_ACCEPT_BUTTON_LABELS`. The post-close-with-save Escape pass added in 0.6.7 catches this on the next file but not on the one that's currently mid-roundtrip.
+
+### Corpus-quality caveat (important)
+
+The 2026-04-29-larger corpus was assembled by globbing
+`../tokenmoulds/{reports/visual,generated/word-demo,scratch/odf,...}`
+without distinguishing **finished, release-quality TokenMoulds emitter
+output** from **leftovers from troubleshooting sessions during
+TokenMoulds development**. The user flagged this midway through the
+Word run: several of the high-friction files (the `Word was unable to
+read this document` cases on `mcp-word.docx` and `demo-workflow.docx`)
+likely come from the latter category, not from TokenMoulds' current
+emitters.
+
+That has two consequences:
+
+1. **The headline "TokenMoulds output triggers repair dialogs" finding
+   from the 2026-04-29 (first) baseline should be read with this caveat
+   too** — `winsemius.tokens.xlsx` and `mcp-word.docx` were corpus
+   choices made by the same indiscriminate process. The fact that
+   they trigger dialogs is real; whether that says anything about
+   TokenMoulds' production-quality emitter output is unclear from
+   this corpus.
+2. **The operational findings (dialog wordings, button labels,
+   auto-dismiss gaps) are real regardless** — those are properties
+   of how Word/Excel/PowerPoint behave on imperfect input, and the
+   oracle's job is to capture them faithfully.
+
+A clean re-baseline against TokenMoulds' actual production output
+(driven through its Python API or CLI to produce concrete
+`.docx`/`.xlsx`/`.pptx`/`.odt` rather than templates) is deferred
+to a future release. For now the per-part diff machinery, the
+auto-dismiss, and the meta-CLI all work; the corpus is the missing
+piece, not the tooling.
+
+### Operational takeaways for follow-up patterns
+
+These dialog variants appeared during the run and are candidates for
+adding to the pattern lists:
+
+- **Word "unable to read" hard-error**: button "Open and Repair"
+  was added in 0.6.6 but didn't always click successfully across
+  the run. Worth re-checking — possibly the System Events button
+  label has different capitalization or a non-breaking space in
+  some Word builds.
+- **PowerPoint "[Repaired] and removed it. View / Delete"
+  post-repair info**: dismiss path's `dismiss_any_leftover_modal`
+  Escape pass should clear this at end-of-roundtrip, but if the
+  modal appears mid-roundtrip the auto-dismiss tries OK / Yes /
+  Repair / Recover / Open and finds none. Could add `View` (which
+  opens the log but doesn't lose the file) or `Close` to the
+  accept list, OR detect the "[Repaired]" badge in the title and
+  Escape directly.
+- **Excel post-`pkill` recovery sheet**: same as the 2026-04-29
+  first run; benign.
+
+These are grist for 0.7.x and beyond, not blockers for the 0.6.9 ship.
+
 ### Excel post-kill recovery dialog
 
 Force-killing Excel mid-roundtrip (e.g. `pkill -9 "Microsoft Excel"`
