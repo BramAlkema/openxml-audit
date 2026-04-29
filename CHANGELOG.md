@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-04-29
+
+### Breaking
+- `stylesWithEffects` consistency check is now ERROR (was WARNING). Files
+  that previously validated with this warning will now fail validation.
+  This matches the severity of the reverse-direction check and reflects
+  the Word-application impact (the "unreadable content" repair dialog).
+
 ### Added
 - `stylesWithEffects` consistency validator now flags styles present in
   `styles.xml` but missing from `stylesWithEffects.xml` (the python-docx
@@ -73,10 +81,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a future release once additional Word builds are surveyed.
 
 ### Changed
-- the existing "stylesWithEffects contains styles not in styles.xml" check
-  is now reported as ERROR instead of WARNING, matching the severity of the
-  reverse-direction check and the Word-application impact (file repair).
-  Files that previously passed with this warning will now fail validation.
 - **SDK parity gate is now advisory** (Spec 012). The
   `.github/workflows/parity-gate.yml` "Compare against baseline" step
   carries `continue-on-error: true`. SDK drift is surfaced in the
@@ -94,6 +98,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   against the committed manifest rather than the freshly-extracted
   runtime manifest. Eliminates a check-universe divergence between
   calibration and the parity gate (autoplan codex finding #6).
+
+- .NET SDK runtime parity tool (`tools/parity/dotnet_validator_runner/`
+  + `scripts/parity/diff_sdk_runtime.py`). Spec 013 OQ8(B) prototype
+  that invokes `OpenXmlValidator` directly against the corpus and
+  diffs against our Python validator's output. The first run already
+  surfaced concrete signal: the historical "+1" on `Document.docx`
+  (the surprise the autoplan flagged) is a path-element-indexing
+  discrepancy between Python and SDK on `<w:sdt>` paths, not four
+  unrelated mysterious findings. Not yet wired into CI; tool only.
 
 ### Deferred
 - Sovereign blocking gates (self-parity + Word/PowerPoint/Excel
