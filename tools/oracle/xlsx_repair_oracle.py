@@ -126,6 +126,7 @@ class RoundtripObservation:
     changed_parts: list[str] = field(default_factory=list)
     repair_dialog_seen: bool = False
     repair_dialog_text: str | None = None
+    repair_dialog_button_clicked: str | None = None
     notes: list[str] = field(default_factory=list)
 
 
@@ -201,6 +202,7 @@ def observe(
     started = time.monotonic()
     repair_seen = False
     repair_text: str | None = None
+    repair_button_clicked: str | None = None
 
     try:
         xlsx_osa.launch_excel()
@@ -217,11 +219,38 @@ def observe(
                 notes=[f"open_workbook failed: {exc}"],
             )
 
-        if not _wait_for_open(staged, timeout=timeout_seconds):
-            text = xlsx_osa.find_repair_dialog_text()
-            if text is not None:
-                repair_seen = True
-                repair_text = text
+        # Interleave repair-dialog auto-dismiss with the open-poll: the
+        # dialog can block the workbook from registering as open.
+        deadline = time.monotonic() + timeout_seconds
+        seen_open = False
+        while time.monotonic() < deadline:
+            if not repair_seen:
+                seen, text, clicked = xlsx_osa.dismiss_repair_dialog()
+                if seen:
+                    repair_seen = True
+                    repair_text = text
+                    repair_button_clicked = clicked
+                    if clicked is None:
+                        return RoundtripObservation(
+                            source_relpath=str(input_xlsx.name),
+                            outcome="open_failed",
+                            duration_seconds=time.monotonic() - started,
+                            input_parts=input_parts,
+                            repair_dialog_seen=True,
+                            repair_dialog_text=text,
+                            repair_dialog_button_clicked=None,
+                            notes=[
+                                "Repair dialog detected but no accept "
+                                "button label matched — manual dismissal "
+                                "required, oracle bailed."
+                            ],
+                        )
+            if xlsx_osa.is_workbook_open(staged):
+                seen_open = True
+                break
+            time.sleep(0.5)
+
+        if not seen_open:
             return RoundtripObservation(
                 source_relpath=str(input_xlsx.name),
                 outcome="open_failed",
@@ -229,16 +258,21 @@ def observe(
                 input_parts=input_parts,
                 repair_dialog_seen=repair_seen,
                 repair_dialog_text=repair_text,
+                repair_dialog_button_clicked=repair_button_clicked,
                 notes=[
                     f"Excel did not register {staged.name!r} as open "
                     f"within {timeout_seconds:.0f}s"
                 ],
             )
 
-        text = xlsx_osa.find_repair_dialog_text()
-        if text is not None:
-            repair_seen = True
-            repair_text = text
+        # Follow-up dialog scan: Excel sometimes shows a "repairs were
+        # made" info modal after the primary recovery prompt.
+        if not repair_seen:
+            seen, text, clicked = xlsx_osa.dismiss_repair_dialog()
+            if seen:
+                repair_seen = True
+                repair_text = text
+                repair_button_clicked = clicked
 
         try:
             xlsx_osa.close_workbook_saving()
@@ -250,8 +284,15 @@ def observe(
                 input_parts=input_parts,
                 repair_dialog_seen=repair_seen,
                 repair_dialog_text=repair_text,
+                repair_dialog_button_clicked=repair_button_clicked,
                 notes=[f"close_workbook_saving failed: {exc}"],
             )
+
+        # After close-with-save, Excel may leave a "we made repairs"
+        # info modal up (View/Delete buttons that aren't in our accept
+        # list). Send Escape to dismiss any leftover modal so the next
+        # corpus item starts on a clean Excel window.
+        xlsx_osa.dismiss_any_leftover_modal()
 
         if not staged.exists():
             return RoundtripObservation(
@@ -261,6 +302,7 @@ def observe(
                 input_parts=input_parts,
                 repair_dialog_seen=repair_seen,
                 repair_dialog_text=repair_text,
+                repair_dialog_button_clicked=repair_button_clicked,
                 notes=["close-with-save returned but staged file is missing"],
             )
 
@@ -281,6 +323,7 @@ def observe(
             changed_parts=changed,
             repair_dialog_seen=repair_seen,
             repair_dialog_text=repair_text,
+            repair_dialog_button_clicked=repair_button_clicked,
         )
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)

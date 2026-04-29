@@ -20,9 +20,13 @@ __all__ = [
     "POWERPOINT_APP_BUNDLE",
     "POWERPOINT_APP_ID",
     "POWERPOINT_PROCESS_NAME",
+    "REPAIR_DIALOG_ACCEPT_BUTTON_LABELS",
     "REPAIR_DIALOG_PATTERNS",
+    "click_dialog_button",
     "close_presentation",
     "close_presentation_saving",
+    "dismiss_any_leftover_modal",
+    "dismiss_repair_dialog",
     "find_repair_dialog_text",
     "get_front_window_id",
     "get_slideshow_window_id",
@@ -52,6 +56,21 @@ REPAIR_DIALOG_PATTERNS: tuple[str, ...] = (
     "experienced an error",
     "error trying to open",
     "errors were detected",
+)
+
+
+# Button labels to try (in order) when accepting PowerPoint's repair
+# dialog. PowerPoint's modals across Office for Mac M365 have used
+# Yes / Repair / OK / Recover variations across versions, and the
+# "would you like to try to repair?" sheet typically exposes a
+# `Repair` primary button. Order matters: try the most-specific
+# affirmative first, fall back to generic OK.
+REPAIR_DIALOG_ACCEPT_BUTTON_LABELS: tuple[str, ...] = (
+    "Repair",
+    "Yes",
+    "Recover",
+    "OK",
+    "Open",
 )
 
 
@@ -255,7 +274,7 @@ end tell
 """
     try:
         text = osascript(script, timeout=5.0)
-    except RuntimeError:
+    except (RuntimeError, subprocess.TimeoutExpired):
         return None
     if not text:
         return None
@@ -283,3 +302,94 @@ def get_slideshow_window_id(timeout: float = 5.0) -> str:
             return win_id
         time.sleep(0.2)
     return ""
+
+
+def click_dialog_button(button_label: str) -> bool:
+    """Click a button by exact label in any sheet/dialog currently
+    presented by PowerPoint. Returns True if the button was found and
+    clicked. Mirrors `tools/oracle/word_window.click_dialog_button`.
+
+    Uses System Events UI scripting; iterates over `windows` and
+    `sheets of windows` of the PowerPoint process. The
+    `repeat with X in COLLECTION` idiom is fine here — the hang
+    documented in `list_open_presentation_names` is specific to
+    `tell application "Microsoft PowerPoint"`, not System Events.
+    """
+    script = f"""
+tell application "System Events"
+    if not (exists process "{POWERPOINT_PROCESS_NAME}") then return "false"
+    tell process "{POWERPOINT_PROCESS_NAME}"
+        try
+            repeat with w in windows
+                try
+                    set sh to sheets of w
+                    repeat with s in sh
+                        try
+                            click button "{button_label}" of s
+                            return "true"
+                        end try
+                    end repeat
+                end try
+                try
+                    click button "{button_label}" of w
+                    return "true"
+                end try
+            end repeat
+        end try
+        return "false"
+    end tell
+end tell
+"""
+    try:
+        result = osascript(script, timeout=10.0)
+    except (RuntimeError, subprocess.TimeoutExpired):
+        return False
+    return result.strip().lower() == "true"
+
+
+def dismiss_any_leftover_modal(*, timeout: float | None = 5.0) -> bool:
+    """Best-effort dismissal of any leftover modal sheet via Escape.
+
+    PowerPoint may show a follow-up info modal after the primary
+    repair dialog or after close-with-save returns. Button labels for
+    these vary; sending Escape to the frontmost PowerPoint window
+    discards the modal in one shot.
+    """
+    script = f"""
+tell application "System Events"
+    if not (exists process "{POWERPOINT_PROCESS_NAME}") then return "false"
+    tell process "{POWERPOINT_PROCESS_NAME}"
+        try
+            key code 53
+            return "true"
+        end try
+        return "false"
+    end tell
+end tell
+"""
+    try:
+        out = osascript(script, timeout=timeout)
+    except (RuntimeError, subprocess.TimeoutExpired):
+        return False
+    return out.strip().lower() == "true"
+
+
+def dismiss_repair_dialog(
+    *,
+    accept_labels: tuple[str, ...] = REPAIR_DIALOG_ACCEPT_BUTTON_LABELS,
+) -> tuple[bool, str | None, str | None]:
+    """Detect and click through PowerPoint's repair dialog.
+
+    Returns `(was_seen, dialog_text, clicked_label)`. If no dialog is
+    visible, returns `(False, None, None)`. If a dialog is visible
+    but no `accept_labels` button could be clicked, returns
+    `(True, dialog_text, None)` — the caller decides whether to
+    treat that as a hard failure.
+    """
+    text = find_repair_dialog_text()
+    if text is None:
+        return False, None, None
+    for label in accept_labels:
+        if click_dialog_button(label):
+            return True, text, label
+    return True, text, None

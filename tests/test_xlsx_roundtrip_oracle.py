@@ -149,10 +149,34 @@ def test_xlsx_osa_exports_save_close_primitives() -> None:
         "find_repair_dialog_text",
         "is_workbook_open",
         "list_open_workbook_names",
+        # Auto-dismiss primitives (0.6.7).
+        "click_dialog_button",
+        "dismiss_repair_dialog",
+        "dismiss_any_leftover_modal",
     }
     assert expected.issubset(set(xlsx_osa.__all__))
     for name in expected:
         assert callable(getattr(xlsx_osa, name))
+
+
+def test_xlsx_osa_repair_accept_button_labels_documented() -> None:
+    """The Excel-specific accept-button preference list. `Yes` is
+    Excel's primary recovery button."""
+    labels = xlsx_osa.REPAIR_DIALOG_ACCEPT_BUTTON_LABELS
+    assert len(labels) >= 3
+    assert "Yes" in labels
+
+
+def test_xlsx_dismiss_repair_dialog_signature() -> None:
+    """When no dialog is visible, `dismiss_repair_dialog` returns
+    `(False, None, None)` cleanly."""
+    result = xlsx_osa.dismiss_repair_dialog()
+    assert isinstance(result, tuple)
+    assert len(result) == 3
+    seen, text, clicked = result
+    assert isinstance(seen, bool)
+    assert text is None or isinstance(text, str)
+    assert clicked is None or isinstance(clicked, str)
 
 
 def test_xlsx_osa_repair_dialog_patterns_documented() -> None:

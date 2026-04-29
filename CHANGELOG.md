@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.7] - 2026-04-29
+
+### Added
+- Auto-dismiss for PowerPoint and Excel repair dialogs (Spec 023,
+  Phase 1). Closes the symmetry gap with Word — Word's oracle has
+  had `click_dialog_button` since Spec 011; PPTX and XLSX now have
+  it too. The 0.6.6 baseline run on `winsemius.tokens.xlsx` took
+  61.4 seconds with manual click; the same file roundtrips in
+  ~5 seconds with auto-dismiss. Concretely:
+  - `pptx.osa.click_dialog_button(label)` and
+    `xlsx.osa.click_dialog_button(label)` — System Events button
+    click by exact label, mirroring `tools/oracle/word_window.click_dialog_button`.
+  - `pptx.osa.dismiss_repair_dialog()` and
+    `xlsx.osa.dismiss_repair_dialog()` — high-level helper:
+    detect via `find_repair_dialog_text`, try each label in
+    `REPAIR_DIALOG_ACCEPT_BUTTON_LABELS`, return
+    `(was_seen, dialog_text, clicked_label)`. `clicked_label`
+    is None when the dialog appeared but no button matched —
+    the orchestrators bail with `open_failed` in that case.
+  - `pptx.osa.dismiss_any_leftover_modal()` and
+    `xlsx.osa.dismiss_any_leftover_modal()` — sends Escape
+    (key code 53) to the frontmost app process. Used as a
+    finalize-after-close step to clear secondary info modals
+    that don't have an obvious accept button (e.g. Excel's "we
+    made repairs — View / Delete" sheet).
+  - `REPAIR_DIALOG_ACCEPT_BUTTON_LABELS` — per-app accept-button
+    preference lists (PPTX leads with `Repair`, XLSX leads with
+    `Yes`).
+  - `RoundtripObservation.repair_dialog_button_clicked` — new
+    field on both PPTX and XLSX observations recording which
+    label cleared the dialog. None when no dialog was seen.
+  - Orchestrator changes in `tools/oracle/{pptx,xlsx}_repair_oracle.py`:
+    auto-dismiss runs interleaved with the open-poll loop, after
+    open registers, and after close-with-save (Escape cleanup).
+- 4 new tests in `tests/test_pptx_roundtrip_oracle.py` and
+  `tests/test_xlsx_roundtrip_oracle.py` covering the new exports,
+  preference-list shape, and dismiss-helper return contract on
+  no-dialog state.
+
+### Fixed
+- `pptx.osa.find_repair_dialog_text` and
+  `xlsx.osa.find_repair_dialog_text` now catch
+  `subprocess.TimeoutExpired` (in addition to `RuntimeError`),
+  matching the same fix applied to `list_open_*_names` in 0.6.5.
+  Without this, calling the function with the target app cold
+  raised an unhandled timeout.
+
 ## [0.6.6] - 2026-04-29
 
 ### Added

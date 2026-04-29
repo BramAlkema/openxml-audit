@@ -128,11 +128,39 @@ def test_pptx_osa_exports_save_close_primitives() -> None:
         "find_repair_dialog_text",
         "is_presentation_open",
         "list_open_presentation_names",
+        # Auto-dismiss primitives (0.6.7).
+        "click_dialog_button",
+        "dismiss_repair_dialog",
     }
     assert expected.issubset(set(pptx_osa.__all__))
-    # And the names actually resolve to callables:
     for name in expected:
         assert callable(getattr(pptx_osa, name))
+
+
+def test_pptx_osa_repair_accept_button_labels_documented() -> None:
+    """REPAIR_DIALOG_ACCEPT_BUTTON_LABELS exists, non-empty, includes
+    obvious affirmatives. Order matters (most-specific first); the
+    list shouldn't accidentally be empty or have only a generic 'OK'."""
+    labels = pptx_osa.REPAIR_DIALOG_ACCEPT_BUTTON_LABELS
+    assert len(labels) >= 3
+    assert "Repair" in labels
+    assert "Yes" in labels
+
+
+def test_pptx_dismiss_repair_dialog_signature() -> None:
+    """The `dismiss_repair_dialog` contract: returns a 3-tuple
+    (was_seen: bool, dialog_text: str | None, clicked_label: str | None).
+    When no dialog visible, returns (False, None, None)."""
+    # Without a real dialog visible, the function should return
+    # (False, None, None) cleanly. We can't easily mock System Events,
+    # so this also doubles as a "function call doesn't raise" check.
+    result = pptx_osa.dismiss_repair_dialog()
+    assert isinstance(result, tuple)
+    assert len(result) == 3
+    seen, text, clicked = result
+    assert isinstance(seen, bool)
+    assert text is None or isinstance(text, str)
+    assert clicked is None or isinstance(clicked, str)
 
 
 # -- PowerPoint-required smoke ----------------------------------------------

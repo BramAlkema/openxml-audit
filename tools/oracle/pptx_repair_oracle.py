@@ -72,6 +72,7 @@ class RoundtripObservation:
     diff_dir: str | None = None  # path to per-part diff artifacts
     repair_dialog_seen: bool = False
     repair_dialog_text: str | None = None
+    repair_dialog_button_clicked: str | None = None
     notes: list[str] = field(default_factory=list)
 
 
@@ -137,6 +138,7 @@ def observe(
     started = time.monotonic()
     repair_seen = False
     repair_text: str | None = None
+    repair_button_clicked: str | None = None
 
     try:
         pptx_osa.launch_powerpoint()
@@ -155,29 +157,60 @@ def observe(
                 notes=[f"open_presentation_via_ui failed: {exc}"],
             )
 
-        if not _wait_for_open(working, timeout=timeout_seconds):
-            text = pptx_osa.find_repair_dialog_text()
-            if text is not None:
-                repair_seen = True
-                repair_text = text
+        # While we wait for the presentation to register as open,
+        # auto-dismiss any repair dialog that appears. The dialog can
+        # block the open from registering, so polling for the dialog
+        # interleaved with the open-poll is what gets us through.
+        deadline = time.monotonic() + timeout_seconds
+        seen_open = False
+        while time.monotonic() < deadline:
+            if not repair_seen:
+                seen, text, clicked = pptx_osa.dismiss_repair_dialog()
+                if seen:
+                    repair_seen = True
+                    repair_text = text
+                    repair_button_clicked = clicked
+                    if clicked is None:
+                        return RoundtripObservation(
+                            source_relpath=str(input_pptx.name),
+                            outcome="open_failed",
+                            duration_seconds=time.monotonic() - started,
+                            repair_dialog_seen=True,
+                            repair_dialog_text=text,
+                            repair_dialog_button_clicked=None,
+                            notes=[
+                                "Repair dialog detected but no accept "
+                                "button label matched — manual dismissal "
+                                "required, oracle bailed."
+                            ],
+                        )
+            if pptx_osa.is_presentation_open(working):
+                seen_open = True
+                break
+            time.sleep(0.5)
+
+        if not seen_open:
             return RoundtripObservation(
                 source_relpath=str(input_pptx.name),
                 outcome="open_failed",
                 duration_seconds=time.monotonic() - started,
                 repair_dialog_seen=repair_seen,
                 repair_dialog_text=repair_text,
+                repair_dialog_button_clicked=repair_button_clicked,
                 notes=[
                     f"PowerPoint did not register {working.name!r} as open "
                     f"within {timeout_seconds:.0f}s"
                 ],
             )
 
-        # Once open, scan for a repair dialog (modal next to the open
-        # presentation; PowerPoint may surface it asynchronously).
-        text = pptx_osa.find_repair_dialog_text()
-        if text is not None:
-            repair_seen = True
-            repair_text = text
+        # One last scan after open, in case PowerPoint queues a
+        # follow-up dialog (e.g. "repairs were made — view log?").
+        if not repair_seen:
+            seen, text, clicked = pptx_osa.dismiss_repair_dialog()
+            if seen:
+                repair_seen = True
+                repair_text = text
+                repair_button_clicked = clicked
 
         try:
             pptx_osa.close_presentation_saving()
@@ -188,8 +221,14 @@ def observe(
                 duration_seconds=time.monotonic() - started,
                 repair_dialog_seen=repair_seen,
                 repair_dialog_text=repair_text,
+                repair_dialog_button_clicked=repair_button_clicked,
                 notes=[f"close_presentation_saving failed: {exc}"],
             )
+
+        # After close-with-save, PowerPoint may leave a follow-up info
+        # modal up. Send Escape to dismiss any leftover modal so the
+        # next corpus item starts on a clean PowerPoint window.
+        pptx_osa.dismiss_any_leftover_modal()
 
         if not working.exists():
             return RoundtripObservation(
@@ -198,6 +237,7 @@ def observe(
                 duration_seconds=time.monotonic() - started,
                 repair_dialog_seen=repair_seen,
                 repair_dialog_text=repair_text,
+                repair_dialog_button_clicked=repair_button_clicked,
                 notes=["close-with-save returned but staged file is missing"],
             )
 
@@ -225,6 +265,7 @@ def observe(
             diff_dir=str(compare_dir) if keep_artifacts else None,
             repair_dialog_seen=repair_seen,
             repair_dialog_text=repair_text,
+            repair_dialog_button_clicked=repair_button_clicked,
         )
     finally:
         if not keep_artifacts:

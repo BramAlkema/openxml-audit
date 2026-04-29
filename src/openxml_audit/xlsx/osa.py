@@ -14,9 +14,13 @@ __all__ = [
     "EXCEL_APP_BUNDLE",
     "EXCEL_APP_ID",
     "EXCEL_PROCESS_NAME",
+    "REPAIR_DIALOG_ACCEPT_BUTTON_LABELS",
     "REPAIR_DIALOG_PATTERNS",
+    "click_dialog_button",
     "close_workbook",
     "close_workbook_saving",
+    "dismiss_any_leftover_modal",
+    "dismiss_repair_dialog",
     "find_repair_dialog_text",
     "is_workbook_open",
     "launch_excel",
@@ -45,6 +49,20 @@ REPAIR_DIALOG_PATTERNS: tuple[str, ...] = (
     "experienced an error",
     "error trying to open",
     "errors were detected",
+)
+
+
+# Button labels to try (in order) when accepting Excel's repair dialog.
+# Excel's "Do you want us to try to recover as much as we can? If you
+# trust the source of this workbook, click Yes." dialog shows
+# Yes / No. Excel's "found a problem" prompt sometimes uses
+# Repair / Cancel. Order is most-specific affirmative first.
+REPAIR_DIALOG_ACCEPT_BUTTON_LABELS: tuple[str, ...] = (
+    "Yes",
+    "Repair",
+    "Recover",
+    "OK",
+    "Open",
 )
 
 
@@ -200,7 +218,7 @@ end tell
 """
     try:
         text = osascript(script, timeout=5.0)
-    except RuntimeError:
+    except (RuntimeError, subprocess.TimeoutExpired):
         return None
     if not text:
         return None
@@ -209,3 +227,102 @@ end tell
         if needle.lower() in haystack:
             return text
     return None
+
+
+def click_dialog_button(button_label: str) -> bool:
+    """Click a button by exact label in any sheet/dialog currently
+    presented by Excel. Returns True if the button was found and
+    clicked. Mirrors `pptx.osa.click_dialog_button` /
+    `tools/oracle/word_window.click_dialog_button`.
+
+    Uses System Events UI scripting; the `repeat with X in
+    COLLECTION` idiom is fine here — the hang documented in
+    `list_open_workbook_names` is specific to `tell application
+    "Microsoft Excel"`, not System Events.
+    """
+    script = f"""
+tell application "System Events"
+    if not (exists process "{EXCEL_PROCESS_NAME}") then return "false"
+    tell process "{EXCEL_PROCESS_NAME}"
+        try
+            repeat with w in windows
+                try
+                    set sh to sheets of w
+                    repeat with s in sh
+                        try
+                            click button "{button_label}" of s
+                            return "true"
+                        end try
+                    end repeat
+                end try
+                try
+                    click button "{button_label}" of w
+                    return "true"
+                end try
+            end repeat
+        end try
+        return "false"
+    end tell
+end tell
+"""
+    try:
+        result = osascript(script, timeout=10.0)
+    except (RuntimeError, subprocess.TimeoutExpired):
+        return False
+    return result.strip().lower() == "true"
+
+
+def dismiss_any_leftover_modal(*, timeout: float | None = 5.0) -> bool:
+    """Best-effort dismissal of any leftover modal sheet via Escape.
+
+    Excel sometimes shows a *secondary* info modal after the primary
+    repair dialog and after close-with-save returns — wording like
+    "Excel was able to open the file by repairing or removing the
+    unreadable content" with `View` / `Delete` / X-close buttons.
+    Those button labels aren't in `REPAIR_DIALOG_ACCEPT_BUTTON_LABELS`
+    (we don't want to "View" the log; we want to dismiss). Sending
+    Escape to the frontmost Excel window discards the modal in one
+    shot.
+
+    Returns True if a key event was dispatched (best-effort signal —
+    the function can't reliably tell whether the modal was actually
+    closed). Use as a finalize-after-close cleanup.
+    """
+    script = f"""
+tell application "System Events"
+    if not (exists process "{EXCEL_PROCESS_NAME}") then return "false"
+    tell process "{EXCEL_PROCESS_NAME}"
+        try
+            key code 53
+            return "true"
+        end try
+        return "false"
+    end tell
+end tell
+"""
+    try:
+        out = osascript(script, timeout=timeout)
+    except (RuntimeError, subprocess.TimeoutExpired):
+        return False
+    return out.strip().lower() == "true"
+
+
+def dismiss_repair_dialog(
+    *,
+    accept_labels: tuple[str, ...] = REPAIR_DIALOG_ACCEPT_BUTTON_LABELS,
+) -> tuple[bool, str | None, str | None]:
+    """Detect and click through Excel's repair dialog.
+
+    Returns `(was_seen, dialog_text, clicked_label)`. If no dialog is
+    visible, returns `(False, None, None)`. If a dialog is visible
+    but no `accept_labels` button could be clicked, returns
+    `(True, dialog_text, None)` — the caller decides whether to
+    treat that as a hard failure.
+    """
+    text = find_repair_dialog_text()
+    if text is None:
+        return False, None, None
+    for label in accept_labels:
+        if click_dialog_button(label):
+            return True, text, label
+    return True, text, None
