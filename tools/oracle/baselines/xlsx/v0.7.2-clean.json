@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "observations": [
+    {
+      "source_relpath": "acme-us.xlsx",
+      "outcome": "repaired",
+      "duration_seconds": 33.572549582924694,
+      "input_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "ad33cb6f7c203174ca2e94d79c89c1357a4c57396e00da4605dc4786ba8bceab",
+          "size_bytes": 1421
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "41f5a82fa510383671147cc453cbcef5ebc8765f3b844fd591e57f7b4cee6680",
+          "size_bytes": 542
+        },
+        {
+          "name": "xl/_rels/workbook.xml.rels",
+          "sha256": "4fce0ab191a5dda159acce922672938ab787a60658fd208cb94560e84f1c5ffc",
+          "size_bytes": 511
+        },
+        {
+          "name": "xl/charts/chart1.xml",
+          "sha256": "9ccc7993260d72b1f1be580ad08e272b69b83ffa942583787fe74e1e8662b509",
+          "size_bytes": 3986
+        },
+        {
+          "name": "xl/styles.xml",
+          "sha256": "17330721a77cc7cb0a4568785c24de10767b7dd81d63b67969cacfc747ed7386",
+          "size_bytes": 22036
+        },
+        {
+          "name": "xl/tables/table1.xml",
+          "sha256": "b4435d606d92dfcca76563aab09283faf606d723cfb356704172e039d62c1176",
+          "size_bytes": 488
+        },
+        {
+          "name": "xl/theme/theme1.xml",
+          "sha256": "fa7fd7ebfff67dc092632b6d7159500bee02adce15bb57fb51e4910934317729",
+          "size_bytes": 2171
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "cd55eeb15b14dca52154d4bdbef4e366f9cf545987fb3bc3bccadd404a9f9fc7",
+          "size_bytes": 332
+        },
+        {
+          "name": "xl/worksheets/_rels/sheet1.xml.rels",
+          "sha256": "7b81289b3648a2b93baeb6de469103816bd64417f8a7d7b9924ff1387bf2b87f",
+          "size_bytes": 489
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "159694be13b737541da4138ec9f89dfd4dbde4cc13e7fd517672deeb7210ab05",
+          "size_bytes": 5263
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "506c258c6fda5b9e0a6382f5f84fd01e1dc6e5ab9d23b0694bbe779a457f2406",
+          "size_bytes": 1689
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+          "size_bytes": 588
+        },
+        {
+          "name": "xl/_rels/workbook.xml.rels",
+          "sha256": "b8868e81e2f7b519ec75a8c631f4a5449ff319cbcdfe2b425ee2bc5ded15c8a5",
+          "size_bytes": 852
+        },
+        {
+          "name": "xl/charts/chart1.xml",
+          "sha256": "5a95f2829d7b36a61103ee9ee60b4e71e612409296a790df3a77200cec35b89c",
+          "size_bytes": 3557
+        },
+        {
+          "name": "xl/externalLinks/_rels/externalLink1.xml.rels",
+          "sha256": "85f90789bd4bcce6fec43e3717b105f4d5e74c922116ad14d817252b33cf6463",
+          "size_bytes": 315
+        },
+        {
+          "name": "xl/externalLinks/externalLink1.xml",
+          "sha256": "da0939e5fbcafd225a9f047fd7362076d09bda8c2cdb691f18aa5b69c02a5d45",
+          "size_bytes": 643
+        },
+        {
+          "name": "xl/sharedStrings.xml",
+          "sha256": "88acf2db5fa5563bbdc1960a00d8c7b01769430287dc19da6ce46e04ace5a4c7",
+          "size_bytes": 369
+        },
+        {
+          "name": "xl/styles.xml",
+          "sha256": "1c1e1c980d16fe88327b5c720aa4981370627a55471e9164478920d843a85eb5",
+          "size_bytes": 7684
+        },
+        {
+          "name": "xl/tables/table1.xml",
+          "sha256": "ac4aa25081c98bc9d51831c1b1404d769cf502907972e0cdceecff717f68c588",
+          "size_bytes": 1005
+        },
+        {
+          "name": "xl/theme/theme1.xml",
+          "sha256": "c9df208aa1cdcab375b30bf58703a65e7ae84ce1a042a0734e75459cd922a789",
+          "size_bytes": 1931
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "af436298e794f9365f87458d6a13bf47da3e0dc18684aeca269c9c6a23ee2df6",
+          "size_bytes": 1618
+        },
+        {
+          "name": "xl/worksheets/_rels/sheet1.xml.rels",
+          "sha256": "fe1c891faecbf1d972e2ba042d11b25127a9cd1e79241ff433fd763a2f34f201",
+          "size_bytes": 435
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "d9f75d506c6932c06d3d14ba0da3d168c32ad8c5414d14ced9127ec5263054f5",
+          "size_bytes": 2289
+        }
+      ],
+      "changed_parts": [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "xl/_rels/workbook.xml.rels",
+        "xl/charts/chart1.xml",
+        "xl/styles.xml",
+        "xl/tables/table1.xml",
+        "xl/theme/theme1.xml",
+        "xl/workbook.xml",
+        "xl/worksheets/_rels/sheet1.xml.rels",
+        "xl/worksheets/sheet1.xml"
+      ],
+      "added_parts": [
+        "xl/externalLinks/_rels/externalLink1.xml.rels",
+        "xl/externalLinks/externalLink1.xml",
+        "xl/sharedStrings.xml"
+      ],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "repair_dialog_button_clicked": null,
+      "notes": []
+    },
+    {
+      "source_relpath": "globex-gb.xlsx",
+      "outcome": "repaired",
+      "duration_seconds": 5.074961207807064,
+      "input_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "ad33cb6f7c203174ca2e94d79c89c1357a4c57396e00da4605dc4786ba8bceab",
+          "size_bytes": 1421
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "41f5a82fa510383671147cc453cbcef5ebc8765f3b844fd591e57f7b4cee6680",
+          "size_bytes": 542
+        },
+        {
+          "name": "xl/_rels/workbook.xml.rels",
+          "sha256": "4fce0ab191a5dda159acce922672938ab787a60658fd208cb94560e84f1c5ffc",
+          "size_bytes": 511
+        },
+        {
+          "name": "xl/charts/chart1.xml",
+          "sha256": "6c5d9bc299e4d9f9bd6d6424670dc90f68e9a77a0aa9ffe7b8b238ca91da2c87",
+          "size_bytes": 3988
+        },
+        {
+          "name": "xl/styles.xml",
+          "sha256": "2ff12618a6c4046d2f109c6008ee377363e4ac48df76ecaedfcf04ea065123ea",
+          "size_bytes": 22161
+        },
+        {
+          "name": "xl/tables/table1.xml",
+          "sha256": "b4435d606d92dfcca76563aab09283faf606d723cfb356704172e039d62c1176",
+          "size_bytes": 488
+        },
+        {
+          "name": "xl/theme/theme1.xml",
+          "sha256": "fa7fd7ebfff67dc092632b6d7159500bee02adce15bb57fb51e4910934317729",
+          "size_bytes": 2171
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "4be7d3563c6b26046b85a02ce575af1b6efaccc98c4de63ac9bd800a7c3f9843",
+          "size_bytes": 334
+        },
+        {
+          "name": "xl/worksheets/_rels/sheet1.xml.rels",
+          "sha256": "7b81289b3648a2b93baeb6de469103816bd64417f8a7d7b9924ff1387bf2b87f",
+          "size_bytes": 489
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "7d7df8da0751a342a34fdf268c5f03c4804e8dd1790efe26a91f0d417d7165ec",
+          "size_bytes": 5263
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "506c258c6fda5b9e0a6382f5f84fd01e1dc6e5ab9d23b0694bbe779a457f2406",
+          "size_bytes": 1689
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+          "size_bytes": 588
+        },
+        {
+          "name": "xl/_rels/workbook.xml.rels",
+          "sha256": "b8868e81e2f7b519ec75a8c631f4a5449ff319cbcdfe2b425ee2bc5ded15c8a5",
+          "size_bytes": 852
+        },
+        {
+          "name": "xl/charts/chart1.xml",
+          "sha256": "94e7944f6f57b5c174886d3a9448a914e411ee5e8df757ee80e8fcea1ce59ca5",
+          "size_bytes": 3559
+        },
+        {
+          "name": "xl/externalLinks/_rels/externalLink1.xml.rels",
+          "sha256": "85f90789bd4bcce6fec43e3717b105f4d5e74c922116ad14d817252b33cf6463",
+          "size_bytes": 315
+        },
+        {
+          "name": "xl/externalLinks/externalLink1.xml",
+          "sha256": "da0939e5fbcafd225a9f047fd7362076d09bda8c2cdb691f18aa5b69c02a5d45",
+          "size_bytes": 643
+        },
+        {
+          "name": "xl/sharedStrings.xml",
+          "sha256": "88acf2db5fa5563bbdc1960a00d8c7b01769430287dc19da6ce46e04ace5a4c7",
+          "size_bytes": 369
+        },
+        {
+          "name": "xl/styles.xml",
+          "sha256": "1c1e1c980d16fe88327b5c720aa4981370627a55471e9164478920d843a85eb5",
+          "size_bytes": 7684
+        },
+        {
+          "name": "xl/tables/table1.xml",
+          "sha256": "ac4aa25081c98bc9d51831c1b1404d769cf502907972e0cdceecff717f68c588",
+          "size_bytes": 1005
+        },
+        {
+          "name": "xl/theme/theme1.xml",
+          "sha256": "c9df208aa1cdcab375b30bf58703a65e7ae84ce1a042a0734e75459cd922a789",
+          "size_bytes": 1931
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "529f7f0762cc6af8dfb9ee956da4007f0677b3531314df238b0e6e5f8352868a",
+          "size_bytes": 1620
+        },
+        {
+          "name": "xl/worksheets/_rels/sheet1.xml.rels",
+          "sha256": "fe1c891faecbf1d972e2ba042d11b25127a9cd1e79241ff433fd763a2f34f201",
+          "size_bytes": 435
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "ea30e61ed34fd749a80854ffc43debfab064e95281cf3712cb0326ffe6738428",
+          "size_bytes": 2305
+        }
+      ],
+      "changed_parts": [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "xl/_rels/workbook.xml.rels",
+        "xl/charts/chart1.xml",
+        "xl/styles.xml",
+        "xl/tables/table1.xml",
+        "xl/theme/theme1.xml",
+        "xl/workbook.xml",
+        "xl/worksheets/_rels/sheet1.xml.rels",
+        "xl/worksheets/sheet1.xml"
+      ],
+      "added_parts": [
+        "xl/externalLinks/_rels/externalLink1.xml.rels",
+        "xl/externalLinks/externalLink1.xml",
+        "xl/sharedStrings.xml"
+      ],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "repair_dialog_button_clicked": null,
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "preserved": 0,
+    "repaired": 2,
+    "crash": 0,
+    "timeout": 0,
+    "open_failed": 0,
+    "missing_output": 0,
+    "repair_dialog_seen": 0
+  }
+}

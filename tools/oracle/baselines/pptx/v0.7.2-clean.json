@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "observations": [
+    {
+      "source_relpath": "acme-us.pptx",
+      "outcome": "preserved",
+      "duration_seconds": 3.19633200019598,
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "repair_dialog_button_clicked": null,
+      "notes": []
+    },
+    {
+      "source_relpath": "globex-gb.pptx",
+      "outcome": "preserved",
+      "duration_seconds": 2.5473650419153273,
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "repair_dialog_button_clicked": null,
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "preserved": 2,
+    "repaired": 0,
+    "crash": 0,
+    "timeout": 0,
+    "open_failed": 0,
+    "missing_output": 0,
+    "repair_dialog_seen": 0
+  }
+}

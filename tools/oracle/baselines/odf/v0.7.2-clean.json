@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "observations": [
+    {
+      "source_relpath": "acme-us.odp",
+      "target_format": "odp",
+      "outcome": "repaired",
+      "duration_seconds": 2.6875392091460526,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "747804849bb9ae2cc546c51ded51468c3fe963f248a18e0670147f3c3be340d9",
+          "size_bytes": 4086
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "cb0c661e4686363f18c7d9ad05c890c8112292a3154a70f00f4f61ee41e3e38a",
+          "size_bytes": 9475
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "49b0b910ab1246faabe6939ef579ef45c7a516739c3272153569bbc2342b6b8a",
+          "size_bytes": 528
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "908215039a1c95c3f2aa248f9da8741efffe9191b38fd1b608a2142c9ac04611",
+          "size_bytes": 569
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "82977504fcdaa73400cce3f084742366042b29c89e6ae2dac7a3ab213da68ab3",
+          "size_bytes": 18696
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "8031414d7d8c52ee1e0744ac36f85d8c17171727af710091ee78f803c0b4d39c",
+          "size_bytes": 51143
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "adc1a1fcd1658a4b6b42806570d7efb30f82d4a15a906f3af330fe6b06cbba43",
+          "size_bytes": 1025
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "f9936ef81094f1b2f357594de9caaf75c17edd4f73264fa057c244ae36ac3b31",
+          "size_bytes": 6050
+        }
+      ],
+      "changed_parts": [
+        "content.xml",
+        "meta.xml",
+        "settings.xml",
+        "styles.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "acme-us.ods",
+      "target_format": "ods",
+      "outcome": "repaired",
+      "duration_seconds": 2.588253959082067,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "9357ae50b0e3687cdc2c55ee4f0af4401878153b993375143e7680809f54aaf1",
+          "size_bytes": 1136
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "48f7e98440400ff5082eb8a810e433c3aeb4cdc80b2a0187f3f3faae4ba0289e",
+          "size_bytes": 10902
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "a001874e703110a484a08b02194ae5c0502507fe7a034beba728a8befd44bbdb",
+          "size_bytes": 536
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "d0213e2540b23e775e725d1fa7f2a1bdb4505cc2f38ab801f1388202fa3df97f",
+          "size_bytes": 775
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "6c2fdf59b84d7f8fd790a24fa9cfecbadde07a537509cbe00a3bbc01d134cf30",
+          "size_bytes": 4036
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "046f48d78778609c1c6db6e1be845875359c82e52cf94c4fe35f4779c436c3a1",
+          "size_bytes": 16948
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "247fca0efeda417286cb04a9d1b6d19465edd6c394330dbef7805bed9dc973f0",
+          "size_bytes": 809
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "86b1b2c82d17bbb7174382d5bb015854ecdbfaf5144f31050eb99075232e7cb0",
+          "size_bytes": 5304
+        }
+      ],
+      "changed_parts": [
+        "content.xml",
+        "meta.xml",
+        "settings.xml",
+        "styles.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "acme-us.odt",
+      "target_format": "odt",
+      "outcome": "repaired",
+      "duration_seconds": 2.300917875021696,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "4120980a2798e911036cf0b95073f9f0e32ae74ab3464391461ab0b32c1821b1",
+          "size_bytes": 602
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "d3abd62fc663b50b6f06a8388b6fa6f06dfc3904b49c1b30111182a1a40bc17f",
+          "size_bytes": 57986
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "e7f0b39f1cfc4c65f431fee2bdcd961114abc8d6b02c9114d620be9801813c65",
+          "size_bytes": 575
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "31dfd5752aba1e462cbf1352cfcc940362bab40a484900c5355ed2248ffade3f",
+          "size_bytes": 873
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "a8a411f594b4b60a36d8f946d87b70996c1f5649d8495d39d956967eacbe701d",
+          "size_bytes": 3657
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "d0f6170fb70e802f5241703a17aeb1ab34030bcca48e337aed900f3be0ae6923",
+          "size_bytes": 66172
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "99889f36162fcd69f3945217ad71571080ea989963972dcb84c4b035b840b9e8",
+          "size_bytes": 982
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "5366f1ee201ebe48bff07abe946dc99377f4279cebcc1407d9eafd363a2258b6",
+          "size_bytes": 13345
+        }
+      ],
+      "changed_parts": [
+        "content.xml",
+        "meta.xml",
+        "settings.xml",
+        "styles.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "globex-gb.odp",
+      "target_format": "odp",
+      "outcome": "repaired",
+      "duration_seconds": 2.1511639999225736,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "e5936a7a58f25ec0be10f31770352b1d438de233bb18fc1ebbf11669a5ace770",
+          "size_bytes": 4092
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "cb0c661e4686363f18c7d9ad05c890c8112292a3154a70f00f4f61ee41e3e38a",
+          "size_bytes": 9475
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "6ecf803e1d7106445344daecc40d80c2ed7e04143f0cffd4d7ad51ab8acd31b8",
+          "size_bytes": 530
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "908215039a1c95c3f2aa248f9da8741efffe9191b38fd1b608a2142c9ac04611",
+          "size_bytes": 569
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "c6692026a553e93cacfe332dcd26060825cc3bc0b4bdcf0bac9101ff3e2b0655",
+          "size_bytes": 18700
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "8031414d7d8c52ee1e0744ac36f85d8c17171727af710091ee78f803c0b4d39c",
+          "size_bytes": 51143
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "001083846f37b61b8ea9f6297cb335bec089b2959d6f3541179970f4bbf8aa79",
+          "size_bytes": 1027
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "f9936ef81094f1b2f357594de9caaf75c17edd4f73264fa057c244ae36ac3b31",
+          "size_bytes": 6050
+        }
+      ],
+      "changed_parts": [
+        "content.xml",
+        "meta.xml",
+        "settings.xml",
+        "styles.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "globex-gb.ods",
+      "target_format": "ods",
+      "outcome": "repaired",
+      "duration_seconds": 2.0532832918688655,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "95051b0019f1d33ea57a013103ddea1df085438a22cf775eb9aa35b78798d1ff",
+          "size_bytes": 1138
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "250948d39571dc8d3ae6563211fb14754f81b88075b07ea8f8ddfdcd37b2cd87",
+          "size_bytes": 10903
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "d2dcc49ae56d480daff3ec8539f5b21a10990a9dee08e9e4650c5685b1027862",
+          "size_bytes": 538
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "d0213e2540b23e775e725d1fa7f2a1bdb4505cc2f38ab801f1388202fa3df97f",
+          "size_bytes": 775
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "6422c4a27bf3648d8d005d2c5f3ace1b34397ba490db6e5febf0e47fb43f0a12",
+          "size_bytes": 4038
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "c47301075050bf8bf3aed0f61949e4d45f1f8778fcc1c8f160d8015c5e5596d2",
+          "size_bytes": 16949
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "3f5f58c536418f7e545614e9e8acc74c283ea486760da3a1916ad8383dacd1b2",
+          "size_bytes": 811
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "86b1b2c82d17bbb7174382d5bb015854ecdbfaf5144f31050eb99075232e7cb0",
+          "size_bytes": 5304
+        }
+      ],
+      "changed_parts": [
+        "content.xml",
+        "meta.xml",
+        "settings.xml",
+        "styles.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "globex-gb.odt",
+      "target_format": "odt",
+      "outcome": "repaired",
+      "duration_seconds": 2.1571922078728676,
+      "input_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "cc30d7c1b4a75c068669284cb902fcaca1e5a5e167549799627f607ac6bf7dc0",
+          "size_bytes": 604
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "5c49c0998f4ef5341d4717d2cf18caf507d6d32c58de22311e3d96d40971ea87",
+          "size_bytes": 57988
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "b16b2d3e4f9dc0271075cc9c0052987076dff44817c3230f6187c784d0b3af83",
+          "size_bytes": 577
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "31dfd5752aba1e462cbf1352cfcc940362bab40a484900c5355ed2248ffade3f",
+          "size_bytes": 873
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "content.xml",
+          "sha256": "6aef1b9a7b856807288998340641ba629e333a445678a28addc2ad8366a64d3c",
+          "size_bytes": 3659
+        },
+        {
+          "name": "styles.xml",
+          "sha256": "22c4c6d8223ee2ed10d21c88293155df002739d6c08a417342a5b3a61fb5fa09",
+          "size_bytes": 66174
+        },
+        {
+          "name": "meta.xml",
+          "sha256": "a3c2f0902cb40b25350f46dae7f6a56c12f1a2e618ca763e069adb894e37fc69",
+          "size_bytes": 985
+        },
+        {
+          "name": "settings.xml",
+          "sha256": "16a0938a0386cc2c39a00462b53b2e2ccae654329498128a20420ccee93d5b2f",
+          "size_bytes": 13343
+        }
+      ],
+      "changed_parts": [
+        "content.xml",
+        "meta.xml",
+        "settings.xml",
+        "styles.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "preserved": 0,
+    "repaired": 6,
+    "crash": 0,
+    "timeout": 0,
+    "open_failed": 0,
+    "missing_output": 0
+  }
+}

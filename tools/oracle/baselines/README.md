@@ -195,6 +195,102 @@ adding to the pattern lists:
 
 These are grist for 0.7.x and beyond, not blockers for the 0.6.9 ship.
 
+## v0.7.2 clean run — TokenMoulds-API corpus
+
+A re-baseline against a corpus that's *generated* rather than
+*curated*: `tools/oracle/build_corpus.py` drives TokenMoulds'
+emitter API directly to produce 12 documents (2 per format ×
+6 formats), then post-processes each one to flip its content
+type / mimetype from template (`.dotx` / `.xltx` / `.potx` /
+`.ott` / `.ots` / `.otp`) to document
+(`.docx` / `.xlsx` / `.pptx` / `.odt` / `.ods` / `.odp`).
+
+The corpus lives under
+`data/corpus/tokenmoulds_v0.7.2/{word,excel,pptx,odf}/` and is
+byte-reproducible from the same brand inputs run-to-run. The user-
+flagged corpus-curation problem from the 0.6.9 run is resolved at
+the source: every file in this corpus is provably "what TokenMoulds
+currently emits," nothing more, nothing less.
+
+### Aggregate (12 files across 4 oracles)
+
+| Format | Files | Preserved | Repaired | Open-failed | Repair dialog seen |
+|---|---|---|---|---|---|
+| Word    | 2 | **2** | 0 | 0 | 0 |
+| PPTX    | 2 | **2** | 0 | 0 | 0 |
+| Excel   | 2 | 0     | **2** (10 changed parts each) | 0 | 0 |
+| ODF     | 6 | 0     | 6 (soffice canonicalizes — expected) | 0 | n/a |
+
+### Findings
+
+- **Word and PowerPoint accept TokenMoulds output as canonical.**
+  2/2 files in each format roundtripped in 2-3 seconds with zero
+  byte changes on the parts the oracle fingerprints. The 0.6.9
+  baseline's open-failed Word and PPTX cases were the *corpus*,
+  not the emitter — confirmed.
+
+- **Excel repairs every TokenMoulds-emitted workbook.** Both
+  `.xlsx` files came back with 10 changed parts per file. No
+  repair dialog (Excel chose to silently rewrite rather than
+  prompt). This is the headline mission-relevant signal of the
+  whole run: TokenMoulds' Excel emitter produces workbooks that
+  are valid by openxml-audit's schema/semantic rules but get
+  rewritten on every Excel save. The 10 changed parts (committed
+  under `…/v0.7.2-clean.json`) include the canonical XL parts —
+  which means Excel disagrees with TokenMoulds about something
+  fundamental in the package. Worth a focused investigation in a
+  later release.
+
+- **External-source dialog observed for the first time.** Excel
+  showed a "This workbook contains links to one or more external
+  sources that could be unsafe. ... Don't Update / Update" modal
+  on `acme-us.xlsx` (33.6s including the manual click — the user
+  clicked Update). The globex run cleared in 5.1s without the
+  prompt — the dialog is per-file, dependent on what TokenMoulds
+  emitted into that specific workbook. Buttons aren't in the
+  current `REPAIR_DIALOG_ACCEPT_BUTTON_LABELS`; needs a separate
+  detection path because this isn't a repair flow.
+
+  Note that BOTH files came back with 10 changed parts, despite
+  only acme-us getting the dialog. So the 10-parts diff is mostly
+  Excel's canonicalization on save (per-file deterministic), not
+  the external-link update — that update only ran for acme-us
+  and produced no measurable extra delta on the parts we
+  fingerprint. **The "Excel rewrites every TokenMoulds-emitted
+  workbook" finding holds independent of the link-update path.**
+
+- **soffice flakiness from earlier today resolved.** The 0.6.9
+  ODF run had 6/7 open-failed; this run had 6/6 succeed. Same
+  harness, different LibreOffice state. Reinforces "between
+  corpus walks, force-quit Office apps via AppleScript rather
+  than `pkill -9`" from the previous README section.
+
+### Operational takeaways for follow-up
+
+1. **External-source / "Don't Update" dialog handler.** Excel's
+   "external sources" modal needs detection separate from the
+   repair-dialog path. Default action should be "Don't Update"
+   (preserve the document state for the roundtrip).
+2. **Excel canonical-form gap.** The 10-changed-parts finding
+   warrants a focused study: which parts is Excel rewriting?
+   Cosmetic XML reflow, or substantive structural changes? With
+   the per-part diffs landed in 0.6.8, the artifacts to answer
+   this are now collectible.
+3. **PowerPoint "[Repaired]" secondary modal** (from 0.6.9) was
+   not exercised on this corpus because no file triggered the
+   primary repair flow. Still on the follow-up list.
+
+### Comparing the v0.7.2 clean baseline vs the 0.6.9 mixed corpus
+
+| | 0.6.9 | 0.7.2 (clean) |
+|---|---|---|
+| Word success rate | 2/4 (50%) | 2/2 (100%) |
+| PPTX success rate | 3/5 (60%) | 2/2 (100%) |
+| Open-failed cases | 4 of 9 OOXML | 0 of 6 OOXML |
+| Headline narrative | "TokenMoulds output triggers repair dialogs" | "TokenMoulds Word/PPTX clean; Excel rewrites every save" |
+
+The corpus-curation gap, fixed.
+
 ### Excel post-kill recovery dialog
 
 Force-killing Excel mid-roundtrip (e.g. `pkill -9 "Microsoft Excel"`

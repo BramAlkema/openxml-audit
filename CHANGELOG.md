@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-04-29
+
+### Added
+- TokenMoulds-API corpus helper (Spec 028 — Phase 2 of Spec 026's
+  roadmap to 0.8.0). Resolves the corpus-curation gap flagged in
+  0.6.9: instead of globbing TokenMoulds' filesystem (which mixed
+  release-quality emitter output with troubleshooting-session
+  leftovers), `tools/oracle/build_corpus.py` *generates* a clean
+  corpus by driving TokenMoulds' Python API directly.
+  - **`tools/oracle/build_corpus.py`** — calls each emitter's
+    `build_package()` and post-processes the bytes via
+    `template_to_document(bytes, target=<format>)` to flip the
+    content-type / mimetype from template (`.dotx`, `.xltx`, etc.)
+    to document (`.docx`, `.xlsx`, etc.). Lossless: only the
+    format-identification bytes shift, the underlying XML is
+    unchanged.
+  - **Corpus** under `data/corpus/tokenmoulds_v0.7.2/` — 12 files
+    (2 brand variants × 6 formats: Word, Excel, PowerPoint, ODT,
+    ODS, ODP). Byte-reproducible from the same brand inputs
+    run-to-run.
+  - **Re-baselines** under
+    `tools/oracle/baselines/<format>/v0.7.2-clean.json` for all
+    four oracles. Replaces the noisy 0.6.9 baselines as the
+    headline reference.
+- `specs/028-tokenmoulds-corpus-helper.md` documenting design +
+  the corpus-curation problem the previous run flagged.
+
+### Documented
+- `tools/oracle/baselines/README.md` extended with a "v0.7.2 clean
+  run" section. Headline findings:
+  - **Word and PowerPoint accept TokenMoulds output as canonical**
+    — 2/2 each, 3 seconds each, zero repair dialogs. Confirms
+    the 0.6.9 high-friction cases were the *corpus*, not the
+    emitter.
+  - **Excel rewrites every TokenMoulds-emitted workbook** — 2/2
+    files came back with 10 changed parts each. No repair dialog;
+    Excel chose silent canonicalization. Mission-relevant
+    finding: the validator could detect what makes TokenMoulds'
+    Excel output non-canonical so users avoid the issue.
+  - **External-source dialog observed** — Excel showed a "This
+    workbook contains links to one or more external sources..."
+    modal on one of two `.xlsx` files. Different from a repair
+    dialog (data-source-trust prompt, not corruption recovery);
+    needs a separate detection path. Cataloged as an operational
+    follow-up.
+- Side-by-side comparison vs the 0.6.9 mixed-corpus baseline
+  shows the corpus-curation gap is fixed: Word and PPTX
+  success rates jumped from 50%/60% → 100%/100%.
+
+### Note on self-parity baseline
+Spec 026's 0.7.2 step originally proposed re-running the
+self-parity baseline against the new corpus too. On reflection,
+that's wrong — the self-parity baseline's purpose is to detect
+**validator-output regressions**, which requires a *stable*
+corpus. The SDK seed corpus (pinned to v3.4.1) is that. The
+TokenMoulds corpus is for **oracle / app-survival** work and
+changes as TokenMoulds evolves. The 0.7.1 self-parity baseline
+against the SDK seed corpus stays as the self-parity reference.
+
 ## [0.7.1] - 2026-04-29
 
 ### Added
