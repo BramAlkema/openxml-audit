@@ -130,7 +130,14 @@ return winId
 
 
 def list_open_presentation_names() -> list[str]:
-    """Return the names of presentations currently open in PowerPoint."""
+    """Return the names of presentations currently open in PowerPoint.
+
+    Returns [] if PowerPoint is not running, the AppleScript bridge
+    times out, or the call fails. Notably catches
+    subprocess.TimeoutExpired: sending `tell application "Microsoft
+    PowerPoint"` to a not-running PowerPoint triggers a cold launch
+    that frequently exceeds the 10s budget.
+    """
     script = f"""
 tell application "{POWERPOINT_PROCESS_NAME}"
     set names_ to {{}}
@@ -142,7 +149,7 @@ end tell
 """
     try:
         out = osascript(script, timeout=10.0)
-    except RuntimeError:
+    except (RuntimeError, subprocess.TimeoutExpired):
         return []
     if not out:
         return []

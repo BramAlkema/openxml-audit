@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.5] - 2026-04-29
+
+### Added
+- Excel roundtrip oracle (Spec 021, Phase 1). Fourth and final entry
+  in the oracle ladder — the validator now has a roundtrip oracle
+  for every supported format (Word + ODF + PowerPoint + Excel).
+  - **Extends `src/openxml_audit/xlsx/osa.py`** with the primitives
+    that already existed in `docx.osa` and `pptx.osa` but were
+    missing from `xlsx.osa`: `list_open_workbook_names`,
+    `is_workbook_open`, `close_workbook_saving`,
+    `find_repair_dialog_text`, and the public
+    `REPAIR_DIALOG_PATTERNS` match list.
+  - **`tools/oracle/xlsx_repair_oracle.py`** is the orchestrator.
+    Stages input under `~/Documents/.xlsx_oracle_runs/<id>/` (Excel
+    App Sandbox default), uses the existing `xlsx.osa` layer for
+    window control, fingerprints canonical OOXML parts before/after
+    (workbook.xml, sheets/, styles, sharedStrings, theme/, charts/,
+    pivots, etc.), and emits the same `RoundtripObservation` shape
+    as the Word/PowerPoint/ODF oracles. CLI:
+    `python tools/oracle/xlsx_repair_oracle.py FILES... [--output X]`.
+  - 11 tests in `tests/test_xlsx_roundtrip_oracle.py` (9 always-on
+    + 2 Excel-required, skip cleanly when Excel isn't installed).
+
+### Changed
+- **Generalized `tools/oracle/preflight.py`** to cover Word + Excel
+  + PowerPoint + LibreOffice. The original Word-only `check()` is
+  kept as a back-compat alias for `check_word()`. Run all engines
+  with `python -m tools.oracle.preflight` or one with
+  `--engine <name>`.
+- `xlsx.osa.list_open_workbook_names` and
+  `pptx.osa.list_open_presentation_names` now catch
+  `subprocess.TimeoutExpired` (in addition to `RuntimeError`) so a
+  cold-launch of the underlying Office app no longer hangs the test
+  suite past the 10s budget. Symptom before the fix: the smoke test
+  would timeout on first run if Excel/PowerPoint weren't already
+  open. Returns `[]` on timeout — same as on permission denied.
+
+### Documentation
+- New `docs/oracle_permissions.md` — macOS setup checklist for
+  the roundtrip oracles. Covers Automation grants (control Word,
+  Excel, PowerPoint via AppleScript), Accessibility grants (System
+  Events keystrokes for `Cmd-S` save paths), App Sandbox staging
+  directories, the symptom checklist for denied / revoked
+  permissions, and `python -m tools.oracle.preflight` as the
+  canonical readiness check.
+
 ## [0.6.4] - 2026-04-29
 
 ### Added

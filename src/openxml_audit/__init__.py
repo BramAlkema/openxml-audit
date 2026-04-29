@@ -59,7 +59,7 @@ from openxml_audit.parts import (
 )
 from openxml_audit.validator import OpenXmlValidator, is_valid_pptx, validate_pptx
 
-__version__ = "0.6.4"
+__version__ = "0.6.5"
 
 __all__ = [
     # Main API
