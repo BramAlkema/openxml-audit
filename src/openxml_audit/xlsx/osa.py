@@ -128,17 +128,19 @@ def list_open_workbook_names() -> list[str]:
     """Return the names of workbooks currently open in Excel.
 
     Returns [] if Excel is not running, the AppleScript bridge times
-    out, or the call fails. Notably catches subprocess.TimeoutExpired:
+    out, or the call fails. Notably catches `subprocess.TimeoutExpired`:
     sending `tell application "Microsoft Excel"` to a not-running Excel
     triggers a cold launch that frequently exceeds the 10s budget.
+
+    Uses the `name of every workbook` idiom rather than
+    `repeat with w in workbooks / name of w`. Empirically the
+    latter hangs the AppleScript engine on Office for Mac M365 16.x
+    even when the former returns instantly with the same underlying
+    data — see Spec 022 baseline-collection notes.
     """
     script = f"""
 tell application "{EXCEL_PROCESS_NAME}"
-    set names_ to {{}}
-    repeat with w in workbooks
-        set end of names_ to name of w
-    end repeat
-    return names_
+    return name of every workbook
 end tell
 """
     try:

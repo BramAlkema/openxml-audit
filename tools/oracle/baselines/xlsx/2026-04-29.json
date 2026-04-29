@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "observations": [
+    {
+      "source_relpath": "winsemius.tokens.xlsx",
+      "outcome": "preserved",
+      "duration_seconds": 61.39245633361861,
+      "input_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "0865a9da16e33a1b945552c664d3758dbcf3db4b966dbb9e78203dc7a4700a46",
+          "size_bytes": 1039
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "41f5a82fa510383671147cc453cbcef5ebc8765f3b844fd591e57f7b4cee6680",
+          "size_bytes": 542
+        },
+        {
+          "name": "xl/_rels/workbook.xml.rels",
+          "sha256": "4fce0ab191a5dda159acce922672938ab787a60658fd208cb94560e84f1c5ffc",
+          "size_bytes": 511
+        },
+        {
+          "name": "xl/styles.xml",
+          "sha256": "a94ef1588885d3cf9bee1d51591955ef333e6a5ee47de4bb28cc5f9b67431250",
+          "size_bytes": 730
+        },
+        {
+          "name": "xl/theme/theme1.xml",
+          "sha256": "30553cd0c44e930b1d09a457cf41efca23f211349f2b981de5432a8e23b32e92",
+          "size_bytes": 2172
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "4578ed75d4ed51fd38d2368b517b19437daf1242508c56f77609d96fe8a5d270",
+          "size_bytes": 376
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "d36de97bc3205b02f17d84fa452ea7a5c1932f8695380831b9241f71d720ef06",
+          "size_bytes": 6052
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "0865a9da16e33a1b945552c664d3758dbcf3db4b966dbb9e78203dc7a4700a46",
+          "size_bytes": 1039
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "41f5a82fa510383671147cc453cbcef5ebc8765f3b844fd591e57f7b4cee6680",
+          "size_bytes": 542
+        },
+        {
+          "name": "xl/_rels/workbook.xml.rels",
+          "sha256": "4fce0ab191a5dda159acce922672938ab787a60658fd208cb94560e84f1c5ffc",
+          "size_bytes": 511
+        },
+        {
+          "name": "xl/styles.xml",
+          "sha256": "a94ef1588885d3cf9bee1d51591955ef333e6a5ee47de4bb28cc5f9b67431250",
+          "size_bytes": 730
+        },
+        {
+          "name": "xl/theme/theme1.xml",
+          "sha256": "30553cd0c44e930b1d09a457cf41efca23f211349f2b981de5432a8e23b32e92",
+          "size_bytes": 2172
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "4578ed75d4ed51fd38d2368b517b19437daf1242508c56f77609d96fe8a5d270",
+          "size_bytes": 376
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "d36de97bc3205b02f17d84fa452ea7a5c1932f8695380831b9241f71d720ef06",
+          "size_bytes": 6052
+        }
+      ],
+      "changed_parts": [],
+      "repair_dialog_seen": true,
+      "repair_dialog_text": "Excel was able to open the file by repairing or removing the unreadable content.",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "preserved": 1,
+    "repaired": 0,
+    "crash": 0,
+    "timeout": 0,
+    "open_failed": 0,
+    "missing_output": 0,
+    "repair_dialog_seen": 1
+  }
+}

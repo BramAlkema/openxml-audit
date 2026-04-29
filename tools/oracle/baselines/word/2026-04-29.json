@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "observations": [
+    {
+      "source_relpath": "mcp-word.docx",
+      "outcome": "preserved",
+      "duration_seconds": 58.14834191603586,
+      "input_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "038b43a805548ac18531d8d80d24086153ecd55a5dee71effc4bef89ca22d3a8",
+          "size_bytes": 1592
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "e7d6d408632875ec77a89ca9213c033fc79d0164661f4cb8272fe968de2de15a",
+          "size_bytes": 583
+        },
+        {
+          "name": "word/_rels/document.xml.rels",
+          "sha256": "42584751a9a0973621c16cde4facada8fc4c67185f44c2d52061602fb3659517",
+          "size_bytes": 1108
+        },
+        {
+          "name": "word/document.xml",
+          "sha256": "b34a3410851c64fe3be70012197dc54d3dac9f7b7a4038eadcabc7d09912daa3",
+          "size_bytes": 7755
+        },
+        {
+          "name": "word/numbering.xml",
+          "sha256": "c30d35094ece96a438c7ece2f5b9e783cf9fe4db6fbcba8e35411140f73f64b0",
+          "size_bytes": 1568
+        },
+        {
+          "name": "word/settings.xml",
+          "sha256": "bbf657ff22e11abe58616e452e5a21cedcc89f64bf36ceabc7250ff271dec8ca",
+          "size_bytes": 2162
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "e4b8746def2269158811ae6085e9b57c7ca93539b87e10472385fb35cea29a7e",
+          "size_bytes": 32656
+        },
+        {
+          "name": "word/stylesWithEffects.xml",
+          "sha256": "e4b8746def2269158811ae6085e9b57c7ca93539b87e10472385fb35cea29a7e",
+          "size_bytes": 32656
+        },
+        {
+          "name": "word/theme/theme1.xml",
+          "sha256": "b24e0ed2c46a5a605664ec610da28b062477c1388cef5fa181ab17ccecf07d1a",
+          "size_bytes": 4515
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "[Content_Types].xml",
+          "sha256": "038b43a805548ac18531d8d80d24086153ecd55a5dee71effc4bef89ca22d3a8",
+          "size_bytes": 1592
+        },
+        {
+          "name": "_rels/.rels",
+          "sha256": "e7d6d408632875ec77a89ca9213c033fc79d0164661f4cb8272fe968de2de15a",
+          "size_bytes": 583
+        },
+        {
+          "name": "word/_rels/document.xml.rels",
+          "sha256": "42584751a9a0973621c16cde4facada8fc4c67185f44c2d52061602fb3659517",
+          "size_bytes": 1108
+        },
+        {
+          "name": "word/document.xml",
+          "sha256": "b34a3410851c64fe3be70012197dc54d3dac9f7b7a4038eadcabc7d09912daa3",
+          "size_bytes": 7755
+        },
+        {
+          "name": "word/numbering.xml",
+          "sha256": "c30d35094ece96a438c7ece2f5b9e783cf9fe4db6fbcba8e35411140f73f64b0",
+          "size_bytes": 1568
+        },
+        {
+          "name": "word/settings.xml",
+          "sha256": "bbf657ff22e11abe58616e452e5a21cedcc89f64bf36ceabc7250ff271dec8ca",
+          "size_bytes": 2162
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "e4b8746def2269158811ae6085e9b57c7ca93539b87e10472385fb35cea29a7e",
+          "size_bytes": 32656
+        },
+        {
+          "name": "word/stylesWithEffects.xml",
+          "sha256": "e4b8746def2269158811ae6085e9b57c7ca93539b87e10472385fb35cea29a7e",
+          "size_bytes": 32656
+        },
+        {
+          "name": "word/theme/theme1.xml",
+          "sha256": "b24e0ed2c46a5a605664ec610da28b062477c1388cef5fa181ab17ccecf07d1a",
+          "size_bytes": 4515
+        }
+      ],
+      "changed_parts": [],
+      "repair_dialog_seen": true,
+      "repair_dialog_text": "Microsoft Word Word was unable to read this document.  It may be corrupt.\nTry one or more of the following:\n* Open and Repair the file.\n* Open the file with the Text Recovery converter.\n(demo.docx)",
+      "word_version": "16.89.1",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "preserved": 1,
+    "repaired": 0,
+    "crash": 0,
+    "timeout": 0,
+    "open_failed": 0,
+    "missing_output": 0,
+    "repair_dialog_seen": 1
+  }
+}

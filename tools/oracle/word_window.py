@@ -34,6 +34,16 @@ REPAIR_DIALOG_PATTERNS = (
     # but for our oracle purposes both signal "Word rejected the input."
     "experienced an error",
     "error trying to open",
+    # The "this file is corrupt — open and repair?" dialog. First seen
+    # on 2026-04-29 baseline collection runs against TokenMoulds-emitted
+    # scratch .docx files that Word refuses to open in their as-emitted
+    # form. Wording observed: "Word was unable to read this document. It
+    # may be corrupt. Try one or more of the following: Open and Repair
+    # the file. Open the file with the Text Recovery converter."
+    "unable to read this document",
+    "may be corrupt",
+    "open and repair",
+    "text recovery converter",
 )
 
 

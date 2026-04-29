@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "observations": [
+    {
+      "source_relpath": "mcp-swot.pptx",
+      "outcome": "preserved",
+      "duration_seconds": 4.635512124747038,
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "notes": []
+    },
+    {
+      "source_relpath": "winsemius.pptx",
+      "outcome": "preserved",
+      "duration_seconds": 3.3191032498143613,
+      "changed_parts": [],
+      "added_parts": [],
+      "removed_parts": [],
+      "diff_dir": null,
+      "repair_dialog_seen": false,
+      "repair_dialog_text": null,
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "preserved": 2,
+    "repaired": 0,
+    "crash": 0,
+    "timeout": 0,
+    "open_failed": 0,
+    "missing_output": 0,
+    "repair_dialog_seen": 0
+  }
+}

@@ -130,7 +130,13 @@ def _try_dismiss_repair_dialog(
     clicked = word_window.click_dialog_button(button)
     if not clicked:
         # Try alternate labels — some Word builds use "OK" / "Cancel"
-        for alt in (("OK", "Cancel"), ("Recover", "Don't Recover")):
+        for alt in (
+            ("OK", "Cancel"),
+            ("Recover", "Don't Recover"),
+            # 2026-04-29: dialog wording for "file is corrupt, want to
+            # repair?" — buttons are "Open and Repair" / "Cancel".
+            ("Open and Repair", "Cancel"),
+        ):
             label = alt[0] if accept else alt[1]
             if word_window.click_dialog_button(label):
                 clicked = True

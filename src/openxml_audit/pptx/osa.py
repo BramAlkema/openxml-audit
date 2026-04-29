@@ -134,17 +134,19 @@ def list_open_presentation_names() -> list[str]:
 
     Returns [] if PowerPoint is not running, the AppleScript bridge
     times out, or the call fails. Notably catches
-    subprocess.TimeoutExpired: sending `tell application "Microsoft
+    `subprocess.TimeoutExpired`: sending `tell application "Microsoft
     PowerPoint"` to a not-running PowerPoint triggers a cold launch
     that frequently exceeds the 10s budget.
+
+    Uses the `name of every presentation` idiom rather than
+    `repeat with p in presentations / name of p`. Empirically the
+    latter hangs PowerPoint's AppleScript engine on Office for Mac
+    M365 16.x even when the former returns instantly with the same
+    underlying data — see Spec 022 baseline-collection notes.
     """
     script = f"""
 tell application "{POWERPOINT_PROCESS_NAME}"
-    set names_ to {{}}
-    repeat with p in presentations
-        set end of names_ to name of p
-    end repeat
-    return names_
+    return name of every presentation
 end tell
 """
     try:

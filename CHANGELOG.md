@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.6] - 2026-04-29
+
+### Added
+- First oracle baselines committed across all four formats (Spec 022,
+  Phase 1). Real observations from running the oracles on
+  TokenMoulds-emitted corpora — moves the project from "we built
+  four oracle tools" to "we ran them and have evidence."
+  - `tools/oracle/baselines/odf/2026-04-29.json` — 5 files, all
+    `repaired` (soffice canonicalizes formatting on every save).
+  - `tools/oracle/baselines/word/2026-04-29.json` — `mcp-word.docx`
+    came back `preserved` after Word's repair dialog fired (caught
+    and dismissed by the new patterns added below).
+  - `tools/oracle/baselines/pptx/2026-04-29.json` — 2 files,
+    `winsemius.pptx` and `mcp-swot.pptx` both `preserved` with no
+    repair dialogs.
+  - `tools/oracle/baselines/xlsx/2026-04-29.json` —
+    `winsemius.tokens.xlsx` triggered Excel's "found a problem" repair
+    dialog; post-recovery canonical XML matched the input byte-for-byte.
+  - `tools/oracle/baselines/README.md` — methodology, results table,
+    per-format findings, operational notes (Excel `.xltx` template
+    limitation, post-`pkill -9` recovery prompts, etc.).
+  - `specs/022-first-oracle-baselines.md` — design + Phase 2 deferrals.
+- New `tools/oracle/word_repair_corpus.py` — sibling of the ODF/PPTX/
+  XLSX corpus walkers. The existing `word_repair_oracle.py` is a
+  scenario-matrix runner (Spec 010/011 phase work); this new tool
+  walks arbitrary `.docx` corpora using `word_roundtrip.roundtrip()`
+  and emits the same `RoundtripObservation` shape as the other three
+  oracles. CLI:
+  `python tools/oracle/word_repair_corpus.py FILES... [--output X]`.
+
+### Fixed
+- `pptx.osa.list_open_presentation_names` and
+  `xlsx.osa.list_open_workbook_names` switched their AppleScript
+  enumeration from `repeat with X in COLLECTION / name of X` to
+  `name of every X`. The broken idiom hangs Office for Mac M365's
+  AppleScript engine indefinitely (Word's oracle already knew this
+  and used the correct form since Spec 011; PPTX and XLSX inherited
+  the wrong pattern in 0.6.4 / 0.6.5). Symptom before the fix:
+  oracle would time out at the polling-window deadline because the
+  enumeration helper kept returning `[]` even with files actually
+  open in the target app.
+- `tools/oracle/word_window.REPAIR_DIALOG_PATTERNS` extended with
+  the "file is corrupt → Open and Repair?" dialog wording (`unable
+  to read this document`, `may be corrupt`, `open and repair`,
+  `text recovery converter`). Without these patterns, the Word
+  oracle hung when Word presented its hard-error dialog instead of
+  the soft repair dialog.
+- `tools/oracle/word_roundtrip._try_dismiss_repair_dialog`'s
+  alt-button label list extended with `("Open and Repair",
+  "Cancel")` so the oracle clicks through the new dialog
+  variant correctly.
+
 ## [0.6.5] - 2026-04-29
 
 ### Added
