@@ -14,7 +14,12 @@ from typing import TYPE_CHECKING, cast
 
 from lxml import etree
 
-from openxml_audit.errors import ValidationError, ValidationErrorType, ValidationSeverity
+from openxml_audit.errors import (
+    SourceClass,
+    ValidationError,
+    ValidationErrorType,
+    ValidationSeverity,
+)
 from openxml_audit.namespaces import REL_STYLES, REL_STYLES_WITH_EFFECTS, WORDPROCESSINGML
 from openxml_audit.parts import OpenXmlPart
 
@@ -184,6 +189,7 @@ class StylesWithEffectsValidator:
                 ),
                 node="styleId",
                 severity=ValidationSeverity.ERROR,
+                source_class=SourceClass.WORD_APP_COMPAT,
             )
 
         # Styles in styles.xml but not in effects (the python-docx failure mode)
@@ -197,6 +203,7 @@ class StylesWithEffectsValidator:
                 ),
                 node="styleId",
                 severity=ValidationSeverity.ERROR,
+                source_class=SourceClass.WORD_APP_COMPAT,
             )
 
         self._compare_doc_defaults(styles_xml, effects_xml, context)
@@ -233,6 +240,7 @@ class StylesWithEffectsValidator:
                 ),
                 node="docDefaults",
                 severity=ValidationSeverity.ERROR,
+                source_class=SourceClass.WORD_APP_COMPAT,
             )
             return
 
@@ -245,6 +253,7 @@ class StylesWithEffectsValidator:
                 ),
                 node="docDefaults",
                 severity=ValidationSeverity.ERROR,
+                source_class=SourceClass.WORD_APP_COMPAT,
             )
 
 def _canonicalize(elem: etree._Element) -> bytes:

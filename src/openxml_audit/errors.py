@@ -81,6 +81,27 @@ class ValidationSeverity(Enum):
     INFO = "info"  # Informational
 
 
+class SourceClass(Enum):
+    """Where a finding originates, for downstream filtering.
+
+    Used by parity tooling to separate findings that mirror the .NET Open
+    XML SDK's behavior (`SDK_PROXY` — eligible for SDK-parity comparison)
+    from app-survival findings unique to this validator (the various
+    `*_APP_COMPAT` classes — Word/Excel/PowerPoint repair-dialog cases
+    the SDK accepts but the target app rejects). `ODF_NATIVE` covers ODF
+    findings (no SDK equivalent). `PACKAGE_INTEGRITY` covers OPC-layer
+    findings (relationships, content types) that aren't strictly schema
+    or semantic but matter for file openability.
+    """
+
+    SDK_PROXY = "sdk_proxy"
+    WORD_APP_COMPAT = "word_app_compat"
+    EXCEL_APP_COMPAT = "excel_app_compat"
+    POWERPOINT_APP_COMPAT = "powerpoint_app_compat"
+    ODF_NATIVE = "odf_native"
+    PACKAGE_INTEGRITY = "package_integrity"
+
+
 @dataclass
 class ValidationError:
     """A validation error found in a document."""
@@ -93,6 +114,7 @@ class ValidationError:
     related_node: str | None = None
     severity: ValidationSeverity = ValidationSeverity.ERROR
     id: str = ""  # Error ID for categorization
+    source_class: SourceClass = SourceClass.SDK_PROXY
 
     def __str__(self) -> str:
         location = self.part_uri

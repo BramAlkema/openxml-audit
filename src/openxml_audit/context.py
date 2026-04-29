@@ -9,6 +9,7 @@ from lxml import etree
 
 from openxml_audit.errors import (
     FileFormat,
+    SourceClass,
     ValidationError,
     ValidationErrorType,
     ValidationSeverity,
@@ -148,6 +149,7 @@ class ValidationContext:
         related_node: str | None = None,
         severity: ValidationSeverity = ValidationSeverity.ERROR,
         error_id: str = "",
+        source_class: SourceClass = SourceClass.SDK_PROXY,
     ) -> None:
         """Add a validation error using current context."""
         if self.max_errors > 0 and self.error_count >= self.max_errors:
@@ -169,6 +171,7 @@ class ValidationContext:
             related_node=related_node,
             severity=severity,
             id=error_id,
+            source_class=source_class,
         )
         self.errors.append(error)
 
@@ -177,6 +180,7 @@ class ValidationContext:
         description: str,
         node: str | None = None,
         error_id: str = "",
+        source_class: SourceClass = SourceClass.SDK_PROXY,
     ) -> None:
         """Add a schema validation error."""
         self.add_error(
@@ -184,6 +188,7 @@ class ValidationContext:
             description=description,
             node=node,
             error_id=error_id,
+            source_class=source_class,
         )
 
     def add_semantic_error(
@@ -191,6 +196,7 @@ class ValidationContext:
         description: str,
         node: str | None = None,
         error_id: str = "",
+        source_class: SourceClass = SourceClass.SDK_PROXY,
     ) -> None:
         """Add a semantic validation error."""
         self.add_error(
@@ -198,6 +204,7 @@ class ValidationContext:
             description=description,
             node=node,
             error_id=error_id,
+            source_class=source_class,
         )
 
     @property

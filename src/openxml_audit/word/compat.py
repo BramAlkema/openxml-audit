@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING
 from lxml import etree
 
 from openxml_audit.errors import (
+    SourceClass,
     ValidationError,
     ValidationErrorType,
     ValidationSeverity,
@@ -306,4 +307,5 @@ class WordCompatValidator:
             ),
             node=offending,
             severity=ValidationSeverity.WARNING,
+            source_class=SourceClass.WORD_APP_COMPAT,
         )

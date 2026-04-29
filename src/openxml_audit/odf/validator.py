@@ -12,6 +12,7 @@ from lxml import etree
 from openxml_audit.errors import (
     FileFormat,
     PackageValidationError,
+    SourceClass,
     ValidationError,
     ValidationErrorType,
     ValidationResult,
@@ -212,6 +213,15 @@ class OdfValidator:
         return error_count >= self._max_errors
 
     def _create_result(self, path: Path, errors: list[ValidationError]) -> ValidationResult:
+        # Tag every ODF finding at the boundary. ODF emit sites construct
+        # ValidationError directly (rather than going through ValidationContext),
+        # so the dataclass's SDK_PROXY default doesn't fit ODF semantics.
+        # Source-class tagging here is centralized to avoid touching every
+        # emit site and to keep future ODF code paths correctly classified
+        # by default.
+        for error in errors:
+            if error.source_class is SourceClass.SDK_PROXY:
+                error.source_class = SourceClass.ODF_NATIVE
         is_valid = not any(error.severity == ValidationSeverity.ERROR for error in errors)
         return ValidationResult(
             is_valid=is_valid,

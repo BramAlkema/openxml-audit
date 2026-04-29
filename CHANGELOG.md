@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-04-29
+
+### Added
+- New `SourceClass` enum on `ValidationError` (also exported at package
+  top level). Six values: `sdk_proxy`, `word_app_compat`,
+  `excel_app_compat`, `powerpoint_app_compat`, `odf_native`,
+  `package_integrity`. Lets parity tooling separate findings that
+  mirror the .NET Open XML SDK from app-survival findings unique to
+  this validator. Foundational for Spec 013's self-parity gate
+  (where the SDK signal needs to be cleanly filterable). Default is
+  `SDK_PROXY`; explicit emission sites updated:
+  - `WordCompatValidator` (Spec 010 child-ordering): `WORD_APP_COMPAT`.
+  - `StylesWithEffectsValidator` consistency checks (the python-docx
+    repair-dialog failure mode): `WORD_APP_COMPAT`. Schema/structural
+    checks of the same part stay `SDK_PROXY` since the SDK validates
+    them too.
+  - PPTX `presProps`/`viewProps`/`tableStyles` missing-relationship
+    finding: `POWERPOINT_APP_COMPAT`.
+  - `OdfValidator._create_result` tags every finding with default
+    `SDK_PROXY` as `ODF_NATIVE` at the boundary, so future ODF
+    emit sites are correctly classified without per-call work.
+- 6 new tests in `tests/test_source_class_tagging.py` lock the
+  contract: enum values, default tagging, propagation through
+  `ValidationContext`, public re-export.
+
 ## [0.6.1] - 2026-04-29
 
 ### Fixed

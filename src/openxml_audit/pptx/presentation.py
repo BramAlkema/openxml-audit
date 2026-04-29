@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from lxml import etree
 
 from openxml_audit.context import ElementContext
-from openxml_audit.errors import ValidationError
+from openxml_audit.errors import SourceClass, ValidationError
 from openxml_audit.namespaces import (
     PRESENTATIONML,
     REL_PRES_PROPS,
@@ -298,6 +298,7 @@ class PresentationValidator:
                     "PowerPoint will trigger its 'unreadable content' repair "
                     "dialog when this part is absent",
                     node=label,
+                    source_class=SourceClass.POWERPOINT_APP_COMPAT,
                 )
 
     def _validate_notes_size(
