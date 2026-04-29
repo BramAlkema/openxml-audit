@@ -1,0 +1,134 @@
+name: Self-parity gate (advisory)
+
+# Spec 026 (Phase 1, 0.7.1) — runs the self-parity snapshot + compare
+# on every push and PR, BUT advisory only. The comparison step
+# carries `continue-on-error: true` so any drift surfaces in the
+# workflow summary without failing the build. Spec 026 0.8.0 promotes
+# this to the blocking sovereign gate.
+#
+# Coexists with `parity-gate.yml` (the SDK advisory comparison) — both
+# emit informational signals on every push. Once self-parity is the
+# sovereign blocking gate, the SDK gate either stays advisory forever
+# or gets retired (decision deferred to 0.8.0).
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/parity/**"
+      - "data/corpus/self_parity_baseline/**"
+      - ".github/workflows/self-parity-gate.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - "scripts/parity/**"
+      - "data/corpus/self_parity_baseline/**"
+      - ".github/workflows/self-parity-gate.yml"
+  workflow_dispatch:
+    inputs:
+      corpus_archive_url:
+        description: "Optional URL for parity corpus tar.zst (overrides repo variable)."
+        required: false
+        default: ""
+
+jobs:
+  self-parity:
+    runs-on: ubuntu-latest
+    env:
+      BASELINE_SNAPSHOT: data/corpus/self_parity_baseline/v0.7.1/snapshot.json
+      CURRENT_SNAPSHOT: reports/self_parity_current.json
+      COMPARE_REPORT: reports/self_parity_compare.json
+      SUMMARY_REPORT: /tmp/self_parity_compare.md
+      CORPUS_ARCHIVE_URL: ${{ github.event.inputs.corpus_archive_url || vars.PARITY_CORPUS_ARCHIVE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Prepare reports directory
+        run: mkdir -p reports
+
+      - name: Resolve corpus files root
+        id: corpus
+        run: |
+          set -euo pipefail
+          local_root="$GITHUB_WORKSPACE/data/corpus/sdk_seed/files"
+          if [ -d "$local_root" ]; then
+            echo "files_root=$local_root" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -n "${CORPUS_ARCHIVE_URL:-}" ]; then
+            work_root="/tmp/openxml-parity-corpus"
+            archive_path="/tmp/openxml-parity-corpus.tar.zst"
+            rm -rf "$work_root"
+            mkdir -p "$work_root"
+            curl -fsSL "$CORPUS_ARCHIVE_URL" -o "$archive_path"
+            tar --zstd -xf "$archive_path" -C "$work_root"
+            files_root="$work_root/files"
+            if [ ! -d "$files_root" ]; then
+              echo "::error::Corpus archive does not contain expected 'files/' directory."
+              exit 2
+            fi
+            echo "files_root=$files_root" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "::error::No local corpus and no PARITY_CORPUS_ARCHIVE_URL configured."
+          exit 2
+
+      - name: Run self-parity snapshot
+        run: |
+          python scripts/parity/run_self_parity_snapshot.py \
+            --manifest data/corpus/sdk_seed/manifest.json \
+            --files-root "${{ steps.corpus.outputs.files_root }}" \
+            --output "$CURRENT_SNAPSHOT"
+
+      - name: Compare against committed baseline (ADVISORY — Spec 026)
+        # Phase 1 ships this advisory: drift surfaces in the summary
+        # but doesn't fail the build. 0.8.0 removes continue-on-error
+        # to promote this to the blocking sovereign gate.
+        continue-on-error: true
+        run: |
+          python scripts/parity/compare_self_parity.py \
+            --baseline "$BASELINE_SNAPSHOT" \
+            --current "$CURRENT_SNAPSHOT" \
+            --output "$COMPARE_REPORT" \
+            --summary "$SUMMARY_REPORT" \
+            --max-new-families 0 \
+            --max-missing-families 0 \
+            --max-count-drift-total 0
+
+      - name: Upload self-parity reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: self-parity-reports
+          path: reports
+
+      - name: Workflow summary
+        if: always()
+        run: |
+          {
+            echo "# Self-parity gate (advisory)"
+            echo ""
+            echo "**Spec 026 Phase 1 (0.7.1).** Drift below is informational, not blocking."
+            echo "0.8.0 promotes this to the sovereign blocking gate."
+            echo ""
+            echo "---"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ -f "$SUMMARY_REPORT" ]; then
+            cat "$SUMMARY_REPORT" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No self-parity summary produced." >> "$GITHUB_STEP_SUMMARY"
+          fi

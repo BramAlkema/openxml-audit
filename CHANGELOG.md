@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-04-29
+
+### Added
+- Self-parity prototype as advisory CI (Spec 027 — Phase 1 of
+  Spec 026's roadmap to 0.8.0). The blocking sovereign gate's
+  substance lands here; 0.8.0 promotes via policy.
+  - **`scripts/parity/run_self_parity_snapshot.py`** — walks the
+    corpus, runs the validator at each `FileFormat`, emits a
+    `family_key`-keyed inventory tagged with `SourceClass`. The
+    initial baseline captured 18,516 findings across 1,368 unique
+    family_keys (228 of them `word_app_compat` from Spec 010).
+  - **`scripts/parity/compare_self_parity.py`** — diffs current
+    vs baseline. Three threshold knobs (`--max-new-families`,
+    `--max-missing-families`, `--max-count-drift-total`),
+    strict-no-drift defaults. Exits nonzero on threshold
+    violation; renders a markdown summary for workflow surfaces.
+  - **`data/corpus/self_parity_baseline/v0.7.1/snapshot.json`**
+    — initial baseline at this release's `main` HEAD.
+  - **`.github/workflows/self-parity-gate.yml`** — runs on every
+    push/PR, advisory only (`continue-on-error: true` on the
+    comparison step). Coexists with the SDK `parity-gate.yml`.
+    Two parallel informational signals; nothing blocking.
+  - 10 new tests in `tests/test_self_parity.py` covering compare
+    logic, threshold flags, markdown rendering, and a baseline-
+    vs-self schema-shape smoke.
+- `specs/026-self-parity-sovereign-gate-roadmap.md` — umbrella
+  spec for the four-step path (0.7.1 → 0.7.2 → 0.7.3 → 0.8.0).
+- `specs/027-self-parity-prototype.md` — design + Phase 2
+  deferrals.
+
 ## [0.7.0] - 2026-04-29
 
 ### Cutover release
