@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.4] - 2026-04-30
+
+### Changed
+- Word window primitives consolidated into
+  `openxml_audit.docx.osa` (Spec 030). The 22 functions, constants,
+  and aliases that historically lived in `tools/oracle/word_window.py`
+  (since Spec 011 / 0.5.0) now live in the in-package layer parallel
+  to `pptx.osa` (since 0.6.4) and `xlsx.osa` (since 0.6.5). The
+  four-format oracle ladder finally has one consistent in-package
+  osa shape:
+  - **`docx.osa` now exports**: `WORD_APP_BUNDLE` /
+    `WORD_APP_ID` / `WORD_PROCESS_NAME` /
+    `REPAIR_DIALOG_PATTERNS` /
+    `REPAIR_DIALOG_ACCEPT_BUTTON_LABELS` (constants);
+    `launch_word` / `launch_word_app` (alias) / `is_word_running`
+    / `word_version` (lifecycle); `open_document` /
+    `list_open_document_names` / `is_document_open` /
+    `activate_document` (document operations); `save_document` /
+    `close_document` / `close_active_document` (alias) /
+    `close_document_saving` / `close_active_document_saving`
+    (alias) (save/close); `find_repair_dialog_text` /
+    `click_dialog_button` / `dismiss_repair_dialog` /
+    `dismiss_any_leftover_modal` (dialog handling).
+  - **`tools/oracle/word_window.py` is now a back-compat shim**
+    that re-exports from `docx.osa` plus the shared
+    `openxml_audit.osa` primitives (`osascript`, `osascript_jxa`,
+    `applescript_quote`). The historical `OsascriptError` is
+    aliased to `RuntimeError` so existing
+    `except word_window.OsascriptError` clauses keep catching
+    what they always caught (the new `openxml_audit.osa.osascript`
+    raises plain `RuntimeError`).
+- Future code should import from `openxml_audit.docx.osa`
+  directly. The shim is permanent for back-compat through the
+  remaining 0.7.x and 0.8.x releases; eventual removal is
+  pre-1.0 work.
+
+### Added
+- 11 new tests in `tests/test_docx_osa.py` lock:
+  - the symbol set the in-package layer must expose
+  - the back-compat shim re-exports those same symbols
+  - dialog-pattern shape (`unable to read this document`
+    must be in the pattern list; `Open and Repair` must be in
+    the accept-button list — both critical fixes from the 0.6.6
+    baseline run that closed Word's hard-error dialog gap)
+  - `OsascriptError` alias catches `RuntimeError`
+  - `_applescript_quote` private alias is reachable for legacy
+    callers
+- `specs/030-word-oracle-osa-consolidation.md` documents the
+  consolidation + the deferred consumer-migration follow-ups
+  (`word_roundtrip.py` / `word_repair_corpus.py` /
+  `word_repair_oracle.py` should eventually import from
+  `docx.osa` directly; current release keeps the shim
+  transparent).
+
+### Verified
+- Full test suite passes: 617 tests (up from 606 in 0.7.3, +11
+  new). The matrix-driven Word oracle (Spec 010/011) continues
+  to work through the shim.
+
 ## [0.7.3] - 2026-04-30
 
 ### Added
