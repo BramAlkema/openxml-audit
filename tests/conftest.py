@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import os
 import sys
 import zipfile
 from pathlib import Path
@@ -21,9 +22,33 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 
+def _live_office_opt_in() -> bool:
+    """Live Office oracle tests visibly hijack the user's screen
+    (Word/PowerPoint/Excel for Mac have no headless mode). Require
+    explicit opt-in via the env var so `pytest tests/` is silent by
+    default. Same gating discipline as the GSuite oracle's
+    `GSUITE_ORACLE_*` env vars.
+    """
+    return os.environ.get("RUN_LIVE_OFFICE_TESTS", "").strip().lower() in {"1", "true", "yes"}
+
+
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
-    """Skip tests marked `requires_word_app` when Microsoft Word for Mac
-    is not reachable via osascript."""
+    """Skip tests marked `requires_word_app` unless explicitly opted in
+    via `RUN_LIVE_OFFICE_TESTS=1` AND Word for Mac is reachable."""
+    if not _live_office_opt_in():
+        skip_marker = pytest.mark.skip(
+            reason=(
+                "live Word oracle disabled by default — set "
+                "RUN_LIVE_OFFICE_TESTS=1 to enable (Word will visibly "
+                "open and close documents)"
+            )
+        )
+        for item in items:
+            if "requires_word_app" in item.keywords:
+                item.add_marker(skip_marker)
+        return
+
+    # Opt-in is set: still skip if Word isn't actually reachable.
     skip_marker = pytest.mark.skip(
         reason="Microsoft Word for Mac not reachable; see tools/oracle/preflight.py"
     )

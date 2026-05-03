@@ -29,10 +29,18 @@ def _excel_available() -> bool:
     return sys.platform == "darwin" and xlsx_osa.EXCEL_APP_BUNDLE.exists()
 
 
+def _live_office_opt_in() -> bool:
+    """Live Excel visibly hijacks the screen — require explicit opt-in
+    via env var so `pytest tests/` is silent by default."""
+    import os
+    return os.environ.get("RUN_LIVE_OFFICE_TESTS", "").strip().lower() in {"1", "true", "yes"}
+
+
 REQUIRES_EXCEL = pytest.mark.skipif(
-    not _excel_available(),
-    reason="Microsoft Excel not installed (or non-darwin); "
-           "Excel oracle tests skipped",
+    not (_excel_available() and _live_office_opt_in()),
+    reason="Excel oracle tests skipped — set RUN_LIVE_OFFICE_TESTS=1 "
+           "to enable (and Microsoft Excel must be installed; tests will "
+           "visibly open and close workbooks)",
 )
 
 

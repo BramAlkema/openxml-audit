@@ -35,10 +35,18 @@ def _powerpoint_available() -> bool:
     return sys.platform == "darwin" and pptx_osa.POWERPOINT_APP_BUNDLE.exists()
 
 
+def _live_office_opt_in() -> bool:
+    """Live PowerPoint visibly hijacks the screen — require explicit
+    opt-in via env var so `pytest tests/` is silent by default."""
+    import os
+    return os.environ.get("RUN_LIVE_OFFICE_TESTS", "").strip().lower() in {"1", "true", "yes"}
+
+
 REQUIRES_POWERPOINT = pytest.mark.skipif(
-    not _powerpoint_available(),
-    reason="Microsoft PowerPoint not installed (or non-darwin); "
-           "PowerPoint oracle tests skipped",
+    not (_powerpoint_available() and _live_office_opt_in()),
+    reason="PowerPoint oracle tests skipped — set RUN_LIVE_OFFICE_TESTS=1 "
+           "to enable (and Microsoft PowerPoint must be installed; tests "
+           "will visibly open and close presentations)",
 )
 
 
