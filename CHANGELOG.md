@@ -7,6 +7,88 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Google Workspace roundtrip oracle (Spec 031) — fifth engine in the
+  oracle dispatcher alongside Word, ODF, PowerPoint, Excel.
+  - **`src/openxml_audit/gsuite/`** — new package with `GSuiteClient`
+    wrapping four Drive API primitives (`upload`,
+    `convert_to_native`, `export_to_ooxml`, `delete`) plus mime-type
+    constants for OOXML and native Google formats.
+  - **`tools/oracle/gsuite_roundtrip.py`** — orchestrator that
+    uploads an input .pptx, copies it with conversion to native
+    Google Slides, exports the Slides file back to .pptx, hands
+    original + roundtripped copy to `pptx.lab.compare_pptx_packages`
+    for the per-part diff, then classifies the diff across a
+    `LossClass` taxonomy.
+  - **`LossClass` taxonomy** — naming policy: stay descriptive.
+    `*_part_changed` / `*_part_removed` describe what's observable
+    in the diff without claiming semantic loss; `*_loss` names are
+    reserved for future buckets that verify actual loss (e.g.,
+    `font_loss` once we detect "font removed AND referenced by a
+    text run"). Phase 1 file-level buckets: `theme_part_changed`,
+    `master_part_changed`, `style_part_removed`,
+    `font_part_removed`, `slide_part_changed`, `metadata_churn`,
+    `media_re_encoded`, `structural_normalization` (gain-side
+    artifacts like Google adding notes masters), `defaults_inlined`
+    (content-aware: source had empty `<p:spPr/>`/`<a:bodyPr/>`/etc.
+    inheriting from layouts; head has them expanded to fully-resolved
+    values — file-level only, doesn't claim semantic loss).
+    Reserved verified-loss bucket: `content_changed`. Catch-all:
+    `unmapped`. Multiple classes may fire per
+    file. The taxonomy distinguishes loss (signal removed/degraded)
+    from normalization (parts GSuite *added* that weren't in the
+    source) — both are roundtrip artifacts but mean different things.
+  - **Auth: domain-wide delegation (mandatory).** Service accounts
+    have zero storage quota since Google's 2024 policy change, so
+    `with_subject(...)` impersonation of a real Workspace user is
+    required for any `files.create` call. Setup is a one-time
+    Workspace Admin Console step (Security → API controls →
+    Domain-wide Delegation) plus three env vars:
+    `GSUITE_ORACLE_CREDS` (defaults to
+    `~/.config/openxml-audit/google_service_account.json`),
+    `GSUITE_ORACLE_SUBJECT`, `GSUITE_ORACLE_FOLDER_ID`.
+  - **`pyproject.toml`** — new `gsuite` optional-dependencies group
+    with `google-auth` only; install via `pip install -e ".[gsuite]"`.
+    The Drive API HTTP layer is implemented with stdlib
+    `urllib.request` (no `google-api-python-client`, no `requests`,
+    no `urllib3`, no `protobuf`). google-auth handles JWT signing +
+    token refresh; everything else is plain HTTP. Net dep cut: ~3 MB
+    of transitive packages eliminated, ~80 lines of code added in
+    `gsuite/client.py` to wrap Drive's REST endpoints + a 30-line
+    `_UrllibAuthTransport` adapter that satisfies google-auth's
+    transport interface during refresh().
+  - **`oracle.__main__` dispatcher** — adds `gsuite` engine (alias
+    `google`); usage: `python -m openxml_audit.oracle gsuite FILES...`.
+  - **Empirical baseline.** A 32 KB single-slide Presentation1.pptx
+    roundtrip ships at 4.5× output size with 4 parts removed
+    (`docProps/app.xml`, `docProps/core.xml`, `ppt/tableStyles.xml`,
+    `ppt/viewProps.xml`), 5 parts added (notes master, notes slide,
+    extra theme variant), 21 parts changed (every slide layout,
+    master, theme, presentation, top-level rels). The classifier
+    tags this as `theme_loss + master_loss + style_loss +
+    metadata_churn + structural_normalization + content_preserved_lossy`.
+  - **Two classifier layers.** `classify_loss(...)` runs cheap
+    list-based rules over the diff's part-name set;
+    `classify_xml_loss(base_path, head_path, ...)` opens the
+    packages and reads slide XML bytes for content-aware rules
+    (Phase 1 only rule: `defaults_inlined`). `observe()` unions
+    the two so callers don't need to know about the split.
+  - **Resolution limit documented.** The oracle is file-level: it
+    observes what GSuite emits in OOXML, not what Slides actually
+    does at runtime. Semantic questions (does inheritance still
+    bind? do animations play? do master edits propagate?) require
+    a behavioral oracle — driving Slides UI via Playwright —
+    deferred to a future spec (provisional: 032).
+  - **Tests** — 25 always-on tests (classifier rules, observation
+    shape, dispatcher routing, CLI parsing, mocked Drive client end-
+    to-end, content-aware `defaults_inlined` detection on synthetic
+    pptx pairs) + 1 gated real-network smoke test that skips unless
+    `GSUITE_ORACLE_CREDS`, `GSUITE_ORACLE_SUBJECT`, and
+    `GSUITE_ORACLE_FOLDER_ID` are all set.
+- Phase 2 (DOCX, XLSX) and Phase 3 (ODF) are out of scope for this
+  release; the orchestrator and `LossClass` are structured to
+  parameterize cleanly.
+
 ## [0.7.4] - 2026-04-30
 
 ### Changed

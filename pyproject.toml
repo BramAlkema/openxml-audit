@@ -43,6 +43,12 @@ pptx-lab = [
 odf-crypto = [
     "signxml>=4.0.0",
 ]
+gsuite = [
+    # `google-auth` only — we use stdlib `urllib.request` for the four
+    # Drive API calls the oracle needs (avoids ~3 MB of transitive deps:
+    # requests, urllib3, protobuf, httplib2, uritemplate, ...).
+    "google-auth>=2.0.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/BramAlkema/openxml-audit"

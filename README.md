@@ -298,6 +298,73 @@ CI workflow: `.github/workflows/odf-reference-calibration.yml` — builds ODF To
 
 Set command templates via `--odf-toolkit-cmd` / `--opf-cmd` or env vars `ODF_TOOLKIT_CMD` / `OPF_ODF_VALIDATOR_CMD`. Placeholders: `{file}`, `{file_dir}`, `{file_name}`, `{file_stem}`, `{file_suffix}`.
 
+## Google Workspace Roundtrip Oracle
+
+The `gsuite` engine in the oracle dispatcher rounds OOXML files
+through Google's import/export pipeline (upload → convert to native
+Google Slides → export back to .pptx → diff) and classifies what
+GSuite drops, transforms, or normalizes. See
+[`specs/031-gsuite-roundtrip-oracle.md`](specs/031-gsuite-roundtrip-oracle.md)
+for the full design.
+
+### One-time setup
+
+GSuite uploads require **domain-wide delegation** because service
+accounts have zero storage quota since Google's 2024 policy change.
+The setup is a one-time per-Workspace ceremony:
+
+1. **Create a GCP project** at <https://console.cloud.google.com>
+   (e.g., `openxml-audit-oracle`).
+2. **APIs & Services → Library**, enable **Google Drive API**.
+3. **IAM & Admin → Service Accounts**, create one (e.g.,
+   `oracle-roundtrip`); skip the project IAM role grant.
+4. On the new SA → **Keys → Add key → JSON**. Save to
+   `~/.config/openxml-audit/google_service_account.json` and
+   `chmod 600` it.
+5. Note the SA's OAuth client ID (in **Show domain-wide delegation**
+   on the SA page).
+6. In Google Workspace Admin Console
+   (<https://admin.google.com>) → **Security → Access and data
+   control → API controls → Domain-wide Delegation → Add new**.
+   Paste the OAuth client ID; scope:
+   `https://www.googleapis.com/auth/drive`. Requires Workspace
+   super-admin rights — one-time per Workspace.
+7. In Drive, create a folder owned by the impersonation subject
+   (e.g., `openxml-audit-oracle-staging`) to hold in-flight oracle
+   uploads. Copy its folder ID from the URL.
+
+Install the optional dependency group:
+
+```bash
+pip install -e ".[gsuite]"
+```
+
+### Running
+
+Three env vars wire it up:
+
+```bash
+export GSUITE_ORACLE_CREDS=~/.config/openxml-audit/google_service_account.json  # default; override only if elsewhere
+export GSUITE_ORACLE_SUBJECT=info@yourdomain.example                             # the user the SA impersonates
+export GSUITE_ORACLE_FOLDER_ID=1abcDEFghijKLM...                                 # the staging folder ID
+```
+
+Then:
+
+```bash
+python -m openxml_audit.oracle gsuite presentation.pptx
+python -m openxml_audit.oracle gsuite ./corpus/ --output gsuite-report.json
+```
+
+The report classifies each roundtrip across a `LossClass` taxonomy:
+`theme_loss`, `master_loss`, `style_loss`, `font_loss`,
+`media_re_encoded`, `metadata_churn`, `structural_normalization`
+(parts GSuite *added*), `content_preserved_lossy`,
+`content_changed`, `unmapped`. Multiple classes may fire per file.
+
+Drive uploads are deleted in `finally` after each roundtrip — the
+oracle never leaves files in your account.
+
 ## Open XML SDK (Standalone)
 
 Run the .NET SDK validator separately (requires .NET SDK 8.x or Docker):

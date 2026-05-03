@@ -1,4 +1,4 @@
-"""Single entrypoint for the four roundtrip oracles.
+"""Single entrypoint for the roundtrip oracles.
 
 Usage:
 
@@ -6,15 +6,20 @@ Usage:
   python -m openxml_audit.oracle excel    FILES... [--output X.json]
   python -m openxml_audit.oracle pptx     FILES... [--output X.json]
   python -m openxml_audit.oracle odf      FILES... [--output X.json]
+  python -m openxml_audit.oracle gsuite   FILES... [--output X.json]
 
 Each subcommand defers to the format's existing CLI in
 `tools/oracle/`. This module is a thin dispatcher introduced in 0.6.8
 so callers don't need to remember which file lives where (and so
-shell history accumulates one verb across formats).
+shell history accumulates one verb across formats). The `gsuite`
+engine added in spec 031 (alias `google`) needs the optional
+`gsuite` extra installed and a service-account JSON key plus
+domain-wide delegation configured — see
+`specs/031-gsuite-roundtrip-oracle.md`.
 
 Use `python -m openxml_audit.oracle preflight` to run the macOS
-permission / install check across all four engines before a corpus
-walk.
+permission / install check across the desktop-app engines before a
+corpus walk.
 """
 
 from __future__ import annotations
@@ -67,6 +72,14 @@ def _run_odf(args: list[str]) -> int:
     return odf_main()
 
 
+def _run_gsuite(args: list[str]) -> int:
+    _ensure_tools_on_path()
+    from tools.oracle.gsuite_roundtrip import main as gsuite_main
+
+    sys.argv = ["gsuite_roundtrip.py", *args]
+    return gsuite_main()
+
+
 def _run_preflight(args: list[str]) -> int:
     _ensure_tools_on_path()
     from tools.oracle.preflight import main as preflight_main
@@ -82,6 +95,8 @@ _DISPATCH = {
     "pptx": _run_pptx,
     "powerpoint": _run_pptx,  # alias
     "odf": _run_odf,
+    "gsuite": _run_gsuite,
+    "google": _run_gsuite,  # alias
     "preflight": _run_preflight,
 }
 
