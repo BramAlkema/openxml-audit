@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.5] - 2026-05-03
+
+Added Google Suite to the mix.
+
 ### Added
 - Google Workspace roundtrip oracle (Spec 031) — fifth engine in the
   oracle dispatcher alongside Word, ODF, PowerPoint, Excel.
