@@ -207,12 +207,13 @@ class TestConvenienceFunctions:
 
 
 class TestPresentationAppCompatParts:
-    """Tests for the missing-presProps/viewProps/tableStyles check.
+    """Tests for the missing-presProps/viewProps check.
 
     PowerPoint triggers its "unreadable content" repair dialog when these
     parts are absent, even when the package is internally self-consistent
-    (relationship and content-type entries removed too). The existing
-    relationship-target check only catches the half-broken case.
+    (relationship and content-type entries removed too). tableStyles remains
+    optional for Google Slides exports. The existing relationship-target check
+    catches the half-broken case.
     """
 
     REL_TYPES = {
@@ -277,7 +278,7 @@ class TestPresentationAppCompatParts:
     def test_minimal_pptx_passes_app_compat_check(
         self, minimal_pptx: Path
     ) -> None:
-        """The minimal fixture ships with all three rels + parts present."""
+        """The minimal fixture ships with all optional app rels + parts present."""
         result = OpenXmlValidator().validate(minimal_pptx)
         descriptions = [e.description for e in result.errors]
         for label in ("presProps", "viewProps", "tableStyles"):
@@ -306,23 +307,37 @@ class TestPresentationAppCompatParts:
             for e in result.errors
         )
 
-    def test_all_three_app_compat_parts_missing_fires_three_errors(
+    def test_table_styles_missing_is_valid_when_relationship_is_removed(
         self, minimal_pptx: Path, tmp_path: Path
     ) -> None:
-        """The exact scenario from issue #4 — internally self-consistent file
-        missing all three parts should flag is_valid=False with three errors."""
+        """Google Slides omits tableStyles as a self-consistent package delta."""
+        exported = tmp_path / "missing-tableStyles.pptx"
+        self._strip(minimal_pptx, exported, ("tableStyles",))
+
+        result = OpenXmlValidator().validate(exported)
+
+        assert result.is_valid, [e.description for e in result.errors]
+
+    def test_all_app_compat_parts_missing_flags_required_parts(
+        self, minimal_pptx: Path, tmp_path: Path
+    ) -> None:
+        """Internally self-consistent files still need presProps and viewProps."""
         broken = tmp_path / "missing-all-three.pptx"
         self._strip(minimal_pptx, broken, ("presProps", "viewProps", "tableStyles"))
 
         result = OpenXmlValidator().validate(broken)
         assert not result.is_valid
-        for label in ("presProps", "viewProps", "tableStyles"):
+        for label in ("presProps", "viewProps"):
             assert any(
                 "missing" in e.description
                 and label in e.description
                 and e.severity == ValidationSeverity.ERROR
                 for e in result.errors
             ), (label, [e.description for e in result.errors])
+        assert not any(
+            "missing" in e.description and "tableStyles" in e.description
+            for e in result.errors
+        ), [e.description for e in result.errors]
 
     def test_unrelated_check_still_catches_dangling_rel(
         self, minimal_pptx: Path, tmp_path: Path

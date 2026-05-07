@@ -17,7 +17,6 @@ from openxml_audit.namespaces import (
     REL_PRES_PROPS,
     REL_SLIDE,
     REL_SLIDE_MASTER,
-    REL_TABLE_STYLES,
     REL_VIEW_PROPS,
 )
 
@@ -279,17 +278,15 @@ class PresentationValidator:
         """Flag missing parts that PowerPoint requires beyond ECMA-376.
 
         ECMA-376 §13.3 makes presProps, viewProps, and tableStyles optional,
-        but PowerPoint triggers its "unreadable content" repair dialog when
-        any of them are absent — even when the package is internally
-        self-consistent (relationship and content-type entries removed too).
-        The existing relationship-target check catches the half-broken case
-        where rels still point at missing parts; this fills the gap when the
-        rels are gone too.
+        but PowerPoint has triggered its "unreadable content" repair dialog
+        when presProps or viewProps are absent, even when the package is
+        internally self-consistent. Google Slides exports commonly omit
+        tableStyles, so treat that relationship as optional unless a dangling
+        relationship still points at a missing part.
         """
         required = (
             (REL_PRES_PROPS, "presProps"),
             (REL_VIEW_PROPS, "viewProps"),
-            (REL_TABLE_STYLES, "tableStyles"),
         )
         for rel_type, label in required:
             if part.relationships.get_first_by_type(rel_type) is None:

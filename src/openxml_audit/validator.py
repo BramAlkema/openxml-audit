@@ -901,7 +901,7 @@ class OpenXmlValidator:
         return (
             REL_STYLES,
             REL_SETTINGS,
-            REL_WEB_SETTINGS,
+            # webSettings is optional; Google DOCX exports commonly omit it.
             REL_FONT_TABLE,
             REL_THEME,
         )
