@@ -215,6 +215,49 @@ Per-format `LossClass` extensions: `formula_loss` (xlsx),
 `style_loss` (docx), etc. Reuses each format's existing
 `compare_*_packages` differ.
 
+Empirical carrier matrix from the DOCX/XLSX/PPTX probes:
+
+- **Google Docs -> DOCX** does not reliably export `customXml/*`
+  sidecars (including `customXml/tokenmoulds-intent.json`),
+  `docProps/core.xml`, `docProps/app.xml`, `word/webSettings.xml`,
+  `word/stylesWithEffects.xml`, original `.odttf` font parts,
+  unused embedded fonts, the full Word style catalog, exact
+  page-number formats, or exact header text/content in some cases.
+  In the long-form probe, Google collapsed the style catalog from
+  136 styles to 10, and roman/upper-letter page-number formats were
+  normalized by render/export behavior.
+- **Google Docs -> DOCX** did preserve `docProps/custom.xml` for
+  TokenMoulds string properties, used embedded fonts after rewriting
+  them as `.ttf`, sections, columns, landscape pages, and
+  header/footer references. Practical rule: for Docs, prefer
+  `docProps/custom.xml` as the best invisible-ish OOXML metadata
+  carrier; do not depend on `customXml/*` or document settings
+  sidecars surviving.
+- **Google Sheets -> XLSX** does not reliably export
+  `docProps/custom.xml`, `customXml/*`, defined-name literal
+  metadata, or the core/app docProps in lossy exports. It did
+  preserve hidden metadata sheets, visible cells, comments, and a
+  defined name pointing at a hidden sheet, though defined-name
+  attributes may be normalized. Practical rule: use native workbook
+  content carriers, especially a hidden metadata sheet, rather than
+  OOXML package sidecars.
+- **Google Slides -> PPTX** does not reliably export
+  `docProps/custom.xml`, `customXml/*`, shape-name metadata, or the
+  `tableStyles` relationship/part. It also normalizes PPTX-authored
+  transitions/effects: in a 2026-05-08 live probe, a slide-level
+  `<p:transition spd="fast"><p:fade/></p:transition>` roundtripped as
+  `<p:transition><p:fade/></p:transition>` (effect preserved, speed
+  dropped). The same probe preserved `<p:timing>` with
+  `<p:animEffect transition="in" filter="fade">`, and preserved
+  timing values as millisecond integers (`delay="2000"` and
+  `dur="1500"` roundtripped unchanged) while remapping shape ids and
+  updating timing targets accordingly. It did preserve speaker notes,
+  hidden slides, off-slide text, shape description/alt text, and
+  visible text. Practical rule: use native presentation content
+  carriers such as notes, hidden slides, off-slide text, or alt text;
+  for imported animations, use PPTX timing XML and treat transition
+  speed and original shape ids as non-stable converter details.
+
 ### Phase 3 — ODF (optional)
 
 Google imports `.odp` / `.odt` / `.ods`. Covered for evidence-ladder

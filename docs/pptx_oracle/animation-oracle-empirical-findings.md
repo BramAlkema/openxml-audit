@@ -152,6 +152,26 @@ as 29 entries (17 visually-verified + 12 derived subparameter variants)
 and in the universal `entr/filter_effect.xml` / `exit/filter_effect.xml`
 slot templates.
 
+### 4a. Google Slides import/export preserves basic filter effects
+
+A live Google Slides import/export probe on 2026-05-08 showed that a
+minimal PPTX-authored fade entrance effect survives the Google
+converter's OOXML roundtrip:
+
+- source: `<p:animEffect transition="in" filter="fade">` targeting
+  shape id `3`
+- exported PPTX: `<p:animEffect transition="in" filter="fade">`
+  targeting remapped shape id `85`
+- source timing values `delay="2000"` and `dur="1500"` roundtripped
+  unchanged, confirming these values remain OOXML millisecond integers
+  through the Google converter
+
+The same probe preserved a slide-level fade transition but dropped the
+transition speed attribute: `<p:transition spd="fast"><p:fade/></p:transition>`
+became `<p:transition><p:fade/></p:transition>`. Treat transition
+effect kind as carrier-stable for this simple case, but do not treat
+`spd` or original shape ids as stable under Google Slides conversion.
+
 ### 5. Targeting wrappers scope effects
 
 PowerPoint uses three distinct target wrappers inside `<p:spTgt>` to
