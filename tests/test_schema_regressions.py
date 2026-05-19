@@ -25,6 +25,8 @@ from openxml_audit.schema.particle import (
 from openxml_audit.schema.validator import SchemaValidator, get_constraint_for_tag
 from tests.fixture_loader import load_fixture_text
 
+WORDPROCESSING_SHAPE = "http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
+
 
 def test_choice_particle_rejects_trailing_invalid_children() -> None:
     ns = "urn:test"
@@ -270,6 +272,53 @@ def test_word_cols_allows_empty_col_children() -> None:
     validator._validate_element(cols, context)
 
     assert not any("Required element 'col'" in error.description for error in context.errors)
+
+
+def test_wordprocessing_shape_allows_google_c_nv_pr_order() -> None:
+    wsp = etree.fromstring(
+        (
+            f'<wps:wsp xmlns:wps="{WORDPROCESSING_SHAPE}" xmlns:a="{DRAWINGML}">'
+            "<wps:cNvSpPr/>"
+            '<wps:cNvPr id="3" name="Shape 3"/>'
+            "<wps:spPr>"
+            "<a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"1\" cy=\"1\"/></a:xfrm>"
+            '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
+            "</wps:spPr>"
+            "<wps:bodyPr/>"
+            "</wps:wsp>"
+        ).encode()
+    )
+    context = ValidationContext(max_errors=0)
+    validator = SchemaValidator()
+
+    validator._validate_element(wsp, context)
+
+    assert not any("Required element 'spPr'" in error.description for error in context.errors)
+    assert not any("Required element 'bodyPr'" in error.description for error in context.errors)
+    assert not any("Unexpected element 'cNvPr'" in error.description for error in context.errors)
+
+
+def test_wordprocessing_shape_still_allows_sdk_metadata_c_nv_pr_order() -> None:
+    wsp = etree.fromstring(
+        (
+            f'<wps:wsp xmlns:wps="{WORDPROCESSING_SHAPE}" xmlns:a="{DRAWINGML}">'
+            '<wps:cNvPr id="3" name="Shape 3"/>'
+            "<wps:cNvSpPr/>"
+            "<wps:spPr>"
+            "<a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"1\" cy=\"1\"/></a:xfrm>"
+            '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
+            "</wps:spPr>"
+            "<wps:bodyPr/>"
+            "</wps:wsp>"
+        ).encode()
+    )
+    context = ValidationContext(max_errors=0)
+    validator = SchemaValidator()
+
+    validator._validate_element(wsp, context)
+
+    assert not any("Unexpected element 'cNvSpPr'" in error.description for error in context.errors)
+    assert not any("Unexpected element 'cNvPr'" in error.description for error in context.errors)
 
 
 def test_word_sdt_end_pr_allows_empty_content() -> None:

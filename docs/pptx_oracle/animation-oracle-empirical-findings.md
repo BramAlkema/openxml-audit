@@ -152,25 +152,54 @@ as 29 entries (17 visually-verified + 12 derived subparameter variants)
 and in the universal `entr/filter_effect.xml` / `exit/filter_effect.xml`
 slot templates.
 
-### 4a. Google Slides import/export preserves basic filter effects
+### 4a. Google Slides import/export collapses effects to fade
 
-A live Google Slides import/export probe on 2026-05-08 showed that a
-minimal PPTX-authored fade entrance effect survives the Google
-converter's OOXML roundtrip:
+Live Google Slides import/export probes on 2026-05-08 showed that PPTX-authored
+fade survives the Google converter's OOXML roundtrip, but non-fade animation
+and transition kinds do not.
 
-- source: `<p:animEffect transition="in" filter="fade">` targeting
-  shape id `3`
-- exported PPTX: `<p:animEffect transition="in" filter="fade">`
-  targeting remapped shape id `85`
-- source timing values `delay="2000"` and `dur="1500"` roundtripped
-  unchanged, confirming these values remain OOXML millisecond integers
-  through the Google converter
+The first minimal probe preserved:
 
-The same probe preserved a slide-level fade transition but dropped the
-transition speed attribute: `<p:transition spd="fast"><p:fade/></p:transition>`
-became `<p:transition><p:fade/></p:transition>`. Treat transition
-effect kind as carrier-stable for this simple case, but do not treat
-`spd` or original shape ids as stable under Google Slides conversion.
+- `<p:animEffect transition="in" filter="fade">`, with the timing target
+  updated after Google remapped the shape id
+- timing values as OOXML millisecond integers (`delay="2000"` and
+  `dur="1500"` roundtripped unchanged)
+- a slide-level `<p:fade/>` transition, while dropping transition `spd="fast"`
+
+The follow-up exhaustive file-level sweep covered 98 valid PPTX cases:
+21 base transitions, 19 `p14:` transitions, one `p15:prstTrans` smoke case,
+56 entrance/exit `animEffect` filter cases, and one `filter="image"` opacity
+emphasis case. All source and exported PPTX packages validated with
+`Errors: 0`.
+
+Results:
+
+- Base transitions: only `p:fade` and `p:push` preserved as the same transition
+  kind. `p:cover` and `p:pull` exported as `p:push`; the remaining base
+  transitions exported mostly as `p:fade thruBlk="1"`.
+- `p14:` transitions: none survived as `p14:`. Fourteen exported as `p:fade`;
+  `switch`, `flip`, `prism`, `gallery`, and `conveyor` were dropped.
+- `p15:prstTrans prst="fallOver"` was dropped.
+- `animEffect`: `fade` entrance and exit preserved their filter and direction.
+  Every other entrance/exit filter exported as `filter="fade"` while preserving
+  direction, `dur="1500"`, and start delay. Google normalized
+  `nodeType="clickEffect"` to `nodeType="withEffect"` and remapped shape ids.
+- `p:animEffect filter="image" prLst="opacity: 0.3"` plus a `style.opacity`
+  primer was dropped.
+
+Detailed case table:
+`docs/pptx_oracle/google-slides-animation-roundtrip-2026-05-08.md`.
+
+A user-provided native Google Slides export oracle from the same date shows
+the inverse direction. Google serializes its own native effect surface as a
+small stable vocabulary: `set` visibility, `animEffect` fade in/out, `anim`
+over `ppt_x`/`ppt_y`/`ppt_w`/`ppt_h`, and `animRot` over `r`. Reimporting
+that Google-exported PPTX and exporting again preserved the transition/effect
+signatures, with only one normalized visibility-set delay changing from `0`
+to `1`.
+
+Detailed native-export table:
+`docs/pptx_oracle/google-slides-native-export-oracle-2026-05-08.md`.
 
 ### 5. Targeting wrappers scope effects
 

@@ -233,6 +233,91 @@ Empirical carrier matrix from the DOCX/XLSX/PPTX probes:
   `docProps/custom.xml` as the best invisible-ish OOXML metadata
   carrier; do not depend on `customXml/*` or document settings
   sidecars surviving.
+- **Google Docs -> DOCX field survival** is narrow. A 2026-05-15
+  seed-based field-family probe generated one `w:fldSimple` for each
+  Microsoft Word `WdFieldType` family, imported the DOCX into Google
+  Docs, and exported it back to DOCX. In body content, only
+  `DOCPROPERTY`, `NUMPAGES`, and `TOC` preserved field semantics;
+  `TOC` was rewritten into a structured table-of-contents block. In
+  headers/footers, `PAGE` and `NUMPAGES` preserved field semantics.
+  Google rewrote surviving simple fields to complex
+  `w:fldChar`/`w:instrText` runs. Body `PAGE`, body `PAGEREF`, and
+  the other body field families flattened to cached text or were
+  rewritten without field instructions. Practical rule: treat the
+  listed survivors as the Google-compatible DOCX field allow-list and
+  keep all other Word field types DOCX-only unless a targeted fixture
+  proves otherwise. This probe covered field families, not switch
+  permutations.
+- **Google Docs -> DOCX real numbering survives as list structure.**
+  A 2026-05-15 seed-based probe imported a DOCX with
+  `word/numbering.xml`, nested `w:numPr` paragraphs, a restarted list,
+  and a legal-style outline. Google export returned all 10 numbered
+  paragraphs with `w:numPr` and no literal number prefixes in the
+  paragraph text. Google preserved `w:abstractNum`, `w:num`,
+  `lowerLetter`, and custom level text such as `Article %1`, but
+  normalized the definitions by dropping `w:multiLevelType`,
+  `w:isLgl`, and `w:startOverride`, and adding empty placeholder
+  levels. Practical rule: represent Google-compatible auto-numbering as
+  real list/outline structure, not `AUTONUM`/`SEQ` fields, and treat
+  the exported numbering XML as Google-canonical rather than
+  byte-stable.
+- **Google Docs -> DOCX drawing captions survive with `wps`/`wpg`,
+  but not `wpc`.** A 2026-05-15 seed-based probe roundtripped four DOCX
+  image/caption carriers. A normal inline `pic:pic` image survived, but
+  any caption paragraph stayed separate. A promoted `wps:wsp` shape with
+  image `a:blipFill` and `w:txbxContent` caption preserved both the
+  image and editable caption text; Google rewrote it as
+  `mc:AlternateContent` with a picture fallback. A `wpg:wgp` group
+  containing `pic:pic` plus a `wps:wsp` caption textbox also preserved
+  the image, group, and caption text, again with a Google-added picture
+  fallback and duplicated media parts. A `wpc:wpc` canvas containing a
+  picture plus caption textbox was stripped entirely on export. Practical
+  rule: promote Google-targeted image captions to `wpg` groups or
+  `wps` image-fill shapes, and avoid `wpc` canvas as a carrier.
+- **Google Docs -> PDF bitmapifies drawing surfaces at drawing-bound
+  resolution.** A 2026-05-15 probe exported `wpg:wgp` image/caption
+  drawings to PDF. DOCX export preserved the original 96 x 96 PNG plus
+  Google's fallback media, but PDF export embedded a raster image sized
+  from the drawing bounds at about 96 px/in. A 1 in drawing became
+  96 x 129 px, the same source picture stretched to 4 in became
+  384 x 417 px, and one drawing containing both 1x and 4x copies became
+  499 x 417 px, matching the combined 5.2 in x 4.35 in extent. Practical
+  rule: drawing carriers can preserve editable captions, but print/PDF
+  resolution is governed by the physical drawing size and the source
+  bitmap's own detail ceiling. A follow-up synthetic resolution-chart
+  probe with a 1200 x 1200 Siemens-star/line-pair PNG confirmed the same
+  ceiling: DOCX export preserved the 1200 x 1200 source image, while PDF
+  export emitted one 499 x 417 raster for the combined same-drawing 1x
+  plus 4x group. The 4x crop was sharper at its native size because it
+  received 384 x 384 px instead of 96 x 96 px: it had 75.4% near
+  black/white pixels versus 39.1% for the 1x crop, and retained visible
+  line-pair modulation down to roughly the 8 px source-period patch. This
+  is a size-based raster allocation effect, not a high-DPI workaround when
+  the final physical image size must remain 1x. A live Google Doc sanity
+  check against a normal inline image found the normal picture exported to
+  PDF at 2048 x 1226 px, about 452 ppi at its printed size, while two
+  `wpg` drawing versions using a 2500 x 1496 source bitmap exported to
+  PDF as 433 px wide rasters at 96 ppi. A paired RGB/RGBA PNG probe at
+  100 x 100 px and 400 x 400 px, inserted as normal body and header images,
+  found no general alpha-channel sharpness win: RGB exported losslessly at
+  source dimensions, RGBA exported at the same dimensions as image plus soft
+  mask, and DOCX export preserved alpha media. A WPG transform mutation
+  confirmed the control variable: multiplying group child coordinates and
+  `a:chExt` by 4 while keeping the outer `wp:extent` unchanged left PDF
+  drawing rasters at 433 px wide and 96 ppi; scaling the outer `wp:extent`
+  and group extent by 1.4 raised them to 606 px wide at 96 ppi and affected
+  pagination. A whole-page scale probe doubled page size, margins, normal
+  drawing extents, and `wpg` group extents; Google exported an A2 page with
+  WPG rasters doubled to about 866 px wide while still marked 96 ppi. Fitting
+  that PDF back down to A4 made the WPG rasters report as 192 ppi, but the
+  simple Ghostscript post-process recompressed images and stripped PDF tagging.
+  The constrained Apps Script PDF extractor can pull these Google-exported
+  FlateDecode image XObjects as PNG, including soft-mask RGBA composition; a
+  real export probe extracted 400 x 400 alpha and 866 px WPG rasters without
+  Poppler. Practical rule: keep print-critical pictures as normal images when
+  possible; use drawing carriers when grouped editable caption semantics matter
+  more than sharpness, and treat whole-page scaling as a post-export print
+  workaround.
 - **Google Sheets -> XLSX** does not reliably export
   `docProps/custom.xml`, `customXml/*`, defined-name literal
   metadata, or the core/app docProps in lossy exports. It did
@@ -244,19 +329,76 @@ Empirical carrier matrix from the DOCX/XLSX/PPTX probes:
 - **Google Slides -> PPTX** does not reliably export
   `docProps/custom.xml`, `customXml/*`, shape-name metadata, or the
   `tableStyles` relationship/part. It also normalizes PPTX-authored
-  transitions/effects: in a 2026-05-08 live probe, a slide-level
-  `<p:transition spd="fast"><p:fade/></p:transition>` roundtripped as
-  `<p:transition><p:fade/></p:transition>` (effect preserved, speed
-  dropped). The same probe preserved `<p:timing>` with
-  `<p:animEffect transition="in" filter="fade">`, and preserved
-  timing values as millisecond integers (`delay="2000"` and
-  `dur="1500"` roundtripped unchanged) while remapping shape ids and
-  updating timing targets accordingly. It did preserve speaker notes,
-  hidden slides, off-slide text, shape description/alt text, and
-  visible text. Practical rule: use native presentation content
-  carriers such as notes, hidden slides, off-slide text, or alt text;
-  for imported animations, use PPTX timing XML and treat transition
-  speed and original shape ids as non-stable converter details.
+  transitions/effects. A 2026-05-08 exhaustive file-level sweep
+  (`docs/pptx_oracle/google-slides-animation-roundtrip-2026-05-08.md`)
+  covered 98 valid PPTX cases. Only base `p:fade` and `p:push`
+  transitions survived as the same transition kind; most other base
+  transitions exported as `p:fade`, `p:cover`/`p:pull` exported as
+  `p:push`, no `p14:` transition survived as `p14:`, and the
+  `p15:prstTrans` smoke case was dropped. For timing, fade entrance
+  and exit effects survived as `filter="fade"`, but every other
+  entrance/exit `animEffect` filter exported as `filter="fade"` with
+  the same direction. Google preserved timing values as millisecond
+  integers (`dur="1500"` and the start delay survived), normalized
+  `nodeType="clickEffect"` to `nodeType="withEffect"`, remapped shape
+  ids, and dropped `filter="image"` opacity emphasis. It did preserve
+  speaker notes, hidden slides, off-slide text, shape description/alt
+  text, and visible text. Practical rule: use native presentation
+  content carriers such as notes, hidden slides, off-slide text, or
+  alt text; for imported animations, use PPTX timing XML but restrict
+  Google-compatible effects to fade and treat transition speed,
+  non-fade effects, p14/p15 transitions, trigger nodeType metadata,
+  and original shape ids as non-stable converter details.
+- **Google Slides -> PPTX shape effects** are similarly selective.
+  A 2026-05-09 DocsServiceApp DrawingML designer smoke imported a
+  one-slide PPTX with nine native DrawingML shapes. The source PPTX
+  contained `a:gradFill` (9), `a:outerShdw` (6), `a:glow` (6),
+  `a:softEdge` (1), and `a:reflection` (1). The Google-exported PPTX
+  preserved `a:outerShdw` (6) and `a:reflection` (1), preserved most
+  gradients (`a:gradFill` 8), but exported `a:glow` (0) and
+  `a:softEdge` (0). Practical rule: for Google-targeted graphics,
+  prefer gradients, shadows, and reflection; treat glow and soft-edge
+  as non-stable.
+- **Google Slides placeholder font settings depend on the carrier, not
+  just on the presence of `p:ph`.** A 2026-05-09 generic Google-authored
+  template probe exported slide placeholder run fonts (`Courier New`,
+  `Georgia`), imported that PPTX back into Google Slides, and exported
+  again; the slide placeholder run fonts survived. Layout placeholder
+  default fonts also survived, though Google added Arial defaults. A
+  generated Figma/SVG PPTX initially lost layout placeholder typefaces
+  when defaults were authored only as paragraph-level `a:pPr/a:defRPr`.
+  Reauthoring layout placeholder defaults as
+  `a:lstStyle/a:lvl1pPr/a:defRPr` made the generated typefaces survive
+  Google import/export (`Inter Tight`, `Space Mono`, `Syncopate`, with
+  Google adding `Arial`). Google still stripped slide-placeholder
+  default style carriers while preserving direct text-run styles.
+  Practical rule: for Google-targeted PPTX generation, put master/layout
+  placeholder defaults in list-style level defaults and keep visible text
+  runs explicitly styled. Do not treat an added `Arial` default as loss
+  when the requested typefaces still survive. Full finding:
+  `docs/pptx_oracle/google-slides-placeholder-style-roundtrip-2026-05-09.md`.
+- **Google Slides native export -> PPTX** uses a different, smaller
+  but stable shape. A user-provided native Google Slides export oracle
+  (`docs/pptx_oracle/google-slides-native-export-oracle-2026-05-08.md`)
+  serialized seven slides as two fade transition forms, two push
+  transition forms, and three slides with no transition. Slide timing
+  used 12 effect containers: appear/disappear via `p:set`
+  `style.visibility`, fade in/out via `p:animEffect filter="fade"`,
+  fly/zoom-style effects via `p:anim` over `ppt_x`, `ppt_y`,
+  `ppt_w`, and `ppt_h`, and spin via `p:animRot` over `r`. Reimporting
+  that Google-exported PPTX and exporting it again preserved the
+  transition/effect signatures; the only normalized timing delta was
+  an exit visibility-set child delay changing from `0` to `1`.
+  A follow-up elaboration probe showed that Google accepts richer
+  `p:anim` / `p:animRot` XML but canonicalizes it: arbitrary rotation
+  magnitudes/directions and `from`/`to` rotations export as the same
+  one-spin `animRot by="-21600000"` shape; far motion, extra keyframes,
+  diagonal X+Y, half-size zoom, and overshoot formulas are reduced to
+  Google's coarse native fly/zoom shapes.
+  Practical rule: for Google-targeted PPTX generation, prefer the
+  Google-native export shape instead of broad PowerPoint
+  `animEffect` filter vocabulary, and keep motion/zoom/rotation
+  parameters canonical.
 
 ### Phase 3 — ODF (optional)
 

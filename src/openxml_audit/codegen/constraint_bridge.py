@@ -669,6 +669,39 @@ def _apply_particle_compat_overrides(
     ):
         content_model.children[0].max_occurs = -1
 
+    if (
+        elem_type_name == "wps:CT_WordprocessingShape/wps:wsp"
+        and isinstance(content_model, SequenceParticle)
+        and len(content_model.children) >= 3
+        and isinstance(content_model.children[0], ElementParticle)
+        and content_model.children[0].local_name == "cNvPr"
+        and isinstance(content_model.children[1], ChoiceParticle)
+    ):
+        c_nv_choice = content_model.children[1]
+        if all(
+            isinstance(child, ElementParticle)
+            and child.local_name in {"cNvSpPr", "cNvCnPr"}
+            for child in c_nv_choice.children
+        ):
+            # Google Docs/Word exports can place the shape/connector non-visual
+            # properties before cNvPr. The .NET SDK validator accepts that order
+            # for wps:wsp, so keep the SDK metadata sequence and add that
+            # app-compatible order as a peer branch.
+            reordered = SequenceParticle(
+                children=[
+                    content_model.children[1],
+                    content_model.children[0],
+                    *content_model.children[2:],
+                ],
+                min_occurs=content_model.min_occurs,
+                max_occurs=content_model.max_occurs,
+            )
+            return ChoiceParticle(
+                children=[content_model, reordered],
+                min_occurs=content_model.min_occurs,
+                max_occurs=content_model.max_occurs,
+            )
+
     return content_model
 
 
