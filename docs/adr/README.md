@@ -114,3 +114,89 @@ Consequences:
   into every builder
 - committed oracle evidence can move toward checked-in templates or lower-level
   OOXML package writers without another broad refactor
+
+## Validation Engine
+
+### Schematron-to-XSLT Precompilation for Semantic Validation (ADR-004)
+
+Status: Proposed — 2026-05-19
+
+The SDK semantic-rule corpus already lives in a structured form:
+`data/openxml/schematrons.json` carries ~948 rules as `{Context, Test, App}`
+triples — the exact shape of ISO Schematron `rule context="…"` /
+`assert test="…"` — and `data/openxml/schemas/` carries 155 SDK schema JSON
+files describing element and attribute particles. `codegen/schematron_loader.py`
+parses each rule into one of 14 typed `SchematronType` categories, and
+`codegen/schematron_bridge.py` lifts those into typed Python
+`SemanticConstraint` instances which are then evaluated per-document, per-rule
+in a Python loop.
+
+The README's benchmark records 2.2× warm latency versus the .NET SDK on a 798K
+DOCX. The 1.2× cold gap closes on warmth, which tells us libxml2 parsing is
+not the bottleneck — the per-rule Python loop on top of it is. Microsoft's own
+SDK does not validate via XSDs; it executes the same rule corpus we ship as
+JSON, but inside a compiled .NET pipeline rather than an interpreted Python
+one. The structural opportunity is to do what the SDK already does in spirit:
+compile the rules ahead of time and run them through a fast engine at
+validation time.
+
+The natural target is ISO Schematron compiled to XSLT, not XSD. The rules are
+Schematron-shaped already — value ranges, uniqueness, cross-references,
+co-occurrence constraints, conditional values — and XSD cannot express most
+of them. ISO Schematron has had a standard "skeleton" XSLT compiler since the
+early 2000s (`github.com/Schematron/schematron`, `iso_dsdl_include.xsl` →
+`iso_abstract_expand.xsl` → `iso_svrl_for_xslt1.xsl`), and lxml ships
+`lxml.isoschematron` wrapping that compiler. Compilation is documented as
+"many minutes for mid-sized rule sets" but the Schematron.com docs explicitly
+recommend caching the result; it is a build step, not a runtime step.
+
+Decision:
+
+- introduce a build-time codegen stage that emits ISO Schematron `.sch` from
+  `data/openxml/schematrons.json` for every rule type that is locally
+  expressible (the 11 of 14 typed `SchematronType` categories that do not
+  require cross-part `document()` lookups; the 3 that do — `CROSS_PART_COUNT`,
+  `ELEMENT_REFERENCE`, `RELATIONSHIP_TYPE` — stay imperative)
+- compile the `.sch` through the ISO Schematron skeleton pipeline to a
+  validator XSLT, and ship that compiled XSLT as a package artifact under
+  `data/openxml/compiled/` alongside the JSON source
+- run the compiled XSLT at validation time via `lxml.isoschematron`, in a
+  single C-speed pass per document, replacing the per-rule Python loop for
+  the covered rule types
+- keep cross-part rules in imperative Python — the existing
+  `SemanticConstraint` evaluator stays the home for `CROSS_PART_COUNT`,
+  `ELEMENT_REFERENCE`, `RELATIONSHIP_TYPE`, and any future rule that
+  requires `document()` traversal across OOXML parts
+- preserve the JSON-rules-as-source-of-truth contract; the compiled XSLT is
+  a derived artifact, regenerated from JSON in CI, never hand-edited
+- adapt SVRL output back to the existing error-shape so downstream evidence
+  reporting does not change
+
+Consequences:
+
+- the per-rule Python loop stops being the dominant cost on warm validations;
+  expected speedup is meaningful (closer to .NET parity, possibly past it on
+  large documents)
+- the compiled XSLT becomes a reusable artifact for non-Python consumers —
+  any libxml2 + libxslt environment can load it, including WebAssembly
+  builds. This unblocks downstream ports (Google Apps Script, browser-side
+  validators) without re-porting the rule corpus; the JSON stays the single
+  source of truth and the compiled XSLT is the shared execution substrate
+- the codegen stage is slow but bounded; it runs only when the JSON corpus
+  changes, which is when the SDK source changes
+- the cross-part rule categories get a sharper boundary in code — the
+  imperative evaluator no longer carries the locally-expressible rules and
+  can be optimized for cross-part traversal patterns specifically
+- error-message parity becomes a mechanical adapter between SVRL and the
+  existing report shape, not a behavioral change; the underlying rule
+  evaluation is still Microsoft's SDK corpus, only the engine is different
+
+Out of scope for this ADR:
+
+- compiling the 155 schema JSON files to XSD. ECMA-376 XSDs already exist
+  and are known buggy; the SDK schema JSONs map more faithfully to
+  imperative element/attribute checks than to XSD validation. Worth a
+  separate ADR if a specific speed gap motivates it
+- choosing the WASM execution stack (libxslt-WASM vs Saxon-JS SEF) for
+  non-Python consumers. That belongs in the downstream port's ADR; this
+  one only commits to "the compiled XSLT is the artifact we ship"
