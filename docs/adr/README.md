@@ -119,7 +119,39 @@ Consequences:
 
 ### Schematron-to-XSLT Precompilation for Semantic Validation (ADR-004)
 
-Status: Proposed — 2026-05-19
+Status: Proposed — 2026-05-19 · **Speed rationale withdrawn by measurement —
+2026-05-20** (see postscript). The portability rationale is untested and would
+need its own ADR.
+
+> **Postscript (2026-05-20) — the speed premise was measured and does not hold.**
+>
+> A spike profiled validation on real documents instead of reasoning from the
+> README's warm/cold ratio. Findings:
+>
+> - Semantic constraint evaluation is **~13% of total runtime** at worst (≈0%
+>   on many files). The **schema phase is ~76%** — on a 1.7MB authored DOCX,
+>   schema 2.5s vs semantic 0.5s of a 3.3s total.
+> - The typed-constraint bridge **already short-circuits to near-C speed**:
+>   `AttributeMinMaxConstraint` and the other "compilable" categories run at
+>   sub-microsecond per call. There is no per-rule Python *XPath* loop to
+>   replace — the ADR's "per-rule Python loop is the bottleneck" step did not
+>   follow from "parsing isn't the bottleneck"; "above libxml2" is dispatch
+>   overhead, not constraint evaluation.
+> - The one genuinely slow constraint, `UNIQUE_ATTRIBUTE`, was slow from an
+>   **O(N²) algorithm**, not engine speed. XSLT 1.0 (libxslt's level) lacks
+>   `distinct-values()`, so reimplementing it there would be harder, not faster.
+>
+> The two real levers were pure-Python and algorithmic, with byte-identical
+> findings: uniqueness memoization (commit `9d8a9b0`) and multi-candidate
+> constraint-resolution caching (commit `793bd50`). Combined they took the
+> 1.7MB DOCX from 3.47s to 2.40s (~1.45×) — more than a perfect zero-cost XSLT
+> replacement of *all* semantic eval could have achieved (≤13%).
+>
+> **Conclusion:** do not pursue XSLT precompilation as a performance measure.
+> The compiled-XSLT *portability* argument below (WASM / Apps Script reuse) is
+> logically independent and may still merit an ADR — but as a portability
+> project with portability success criteria, not a speed one. The original
+> proposal is preserved unedited below for the record.
 
 The SDK semantic-rule corpus already lives in a structured form:
 `data/openxml/schematrons.json` carries ~948 rules as `{Context, Test, App}`

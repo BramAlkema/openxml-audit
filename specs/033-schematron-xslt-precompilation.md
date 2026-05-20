@@ -2,6 +2,40 @@
 
 ## Status
 
+**Shelved — speed rationale withdrawn by measurement (May 20, 2026).**
+Originally Proposed (May 19, 2026) to implement ADR-004. A profiling
+spike disproved the premise this spec rests on; do not implement the
+phases below as a performance measure. See "Measurement that shelved
+this spec" immediately below, and the ADR-004 postscript in
+`docs/adr/README.md`. The phased plan is preserved unedited for the
+record (and as a starting point should the *portability* rationale —
+not speed — ever justify a compiled-XSLT artifact under its own spec).
+
+### Measurement that shelved this spec
+
+Profiling real documents (not the README's warm/cold ratio) showed:
+
+- Semantic constraint evaluation is **~13% of total runtime** at
+  worst; the **schema phase is ~76%** (1.7MB DOCX: schema 2.5s,
+  semantic 0.5s, total 3.3s). This spec targets the smaller layer.
+- The typed-constraint bridge **already short-circuits to near-C
+  speed** for the "compilable" categories (sub-µs/call). There is no
+  per-rule Python XPath loop to replace for them.
+- The one slow constraint, `UNIQUE_ATTRIBUTE`, was **O(N²)**, not
+  engine-bound. Fixed in Python (commit `9d8a9b0`). The schema hot
+  path — per-element multi-candidate scoring — was likewise fixed
+  with a context-signature cache (commit `793bd50`). Together:
+  3.47s → 2.40s (~1.45×) on the 1.7MB DOCX, findings byte-identical.
+
+A perfect zero-cost XSLT replacement of *all* semantic evaluation
+would cap at ≤13% on the best case — less than the algorithmic fixes
+already delivered, at far higher cost and risk. The compiled-XSLT
+*portability* argument (WASM / Apps Script reuse) is independent and
+untested; if pursued it needs its own spec with portability success
+criteria.
+
+### Original status (preserved)
+
 Proposed (May 19, 2026). Implements ADR-004
 (`docs/adr/README.md` — "Schematron-to-XSLT Precompilation for
 Semantic Validation"). Replaces the per-rule Python evaluator with
