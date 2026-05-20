@@ -161,42 +161,22 @@ class UniqueAttributeValueConstraint(SemanticConstraint):
         if not self.case_sensitive:
             value = value.lower()
 
-        # Find scope root
-        try:
-            if self.scope_xpath == ".":
-                scope_root = element.getparent()
-            else:
-                results = element.xpath(self.scope_xpath)
-                if not results:
-                    return True
-                scope_root = results[0] if isinstance(results, list) else results
-        except Exception:
-            return True
-
-        # Count elements with same attribute value; only report on
-        # the first occurrence to match SDK behaviour (one error per
-        # duplicate value).
-        count = 0
-        first_match: etree._Element | None = None
+        # Determine the candidate set for the uniqueness scope.
         if self.element_tag:
-            root = element.getroottree().getroot()
-            candidates = root.iter(self.element_tag)
+            # Whole-part scope (the SDK-bridged case): every element of the
+            # tag anywhere in the tree. The index is identical for every
+            # element sharing this constraint, so build it once per part
+            # (O(N)) instead of rescanning the tree per element (O(N^2)).
+            counts, first = self._scope_index(context, element, attr_name)
         else:
+            # Sibling/parent scope: bounded by the parent's descendants, so
+            # the per-element scan is cheap and not worth caching.
+            scope_root = element.getparent()
             if scope_root is None:
                 return True
-            candidates = scope_root.iter()
+            counts, first = self._build_index(scope_root.iter(), attr_name)
 
-        for elem in candidates:
-            if attr_name in elem.attrib:
-                elem_value = elem.attrib[attr_name]
-                if not self.case_sensitive:
-                    elem_value = elem_value.lower()
-                if elem_value == value:
-                    if first_match is None:
-                        first_match = elem
-                    count += 1
-
-        if count > 1 and element is first_match:
+        if counts.get(value, 0) > 1 and element is first.get(value):
             context.add_semantic_error(
                 f"Attribute '{self.attribute}' should have unique value. "
                 f"Its current value '{value}' duplicates with others.",
@@ -206,6 +186,41 @@ class UniqueAttributeValueConstraint(SemanticConstraint):
             return False
 
         return True
+
+    def _scope_index(
+        self,
+        context: ValidationContext,
+        element: etree._Element,
+        attr_name: str,
+    ) -> tuple[dict[str, int], dict[str, etree._Element]]:
+        # Cache valid for the current part only; ValidationContext.set_part()
+        # clears part_scratch when the tree changes, so the key needs no
+        # (unstable) root identity.
+        key = ("unique", attr_name, self.element_tag, self.case_sensitive)
+        entry = context.part_scratch.get(key)
+        if entry is None:
+            root = element.getroottree().getroot()
+            entry = self._build_index(root.iter(self.element_tag), attr_name)
+            context.part_scratch[key] = entry
+        return entry
+
+    def _build_index(
+        self, candidates: object, attr_name: str
+    ) -> tuple[dict[str, int], dict[str, etree._Element]]:
+        # Returns value -> occurrence count and value -> first element in
+        # document order (iter() yields document order, matching the original
+        # "report on first occurrence" semantics).
+        counts: dict[str, int] = {}
+        first: dict[str, etree._Element] = {}
+        for elem in candidates:  # type: ignore[attr-defined]
+            if attr_name in elem.attrib:
+                elem_value = elem.attrib[attr_name]
+                if not self.case_sensitive:
+                    elem_value = elem_value.lower()
+                counts[elem_value] = counts.get(elem_value, 0) + 1
+                if elem_value not in first:
+                    first[elem_value] = elem
+        return counts, first
 
 
 class IdTracker:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from lxml import etree
 
@@ -112,6 +112,10 @@ class ValidationContext:
     strict: bool = True
     errors: list[ValidationError] = field(default_factory=list)
     _stack: ValidationStack = field(default_factory=ValidationStack)
+    # Scratch space whose entries are valid only for the current part's tree.
+    # Constraints that need a per-part index (e.g. attribute-uniqueness scans)
+    # can memoize here; set_part() clears it when the tree changes.
+    part_scratch: dict[Any, Any] = field(default_factory=dict)
 
     @property
     def part_uri(self) -> str:
@@ -224,6 +228,8 @@ class ValidationContext:
         self.part = part
         # Clear the element stack when changing parts
         self._stack = ValidationStack()
+        # Per-part memoization is no longer valid once the tree changes.
+        self.part_scratch.clear()
 
     def clear_errors(self) -> None:
         """Clear all collected errors."""

@@ -9,11 +9,78 @@ from lxml import etree
 from openxml_audit import OpenXmlValidator
 from openxml_audit.context import ValidationContext
 from openxml_audit.namespaces import MC, OFFICE_DOC_RELATIONSHIPS, WORDPROCESSINGML
+from openxml_audit.semantic.references import UniqueAttributeValueConstraint
 from openxml_audit.semantic.relationships import (
     RelationshipExistConstraint,
     validate_part_relationships,
 )
 from openxml_audit.semantic.validator import SemanticValidator, create_word_semantic_validator
+
+_UNIQUE_NS = "urn:openxml-audit-test"
+
+
+def _unique_tree(values: list[str]) -> etree._Element:
+    items = "".join(f'<t:item t:id="{v}"/>' for v in values)
+    return etree.fromstring(f'<t:root xmlns:t="{_UNIQUE_NS}">{items}</t:root>'.encode())
+
+
+def _unique_errors(context: ValidationContext) -> list[str]:
+    return [e.node or "" for e in context.errors if e.id == "Sem_UniqueAttributeValue"]
+
+
+def test_unique_attribute_reports_each_duplicate_value_once() -> None:
+    root = _unique_tree(["dup", "dup", "uniq"])
+    constraint = UniqueAttributeValueConstraint(
+        attribute="id", namespace=_UNIQUE_NS, element_tag=f"{{{_UNIQUE_NS}}}item"
+    )
+    context = ValidationContext(max_errors=0)
+    context.set_part(SimpleNamespace(uri="/a.xml"))
+
+    items = list(root)
+    for item in items:
+        constraint.validate(item, context)
+
+    # One error, reported on the first occurrence of the duplicate value.
+    assert _unique_errors(context) == ["id"]
+
+
+def test_unique_attribute_all_distinct_produces_no_error() -> None:
+    root = _unique_tree(["a", "b", "c"])
+    constraint = UniqueAttributeValueConstraint(
+        attribute="id", namespace=_UNIQUE_NS, element_tag=f"{{{_UNIQUE_NS}}}item"
+    )
+    context = ValidationContext(max_errors=0)
+    context.set_part(SimpleNamespace(uri="/a.xml"))
+
+    for item in list(root):
+        constraint.validate(item, context)
+
+    assert _unique_errors(context) == []
+
+
+def test_unique_attribute_index_is_rebuilt_per_part() -> None:
+    # The per-part scan is memoized in context.part_scratch keyed only by
+    # (attr, tag, case) — no root identity — so set_part() MUST clear it or a
+    # second part would reuse the first part's stale index and miss its own
+    # duplicates. This test fails if the clear regresses.
+    constraint = UniqueAttributeValueConstraint(
+        attribute="id", namespace=_UNIQUE_NS, element_tag=f"{{{_UNIQUE_NS}}}item"
+    )
+    context = ValidationContext(max_errors=0)
+
+    part_a = _unique_tree(["x", "x"])
+    context.set_part(SimpleNamespace(uri="/a.xml"))
+    for item in list(part_a):
+        constraint.validate(item, context)
+    assert _unique_errors(context) == ["id"]
+
+    part_b = _unique_tree(["y", "y"])
+    context.set_part(SimpleNamespace(uri="/b.xml"))
+    for item in list(part_b):
+        constraint.validate(item, context)
+    # Part B's own duplicate is detected (a second "id" error), not masked by
+    # part A's cached index.
+    assert _unique_errors(context) == ["id", "id"]
 
 
 def test_mc_ignorable_empty_is_ignored() -> None:
