@@ -477,6 +477,43 @@ def test_ambiguous_element_scanner_covers_phase5_target_families() -> None:
     assert "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}pPr" in ambiguous
 
 
+def test_multi_candidate_resolution_is_cached_by_context_signature() -> None:
+    from openxml_audit.codegen import constraint_bridge as cb
+
+    chart_ns = "http://schemas.openxmlformats.org/drawingml/2006/chart"
+    ser = f"{{{chart_ns}}}ser"
+    assert ser in collect_ambiguous_element_candidates()
+
+    def make_ser(parent_local: str) -> etree._Element:
+        root = etree.fromstring(
+            f'<c:{parent_local} xmlns:c="{chart_ns}"><c:ser/></c:{parent_local}>'.encode()
+        )
+        return root[0]
+
+    cb._multi_candidate_cache.clear()
+
+    bar = cb.get_element_constraint_for_element(ser, make_ser("barChart"))
+    assert len(cb._multi_candidate_cache) == 1
+
+    # Same signature (different lxml object) -> cache hit, identical result,
+    # no new entry.
+    bar_again = cb.get_element_constraint_for_element(ser, make_ser("barChart"))
+    assert bar_again is bar
+    assert len(cb._multi_candidate_cache) == 1
+
+    # Different parent -> different signature -> separate entry resolving to a
+    # different candidate. Proves the key distinguishes contexts the resolver
+    # treats differently (parent-driven chart-series disambiguation).
+    line = cb.get_element_constraint_for_element(ser, make_ser("lineChart"))
+    assert len(cb._multi_candidate_cache) == 2
+    assert line is not bar
+
+    # The cache distinguishes exactly the candidates the uncached resolver
+    # would pick for each parent.
+    assert get_selected_candidate_class_name(make_ser("barChart")) == "BarChartSeries"
+    assert get_selected_candidate_class_name(make_ser("lineChart")) == "LineChartSeries"
+
+
 def test_customui_ambiguous_elements_choose_attribute_compatible_candidates() -> None:
     failures: list[str] = []
 

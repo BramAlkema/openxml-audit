@@ -61,6 +61,14 @@ if TYPE_CHECKING:
 # The result is deterministic by tag alone (no dependency on element content).
 _single_candidate_cache: dict[str, ElementConstraint] = {}
 
+# Cache for tags with multiple candidates. The chosen candidate is fully
+# determined by the structural signature the resolver actually reads
+# (see _multi_candidate_key), and the SDK registry is static for the process,
+# so the result is reusable across documents. Distinct signatures are few in
+# practice (a few hundred even for large documents).
+_MULTI_CACHE_MISS = object()
+_multi_candidate_cache: dict[tuple, ElementConstraint | None] = {}
+
 _CUSTOM_NUMBER_TYPE_VALIDATORS: dict[str, XsdTypeValidator] = {
     "a:ST_Angle": IntegerTypeValidator(),
     "a:ST_Coordinate": IntegerTypeValidator(),
@@ -751,8 +759,38 @@ def get_element_constraint_for_element(
         _single_candidate_cache[tag] = result
         return result
 
+    # Multiple candidates: resolution reads only the structural signature
+    # below, so memoize on it instead of re-scoring every occurrence (this is
+    # the schema hot path on large documents — thousands of repeated shapes
+    # collapse to a few hundred distinct signatures).
+    key = _multi_candidate_key(tag, element)
+    cached_multi = _multi_candidate_cache.get(key, _MULTI_CACHE_MISS)
+    if cached_multi is not _MULTI_CACHE_MISS:
+        return cached_multi
     elem_type = _get_sdk_element_type_for_element(tag, element)
-    return convert_element_type(elem_type) if elem_type else None
+    result = convert_element_type(elem_type) if elem_type else None
+    _multi_candidate_cache[key] = result
+    return result
+
+
+def _multi_candidate_key(
+    tag: str, element: etree._Element
+) -> tuple[str, str | None, str | None, tuple[str, ...], tuple[str, ...]]:
+    """Signature capturing everything the multi-candidate resolver reads.
+
+    _select_candidate_by_context reads parent/grandparent local names;
+    _score_candidate reads only child tags and child count;
+    _missing_required_attributes reads which attributes are present. Child and
+    attribute order do not affect the result, so both are sorted to maximise
+    cache hits.
+    """
+    parent = element.getparent()
+    _, parent_local = _split_element_tag(parent)
+    grandparent = parent.getparent() if parent is not None else None
+    _, grandparent_local = _split_element_tag(grandparent)
+    child_tags = tuple(sorted(c.tag for c in element if isinstance(c.tag, str)))
+    attr_names = tuple(sorted(element.attrib.keys()))
+    return (tag, parent_local, grandparent_local, child_tags, attr_names)
 
 
 def _get_sdk_element_type_for_element(
