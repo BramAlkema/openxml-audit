@@ -337,3 +337,39 @@ the `xlt` format constant. Deferred to Spec 021 Phase 2.
   schema/semantic checks predict the repairs.
 - That the corpus is representative — 9 files across 4 formats is a
   starter, not a comprehensive walk.
+
+## 2026-07-05 — first LibreOffice OOXML roundtrip baseline (Spec 036)
+
+`lo_ooxml/2026-07-05.json` — first run of the CI-runnable oracle
+(`tools/oracle/lo_ooxml_repair_oracle.py`, LibreOffice 26.2.4.2 on
+macOS, headless soffice). Corpus: TokenMoulds v0.7.2 OOXML files (6)
+plus the three Spec 034 reference documents built at
+`--minimum-tier loadable` from this commit.
+
+| Outcome | Count |
+|---|---|
+| Opened + roundtripped ("repaired") | 9/9 |
+| Crash / timeout / open-failed | 0 |
+| Byte-preserved | 0 (expected — LO always rewrites foreign formats) |
+
+### Findings
+
+- **LibreOffice opens everything in this corpus**, including the
+  generated reference documents — no repair prompts (headless is
+  silent), no crashes, 2-5s per file.
+- **Feature survival on `reference.pptx`** (per-feature structural
+  probes from `openxml_audit.reference.feature_probes`):
+  entrance fade, entrance wipe, click end-condition, time-offset
+  end-condition, and non-root `restart` all survive the roundtrip
+  structurally. **`repeatDur` does not survive**: LibreOffice keeps
+  `repeatCount` and silently drops the `repeatDur` cap (verified by
+  hand in the converted slide — the only remaining "repeatDur" string
+  is the probe slide's label text). First live-app feature-survival
+  result produced by the Spec 034 → Spec 036 ladder cycle.
+- Part-level changes are universal (2-9 changed canonical parts per
+  file) and expected; categorizing cosmetic vs substantive rewrites
+  remains Spec 019 Phase 2 territory.
+
+Scope note: these observations are about **LibreOffice as a target
+app**. They say nothing about PowerPoint/Word/Excel behavior and do
+not feed capability-registry tier promotion.

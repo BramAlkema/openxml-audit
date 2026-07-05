@@ -37,7 +37,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
-
 _SOFFICE_PROCESS_NAME = "soffice"
 _SOFFICE_BIN_CANDIDATES = (
     "/Applications/LibreOffice.app/Contents/MacOS/soffice",
@@ -94,12 +93,16 @@ _FORMAT_TO_FILTER = {
     "odg": "draw8",
 }
 
+# OOXML targets added by Spec 036: soffice's --convert-to handles them
+# natively and the supervision here is format-agnostic.
+RoundtripFormat = Literal["odt", "ods", "odp", "odg", "docx", "xlsx", "pptx"]
+
 
 def roundtrip(
     input_path: Path,
     output_dir: Path,
     *,
-    target_format: Literal["odt", "ods", "odp", "odg"] = "odt",
+    target_format: RoundtripFormat = "odt",
     timeout_seconds: float = 60.0,
     soffice_bin: Path | None = None,
 ) -> SofficeRunResult:
@@ -236,6 +239,7 @@ def _kill_soffice_for_profile(profile_dir: Path) -> None:
 
 
 __all__ = [
+    "RoundtripFormat",
     "SofficeError",
     "SofficeNotFoundError",
     "SofficeRunResult",

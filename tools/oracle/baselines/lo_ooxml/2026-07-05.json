@@ -1,0 +1,561 @@
+{
+  "schema_version": 1,
+  "oracle": "libreoffice-ooxml-roundtrip",
+  "observations": [
+    {
+      "source_relpath": "acme-us.docx",
+      "target_format": "docx",
+      "outcome": "repaired",
+      "duration_seconds": 5.060633459128439,
+      "input_parts": [
+        {
+          "name": "word/document.xml",
+          "sha256": "0e2e677ba2c25ca4620604a746a3bff584bb9c9f4a997e06308d6be5389c1921",
+          "size_bytes": 8138
+        },
+        {
+          "name": "word/numbering.xml",
+          "sha256": "c30d35094ece96a438c7ece2f5b9e783cf9fe4db6fbcba8e35411140f73f64b0",
+          "size_bytes": 1568
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "fb2b5a3023e0693cfb49ffb8be4a8077faac0b36268bf6489c87c5e3594bcbe6",
+          "size_bytes": 34535
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "word/document.xml",
+          "sha256": "76722df4823c1a84b5f44ad371ac403bc7dae2a8994edd1eb3f4762bbdd87851",
+          "size_bytes": 2139
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "b6a63cd7c857964f40b3c6a1e752da54efce8ae9ff761bdff63febfcd12a6e1a",
+          "size_bytes": 38008
+        }
+      ],
+      "changed_parts": [
+        "word/document.xml",
+        "word/styles.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [
+        "word/numbering.xml"
+      ],
+      "feature_survival": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "globex-gb.docx",
+      "target_format": "docx",
+      "outcome": "repaired",
+      "duration_seconds": 4.222470207838342,
+      "input_parts": [
+        {
+          "name": "word/document.xml",
+          "sha256": "65ab151546779eb43640602e9da350747247a27d76095088d891d8a69b6f4668",
+          "size_bytes": 8140
+        },
+        {
+          "name": "word/numbering.xml",
+          "sha256": "c30d35094ece96a438c7ece2f5b9e783cf9fe4db6fbcba8e35411140f73f64b0",
+          "size_bytes": 1568
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "fb2b5a3023e0693cfb49ffb8be4a8077faac0b36268bf6489c87c5e3594bcbe6",
+          "size_bytes": 34535
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "word/document.xml",
+          "sha256": "b0e5a1d33889eddc2cb611da202f0dba0a705a59e18bdc8fb75b7cf0b3fc8f8e",
+          "size_bytes": 2141
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "b6a63cd7c857964f40b3c6a1e752da54efce8ae9ff761bdff63febfcd12a6e1a",
+          "size_bytes": 38008
+        }
+      ],
+      "changed_parts": [
+        "word/document.xml",
+        "word/styles.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [
+        "word/numbering.xml"
+      ],
+      "feature_survival": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "acme-us.xlsx",
+      "target_format": "xlsx",
+      "outcome": "repaired",
+      "duration_seconds": 4.669533791020513,
+      "input_parts": [
+        {
+          "name": "xl/styles.xml",
+          "sha256": "17330721a77cc7cb0a4568785c24de10767b7dd81d63b67969cacfc747ed7386",
+          "size_bytes": 22036
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "cd55eeb15b14dca52154d4bdbef4e366f9cf545987fb3bc3bccadd404a9f9fc7",
+          "size_bytes": 332
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "159694be13b737541da4138ec9f89dfd4dbde4cc13e7fd517672deeb7210ab05",
+          "size_bytes": 5263
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "xl/sharedStrings.xml",
+          "sha256": "9d15ed39d9aa2dd14e797cc377bdcc82f2570b39c8eb43271814cf43f63f792a",
+          "size_bytes": 557
+        },
+        {
+          "name": "xl/styles.xml",
+          "sha256": "961efa5dc371c5e6a4b2c9b8b080d75053d7215e56c0bfd160eb07d2a3592aa4",
+          "size_bytes": 8998
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "d4ae34751026219279a7dbec470d658a5f7ad5e04d4304073e80d280140c1b1d",
+          "size_bytes": 1337
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "1fbbf5df77f23adacf2977aa69047d99caca6c31ce6b5f08d8f4c8dda38c2f0e",
+          "size_bytes": 3317
+        }
+      ],
+      "changed_parts": [
+        "xl/styles.xml",
+        "xl/workbook.xml",
+        "xl/worksheets/sheet1.xml"
+      ],
+      "added_parts": [
+        "xl/sharedStrings.xml"
+      ],
+      "removed_parts": [],
+      "feature_survival": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "globex-gb.xlsx",
+      "target_format": "xlsx",
+      "outcome": "repaired",
+      "duration_seconds": 4.2953867497853935,
+      "input_parts": [
+        {
+          "name": "xl/styles.xml",
+          "sha256": "2ff12618a6c4046d2f109c6008ee377363e4ac48df76ecaedfcf04ea065123ea",
+          "size_bytes": 22161
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "4be7d3563c6b26046b85a02ce575af1b6efaccc98c4de63ac9bd800a7c3f9843",
+          "size_bytes": 334
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "7d7df8da0751a342a34fdf268c5f03c4804e8dd1790efe26a91f0d417d7165ec",
+          "size_bytes": 5263
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "xl/sharedStrings.xml",
+          "sha256": "9d15ed39d9aa2dd14e797cc377bdcc82f2570b39c8eb43271814cf43f63f792a",
+          "size_bytes": 557
+        },
+        {
+          "name": "xl/styles.xml",
+          "sha256": "961efa5dc371c5e6a4b2c9b8b080d75053d7215e56c0bfd160eb07d2a3592aa4",
+          "size_bytes": 8998
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "985dc7be5d6a7e708ab484ebd8b43f1a4599dd991c3f01f2c0c385aefc1ed94c",
+          "size_bytes": 1339
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "bb30e295547e62f9dbe95dd4c7b41d5358d11f5a512f082c8710cdb74244f749",
+          "size_bytes": 3371
+        }
+      ],
+      "changed_parts": [
+        "xl/styles.xml",
+        "xl/workbook.xml",
+        "xl/worksheets/sheet1.xml"
+      ],
+      "added_parts": [
+        "xl/sharedStrings.xml"
+      ],
+      "removed_parts": [],
+      "feature_survival": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "acme-us.pptx",
+      "target_format": "pptx",
+      "outcome": "repaired",
+      "duration_seconds": 4.789135291939601,
+      "input_parts": [
+        {
+          "name": "ppt/presentation.xml",
+          "sha256": "68752cc952b6746105bfdafe080fe9a612fdbe0df9a22745f502b4bdaa5420b4",
+          "size_bytes": 4766
+        },
+        {
+          "name": "ppt/slides/slide1.xml",
+          "sha256": "e7cde7d6548a219d35f48462d32a7454c40d9d2456cd521bfa3624a304603a82",
+          "size_bytes": 1767
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "ppt/presentation.xml",
+          "sha256": "16ce755e359ce5cf4693b4147cd477f56e2e16fa0f45865323f7d0c4cab60fd5",
+          "size_bytes": 721
+        },
+        {
+          "name": "ppt/slides/slide1.xml",
+          "sha256": "c1cc56b0650a80f509d2687c1f15861887bdaf6ebb18266e77d4bd2761097f14",
+          "size_bytes": 3354
+        }
+      ],
+      "changed_parts": [
+        "ppt/presentation.xml",
+        "ppt/slides/slide1.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "feature_survival": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "globex-gb.pptx",
+      "target_format": "pptx",
+      "outcome": "repaired",
+      "duration_seconds": 4.624719958053902,
+      "input_parts": [
+        {
+          "name": "ppt/presentation.xml",
+          "sha256": "68752cc952b6746105bfdafe080fe9a612fdbe0df9a22745f502b4bdaa5420b4",
+          "size_bytes": 4766
+        },
+        {
+          "name": "ppt/slides/slide1.xml",
+          "sha256": "2632bc64cf360549db964063f4379e33a6de9091501aca606360595bd3fc20d4",
+          "size_bytes": 1769
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "ppt/presentation.xml",
+          "sha256": "16ce755e359ce5cf4693b4147cd477f56e2e16fa0f45865323f7d0c4cab60fd5",
+          "size_bytes": 721
+        },
+        {
+          "name": "ppt/slides/slide1.xml",
+          "sha256": "97187dee066aeb719198fc932a2f0bef136cf7b35d1c91713fa29a7aa76e3fba",
+          "size_bytes": 3356
+        }
+      ],
+      "changed_parts": [
+        "ppt/presentation.xml",
+        "ppt/slides/slide1.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "feature_survival": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "reference.docx",
+      "target_format": "docx",
+      "outcome": "repaired",
+      "duration_seconds": 2.6452548338565975,
+      "input_parts": [
+        {
+          "name": "word/document.xml",
+          "sha256": "6f553d323d342fafe3bb668ffd06b4d41fbf89ba086931b0cf77dee076a233d6",
+          "size_bytes": 717
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "03ad333fe8de2c6cde75ceb981f9a15438c22f2d6069c68b101405090df5f597",
+          "size_bytes": 338
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "word/document.xml",
+          "sha256": "a894a1c82c8833a7f8efe2a88b710199f5cc2d4c2faef8b0f22fa7e20d71451a",
+          "size_bytes": 1870
+        },
+        {
+          "name": "word/styles.xml",
+          "sha256": "aca83a81f95bdd810c1469da4efbd032283fbdce15542efe6c1eeb393412fea1",
+          "size_bytes": 2344
+        }
+      ],
+      "changed_parts": [
+        "word/document.xml",
+        "word/styles.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "feature_survival": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "reference.xlsx",
+      "target_format": "xlsx",
+      "outcome": "repaired",
+      "duration_seconds": 1.9418161660432816,
+      "input_parts": [
+        {
+          "name": "xl/sharedStrings.xml",
+          "sha256": "8a267d74066e5dc10f38087da281cc53cac8565eca124a6d085f4952b8fd0371",
+          "size_bytes": 415
+        },
+        {
+          "name": "xl/styles.xml",
+          "sha256": "71d78f9be4c79d25d5417cd7cb42e1b0a2cc38e6a9de2c98a942d68db151d775",
+          "size_bytes": 693
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "260dd62ca09e79046594e0847403cc44bf6777427859b0ec6c070c5d919d0585",
+          "size_bytes": 287
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "1200c25fa4ceb5192715ca31c120837a1e732e8164ab144cfe864099c89cf113",
+          "size_bytes": 415
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "xl/sharedStrings.xml",
+          "sha256": "f7912a35454e78d440d0a0f88df90472d703e44fcbd5499fab6eca89accaf746",
+          "size_bytes": 525
+        },
+        {
+          "name": "xl/styles.xml",
+          "sha256": "80c3d0854bd8a0d328c320e4fe221660f4d10440fa127c98abd597473490e4d2",
+          "size_bytes": 4471
+        },
+        {
+          "name": "xl/workbook.xml",
+          "sha256": "e2c2b8ff70c44881d69c0645f612042d41cbc7b3ce24360d29d3829dcb5ce4de",
+          "size_bytes": 1342
+        },
+        {
+          "name": "xl/worksheets/sheet1.xml",
+          "sha256": "e1040edeaad5c50b4b27889daba4c500c0d3f142d7b98ae5fd6ab0f525fcca68",
+          "size_bytes": 2426
+        }
+      ],
+      "changed_parts": [
+        "xl/sharedStrings.xml",
+        "xl/styles.xml",
+        "xl/workbook.xml",
+        "xl/worksheets/sheet1.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "feature_survival": [],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    },
+    {
+      "source_relpath": "reference.pptx",
+      "target_format": "pptx",
+      "outcome": "repaired",
+      "duration_seconds": 2.3333912501111627,
+      "input_parts": [
+        {
+          "name": "ppt/presentation.xml",
+          "sha256": "192bdd0b35fc1342c9e1732308cad1fd25b91f89f5cc860be42e4daf195f8238",
+          "size_bytes": 3475
+        },
+        {
+          "name": "ppt/slides/slide1.xml",
+          "sha256": "81f43025df46291bf662b35fb89c61856091cce2c7a209e73d3f109aff9ce910",
+          "size_bytes": 4150
+        },
+        {
+          "name": "ppt/slides/slide2.xml",
+          "sha256": "817011f92bfdcc9334985a4eaea2cb66a72bbbe94c596c63370255b5462233c3",
+          "size_bytes": 3308
+        },
+        {
+          "name": "ppt/slides/slide3.xml",
+          "sha256": "ef695d5b22f0d3a7dd9265c4c9f56115619c2136e2ab404f02ea30b5acbac5df",
+          "size_bytes": 3429
+        },
+        {
+          "name": "ppt/slides/slide4.xml",
+          "sha256": "8fb03dc215e7e891144d6700aa554caae1ed6ed2a3637bb6f6b3ad27f4b13e41",
+          "size_bytes": 9670
+        },
+        {
+          "name": "ppt/slides/slide5.xml",
+          "sha256": "a1cfd1764fe1822f74ce19b8615ef68c834fdfddd7a7b7c02e746204e9dc59f6",
+          "size_bytes": 9885
+        },
+        {
+          "name": "ppt/slides/slide6.xml",
+          "sha256": "355effd1c94e94011f01e869140b75faaf06fba2e2128c887c2b3045e227ada3",
+          "size_bytes": 8738
+        },
+        {
+          "name": "ppt/slides/slide7.xml",
+          "sha256": "42da634ed05865919d01401311ae41e033be7fc14a4ede04f2c9e2ccc009d070",
+          "size_bytes": 11422
+        },
+        {
+          "name": "ppt/slides/slide8.xml",
+          "sha256": "3d0fe044060349b0c5ccba1de42e5eb0dcf6c8e933f62a130717cc9d6a6f0ce8",
+          "size_bytes": 11437
+        }
+      ],
+      "output_parts": [
+        {
+          "name": "ppt/presentation.xml",
+          "sha256": "9c1a5401951a20bb034d28b5000b0f84dc469cfe6e995b9f7c9956b7622fa10c",
+          "size_bytes": 940
+        },
+        {
+          "name": "ppt/slides/slide1.xml",
+          "sha256": "b59f7aeb0d13035c3f1258be4191513ccdb3f5fc0e58b927007f968c81b085fc",
+          "size_bytes": 9918
+        },
+        {
+          "name": "ppt/slides/slide2.xml",
+          "sha256": "ca2978fbc0a46ab23fc39053edb275903d8c8d4ad414a7c778519e41973cd4f8",
+          "size_bytes": 5673
+        },
+        {
+          "name": "ppt/slides/slide3.xml",
+          "sha256": "98f69739f73e772af6c47b8efc51fe8dffd65f49db9ae2d7bb9ee85ca8cd8b92",
+          "size_bytes": 5822
+        },
+        {
+          "name": "ppt/slides/slide4.xml",
+          "sha256": "03cd52fa322ac6b74ebf6653c50ac8ac6f6e54c912bfe8acda205053d72d010c",
+          "size_bytes": 16030
+        },
+        {
+          "name": "ppt/slides/slide5.xml",
+          "sha256": "7d3093273f6fa6f673b97495c390ca93fd73370b72da446ebf9446f692b5f6a8",
+          "size_bytes": 16588
+        },
+        {
+          "name": "ppt/slides/slide6.xml",
+          "sha256": "3dcbaf4fe1484cdc4132e95e77f1ae8d3443ffd622a1bf56ff237da0d1d8380f",
+          "size_bytes": 14450
+        },
+        {
+          "name": "ppt/slides/slide7.xml",
+          "sha256": "d9397616ce8c149aa4e17d955ecc777becdb05bb606f6e79ddcf26fd9a931d74",
+          "size_bytes": 18706
+        },
+        {
+          "name": "ppt/slides/slide8.xml",
+          "sha256": "c2841c881902d07639c4623484d4b75906b02ae8c354134182b0942ea6ebea2d",
+          "size_bytes": 18741
+        }
+      ],
+      "changed_parts": [
+        "ppt/presentation.xml",
+        "ppt/slides/slide1.xml",
+        "ppt/slides/slide2.xml",
+        "ppt/slides/slide3.xml",
+        "ppt/slides/slide4.xml",
+        "ppt/slides/slide5.xml",
+        "ppt/slides/slide6.xml",
+        "ppt/slides/slide7.xml",
+        "ppt/slides/slide8.xml"
+      ],
+      "added_parts": [],
+      "removed_parts": [],
+      "feature_survival": [
+        {
+          "key": "pptx.anim.effect.entr.fade",
+          "location": "slide 2",
+          "slide_parts_present": true,
+          "signature_present": true
+        },
+        {
+          "key": "pptx.anim.effect.entr.wipe",
+          "location": "slide 3",
+          "slide_parts_present": true,
+          "signature_present": true
+        },
+        {
+          "key": "pptx.timing.end-condition.click",
+          "location": "slide 4",
+          "slide_parts_present": true,
+          "signature_present": true
+        },
+        {
+          "key": "pptx.timing.end-condition.time-offset",
+          "location": "slide 5",
+          "slide_parts_present": true,
+          "signature_present": true
+        },
+        {
+          "key": "pptx.timing.repeat-duration",
+          "location": "slide 6",
+          "slide_parts_present": true,
+          "signature_present": false
+        },
+        {
+          "key": "pptx.timing.restart",
+          "location": "slides 7-8",
+          "slide_parts_present": true,
+          "signature_present": true
+        }
+      ],
+      "diff_dir": null,
+      "soffice_outcome": "ok",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "preserved": 0,
+    "repaired": 9,
+    "crash": 0,
+    "timeout": 0,
+    "open_failed": 0,
+    "missing_output": 0
+  }
+}

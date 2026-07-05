@@ -1,0 +1,97 @@
+# Spec 036: advisory evidence collector, not a gate. Builds the Spec 034
+# reference documents and roundtrips them (plus the TokenMoulds corpus)
+# through headless LibreOffice, uploading the observation report as an
+# artifact. Gating remains with the Spec 013/026 sovereign-gate work.
+name: reference-oracle
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 * * 1" # weekly, Monday 05:17 UTC
+  pull_request:
+    paths:
+      - "src/openxml_audit/reference/**"
+      - "tools/oracle/lo_ooxml_repair_oracle.py"
+      - "tools/oracle/odf_window.py"
+      - "data/pptx_oracle/scaffolds/**"
+      - ".github/workflows/reference-oracle.yml"
+
+jobs:
+  lo-roundtrip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install LibreOffice
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libreoffice
+
+      - name: Install openxml-audit
+        run: pip install -e .
+
+      - name: Build reference documents (loadable tier)
+        run: |
+          python -m openxml_audit.reference build \
+            --format all --minimum-tier loadable --out build/reference
+          python -m openxml_audit.reference status
+
+      - name: LibreOffice OOXML roundtrip oracle
+        id: oracle
+        continue-on-error: true # advisory: evidence, not a gate
+        run: |
+          python tools/oracle/lo_ooxml_repair_oracle.py \
+            data/corpus/tokenmoulds_v0.7.2/word \
+            data/corpus/tokenmoulds_v0.7.2/excel \
+            data/corpus/tokenmoulds_v0.7.2/pptx \
+            build/reference/reference.docx \
+            build/reference/reference.xlsx \
+            build/reference/reference.pptx \
+            --reference-manifest build/reference/reference.pptx.manifest.json \
+            --work-root /tmp/lo-oracle \
+            --output build/lo-ooxml-observations.json
+
+      - name: Summarize
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report = json.load(open("build/lo-ooxml-observations.json"))
+          print("## LibreOffice OOXML roundtrip\n")
+          print("| file | outcome | changed | added | removed |")
+          print("|---|---|---|---|---|")
+          for obs in report["observations"]:
+              print(
+                  f"| {obs['source_relpath']} | {obs['outcome']} "
+                  f"| {len(obs['changed_parts'])} | {len(obs['added_parts'])} "
+                  f"| {len(obs['removed_parts'])} |"
+              )
+          survivals = [
+              fs
+              for obs in report["observations"]
+              for fs in obs["feature_survival"]
+          ]
+          if survivals:
+              print("\n### Reference-feature survival\n")
+              print("| feature | location | slide present | signature present |")
+              print("|---|---|---|---|")
+              for fs in survivals:
+                  print(
+                      f"| {fs['key']} | {fs['location']} "
+                      f"| {fs['slide_parts_present']} | {fs['signature_present']} |"
+                  )
+          PY
+
+      - name: Upload observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lo-ooxml-observations
+          path: |
+            build/lo-ooxml-observations.json
+            build/reference/*.manifest.json
