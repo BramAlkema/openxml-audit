@@ -1,0 +1,38 @@
+name: Security audit
+
+# Advisory dependency vulnerability scan. Runs on a schedule (and on demand)
+# rather than on pull_request: this is a library, so a blocking gate would go
+# red whenever any transitive dependency picks up a new CVE and would block
+# unrelated PRs. A failing scheduled run is the signal to review deps — same
+# pattern as the parity/ODF drift jobs.
+
+on:
+  schedule:
+    # Weekly: Mondays at 05:00 UTC
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pip-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install package with all extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,pptx-lab,odf-crypto,gsuite]"
+
+      - name: Run pip-audit
+        # Non-zero exit when a known vulnerability is found. The editable local
+        # package is not on PyPI and is skipped with a warning (not an error).
+        run: pip-audit --desc

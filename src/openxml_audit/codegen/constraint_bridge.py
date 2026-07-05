@@ -775,22 +775,22 @@ def get_element_constraint_for_element(
 
 def _multi_candidate_key(
     tag: str, element: etree._Element
-) -> tuple[str, str | None, str | None, tuple[str, ...], tuple[str, ...]]:
+) -> tuple[str, str | None, str | None, str | None, tuple[str, ...], tuple[str, ...]]:
     """Signature capturing everything the multi-candidate resolver reads.
 
-    _select_candidate_by_context reads parent/grandparent local names;
+    _select_candidate_by_context reads parent namespace plus parent/grandparent local names;
     _score_candidate reads only child tags and child count;
     _missing_required_attributes reads which attributes are present. Child and
     attribute order do not affect the result, so both are sorted to maximise
     cache hits.
     """
     parent = element.getparent()
-    _, parent_local = _split_element_tag(parent)
+    parent_ns, parent_local = _split_element_tag(parent)
     grandparent = parent.getparent() if parent is not None else None
     _, grandparent_local = _split_element_tag(grandparent)
     child_tags = tuple(sorted(c.tag for c in element if isinstance(c.tag, str)))
     attr_names = tuple(sorted(element.attrib.keys()))
-    return (tag, parent_local, grandparent_local, child_tags, attr_names)
+    return (tag, parent_ns, parent_local, grandparent_local, child_tags, attr_names)
 
 
 def _get_sdk_element_type_for_element(

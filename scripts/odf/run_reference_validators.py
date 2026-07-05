@@ -64,6 +64,7 @@ class RunnerConfig:
 
     name: str
     command_template: list[str] | None
+    working_dir: str | None = None
 
 
 def _resolve_repo_path(path: Path) -> Path:
@@ -381,6 +382,7 @@ def _run_reference_runner(
     try:
         completed = subprocess.run(
             command,
+            cwd=config.working_dir or None,
             capture_output=True,
             text=True,
             check=False,
@@ -556,6 +558,22 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--odf-toolkit-cwd",
+        type=str,
+        default=os.getenv("ODF_TOOLKIT_CWD"),
+        help="Working directory for the ODF Toolkit command (optional).",
+    )
+    parser.add_argument(
+        "--opf-cwd",
+        type=str,
+        default=os.getenv("OPF_ODF_VALIDATOR_CWD"),
+        help=(
+            "Working directory for the OPF validator command (optional). "
+            "Required when the OPF launcher resolves its jar via a repo-relative "
+            "path; set to the OPF checkout root."
+        ),
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Compute report and print summary without writing output file.",
@@ -584,10 +602,12 @@ def main() -> int:
         RunnerConfig(
             name="odf_toolkit",
             command_template=_parse_command_template(args.odf_toolkit_cmd),
+            working_dir=(args.odf_toolkit_cwd or None),
         ),
         RunnerConfig(
             name="opf",
             command_template=_parse_command_template(args.opf_cmd),
+            working_dir=(args.opf_cwd or None),
         ),
     ]
 

@@ -106,6 +106,69 @@ def test_run_reference_runner_keeps_validation_findings_for_nonzero_exit(
     assert result["issues"]
 
 
+def test_run_reference_runner_runs_command_in_configured_working_dir(
+    tmp_path: Path, monkeypatch
+) -> None:
+    # Regression guard: the OPF launcher resolves its jar via a repo-relative
+    # path, so it must execute from the checkout root. Without cwd every sample
+    # failed with "Unable to access jarfile" and was classified "unavailable".
+    module = _load_runner_module()
+    sample = tmp_path / "sample.odt"
+    sample.write_text("stub", encoding="utf-8")
+    checkout_root = tmp_path / "opf_checkout"
+    checkout_root.mkdir()
+
+    captured: dict[str, object] = {}
+
+    def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
+        captured["cwd"] = kwargs.get("cwd")
+        return subprocess.CompletedProcess(
+            args=args[0], returncode=0, stdout="{}", stderr=""
+        )
+
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+
+    result = module._run_reference_runner(
+        module.RunnerConfig(
+            name="opf",
+            command_template=["odf-validator", "{file}"],
+            working_dir=str(checkout_root),
+        ),
+        sample,
+        timeout_seconds=10,
+    )
+
+    assert captured["cwd"] == str(checkout_root)
+    assert result["status"] == "ok"
+
+
+def test_run_reference_runner_defaults_to_no_working_dir(
+    tmp_path: Path, monkeypatch
+) -> None:
+    module = _load_runner_module()
+    sample = tmp_path / "sample.odt"
+    sample.write_text("stub", encoding="utf-8")
+
+    captured: dict[str, object] = {}
+
+    def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
+        captured["cwd"] = kwargs.get("cwd", "MISSING")
+        return subprocess.CompletedProcess(
+            args=args[0], returncode=0, stdout="{}", stderr=""
+        )
+
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+
+    module._run_reference_runner(
+        module.RunnerConfig(name="odf_toolkit", command_template=["java", "{file}"]),
+        sample,
+        timeout_seconds=10,
+    )
+
+    # No working_dir configured -> cwd left unset (None), preserving prior behavior.
+    assert captured["cwd"] is None
+
+
 def test_run_reference_runner_marks_docker_daemon_permission_unavailable(
     tmp_path: Path, monkeypatch
 ) -> None:

@@ -303,6 +303,9 @@ def _build_odf_toolkit(
         "checkout_path": str(target),
         "runtime_mode": runtime_mode,
         "command_template": command_template,
+        # The toolkit command always runs `java -jar <absolute path>`, so it is
+        # cwd-independent; no working directory needs to be pinned.
+        "working_dir": "",
     }
 
 
@@ -341,6 +344,14 @@ def _build_opf_validator(
         runtime_mode=runtime_mode,
         runtime_image=runtime_image,
     )
+    # The OPF launcher script resolves its jar via a repo-relative path
+    # (e.g. `odf-apps/target/odf-apps-<ver>-jar-with-dependencies.jar`), so it
+    # only works when executed from the checkout root. Docker mode handles this
+    # with `-w /tool`; local script mode must set the process working directory
+    # explicitly or every invocation fails with "Unable to access jarfile".
+    working_dir = (
+        str(target) if runtime_mode == "local" and launcher_type == "script" else ""
+    )
     return {
         "repo": selected_repo,
         "ref": ref,
@@ -348,6 +359,7 @@ def _build_opf_validator(
         "launcher_type": launcher_type,
         "runtime_mode": runtime_mode,
         "command_template": command_template,
+        "working_dir": working_dir,
     }
 
 
@@ -467,6 +479,8 @@ def main() -> int:
         "opf": opf,
         "odf_toolkit_cmd": odf_toolkit["command_template"],
         "opf_cmd": opf["command_template"],
+        "odf_toolkit_working_dir": odf_toolkit["working_dir"],
+        "opf_working_dir": opf["working_dir"],
     }
 
     payload = json.dumps(output, indent=2)

@@ -25,7 +25,10 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "lxml>=5.0.0",
+    # >=6.1.0 fixes CVE-2026-41066 / PYSEC-2026-87: with lxml's default parser
+    # (resolve_entities=True) untrusted XML can read local files via XXE. This
+    # validator parses untrusted OOXML/ODF input, so the flaw is reachable.
+    "lxml>=6.1.0",
     "click>=8.1.0",
     "rich>=13.0.0",
 ]
@@ -36,6 +39,7 @@ dev = [
     "pytest-cov>=4.0.0",
     "ruff>=0.4.0",
     "mypy>=1.10.0",
+    "pip-audit>=2.7.0",
 ]
 pptx-lab = [
     "python-pptx>=1.0.0",

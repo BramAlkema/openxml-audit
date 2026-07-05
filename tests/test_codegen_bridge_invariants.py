@@ -514,6 +514,36 @@ def test_multi_candidate_resolution_is_cached_by_context_signature() -> None:
     assert get_selected_candidate_class_name(make_ser("lineChart")) == "LineChartSeries"
 
 
+def test_multi_candidate_cache_distinguishes_parent_namespace() -> None:
+    from openxml_audit.codegen import constraint_bridge as cb
+
+    deleted = f"{{{_WORD_NS}}}del"
+    assert deleted in collect_ambiguous_element_candidates()
+
+    def make_deleted(parent_prefix: str, parent_ns: str) -> etree._Element:
+        root = etree.fromstring(
+            (
+                f'<{parent_prefix}:ctrlPr xmlns:{parent_prefix}="{parent_ns}" '
+                f'xmlns:w="{_WORD_NS}"><w:del/></{parent_prefix}:ctrlPr>'
+            ).encode()
+        )
+        return root[0]
+
+    cb._multi_candidate_cache.clear()
+
+    math_ctrl = make_deleted("m", _MATH_NS)
+    math_deleted = cb.get_element_constraint_for_element(deleted, math_ctrl)
+    assert len(cb._multi_candidate_cache) == 1
+
+    word_ctrl = make_deleted("p", _WORD_NS)
+    word_deleted = cb.get_element_constraint_for_element(deleted, word_ctrl)
+    assert len(cb._multi_candidate_cache) == 2
+    assert word_deleted is not math_deleted
+
+    assert get_selected_candidate_class_name(math_ctrl) == "DeletedMathControl"
+    assert get_selected_candidate_class_name(word_ctrl) == "Deleted"
+
+
 def test_customui_ambiguous_elements_choose_attribute_compatible_candidates() -> None:
     failures: list[str] = []
 

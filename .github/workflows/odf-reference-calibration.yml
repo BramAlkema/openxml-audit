@@ -80,6 +80,8 @@ jobs:
             for key, value in {
               "odf_toolkit_cmd": payload["odf_toolkit_cmd"],
               "opf_cmd": payload["opf_cmd"],
+              "odf_toolkit_working_dir": payload["odf_toolkit_working_dir"],
+              "opf_working_dir": payload["opf_working_dir"],
               "odf_toolkit_repo": payload["odf_toolkit"]["repo"],
               "odf_toolkit_ref": payload["odf_toolkit"]["ref"],
               "opf_repo": payload["opf"]["repo"],
@@ -94,7 +96,9 @@ jobs:
             --corpus-manifest data/odf/reference_corpus/manifest.json \
             --output "$RUN_REPORT" \
             --odf-toolkit-cmd "${{ steps.bootstrap.outputs.odf_toolkit_cmd }}" \
-            --opf-cmd "${{ steps.bootstrap.outputs.opf_cmd }}"
+            --opf-cmd "${{ steps.bootstrap.outputs.opf_cmd }}" \
+            --odf-toolkit-cwd "${{ steps.bootstrap.outputs.odf_toolkit_working_dir }}" \
+            --opf-cwd "${{ steps.bootstrap.outputs.opf_working_dir }}"
 
       - name: Compare reference results
         run: |
