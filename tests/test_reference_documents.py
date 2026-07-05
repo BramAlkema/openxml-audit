@@ -90,15 +90,21 @@ class TestPptxReference:
     def test_included_and_excluded_sets(self, loadable_build):
         result = loadable_build["pptx"]
         assert result.included_keys == (
+            "pptx.anim.effect.entr.fade",
+            "pptx.anim.effect.entr.wipe",
             "pptx.timing.end-condition.click",
             "pptx.timing.end-condition.time-offset",
             "pptx.timing.repeat-duration",
             "pptx.timing.restart",
         )
-        assert dict(result.excluded) == {
-            "pptx.anim.effect.entr.fade": "no-emitter",
-            "pptx.anim.effect.entr.wipe": "no-emitter",
-        }
+        assert result.excluded == ()
+
+    def test_generated_entrance_slides_carry_registered_structure(self, loadable_build):
+        with zipfile.ZipFile(loadable_build["pptx"].document_path) as zf:
+            fade = zf.read("ppt/slides/slide2.xml")
+            wipe = zf.read("ppt/slides/slide3.xml")
+        assert b'transition="in"' in fade and b'filter="fade"' in fade
+        assert b'transition="in"' in wipe and b'filter="wipe(up)"' in wipe
 
     def test_document_passes_own_validator(self, loadable_build):
         result = OpenXmlValidator().validate(loadable_build["pptx"].document_path)
@@ -106,12 +112,17 @@ class TestPptxReference:
 
     def test_default_tier_excludes_loadable_only_findings(self, tmp_path):
         result = build_reference_document("pptx", tmp_path)
-        assert result.included_keys == ()
+        # slideshow-verified ranks above roundtrip-preserved, so the two
+        # entrance effects qualify at the default tier.
+        assert result.included_keys == (
+            "pptx.anim.effect.entr.fade",
+            "pptx.anim.effect.entr.wipe",
+        )
         reasons = dict(result.excluded)
+        assert set(reasons.values()) == {"below-minimum-tier"}
         assert reasons["pptx.timing.restart"] == "below-minimum-tier"
-        # slideshow-verified ranks above roundtrip-preserved: emitter gap,
-        # not a tier failure.
-        assert reasons["pptx.anim.effect.entr.fade"] == "no-emitter"
+        excluded_manifest = {f["key"]: f["reason"] for f in result.manifest["excluded"]}
+        assert excluded_manifest == reasons
 
     def test_build_is_byte_reproducible(self, loadable_build, tmp_path):
         again = build_reference_document("pptx", tmp_path, minimum_tier=EvidenceTier.LOADABLE)
@@ -145,28 +156,35 @@ class TestManifest:
                 tier.value for tier in findings[key].evidence_tiers
             ]
             assert feature["included"] is True
-            assert feature["location"].startswith("slide ")
+            assert feature["location"].startswith(("slide ", "slides "))
         assert manifest["minimum_tier"] == "loadable"
         assert manifest["spec"] == "034-canonical-reference-documents"
 
-    def test_manifest_excluded_entries_carry_reasons(self, loadable_build):
+    def test_manifest_has_no_exclusions_at_loadable(self, loadable_build):
+        assert loadable_build["pptx"].manifest["excluded"] == []
+
+    def test_manifest_locations_track_multi_slide_spans(self, loadable_build):
         manifest = loadable_build["pptx"].manifest
-        excluded = {f["key"]: f["reason"] for f in manifest["excluded"]}
-        assert excluded == {
-            "pptx.anim.effect.entr.fade": "no-emitter",
-            "pptx.anim.effect.entr.wipe": "no-emitter",
-        }
+        locations = {f["key"]: f["location"] for f in manifest["features"]}
+        assert locations["pptx.anim.effect.entr.fade"] == "slide 2"
+        assert locations["pptx.timing.repeat-duration"] == "slide 6"
+        assert locations["pptx.timing.restart"] == "slides 7-8"
 
 
 # --- emitters ---------------------------------------------------------------
 
 
 class TestEmitters:
-    def test_all_bound_scaffold_slides_exist(self):
+    def test_all_bound_sources_resolve(self):
         from openxml_audit.pptx.oracle_deck_scaffold import scaffold_root
+        from openxml_audit.reference.emitters import PptxGeneratedSlide
 
         for sources in PPTX_SLIDE_SOURCES.values():
             for source in sources:
+                if isinstance(source, PptxGeneratedSlide):
+                    slide_xml = source.builder()
+                    etree.fromstring(slide_xml)
+                    continue
                 slide = (
                     scaffold_root(source.scaffold)
                     / "ppt"
@@ -177,7 +195,7 @@ class TestEmitters:
 
     def test_has_emitter_matches_registry(self):
         assert has_emitter("pptx", "pptx.timing.restart")
-        assert not has_emitter("pptx", "pptx.anim.effect.entr.fade")
+        assert has_emitter("pptx", "pptx.anim.effect.entr.fade")
         assert not has_emitter("docx", "anything")
 
 
@@ -198,10 +216,8 @@ class TestCli:
     def test_status_json(self, capsys):
         assert reference_main(["status", "--json"]) == 0
         payload = json.loads(capsys.readouterr().out)
-        assert payload["pptx"]["emitter_gaps"] == [
-            "pptx.anim.effect.entr.fade",
-            "pptx.anim.effect.entr.wipe",
-        ]
+        assert payload["pptx"]["emitter_gaps"] == []
+        assert payload["pptx"]["qualifying_at_loadable"] == 6
         assert payload["docx"]["findings"] == 0
         assert payload["xlsx"]["findings"] == 0
 

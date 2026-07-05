@@ -24,7 +24,6 @@ from openxml_audit.builder import PackageBuilder
 from openxml_audit.evidence import EvidenceTier
 from openxml_audit.namespaces import (
     CONTENT_TYPES,
-    DRAWINGML,
     PRESENTATIONML,
     REL_FONT_TABLE,
     REL_OFFICE_DOCUMENT,
@@ -38,10 +37,12 @@ from openxml_audit.namespaces import (
     WORDPROCESSINGML,
 )
 from openxml_audit.pptx.oracle_deck_scaffold import scaffold_root
+from openxml_audit.reference import pptx_slides
 from openxml_audit.reference.emitters import (
     DOCX_BODY_EMITTERS,
     PPTX_SLIDE_SOURCES,
     XLSX_ROW_EMITTERS,
+    PptxGeneratedSlide,
     has_emitter,
 )
 from openxml_audit.reference.ledger import (
@@ -58,7 +59,6 @@ __all__ = [
 ]
 
 _P = f"{{{PRESENTATIONML}}}"
-_A = f"{{{DRAWINGML}}}"
 _W = f"{{{WORDPROCESSINGML}}}"
 _S = f"{{{SPREADSHEETML}}}"
 _CT = f"{{{CONTENT_TYPES}}}"
@@ -72,8 +72,6 @@ _EXTENSIONS = {"docx": ".docx", "pptx": ".pptx", "xlsx": ".xlsx"}
 # Fixed zip timestamp: reference documents are derived artifacts and
 # must be byte-reproducible run-to-run.
 _ZIP_EPOCH = (1980, 1, 1, 0, 0, 0)
-
-_EMU_PER_INCH = 914400
 
 
 class ReferenceBuildError(Exception):
@@ -173,10 +171,10 @@ def _build_manifest(
     excluded: list[tuple[LedgerEntry, str]],
 ) -> dict[str, Any]:
     features = []
-    for position, entry in enumerate(included):
+    for entry, location in zip(included, _locations(fmt, included), strict=True):
         payload = entry.finding.to_dict()
         payload["included"] = True
-        payload["location"] = _location(fmt, position)
+        payload["location"] = location
         features.append(payload)
     excluded_payload = []
     for entry, reason in excluded:
@@ -194,15 +192,23 @@ def _build_manifest(
     }
 
 
-def _location(fmt: str, position: int) -> str:
+def _locations(fmt: str, included: list[LedgerEntry]) -> list[str]:
     if fmt == "pptx":
-        # Slide 1 is the generated index; features may span several
-        # slides, so the manifest points at the first one and the index
-        # slide carries the full map.
-        return f"slide {position + 2}"
+        # Slide 1 is the generated index; a feature spans as many
+        # slides as it has bound sources.
+        locations = []
+        slide_number = 2
+        for entry in included:
+            span = len(PPTX_SLIDE_SOURCES[entry.finding.key])
+            if span == 1:
+                locations.append(f"slide {slide_number}")
+            else:
+                locations.append(f"slides {slide_number}-{slide_number + span - 1}")
+            slide_number += span
+        return locations
     if fmt == "docx":
-        return f"section {position + 1}"
-    return f"row {position + 3}"
+        return [f"section {position + 1}" for position in range(len(included))]
+    return [f"row {position + 3}" for position in range(len(included))]
 
 
 # --- deterministic zip ------------------------------------------------------
@@ -230,16 +236,21 @@ def _normalize_zip(path: Path) -> None:
 def _build_pptx(document_path: Path, included: list[LedgerEntry]) -> None:
     root = scaffold_root("timing_oracle")
 
-    # Feature slides in ledger order, sourced from committed scaffolds.
-    slide_sources: list[tuple[LedgerEntry, Path]] = []
+    # Feature slides in ledger order: committed scaffold slides are
+    # copied with their own rels; generated slides use the shared
+    # layout rels the index slide uses.
+    feature_payloads: list[tuple[bytes, bytes]] = []
     for entry in included:
         for source in PPTX_SLIDE_SOURCES[entry.finding.key]:
+            if isinstance(source, PptxGeneratedSlide):
+                feature_payloads.append((source.builder(), _index_slide_rels(root)))
+                continue
             source_root = (
                 root if source.scaffold == "timing_oracle" else scaffold_root(source.scaffold)
             )
-            slide_sources.append(
-                (entry, source_root / "ppt" / "slides" / f"slide{source.slide_number}.xml")
-            )
+            slide_path = source_root / "ppt" / "slides" / f"slide{source.slide_number}.xml"
+            rels_path = slide_path.parent / "_rels" / f"{slide_path.name}.rels"
+            feature_payloads.append((slide_path.read_bytes(), rels_path.read_bytes()))
 
     members: list[tuple[str, bytes]] = []
     for file_path in sorted(p for p in root.rglob("*") if p.is_file()):
@@ -256,11 +267,9 @@ def _build_pptx(document_path: Path, included: list[LedgerEntry]) -> None:
 
     # Slide 1 is the generated index; feature slides follow, renumbered.
     slide_payloads: list[tuple[bytes, bytes]] = [
-        (_build_index_slide_xml(included), _index_slide_rels(root))
+        (_build_index_slide_xml(included), _index_slide_rels(root)),
+        *feature_payloads,
     ]
-    for _entry, source_path in slide_sources:
-        rels_path = source_path.parent / "_rels" / f"{source_path.name}.rels"
-        slide_payloads.append((source_path.read_bytes(), rels_path.read_bytes()))
 
     for number, (slide_xml, rels_xml) in enumerate(slide_payloads, start=1):
         members.append((f"ppt/slides/slide{number}.xml", slide_xml))
@@ -341,35 +350,10 @@ def _index_slide_rels(root: Path) -> bytes:
     return (root / "ppt/slides/_rels/slide1.xml.rels").read_bytes()
 
 
-def _emu(inches: float) -> str:
-    return str(int(round(inches * _EMU_PER_INCH)))
-
-
 def _build_index_slide_xml(included: list[LedgerEntry]) -> bytes:
-    nsmap = {"a": DRAWINGML, "r": _R_NS, "p": PRESENTATIONML}
-    sld = etree.Element(f"{_P}sld", nsmap=nsmap)
-    c_sld = etree.SubElement(sld, f"{_P}cSld")
-    sp_tree = etree.SubElement(c_sld, f"{_P}spTree")
-
-    nv_grp = etree.SubElement(sp_tree, f"{_P}nvGrpSpPr")
-    c_nv_pr = etree.SubElement(nv_grp, f"{_P}cNvPr")
-    c_nv_pr.set("id", "1")
-    c_nv_pr.set("name", "")
-    etree.SubElement(nv_grp, f"{_P}cNvGrpSpPr")
-    etree.SubElement(nv_grp, f"{_P}nvPr")
-    grp_sp_pr = etree.SubElement(sp_tree, f"{_P}grpSpPr")
-    xfrm = etree.SubElement(grp_sp_pr, f"{_A}xfrm")
-    for tag in ("off", "ext", "chOff", "chExt"):
-        el = etree.SubElement(xfrm, f"{_A}{tag}")
-        if tag in ("off", "chOff"):
-            el.set("x", "0")
-            el.set("y", "0")
-        else:
-            el.set("cx", "0")
-            el.set("cy", "0")
-
+    sld, sp_tree = pptx_slides.new_slide()
     shape_id = 2
-    shape_id = _add_index_textbox(
+    shape_id = pptx_slides.add_textbox(
         sp_tree,
         shape_id,
         top_in=0.4,
@@ -377,7 +361,7 @@ def _build_index_slide_xml(included: list[LedgerEntry]) -> bytes:
         size=2400,
         bold=True,
     )
-    shape_id = _add_index_textbox(
+    shape_id = pptx_slides.add_textbox(
         sp_tree,
         shape_id,
         top_in=1.0,
@@ -398,7 +382,7 @@ def _build_index_slide_xml(included: list[LedgerEntry]) -> bytes:
             if span == 1
             else f"slides {slide_number}-{slide_number + span - 1}"
         )
-        shape_id = _add_index_textbox(
+        shape_id = pptx_slides.add_textbox(
             sp_tree,
             shape_id,
             top_in=top,
@@ -409,7 +393,7 @@ def _build_index_slide_xml(included: list[LedgerEntry]) -> bytes:
         top += 0.45
         slide_number += span
     if not included:
-        _add_index_textbox(
+        pptx_slides.add_textbox(
             sp_tree,
             shape_id,
             top_in=top,
@@ -417,59 +401,7 @@ def _build_index_slide_xml(included: list[LedgerEntry]) -> bytes:
             size=1300,
             bold=False,
         )
-
-    clr_map_ovr = etree.SubElement(sld, f"{_P}clrMapOvr")
-    etree.SubElement(clr_map_ovr, f"{_A}masterClrMapping")
-    return cast(
-        bytes,
-        etree.tostring(sld, xml_declaration=True, encoding="UTF-8", standalone=True),
-    )
-
-
-def _add_index_textbox(
-    sp_tree: etree._Element,
-    shape_id: int,
-    *,
-    top_in: float,
-    text: str,
-    size: int,
-    bold: bool,
-) -> int:
-    sp = etree.SubElement(sp_tree, f"{_P}sp")
-    nv_sp_pr = etree.SubElement(sp, f"{_P}nvSpPr")
-    c_nv_pr = etree.SubElement(nv_sp_pr, f"{_P}cNvPr")
-    c_nv_pr.set("id", str(shape_id))
-    c_nv_pr.set("name", f"Index TextBox {shape_id}")
-    c_nv_sp_pr = etree.SubElement(nv_sp_pr, f"{_P}cNvSpPr")
-    c_nv_sp_pr.set("txBox", "1")
-    etree.SubElement(nv_sp_pr, f"{_P}nvPr")
-
-    sp_pr = etree.SubElement(sp, f"{_P}spPr")
-    xfrm = etree.SubElement(sp_pr, f"{_A}xfrm")
-    off = etree.SubElement(xfrm, f"{_A}off")
-    off.set("x", _emu(0.55))
-    off.set("y", _emu(top_in))
-    ext = etree.SubElement(xfrm, f"{_A}ext")
-    ext.set("cx", _emu(12.2))
-    ext.set("cy", _emu(0.4))
-    prst_geom = etree.SubElement(sp_pr, f"{_A}prstGeom")
-    prst_geom.set("prst", "rect")
-    etree.SubElement(prst_geom, f"{_A}avLst")
-
-    tx_body = etree.SubElement(sp, f"{_P}txBody")
-    body_pr = etree.SubElement(tx_body, f"{_A}bodyPr")
-    body_pr.set("wrap", "square")
-    etree.SubElement(tx_body, f"{_A}lstStyle")
-    paragraph = etree.SubElement(tx_body, f"{_A}p")
-    run = etree.SubElement(paragraph, f"{_A}r")
-    r_pr = etree.SubElement(run, f"{_A}rPr")
-    r_pr.set("lang", "en-US")
-    r_pr.set("sz", str(size))
-    if bold:
-        r_pr.set("b", "1")
-    t = etree.SubElement(run, f"{_A}t")
-    t.text = text
-    return shape_id + 1
+    return pptx_slides.finish_slide(sld)
 
 
 # --- DOCX -------------------------------------------------------------------
