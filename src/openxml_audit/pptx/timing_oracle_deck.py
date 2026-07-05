@@ -285,7 +285,12 @@ def _apply_native_timing_overrides(
 
     end_cond_lst = ctn.find(f"{{{NS_P}}}endCondLst")
     if end_cond_lst is None:
-        end_cond_lst = p_sub(ctn, "endCondLst")
+        # CT_TLCommonTimeNodeData orders endCondLst after stCondLst and
+        # before childTnLst; appending at the end is not schema-valid.
+        end_cond_lst = etree.Element(f"{{{NS_P}}}endCondLst")
+        st_cond_lst = ctn.find(f"{{{NS_P}}}stCondLst")
+        insert_at = ctn.index(st_cond_lst) + 1 if st_cond_lst is not None else 0
+        ctn.insert(insert_at, end_cond_lst)
     _append_end_conditions(
         end_cond_lst=end_cond_lst,
         end_triggers=end_triggers,
