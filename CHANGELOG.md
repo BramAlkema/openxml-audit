@@ -7,6 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.6] - 2026-07-05
+
+The reference-document arc: the canonical per-format reference
+documents ADR-001 named as the payoff now exist as a generated,
+tier-honest pipeline — plus the first CI-runnable live-app oracle and
+an app-survival verdict as the CLI's headline answer.
+
+### Added
+- **Canonical reference documents (Spec 034)** — `openxml_audit.reference`:
+  cross-format capability ledger, per-format builders (PPTX from
+  committed oracle scaffold slides behind a generated index slide;
+  DOCX/XLSX as canonical packages), provenance manifests with
+  machine-readable exclusion reasons, mandatory self-validation, and
+  byte-reproducible builds. CLI: `python -m openxml_audit.reference
+  build|status`.
+- **Generated entrance fade/wipe reference slides** — authored at build
+  time from the oracle decks' own fragment builders
+  (`reference/pptx_slides.py`); all six registered PPTX findings now
+  have emitters.
+- **App-survival verdict (Spec 035)** — `openxml_audit.verdict` maps
+  findings to a per-app prediction (opens-clean / at-risk /
+  repair-or-rewrite-likely / reject-likely) via the SourceClass
+  taxonomy. Text CLI output leads with the verdict headline; JSON
+  output gains a `verdict` block. App-compat findings drive the
+  verdict at any severity (the warning-severity Spec 029
+  shared-strings rule predicts the rewrite the v0.7.2 oracle baseline
+  confirmed).
+- **LibreOffice OOXML roundtrip oracle (Spec 036)** — the CI-runnable
+  rung: `tools/oracle/lo_ooxml_repair_oracle.py` on the supervised
+  soffice harness (now supporting docx/xlsx/pptx targets), with
+  per-feature survival probes (`reference/feature_probes.py`) driven
+  by the reference manifest. First baseline committed
+  (`tools/oracle/baselines/lo_ooxml/2026-07-05.json`): 9/9 files open;
+  fade, wipe, end-conditions, and restart survive LibreOffice Impress;
+  **repeatDur is silently dropped** (repeatCount kept). Advisory
+  workflow `.github/workflows/reference-oracle.yml` runs it weekly and
+  on reference-path PRs.
+
+### Fixed
+- Committed `timing_oracle` scaffold slides 2-3 placed
+  `<p:endCondLst>` after `<p:childTnLst>`, violating
+  CT_TLCommonTimeNodeData order — caught by the reference builder's
+  self-validation; fixed in the deck builder and the committed XML.
+- Reference manifest locations are span-aware ("slides 7-8") for
+  multi-slide features.
+- `__version__` drift (`0.7.4` in `openxml_audit/__init__.py` vs
+  `0.7.5` released) corrected.
+
+### Security
+- lxml floor raised to >=6.1.0 (CVE-2026-41066 / PYSEC-2026-87: XXE
+  local-file read via default parser; reachable here because the
+  validator parses untrusted OOXML/ODF input).
+- Weekly advisory `pip-audit` workflow
+  (`.github/workflows/security-audit.yml`); `pip-audit` in dev extras.
+- Multi-candidate constraint-resolution cache key now includes the
+  parent namespace, preventing cross-namespace context aliasing.
+
 ## [0.7.5] - 2026-05-03
 
 Added Google Suite to the mix.
