@@ -13,6 +13,7 @@ from rich.console import Console
 from openxml_audit.errors import FileFormat, ValidationSeverity
 from openxml_audit.odf import OdfValidator
 from openxml_audit.validator import OpenXmlValidator
+from openxml_audit.verdict import predict
 
 console = Console()
 error_console = Console(stderr=True)
@@ -391,6 +392,10 @@ def _output_text(results: list, quiet: bool) -> None:
         if multi_file:
             console.print(f"File: {result.file_path}")
 
+        # The headline answers the mission question ("will this open in
+        # its target app?"); the SDK-style list below is the evidence.
+        console.print(predict(result).headline)
+
         for idx, error in enumerate(errors, start=1):
             console.print(f"{idx}. {error.description}")
             console.print(f"   Part: {error.part_uri}")
@@ -418,6 +423,7 @@ def _output_json(results: list) -> None:
             "file": result.file_path,
             "valid": result.is_valid,
             "format": result.file_format.value,
+            "verdict": predict(result).to_dict(),
             "error_count": result.error_count,
             "warning_count": result.warning_count,
             "errors": [

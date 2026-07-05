@@ -58,6 +58,7 @@ from openxml_audit.parts import (
     WorkbookPart,
 )
 from openxml_audit.validator import OpenXmlValidator, is_valid_pptx, validate_pptx
+from openxml_audit.verdict import AppPrediction, AppVerdict, predict
 
 __version__ = "0.7.4"
 
@@ -78,6 +79,10 @@ __all__ = [
     # Evidence ladder (format-neutral)
     "EvidenceTier",
     "CapabilityFinding",
+    # App-survival verdicts (Spec 035)
+    "AppPrediction",
+    "AppVerdict",
+    "predict",
     # Package and parts (for advanced usage)
     "OpenXmlPackage",
     "OdfPackage",
