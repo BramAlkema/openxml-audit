@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import shlex
@@ -283,9 +284,39 @@ def _category_from_reference_message(message: str) -> str:
     return "reference"
 
 
-def _reference_issue_rows(tool: str, messages: list[str]) -> list[dict[str, str]]:
+#: Reference validators echo back the path they were handed. Under the docker
+#: runtime the sample's directory is mounted at /input, so messages read
+#: "/input/sample.odt". Run locally they carry the real staging path, which
+#: lives under a per-run temporary directory and therefore changes every run.
+#: Since the path is part of the comparison key, an unstable path makes every
+#: family look new on every run and no baseline can ever match. Rewriting the
+#: staged directory to the same /input token makes local and docker runs
+#: produce identical keys.
+_STAGED_INPUT_TOKEN = "/input"
+
+
+def _canonicalize_staged_path(message: str, file_path: Path | None) -> str:
+    if file_path is None:
+        return message
+    directories = {str(file_path.parent)}
+    with contextlib.suppress(OSError):  # resolve() on a vanished path
+        directories.add(str(file_path.resolve().parent))
+    # Longest first: on macOS /tmp resolves to /private/tmp, and replacing the
+    # shorter form first would leave the longer one partially rewritten.
+    for directory in sorted(directories, key=len, reverse=True):
+        if directory and directory != "/":
+            message = message.replace(directory, _STAGED_INPUT_TOKEN)
+    return message
+
+
+def _reference_issue_rows(
+    tool: str,
+    messages: list[str],
+    file_path: Path | None = None,
+) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
-    for message in messages:
+    for raw_message in messages:
+        message = _canonicalize_staged_path(raw_message, file_path)
         normalized = normalize_description(message)
         severity = _severity_from_message(message)
         category = _category_from_reference_message(message)
@@ -429,7 +460,7 @@ def _run_reference_runner(
             "stderr_preview": _preview(completed.stderr),
         }
 
-    issues = _reference_issue_rows(config.name, messages)
+    issues = _reference_issue_rows(config.name, messages, file_path)
     status = "ok"
     if completed.returncode != 0 and not issues:
         status = "error"

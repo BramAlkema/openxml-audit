@@ -196,3 +196,40 @@ def test_run_reference_runner_marks_docker_daemon_permission_unavailable(
 
     assert result["status"] == "unavailable"
     assert result["issue_count"] == 0
+
+
+def test_reference_issue_keys_are_stable_across_staging_directories(
+    tmp_path: Path,
+) -> None:
+    # The comparison key embeds the path the reference validator echoes back.
+    # Locally that path lives under a per-run temporary directory, so without
+    # canonicalisation every family looks new on every run and no baseline can
+    # match. Two runs of the same sample from different staging roots must
+    # produce identical keys.
+    module = _load_runner_module()
+
+    def keys_for(staging_root: Path) -> list[str]:
+        sample_dir = staging_root / "invalid_mimetype"
+        sample_dir.mkdir(parents=True)
+        staged = sample_dir / "invalid_mimetype.odt"
+        staged.write_bytes(b"")
+        message = (
+            f"{staged}/mimetype: Error: mimetype is not an ODFMediaTypes mimetype."
+        )
+        rows = module._reference_issue_rows("odf_toolkit", [message], staged)
+        return [row["comparison_key"] for row in rows]
+
+    first = keys_for(tmp_path / "run_a1b2c3")
+    second = keys_for(tmp_path / "run_z9y8x7")
+
+    assert first == second
+    assert first, "expected at least one issue row"
+    assert "/input/invalid_mimetype.odt" in first[0]
+    assert "run_a1b2c3" not in first[0]
+
+
+def test_reference_issue_rows_without_a_path_are_unchanged(tmp_path: Path) -> None:
+    module = _load_runner_module()
+    message = "Error: mimetype is not an ODFMediaTypes mimetype."
+    rows = module._reference_issue_rows("odf_toolkit", [message], None)
+    assert rows and "mimetype" in rows[0]["comparison_key"]
