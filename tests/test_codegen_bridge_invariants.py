@@ -521,10 +521,16 @@ def test_multi_candidate_cache_distinguishes_parent_namespace() -> None:
     assert deleted in collect_ambiguous_element_candidates()
 
     def make_deleted(parent_prefix: str, parent_ns: str) -> etree._Element:
+        # w:author and w:id carry a RequiredValidator on TrackChangeType, so a
+        # bare <w:del/> is missing required attributes on every candidate and
+        # none of them can be selected on merit. The element must be valid for
+        # this test to exercise context-based selection at all.
         root = etree.fromstring(
             (
                 f'<{parent_prefix}:ctrlPr xmlns:{parent_prefix}="{parent_ns}" '
-                f'xmlns:w="{_WORD_NS}"><w:del/></{parent_prefix}:ctrlPr>'
+                f'xmlns:w="{_WORD_NS}">'
+                f'<w:del w:author="A" w:id="1"/>'
+                f"</{parent_prefix}:ctrlPr>"
             ).encode()
         )
         return root[0]
@@ -748,3 +754,111 @@ def test_wordprocessing_overloaded_tags_choose_context_appropriate_candidates() 
             failures.append(f"{tag} expected {expected} got {chosen}; candidates={candidates}")
 
     assert failures == []
+
+
+# --- Inherited attribute resolution (spec 037) ----------------------------
+#
+# The SDK declares an attribute once, on the type that introduces it, and
+# derived types carry only a BaseClass pointer. Consumers read
+# SdkElementType.attributes; if inheritance is not folded in they see an empty
+# list, which silently disables both undeclared-attribute detection and
+# attribute type validation for the element.
+
+
+def _registry():
+    from openxml_audit.codegen.schema_loader import get_registry
+
+    registry = get_registry()
+    registry.load()
+    return registry
+
+
+_DRAWING_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
+
+
+def test_inherited_attributes_are_visible_on_derived_element_types() -> None:
+    registry = _registry()
+
+    # a:rPr declares nothing itself; CT_TextCharacterProperties introduces the
+    # 19 run-formatting attributes (sz, b, i, u, ...).
+    run_props = registry.get_element_type_by_tag(f"{{{_DRAWING_NS}}}rPr")
+    assert run_props is not None
+    qnames = {a.qname for a in run_props.attributes}
+    assert {":sz", ":b", ":i", ":u"} <= qnames, sorted(qnames)
+
+
+def test_base_class_resolution_does_not_cross_namespaces() -> None:
+    # ClassName is not unique across namespaces: `ColorType` is both
+    # a:CT_Color/ (no attributes) and x:CT_Color/ (five). Resolving globally
+    # attaches SpreadsheetML attributes to DrawingML elements.
+    registry = _registry()
+
+    drawing_colour = registry.get_element_type_by_tag(f"{{{_DRAWING_NS}}}bgClr")
+    assert drawing_colour is not None
+    assert drawing_colour.attributes == [], [a.qname for a in drawing_colour.attributes]
+
+    # The SpreadsheetML type of the same ClassName does have attributes, so a
+    # global lookup would have been observably wrong rather than merely lucky.
+    spreadsheet_colour = registry.get_type("x:CT_Color/")
+    assert spreadsheet_colour is not None
+    assert len(spreadsheet_colour.attributes) > 0
+
+
+def test_inheritance_does_not_duplicate_attributes() -> None:
+    registry = _registry()
+
+    offenders = []
+    for candidates in registry._elements_by_tag.values():
+        for element_type in candidates:
+            qnames = [a.qname for a in element_type.attributes]
+            if len(qnames) != len(set(qnames)):
+                offenders.append(element_type.name)
+    assert offenders == []
+
+
+def test_word_start_resolves_by_parent_not_by_attribute_count() -> None:
+    # w:start is a border, a cell margin, or a numbering start value. Scoring
+    # cannot separate the first from the last -- both declare w:val and tie on
+    # every component, so the final tiebreak (most declared attributes) picks
+    # CT_Border with nine over CT_NonNegativeDecimalNumber with one. That
+    # validated numbering values against the page-border-art enumeration.
+    numbering = etree.fromstring(
+        (
+            f'<w:numbering xmlns:w="{_WORD_NS}"><w:abstractNum w:abstractNumId="0">'
+            f'<w:lvl w:ilvl="0"><w:start w:val="1"/></w:lvl>'
+            f"</w:abstractNum></w:numbering>"
+        ).encode()
+    )
+    start = numbering.find(f".//{{{_WORD_NS}}}start")
+    assert get_selected_candidate_class_name(start) == "StartNumberingValue"
+
+    borders = etree.fromstring(
+        (
+            f'<w:pgBorders xmlns:w="{_WORD_NS}">'
+            f'<w:start w:val="single" w:sz="4"/>'
+            f"</w:pgBorders>"
+        ).encode()
+    )
+    assert get_selected_candidate_class_name(borders[0]) == "StartBorder"
+
+
+def test_numbering_start_value_is_not_validated_as_border_art() -> None:
+    from openxml_audit.codegen.constraint_bridge import get_element_constraint_for_element
+
+    numbering = etree.fromstring(
+        (
+            f'<w:numbering xmlns:w="{_WORD_NS}"><w:abstractNum w:abstractNumId="0">'
+            f'<w:lvl w:ilvl="0"><w:start w:val="1"/></w:lvl>'
+            f"</w:abstractNum></w:numbering>"
+        ).encode()
+    )
+    start = numbering.find(f".//{{{_WORD_NS}}}start")
+    constraint = get_element_constraint_for_element(f"{{{_WORD_NS}}}start", start)
+    assert constraint is not None
+
+    val = next(a for a in constraint.attributes if a.local_name == "val")
+    assert val.type_validator is not None
+    assert val.type_validator.validate("1").is_valid, (
+        "a numbering start value of 1 must validate; it was being checked "
+        "against the border-art enumeration"
+    )

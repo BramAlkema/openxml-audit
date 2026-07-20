@@ -28,8 +28,14 @@ jobs:
           python-version: "3.11"
 
       - name: Install package with all extras
+        # setuptools is upgraded because the runner image ships an older one
+        # than PyPI and pip-audit scans the whole environment, not just this
+        # project's tree. Without this the scan goes red weekly on ambient
+        # runner tooling (e.g. PYSEC-2026-3447 on setuptools 79.0.1 — a macOS
+        # sdist-packing flaw, unreachable on an ubuntu runner building with
+        # hatchling) and a chronically-red advisory stops being read.
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools
           pip install -e ".[dev,pptx-lab,odf-crypto,gsuite]"
 
       - name: Run pip-audit

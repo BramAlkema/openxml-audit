@@ -16,6 +16,7 @@ from openxml_audit.context import ValidationContext
 from openxml_audit.errors import (
     FileFormat,
     PackageValidationError,
+    SourceClass,
     ValidationError,
     ValidationErrorType,
     ValidationResult,
@@ -24,13 +25,16 @@ from openxml_audit.errors import (
 from openxml_audit.excel.canonical_form import ExcelCanonicalFormValidator
 from openxml_audit.excel.workbook import WorkbookValidator
 from openxml_audit.namespaces import (
+    DRAWINGML_WORDPROCESSING,
     OFFICE_DOC_RELATIONSHIPS,
     REL_COMMENTS,
     REL_CUSTOM_XML,
     REL_CUSTOM_XML_PROPS,
     REL_ENDNOTES,
     REL_FONT_TABLE,
+    REL_FOOTER,
     REL_FOOTNOTES,
+    REL_HEADER,
     REL_NUMBERING,
     REL_SETTINGS,
     REL_SHARED_STRINGS,
@@ -999,6 +1003,7 @@ class OpenXmlValidator:
         main_doc = OpenXmlPart(package, main_doc_uri)
         self._validate_word_main_content_type(main_doc, context)
         self._validate_custom_xml_parts(package, main_doc, context)
+        self._validate_word_docpr_uniqueness(package, main_doc, context)
 
         styles_xml = package.get_part_xml("/word/styles.xml")
         style_ids = self._collect_word_style_ids(styles_xml)
@@ -1488,6 +1493,80 @@ class OpenXmlValidator:
                     node="endnote",
                     error_id="Sem_ReferencedElementMissing",
                 )
+
+    def _validate_word_docpr_uniqueness(
+        self,
+        package: OpenXmlPackage,
+        main_doc: OpenXmlPart,
+        context: ValidationContext,
+    ) -> None:
+        """Report `wp:docPr/@id` reused across the main document story.
+
+        Word treats a drawing id collision between the document and one of its
+        headers/footers as repair-worthy: it renumbers the offending drawing on
+        open (reported on Word LTSC MSO 2408 build 16.0.17932.20428, issue #6).
+
+        The SDK's own schematron carries the rule, but scoped to a single part
+        (`count(distinct-values(//wp:docPr/@wp:id)) = count(//wp:docPr/@wp:id)`),
+        so a collision that straddles two parts satisfies it. This check covers
+        the package-level scope the SDK's per-part rule cannot see, which is why
+        it is WORD_APP_COMPAT rather than SDK_PROXY — the SDK does not report it.
+
+        Severity is WARNING, matching `word.compat`: Word repairs the file
+        rather than refusing it, so an ERROR would over-promise. The verdict
+        layer keys `repair-or-rewrite-likely` off the app-compat source class
+        at any severity, so the survival prediction is unaffected.
+
+        Scope is the main document plus the header/footer parts it references.
+        The glossary document (`/word/glossary/document.xml`) is a separate
+        story with its own id space and is deliberately not included.
+
+        Note the attribute is read unprefixed: DrawingML writes `<wp:docPr
+        id="1">`, so the id lives in no namespace even though the element does.
+        """
+        docpr_tag = f"{{{DRAWINGML_WORDPROCESSING}}}docPr"
+        main_doc_uri = main_doc.uri
+
+        targets = {
+            rel.resolve_target(main_doc_uri)
+            for rel in main_doc.relationships
+            if rel.type in (REL_HEADER, REL_FOOTER) and not rel.is_external
+        }
+        # Sorted so "first seen" is stable regardless of relationship order.
+        part_uris = [main_doc_uri, *sorted(targets)]
+
+        first_seen: dict[str, str] = {}
+        for part_uri in part_uris:
+            xml = package.get_part_xml(part_uri)
+            if xml is None:
+                continue
+            reported: set[str] = set()
+            for elem in xml.iter(docpr_tag):
+                doc_pr_id = elem.get("id")
+                if doc_pr_id is None:
+                    continue
+                origin = first_seen.get(doc_pr_id)
+                if origin is None:
+                    first_seen[doc_pr_id] = part_uri
+                elif origin != part_uri and doc_pr_id not in reported:
+                    # Only the cross-part case is reported here; the same-part
+                    # case belongs to the bridged schematron constraint (note
+                    # that it is currently inert — see the docstring). One
+                    # finding per id per part keeps a repeated id from
+                    # flooding the output.
+                    reported.add(doc_pr_id)
+                    context.set_part(OpenXmlPart(package, part_uri))
+                    context.add_error(
+                        error_type=ValidationErrorType.SEMANTIC,
+                        description=(
+                            f"duplicate wp:docPr id {doc_pr_id}; "
+                            f"first seen in {origin}"
+                        ),
+                        node="docPr",
+                        severity=ValidationSeverity.WARNING,
+                        error_id="Sem_DuplicateDocPrId",
+                        source_class=SourceClass.WORD_APP_COMPAT,
+                    )
 
     def _validate_custom_xml_parts(
         self,

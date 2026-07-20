@@ -147,6 +147,26 @@ def docx_missing_styles_with_effects(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
+def docx_duplicate_docpr(tmp_path: Path) -> Path:
+    """Create a DOCX reusing one wp:docPr id in both document.xml and a footer."""
+    docx_path = tmp_path / "duplicate_docpr.docx"
+    return _build_package_from_dir(
+        FIXTURES_DIR / "docx" / "duplicate_docpr",
+        docx_path,
+    )
+
+
+@pytest.fixture
+def docx_duplicate_docpr_unique(tmp_path: Path) -> Path:
+    """Same shape as `docx_duplicate_docpr`, with distinct wp:docPr ids."""
+    docx_path = tmp_path / "duplicate_docpr_unique.docx"
+    return _build_package_from_dir(
+        FIXTURES_DIR / "docx" / "duplicate_docpr_unique",
+        docx_path,
+    )
+
+
+@pytest.fixture
 def xlsx_missing_sheet_rel(tmp_path: Path) -> Path:
     """Create an XLSX with a missing sheet relationship."""
     xlsx_path = tmp_path / "missing_sheet_rel.xlsx"

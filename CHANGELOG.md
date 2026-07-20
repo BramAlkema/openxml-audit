@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.7] - 2026-07-20
+
+A reported bug that turned out to be the visible corner of a larger
+one: rules the validator loads, converts and reports as covered, but
+which can never match anything.
+
+### Added
+- **Cross-part `wp:docPr` id uniqueness (issue #6)** — Word renumbers a
+  drawing whose id collides with one in another part of the same
+  document story. The SDK's schematron carries the rule but scopes it
+  to a single part, so a collision straddling `document.xml` and a
+  footer satisfies it. Scope is the main document plus the
+  header/footer parts it references; the glossary is excluded as a
+  separate id space. WARNING severity and `WORD_APP_COMPAT`: Word
+  repairs the file rather than refusing it, and the verdict layer still
+  reports `repair-or-rewrite-likely`.
+- **Spec 037 — enforcement-fidelity invariants**, with
+  `scripts/audit_constraint_enforcement.py`: 77 of 213 bridged
+  `UNIQUE_ATTRIBUTE` constraints never fire, because attribute
+  qualification is decided by a two-entry allowlist rather than the SDK
+  data. Three existing guards are blind to it — coverage asserts
+  *converted*, spec 009's invariants cover only the schema bridge, and
+  parity is advisory over mostly-valid files. The spec argues against an
+  overhaul (spec 033/ADR-004 already shelved one on measurement) in
+  favour of one source of qualification truth plus an executability
+  invariant.
+
+### Fixed
+- **Inherited SDK attributes are now resolved.** The SDK declares an
+  attribute once, on the type that introduces it; nothing walked the
+  `BaseClass` chain, so elements whose attributes are all inherited —
+  `a:rPr`, `a:defRPr`, `a:pPr` among them — presented an empty
+  attribute list. That disabled undeclared-attribute detection for 781
+  element tags and left 1513 typed attributes unvalidated:
+  `<a:rPr sz="NOT_A_NUMBER"/>` validated clean. Resolution is scoped per
+  schema, because `ClassName` is not unique across namespaces (385
+  collide) and a global index attaches SpreadsheetML attributes to
+  DrawingML elements.
+- **`w:start` no longer resolves to the border type.** It ties with
+  `CT_Border` on every scoring component and the final tiebreak prefers
+  whichever type declares more attributes, so `<w:start w:val="1"/>` in
+  `numbering.xml` was checked against the page-border-art enumeration.
+  Now resolved by parent, as the other overloaded Word tags already
+  are. The mis-selection predated this release; it was invisible while
+  `CT_Border` had no attributes to apply.
+- **Security audit workflow** upgrades setuptools, so the weekly scan
+  stops going red on ambient runner tooling unreachable from this
+  project.
+
+### Notes
+- Findings over the corpus and fixtures are unchanged by this release:
+  17 before, 17 after, none new and none lost.
+
 ## [0.7.6] - 2026-07-05
 
 The reference-document arc: the canonical per-format reference
