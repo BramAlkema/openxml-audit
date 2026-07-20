@@ -19,9 +19,9 @@ jobs:
   odf-reference-drift:
     runs-on: ubuntu-latest
     env:
-      BASELINE_COMPARE: data/odf/reference_baseline/2026-03-09/mismatch_report.json
-      POLICY_FILE: data/odf/reference_baseline/2026-03-09/drift_policy.json
-      WAIVERS_FILE: data/odf/reference_baseline/2026-03-09/waivers.json
+      BASELINE_COMPARE: data/odf/reference_baseline/2026-07-20/mismatch_report.json
+      POLICY_FILE: data/odf/reference_baseline/2026-07-20/drift_policy.json
+      WAIVERS_FILE: data/odf/reference_baseline/2026-07-20/waivers.json
       RUN_REPORT: reports/odf/reference_runs.json
       COMPARE_REPORT: reports/odf/reference_compare.json
       COMPARE_SUMMARY: reports/odf/reference_compare.md
