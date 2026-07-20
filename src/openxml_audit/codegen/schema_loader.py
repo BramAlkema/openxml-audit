@@ -195,11 +195,59 @@ class SdkSchema:
     target_namespace: str
     types: list[SdkElementType]
     _types_by_name: dict[str, SdkElementType] = field(default_factory=dict, repr=False)
+    _types_by_class: dict[str, SdkElementType] = field(default_factory=dict, repr=False)
 
     def __post_init__(self) -> None:
-        """Build lookup indexes."""
+        """Build lookup indexes and fold in inherited attributes."""
         for t in self.types:
             self._types_by_name[t.name] = t
+            if t.class_name:
+                self._types_by_class.setdefault(t.class_name, t)
+        self._resolve_inherited_attributes()
+
+    def _resolve_inherited_attributes(self) -> None:
+        """Fold base-type attributes into each type's own attribute list.
+
+        The SDK declares an attribute once, on the type that introduces it:
+        `w:CT_FtnEdn/w:endnote` carries none while its base
+        `FootnoteEndnoteType` declares `w:type` and `w:id`. Consumers read
+        `SdkElementType.attributes` and would otherwise see an empty list,
+        which silently disables both undeclared-attribute detection and
+        attribute type validation for the element (spec 037).
+
+        Resolution is deliberately scoped to this schema — i.e. to one target
+        namespace. `ClassName` is not unique across namespaces (`ColorType` is
+        both `a:CT_Color/` with no attributes and `x:CT_Color/` with five), so
+        a cross-schema lookup would attach SpreadsheetML attributes to
+        DrawingML elements. Every base name is either declared in its own
+        schema or is a .NET base class the SDK data never defines
+        (`OpenXmlCompositeElement`, `SdtElement`, ...), where the walk simply
+        terminates.
+        """
+        # Snapshot the as-declared attributes first: resolution mutates
+        # `attributes`, and a parent resolved earlier in the loop would
+        # otherwise contribute its own inherited set a second time.
+        declared = {id(t): list(t.attributes) for t in self.types}
+
+        for element_type in self.types:
+            inherited: list[SdkAttribute] = []
+            seen_classes = {element_type.class_name}
+            current = element_type
+            while current.base_class and current.base_class not in seen_classes:
+                seen_classes.add(current.base_class)
+                parent = self._types_by_class.get(current.base_class)
+                if parent is None:
+                    break
+                inherited = declared[id(parent)] + inherited
+                current = parent
+            if not inherited:
+                continue
+            # A derived type may restate an inherited attribute; its own
+            # declaration wins.
+            own_qnames = {a.qname for a in declared[id(element_type)]}
+            element_type.attributes = [
+                a for a in inherited if a.qname not in own_qnames
+            ] + declared[id(element_type)]
 
     def get_type(self, name: str) -> SdkElementType | None:
         """Get a type by its full name."""

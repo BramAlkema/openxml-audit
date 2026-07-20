@@ -170,6 +170,25 @@ _WORD_PARAGRAPH_PROPERTIES_CANDIDATE_BY_PARENT: dict[str, str] = {
 
 _BAR_CHART_LOCALS = {"barChart", "bar3DChart"}
 
+# w:start is three-way overloaded and w:end two-way: a border, a table cell
+# margin, or (start only) a numbering start value. They share an element name
+# and differ only in declaring complex type, so the parent decides.
+#
+# Scoring cannot separate them: `<w:start w:val="1"/>` matches both CT_Border
+# and CT_NonNegativeDecimalNumber on every component of _score_candidate, and
+# the final tiebreak prefers whichever declares MORE attributes — CT_Border,
+# with nine. That picked the border type for numbering values, validating
+# `w:val` against the page-border-art enumeration.
+_WORD_START_END_TYPE_BY_PARENT = {
+    "lvl": "CT_NonNegativeDecimalNumber",
+    "pBdr": "CT_Border",
+    "pgBorders": "CT_Border",
+    "tblBorders": "CT_Border",
+    "tcBorders": "CT_Border",
+    "tblCellMar": "CT_TblWidth",
+    "tcMar": "CT_TblWidth",
+}
+
 
 def _convert_attribute(
     attr: SdkAttribute,
@@ -905,6 +924,14 @@ def _select_candidate_by_context(
             return _select_candidate_by_class_name(candidates, "DeletedMathControl")
         if parent_local == "trPr":
             return _select_candidate_by_class_name(candidates, "Deleted")
+        return None
+
+    if tag in (f"{{{WORDPROCESSINGML}}}start", f"{{{WORDPROCESSINGML}}}end"):
+        expected_type = _WORD_START_END_TYPE_BY_PARENT.get(parent_local)
+        if expected_type is not None:
+            for candidate in candidates:
+                if candidate.type_name == expected_type:
+                    return candidate
         return None
 
     if tag == f"{{{WORDPROCESSINGML}}}rPr":
