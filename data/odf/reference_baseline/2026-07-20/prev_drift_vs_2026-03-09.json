@@ -1,0 +1,4344 @@
+{
+  "baseline_path": "/home/runner/work/openxml-audit/openxml-audit/data/odf/reference_baseline/2026-03-09/mismatch_report.json",
+  "current_path": "/home/runner/work/openxml-audit/openxml-audit/reports/odf/reference_compare.json",
+  "tool_order": [
+    "odf_toolkit",
+    "opf"
+  ],
+  "policy": {
+    "max_only_python_growth": 0,
+    "max_only_reference_growth": 0,
+    "max_new_only_python_families": 0,
+    "max_new_only_reference_families": 0,
+    "max_compared_sample_drop": 0,
+    "max_unavailable_samples": 0,
+    "max_timeout_samples": 0,
+    "max_error_samples": 0,
+    "required_tools": [
+      "odf_toolkit",
+      "opf"
+    ]
+  },
+  "tools": {
+    "odf_toolkit": {
+      "baseline": {
+        "samples_total": 23,
+        "samples_compared": 23,
+        "only_python_total": 26,
+        "only_reference_total": 143,
+        "status_counts": {
+          "ok": 23
+        }
+      },
+      "current": {
+        "samples_total": 126,
+        "samples_compared": 126,
+        "only_python_total": 142,
+        "only_reference_total": 339,
+        "status_counts": {
+          "ok": 126
+        }
+      },
+      "deltas": {
+        "samples_compared": 103,
+        "only_python_total": 116,
+        "only_reference_total": 196,
+        "status_counts": {
+          "ok": 103
+        }
+      },
+      "families": {
+        "only_python": {
+          "new": [
+            {
+              "family_group_key": "error|<file> contains text style name references but <file> is not declared in <file>",
+              "baseline": 0,
+              "current": 8,
+              "delta": 8
+            },
+            {
+              "family_group_key": "warning|automatic style <value> is declared but never referenced",
+              "baseline": 0,
+              "current": 7,
+              "delta": 7
+            },
+            {
+              "family_group_key": "warning|shape <value> frame is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 4,
+              "delta": 4
+            },
+            {
+              "family_group_key": "error|frame child references <value> which is not present in the package",
+              "baseline": 0,
+              "current": 3,
+              "delta": 3
+            },
+            {
+              "family_group_key": "error|document statistic <value> has invalid value <value> expected non negative integer",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|image href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|manifest media type for <value> should be <value> found <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style <value> has style map targeting <value> which is not defined",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style inheritance cycle detected involving <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "warning|shape <value> rect is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|<file> is missing required office meta element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<file> is missing required office settings element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|anim iterate element found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|animation targets element <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|bookmark reference <value> does not resolve to a defined bookmark",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell references <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart chart is missing required chart plot area",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart element <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart series has empty chart values cell range address attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|column default cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|conditional style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw end shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw start shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom shape <value> is missing draw enhanced geometry child element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom show <value> references page <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|data pilot <value> references source table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|database range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|digital signature entries found in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|document level table named expressions found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw enhanced geometry uses attribute <value> which requires odf <n> document version is <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name <value> does not resolve to a style master page in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name references require <file> to be declared in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate content name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate control name <value> in form <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate draw layer name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate form control id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate header decl name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate presentation page name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate section name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate sequence declaration name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate spreadsheet table name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate style name <value> in <file> <path>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate tracked change id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate user field declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate variable declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|embedded object href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|filter field number <value> is not a valid non negative integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|font face declaration <value> in <file> is missing required svg font family",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|form grid column references control <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid presentation class value <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid repeat count <value> on table column",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> has header <path> but no page layout name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references next style name <value> which is not a defined master page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references page layout <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|named range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|note reference <value> does not resolve to a defined note",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|notes page <value> does not correspond to an existing draw page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page <value> has invalid transition type <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page references header declaration <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation body contains no draw page elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation page layout <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation settings start page <value> does not reference an existing page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|rdf metadata declared in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|shape <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|sound href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|spreadsheet body contains no table table elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> family <value> inherits from <value> family <value> family mismatch",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references data style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references parent style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> references next style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style style in <file> has empty or missing style name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|table <value> has no columns or rows",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text list references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text tracked changes found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|user field reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|variable reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|<file> root element is missing office version attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|chart plot area has no chart axis elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|dr3d scene contains no 3d shape elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|event listener for <value> has neither xlink href nor script macro name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|font name <value> used in style properties but not declared in font face decls",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|heading skips from level <n> to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|inconsistent odf versions detected <n> <n> <file> <n> <file> <n> <file> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape <value> custom shape is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape group <value> nesting depth <n> exceeds maximum <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style <value> has inheritance depth <n> max <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style family <value> is used but has no default style in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|table <value> has a row with <n> cells but only <n> columns defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "new_waived": [],
+          "new_unwaived": [
+            {
+              "family_group_key": "error|<file> contains text style name references but <file> is not declared in <file>",
+              "baseline": 0,
+              "current": 8,
+              "delta": 8
+            },
+            {
+              "family_group_key": "warning|automatic style <value> is declared but never referenced",
+              "baseline": 0,
+              "current": 7,
+              "delta": 7
+            },
+            {
+              "family_group_key": "warning|shape <value> frame is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 4,
+              "delta": 4
+            },
+            {
+              "family_group_key": "error|frame child references <value> which is not present in the package",
+              "baseline": 0,
+              "current": 3,
+              "delta": 3
+            },
+            {
+              "family_group_key": "error|document statistic <value> has invalid value <value> expected non negative integer",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|image href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|manifest media type for <value> should be <value> found <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style <value> has style map targeting <value> which is not defined",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style inheritance cycle detected involving <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "warning|shape <value> rect is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|<file> is missing required office meta element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<file> is missing required office settings element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|anim iterate element found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|animation targets element <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|bookmark reference <value> does not resolve to a defined bookmark",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell references <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart chart is missing required chart plot area",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart element <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart series has empty chart values cell range address attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|column default cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|conditional style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw end shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw start shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom shape <value> is missing draw enhanced geometry child element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom show <value> references page <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|data pilot <value> references source table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|database range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|digital signature entries found in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|document level table named expressions found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw enhanced geometry uses attribute <value> which requires odf <n> document version is <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name <value> does not resolve to a style master page in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name references require <file> to be declared in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate content name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate control name <value> in form <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate draw layer name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate form control id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate header decl name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate presentation page name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate section name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate sequence declaration name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate spreadsheet table name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate style name <value> in <file> <path>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate tracked change id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate user field declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate variable declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|embedded object href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|filter field number <value> is not a valid non negative integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|font face declaration <value> in <file> is missing required svg font family",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|form grid column references control <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid presentation class value <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid repeat count <value> on table column",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> has header <path> but no page layout name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references next style name <value> which is not a defined master page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references page layout <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|named range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|note reference <value> does not resolve to a defined note",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|notes page <value> does not correspond to an existing draw page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page <value> has invalid transition type <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page references header declaration <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation body contains no draw page elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation page layout <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation settings start page <value> does not reference an existing page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|rdf metadata declared in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|shape <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|sound href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|spreadsheet body contains no table table elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> family <value> inherits from <value> family <value> family mismatch",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references data style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references parent style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> references next style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style style in <file> has empty or missing style name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|table <value> has no columns or rows",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text list references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text tracked changes found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|user field reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|variable reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|<file> root element is missing office version attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|chart plot area has no chart axis elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|dr3d scene contains no 3d shape elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|event listener for <value> has neither xlink href nor script macro name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|font name <value> used in style properties but not declared in font face decls",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|heading skips from level <n> to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|inconsistent odf versions detected <n> <n> <file> <n> <file> <n> <file> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape <value> custom shape is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape group <value> nesting depth <n> exceeds maximum <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style <value> has inheritance depth <n> max <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style family <value> is used but has no default style in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|table <value> has a row with <n> cells but only <n> columns defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "regressed": [
+            {
+              "family_group_key": "error|<file> contains text style name references but <file> is not declared in <file>",
+              "baseline": 0,
+              "current": 8,
+              "delta": 8
+            },
+            {
+              "family_group_key": "warning|automatic style <value> is declared but never referenced",
+              "baseline": 0,
+              "current": 7,
+              "delta": 7
+            },
+            {
+              "family_group_key": "warning|shape <value> frame is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 4,
+              "delta": 4
+            },
+            {
+              "family_group_key": "error|frame child references <value> which is not present in the package",
+              "baseline": 0,
+              "current": 3,
+              "delta": 3
+            },
+            {
+              "family_group_key": "error|document statistic <value> has invalid value <value> expected non negative integer",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|image href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|manifest entry <value> was not found in package",
+              "baseline": 3,
+              "current": 5,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|manifest media type for <value> should be <value> found <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style <value> has style map targeting <value> which is not defined",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style inheritance cycle detected involving <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "warning|shape <value> rect is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|<file> is missing required office meta element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<file> is missing required office settings element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|anim iterate element found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|animation targets element <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|bookmark reference <value> does not resolve to a defined bookmark",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell references <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart chart is missing required chart plot area",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart element <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart series has empty chart values cell range address attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|column default cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|conditional style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw end shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw start shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom shape <value> is missing draw enhanced geometry child element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom show <value> references page <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|data pilot <value> references source table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|database range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|digital signature entries found in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|document level table named expressions found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw enhanced geometry uses attribute <value> which requires odf <n> document version is <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name <value> does not resolve to a style master page in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name references require <file> to be declared in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate content name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate control name <value> in form <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate draw layer name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate form control id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate header decl name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate presentation page name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate section name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate sequence declaration name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate spreadsheet table name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate style name <value> in <file> <path>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate tracked change id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate user field declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate variable declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|embedded object href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|filter field number <value> is not a valid non negative integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|font face declaration <value> in <file> is missing required svg font family",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|form grid column references control <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid presentation class value <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid repeat count <value> on table column",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> has header <path> but no page layout name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references next style name <value> which is not a defined master page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references page layout <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|named range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|note reference <value> does not resolve to a defined note",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|notes page <value> does not correspond to an existing draw page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page <value> has invalid transition type <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page references header declaration <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation body contains no draw page elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation page layout <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation settings start page <value> does not reference an existing page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|rdf metadata declared in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|shape <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|sound href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|spreadsheet body contains no table table elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> family <value> inherits from <value> family <value> family mismatch",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references data style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references parent style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> references next style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style style in <file> has empty or missing style name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|table <value> has no columns or rows",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text list references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text tracked changes found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|user field reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|variable reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|<file> root element is missing office version attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|chart plot area has no chart axis elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|dr3d scene contains no 3d shape elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|event listener for <value> has neither xlink href nor script macro name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|font name <value> used in style properties but not declared in font face decls",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|heading skips from level <n> to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|inconsistent odf versions detected <n> <n> <file> <n> <file> <n> <file> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape <value> custom shape is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape group <value> nesting depth <n> exceeds maximum <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style <value> has inheritance depth <n> max <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style family <value> is used but has no default style in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|table <value> has a row with <n> cells but only <n> columns defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "improved": []
+        },
+        "only_reference": {
+          "new": [
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute meta page count has a bad value <n> does not satisfy the nonnegativeinteger type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute office version has a bad value",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute style name has a bad value does not satisfy the ncname type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table cell range address has a bad value",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table cell range address has a bad value the value does not match the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table number columns repeated has a bad value <n> does not satisfy the positiveinteger type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table target range address has a bad value",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element draw connector is missing viewbox attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element draw image is missing type attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element draw object is missing type attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element form button is missing id attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element form text is missing id attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element style master page is missing page layout name attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element text changed region is missing id attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element text note ref is missing note class attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error nonexistent shape is referenced by an idref but not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error nonexistent2 is referenced by an idref but not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name draw layer set is not allowed possible tag names are <alphabetical index auto mark file> <calculation settings> <consolidation> <content validations> <data pilot tables> <database ranges> <date time decl> <dde connection decls> <dde links> <footer decl> <header decl> <label ranges> <named expressions> <page> <sequence decls> <settings> <user field decls> <variable decls>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name presentation notes is not allowed possible tag names are <handout master> <layer set> <master page>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name style presentation page layout is not allowed possible tag names are <boolean style> <currency style> <date style> <list style> <number style> <page layout> <percentage style> <style> <text style> <time style>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name table table row is not allowed possible tag names are <dde source> <forms> <scenario> <shapes> <table column group> <table column> <table columns> <table header columns> <table source>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <creator>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error unexpected attribute presentation transition type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error unexpected attribute table source cell range addresses",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <path> <file> <n> <n> error element manifest encryption data is missing checksum attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <path> <file> <n> <n> error tag name sig signatures is not allowed possible tag names are <document signatures>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> <path> <file> <n> <n> error element document signatures is missing version attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "new_waived": [],
+          "new_unwaived": [
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute meta page count has a bad value <n> does not satisfy the nonnegativeinteger type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute office version has a bad value",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute style name has a bad value does not satisfy the ncname type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table cell range address has a bad value",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table cell range address has a bad value the value does not match the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table number columns repeated has a bad value <n> does not satisfy the positiveinteger type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table target range address has a bad value",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element draw connector is missing viewbox attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element draw image is missing type attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element draw object is missing type attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element form button is missing id attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element form text is missing id attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element style master page is missing page layout name attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element text changed region is missing id attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element text note ref is missing note class attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error nonexistent shape is referenced by an idref but not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error nonexistent2 is referenced by an idref but not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name draw layer set is not allowed possible tag names are <alphabetical index auto mark file> <calculation settings> <consolidation> <content validations> <data pilot tables> <database ranges> <date time decl> <dde connection decls> <dde links> <footer decl> <header decl> <label ranges> <named expressions> <page> <sequence decls> <settings> <user field decls> <variable decls>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name presentation notes is not allowed possible tag names are <handout master> <layer set> <master page>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name style presentation page layout is not allowed possible tag names are <boolean style> <currency style> <date style> <list style> <number style> <page layout> <percentage style> <style> <text style> <time style>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name table table row is not allowed possible tag names are <dde source> <forms> <scenario> <shapes> <table column group> <table column> <table columns> <table header columns> <table source>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <creator>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error unexpected attribute presentation transition type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error unexpected attribute table source cell range addresses",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <path> <file> <n> <n> error element manifest encryption data is missing checksum attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <path> <file> <n> <n> error tag name sig signatures is not allowed possible tag names are <document signatures>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> <path> <file> <n> <n> error element document signatures is missing version attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "regressed": [
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute meta page count has a bad value <n> does not satisfy the nonnegativeinteger type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute office version has a bad value",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute style name has a bad value does not satisfy the ncname type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table cell range address has a bad value",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table cell range address has a bad value the value does not match the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table number columns repeated has a bad value <n> does not satisfy the positiveinteger type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error attribute table target range address has a bad value",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element draw connector is missing viewbox attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element draw image is missing type attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element draw object is missing type attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element form button is missing id attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element form text is missing id attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element style master page is missing page layout name attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element text changed region is missing id attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error element text note ref is missing note class attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error nonexistent shape is referenced by an idref but not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error nonexistent2 is referenced by an idref but not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name draw layer set is not allowed possible tag names are <alphabetical index auto mark file> <calculation settings> <consolidation> <content validations> <data pilot tables> <database ranges> <date time decl> <dde connection decls> <dde links> <footer decl> <header decl> <label ranges> <named expressions> <page> <sequence decls> <settings> <user field decls> <variable decls>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name presentation notes is not allowed possible tag names are <handout master> <layer set> <master page>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name style presentation page layout is not allowed possible tag names are <boolean style> <currency style> <date style> <list style> <number style> <page layout> <percentage style> <style> <text style> <time style>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error tag name table table row is not allowed possible tag names are <dde source> <forms> <scenario> <shapes> <table column group> <table column> <table columns> <table header columns> <table source>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error uncompleted content model expecting <creator>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error unexpected attribute presentation transition type",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <file> <n> <n> error unexpected attribute table source cell range addresses",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <path> <file> <n> <n> error element manifest encryption data is missing checksum attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<path> <file> <path> <file> <n> <n> error tag name sig signatures is not allowed possible tag names are <document signatures>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> <path> <file> <n> <n> error element document signatures is missing version attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> <path> error mimetype is not an odfmediatypes mimetype",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> <path> error the odf package <value> contains a <value> file containing <value> which differs from the mediatype of the root document <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|<path> <file> error the odf mimetype <value> is invalid for the odf xml schema document",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "improved": []
+        }
+      },
+      "new_family_counts": {
+        "only_python_total": 90,
+        "only_python_waived": 0,
+        "only_python_unwaived": 90,
+        "only_reference_total": 30,
+        "only_reference_waived": 0,
+        "only_reference_unwaived": 30
+      }
+    },
+    "opf": {
+      "baseline": {
+        "samples_total": 23,
+        "samples_compared": 23,
+        "only_python_total": 26,
+        "only_reference_total": 119,
+        "status_counts": {
+          "ok": 23
+        }
+      },
+      "current": {
+        "samples_total": 126,
+        "samples_compared": 126,
+        "only_python_total": 142,
+        "only_reference_total": 689,
+        "status_counts": {
+          "ok": 126
+        }
+      },
+      "deltas": {
+        "samples_compared": 103,
+        "only_python_total": 116,
+        "only_reference_total": 570,
+        "status_counts": {
+          "ok": 103
+        }
+      },
+      "families": {
+        "only_python": {
+          "new": [
+            {
+              "family_group_key": "error|<file> contains text style name references but <file> is not declared in <file>",
+              "baseline": 0,
+              "current": 8,
+              "delta": 8
+            },
+            {
+              "family_group_key": "warning|automatic style <value> is declared but never referenced",
+              "baseline": 0,
+              "current": 7,
+              "delta": 7
+            },
+            {
+              "family_group_key": "warning|shape <value> frame is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 4,
+              "delta": 4
+            },
+            {
+              "family_group_key": "error|frame child references <value> which is not present in the package",
+              "baseline": 0,
+              "current": 3,
+              "delta": 3
+            },
+            {
+              "family_group_key": "error|document statistic <value> has invalid value <value> expected non negative integer",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|image href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|manifest media type for <value> should be <value> found <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style <value> has style map targeting <value> which is not defined",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style inheritance cycle detected involving <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "warning|shape <value> rect is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|<file> is missing required office meta element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<file> is missing required office settings element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|anim iterate element found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|animation targets element <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|bookmark reference <value> does not resolve to a defined bookmark",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell references <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart chart is missing required chart plot area",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart element <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart series has empty chart values cell range address attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|column default cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|conditional style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw end shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw start shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom shape <value> is missing draw enhanced geometry child element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom show <value> references page <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|data pilot <value> references source table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|database range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|digital signature entries found in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|document level table named expressions found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw enhanced geometry uses attribute <value> which requires odf <n> document version is <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name <value> does not resolve to a style master page in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name references require <file> to be declared in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate content name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate control name <value> in form <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate draw layer name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate form control id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate header decl name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate presentation page name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate section name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate sequence declaration name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate spreadsheet table name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate style name <value> in <file> <path>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate tracked change id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate user field declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate variable declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|embedded object href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|filter field number <value> is not a valid non negative integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|font face declaration <value> in <file> is missing required svg font family",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|form grid column references control <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid presentation class value <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid repeat count <value> on table column",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> has header <path> but no page layout name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references next style name <value> which is not a defined master page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references page layout <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|named range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|note reference <value> does not resolve to a defined note",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|notes page <value> does not correspond to an existing draw page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page <value> has invalid transition type <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page references header declaration <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation body contains no draw page elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation page layout <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation settings start page <value> does not reference an existing page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|rdf metadata declared in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|shape <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|sound href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|spreadsheet body contains no table table elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> family <value> inherits from <value> family <value> family mismatch",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references data style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references parent style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> references next style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style style in <file> has empty or missing style name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|table <value> has no columns or rows",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text list references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text tracked changes found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|user field reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|variable reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|<file> root element is missing office version attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|chart plot area has no chart axis elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|dr3d scene contains no 3d shape elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|event listener for <value> has neither xlink href nor script macro name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|font name <value> used in style properties but not declared in font face decls",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|heading skips from level <n> to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|inconsistent odf versions detected <n> <n> <file> <n> <file> <n> <file> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape <value> custom shape is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape group <value> nesting depth <n> exceeds maximum <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style <value> has inheritance depth <n> max <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style family <value> is used but has no default style in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|table <value> has a row with <n> cells but only <n> columns defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "new_waived": [],
+          "new_unwaived": [
+            {
+              "family_group_key": "error|<file> contains text style name references but <file> is not declared in <file>",
+              "baseline": 0,
+              "current": 8,
+              "delta": 8
+            },
+            {
+              "family_group_key": "warning|automatic style <value> is declared but never referenced",
+              "baseline": 0,
+              "current": 7,
+              "delta": 7
+            },
+            {
+              "family_group_key": "warning|shape <value> frame is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 4,
+              "delta": 4
+            },
+            {
+              "family_group_key": "error|frame child references <value> which is not present in the package",
+              "baseline": 0,
+              "current": 3,
+              "delta": 3
+            },
+            {
+              "family_group_key": "error|document statistic <value> has invalid value <value> expected non negative integer",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|image href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|manifest media type for <value> should be <value> found <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style <value> has style map targeting <value> which is not defined",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style inheritance cycle detected involving <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "warning|shape <value> rect is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|<file> is missing required office meta element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<file> is missing required office settings element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|anim iterate element found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|animation targets element <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|bookmark reference <value> does not resolve to a defined bookmark",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell references <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart chart is missing required chart plot area",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart element <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart series has empty chart values cell range address attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|column default cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|conditional style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw end shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw start shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom shape <value> is missing draw enhanced geometry child element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom show <value> references page <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|data pilot <value> references source table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|database range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|digital signature entries found in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|document level table named expressions found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw enhanced geometry uses attribute <value> which requires odf <n> document version is <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name <value> does not resolve to a style master page in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name references require <file> to be declared in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate content name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate control name <value> in form <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate draw layer name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate form control id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate header decl name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate presentation page name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate section name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate sequence declaration name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate spreadsheet table name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate style name <value> in <file> <path>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate tracked change id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate user field declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate variable declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|embedded object href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|filter field number <value> is not a valid non negative integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|font face declaration <value> in <file> is missing required svg font family",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|form grid column references control <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid presentation class value <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid repeat count <value> on table column",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> has header <path> but no page layout name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references next style name <value> which is not a defined master page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references page layout <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|named range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|note reference <value> does not resolve to a defined note",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|notes page <value> does not correspond to an existing draw page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page <value> has invalid transition type <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page references header declaration <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation body contains no draw page elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation page layout <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation settings start page <value> does not reference an existing page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|rdf metadata declared in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|shape <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|sound href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|spreadsheet body contains no table table elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> family <value> inherits from <value> family <value> family mismatch",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references data style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references parent style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> references next style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style style in <file> has empty or missing style name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|table <value> has no columns or rows",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text list references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text tracked changes found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|user field reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|variable reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|<file> root element is missing office version attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|chart plot area has no chart axis elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|dr3d scene contains no 3d shape elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|event listener for <value> has neither xlink href nor script macro name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|font name <value> used in style properties but not declared in font face decls",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|heading skips from level <n> to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|inconsistent odf versions detected <n> <n> <file> <n> <file> <n> <file> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape <value> custom shape is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape group <value> nesting depth <n> exceeds maximum <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style <value> has inheritance depth <n> max <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style family <value> is used but has no default style in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|table <value> has a row with <n> cells but only <n> columns defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "regressed": [
+            {
+              "family_group_key": "error|<file> contains text style name references but <file> is not declared in <file>",
+              "baseline": 0,
+              "current": 8,
+              "delta": 8
+            },
+            {
+              "family_group_key": "warning|automatic style <value> is declared but never referenced",
+              "baseline": 0,
+              "current": 7,
+              "delta": 7
+            },
+            {
+              "family_group_key": "warning|shape <value> frame is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 4,
+              "delta": 4
+            },
+            {
+              "family_group_key": "error|frame child references <value> which is not present in the package",
+              "baseline": 0,
+              "current": 3,
+              "delta": 3
+            },
+            {
+              "family_group_key": "error|document statistic <value> has invalid value <value> expected non negative integer",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|image href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|manifest entry <value> was not found in package",
+              "baseline": 3,
+              "current": 5,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|manifest media type for <value> should be <value> found <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style <value> has style map targeting <value> which is not defined",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|style inheritance cycle detected involving <value>",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "warning|shape <value> rect is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|<file> is missing required office meta element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|<file> is missing required office settings element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|anim iterate element found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|animation targets element <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|bookmark reference <value> does not resolve to a defined bookmark",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell references <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart chart is missing required chart plot area",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart element <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|chart series has empty chart values cell range address attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|column default cell style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|conditional style <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw end shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|connector draw start shape <value> does not reference an existing shape",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom shape <value> is missing draw enhanced geometry child element",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|custom show <value> references page <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|data pilot <value> references source table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|database range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|digital signature entries found in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|document level table named expressions found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw enhanced geometry uses attribute <value> which requires odf <n> document version is <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name <value> does not resolve to a style master page in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|draw master page name references require <file> to be declared in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate content name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate control name <value> in form <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate draw layer name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate form control id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate header decl name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate presentation page name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate section name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate sequence declaration name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate spreadsheet table name <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate style name <value> in <file> <path>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate tracked change id <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate user field declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|duplicate variable declaration <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|embedded object href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|filter field number <value> is not a valid non negative integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|font face declaration <value> in <file> is missing required svg font family",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|form grid column references control <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid presentation class value <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|invalid repeat count <value> on table column",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> has header <path> but no page layout name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references next style name <value> which is not a defined master page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|master page <value> references page layout <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|named range <value> references table <value> which does not exist",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|note reference <value> does not resolve to a defined note",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|notes page <value> does not correspond to an existing draw page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page <value> has invalid transition type <value>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|page references header declaration <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation body contains no draw page elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation page layout <value> is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|presentation settings start page <value> does not reference an existing page",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|rdf metadata declared in manifest but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|shape <value> references style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|sound href <value> does not resolve in package",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|spreadsheet body contains no table table elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> family <value> inherits from <value> family <value> family mismatch",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references data style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> in <file> references parent style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style <value> references next style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|style style in <file> has empty or missing style name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|table <value> has no columns or rows",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text list references list style <value> which is not defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|text tracked changes found but document version is <n> requires odf <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|user field reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|variable reference <value> does not resolve to a declaration",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|<file> root element is missing office version attribute",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|chart plot area has no chart axis elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|dr3d scene contains no 3d shape elements",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|event listener for <value> has neither xlink href nor script macro name",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|font name <value> used in style properties but not declared in font face decls",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|heading skips from level <n> to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|inconsistent odf versions detected <n> <n> <file> <n> <file> <n> <file> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape <value> custom shape is missing position <path> attributes x y width height",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|shape group <value> nesting depth <n> exceeds maximum <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style <value> has inheritance depth <n> max <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|style family <value> is used but has no default style in <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "warning|table <value> has a row with <n> cells but only <n> columns defined",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "improved": []
+        },
+        "only_reference": {
+          "new": [
+            {
+              "family_group_key": "warning|valid no errors <n> warnings found and <n> info messages",
+              "baseline": 0,
+              "current": 46,
+              "delta": 46
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table target range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|value value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|value value of attribute table target range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute meta page count is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute meta word count is invalid must be an integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute presentation class is invalid must be equal to chart date time footer graphic handout header notes object orgchart outline page page number subtitle table text or title",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute style name is invalid must be an xml name without colons",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table field number is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table number columns repeated is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute meta page count is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute meta word count is invalid must be an integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute presentation class is invalid must be equal to chart date time footer graphic handout header notes object orgchart outline page page number subtitle table text or title",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute style name is invalid must be an xml name without colons",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute table field number is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute table number columns repeated is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|filename <path> <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "new_waived": [],
+          "new_unwaived": [
+            {
+              "family_group_key": "warning|valid no errors <n> warnings found and <n> info messages",
+              "baseline": 0,
+              "current": 46,
+              "delta": 46
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table target range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|value value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|value value of attribute table target range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute meta page count is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute meta word count is invalid must be an integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute presentation class is invalid must be equal to chart date time footer graphic handout header notes object orgchart outline page page number subtitle table text or title",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute style name is invalid must be an xml name without colons",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table field number is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table number columns repeated is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute meta page count is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute meta word count is invalid must be an integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute presentation class is invalid must be equal to chart date time footer graphic handout header notes object orgchart outline page page number subtitle table text or title",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute style name is invalid must be an xml name without colons",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute table field number is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute table number columns repeated is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|filename <path> <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "regressed": [
+            {
+              "family_group_key": "warning|severity warning",
+              "baseline": 23,
+              "current": 126,
+              "delta": 103
+            },
+            {
+              "family_group_key": "error|severity error",
+              "baseline": 23,
+              "current": 80,
+              "delta": 57
+            },
+            {
+              "family_group_key": "warning|not valid <n> errors <n> warnings and <n> info messages",
+              "baseline": 22,
+              "current": 75,
+              "delta": 53
+            },
+            {
+              "family_group_key": "warning|valid no errors <n> warnings found and <n> info messages",
+              "baseline": 0,
+              "current": 46,
+              "delta": 46
+            },
+            {
+              "family_group_key": "warning|incomplete encrypted entries are not supported <n> errors <n> warnings and <n> info messages",
+              "baseline": 1,
+              "current": 5,
+              "delta": 4
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute manifest checksum is invalid must be a base64 string",
+              "baseline": 1,
+              "current": 4,
+              "delta": 3
+            },
+            {
+              "family_group_key": "error|value value of attribute manifest checksum is invalid must be a base64 string",
+              "baseline": 1,
+              "current": 4,
+              "delta": 3
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table target range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|value value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|value value of attribute table target range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n> must be a string matching the regular expression <value> <value> <value> <n> <n> <value> <value> <value> <n> <n> or must be a string matching the regular expression <value> <value> <value> a z <value> <value> <value> a z",
+              "baseline": 0,
+              "current": 2,
+              "delta": 2
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute meta page count is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute meta word count is invalid must be an integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute presentation class is invalid must be equal to chart date time footer graphic handout header notes object orgchart outline page page number subtitle table text or title",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute style name is invalid must be an xml name without colons",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table field number is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|title not a valid xml document exception at line <n> and column <n> value of attribute table number columns repeated is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute meta page count is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute meta word count is invalid must be an integer",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute presentation class is invalid must be equal to chart date time footer graphic handout header notes object orgchart outline page page number subtitle table text or title",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute style name is invalid must be an xml name without colons",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute table cell range address is invalid must be a string matching the regular expression <value> <value> <value> a z <n> <n> <value> <value> <value> a z <n> <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute table field number is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "error|value value of attribute table number columns repeated is invalid must be an integer greater than or equal to <n>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            },
+            {
+              "family_group_key": "info|filename <path> <file>",
+              "baseline": 0,
+              "current": 1,
+              "delta": 1
+            }
+          ],
+          "improved": []
+        }
+      },
+      "new_family_counts": {
+        "only_python_total": 90,
+        "only_python_waived": 0,
+        "only_python_unwaived": 90,
+        "only_reference_total": 20,
+        "only_reference_waived": 0,
+        "only_reference_unwaived": 20
+      }
+    }
+  },
+  "policy_warnings": [],
+  "waiver_warnings": [],
+  "gate": {
+    "passed": false,
+    "failures": [
+      "odf_toolkit: only_python growth exceeded threshold (116 > 0).",
+      "odf_toolkit: only_reference growth exceeded threshold (196 > 0).",
+      "odf_toolkit: new only-python family count exceeded threshold (90 > 0).",
+      "odf_toolkit: new only-reference family count exceeded threshold (30 > 0).",
+      "opf: only_python growth exceeded threshold (116 > 0).",
+      "opf: only_reference growth exceeded threshold (570 > 0).",
+      "opf: new only-python family count exceeded threshold (90 > 0).",
+      "opf: new only-reference family count exceeded threshold (20 > 0)."
+    ],
+    "waived_conditions": []
+  }
+}

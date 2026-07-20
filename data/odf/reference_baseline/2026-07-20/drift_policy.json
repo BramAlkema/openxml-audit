@@ -1,0 +1,14 @@
+{
+  "max_only_python_growth": 0,
+  "max_only_reference_growth": 0,
+  "max_new_only_python_families": 0,
+  "max_new_only_reference_families": 0,
+  "max_compared_sample_drop": 0,
+  "max_unavailable_samples": 0,
+  "max_timeout_samples": 0,
+  "max_error_samples": 0,
+  "required_tools": [
+    "odf_toolkit",
+    "opf"
+  ]
+}
