@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "license": "MIT",
+  "generator": "TokenMoulds emitter API",
+  "generator_snapshot": "TokenMoulds main as of 2026-04-29",
+  "provenance_spec": "specs/028-tokenmoulds-corpus-helper.md",
+  "documents": [
+    {
+      "path": "../tokenmoulds_v0.7.2/word/acme-us.docx",
+      "sha256": "900bcb1349b385871a2fb7cfac6a03003ffb998675bfc63acbff2ef4d3c7042a",
+      "locale": "en-US"
+    },
+    {
+      "path": "../tokenmoulds_v0.7.2/word/globex-gb.docx",
+      "sha256": "ab577fe57a4a29cdff8c53592e15d15f783a4463054928fac957726f709ad4d6",
+      "locale": "en-GB"
+    }
+  ]
+}

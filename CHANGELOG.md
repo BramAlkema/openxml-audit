@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Spec 038 — EuroOffice/Google Docs DOCX differential oracle.** A genuine
+  EuroOffice example-app editor transport now proves two dirty callback saves;
+  Google Workspace round-trips now accept DOCX as well as PPTX; both feed one
+  feature-level DOCX semantic snapshot and a source-based differential matrix.
+- **Open-source DOCX oracle manifest.** The deterministic, MIT-licensed
+  TokenMoulds Word fixtures are explicitly selected with provenance and
+  SHA-256 hashes; they remain test inputs rather than a runtime dependency.
+
+### Changed
+
+- Google Workspace loss classification now includes descriptive DOCX part
+  buckets and verified semantic-feature drift, while preserving the existing
+  PPTX behavior.
+
 ## [0.7.7] - 2026-07-20
 
 A reported bug that turned out to be the visible corner of a larger

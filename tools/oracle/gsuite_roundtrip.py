@@ -18,13 +18,12 @@ Per file:
 
   1. Upload the input to a Drive folder owned by the impersonation
      subject (or to a Shared Drive).
-  2. Copy the upload with `mimeType: vnd.google-apps.presentation`
-     to import into Slides' native IR.
-  3. Export the native Slides file back to .pptx — write the bytes
-     to a local working dir.
-  4. Hand original + post-GSuite copy to
-     `pptx.lab.compare_pptx_packages` for the per-part diff.
-  5. Apply the `LossClass` rule-based classifier over the diff.
+  2. Copy the upload to the matching native Google format (Slides or
+     Docs).
+  3. Export the native file back to PPTX or DOCX in a local working dir.
+  4. Compute the format's canonical package diff. DOCX also receives
+     the shared feature-level semantic comparison from Spec 038.
+  5. Apply the format-specific `LossClass` classifier over the diff.
   6. Roll up into a `GSuiteRoundtripObservation`.
   7. Best-effort delete both Drive files (always, in `finally`).
 
@@ -47,13 +46,18 @@ from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _SRC_DIR = _REPO_ROOT / "src"
 if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
 
+from openxml_audit.docx.semantic_snapshot import (  # noqa: E402
+    compare_docx_semantics,
+    snapshot_docx,
+)
+from openxml_audit.package_diff import compare_packages  # noqa: E402
 from openxml_audit.pptx.lab import compare_pptx_packages  # noqa: E402
 
 _DEFAULT_STAGE_PARENT = Path.home() / "Documents" / ".gsuite_oracle_runs"
@@ -76,8 +80,13 @@ class LossClass(str, Enum):
     THEME_PART_CHANGED = "theme_part_changed"
     MASTER_PART_CHANGED = "master_part_changed"
     STYLE_PART_REMOVED = "style_part_removed"
+    STYLE_PART_CHANGED = "style_part_changed"
     FONT_PART_REMOVED = "font_part_removed"
     SLIDE_PART_CHANGED = "slide_part_changed"
+    DOCUMENT_PART_CHANGED = "document_part_changed"
+    NUMBERING_PART_CHANGED = "numbering_part_changed"
+    HEADER_FOOTER_CHANGED = "header_footer_changed"
+    SEMANTIC_FEATURE_CHANGED = "semantic_feature_changed"
     METADATA_CHURN = "metadata_churn"
     MEDIA_RE_ENCODED = "media_re_encoded"
     STRUCTURAL_NORMALIZATION = "structural_normalization"
@@ -118,6 +127,8 @@ class GSuiteRoundtripObservation:
     size_in: int = 0
     size_out: int = 0
     diff_dir: str | None = None
+    roundtripped_path: str | None = None
+    semantic_comparison: dict[str, Any] | None = None
     notes: list[str] = field(default_factory=list)
 
 
@@ -192,14 +203,14 @@ def classify_loss(
 ) -> set[LossClass]:
     """Walk the diff and assign LossClass buckets.
 
-    Phase 1 implements only the pptx ruleset; docx/xlsx land in
-    Phase 2 (Spec 031). Multiple classes may fire per roundtrip;
+    PPTX and DOCX use format-specific descriptive rules. XLSX remains
+    future work. Multiple classes may fire per roundtrip;
     `unmapped` only fires when the diff is non-empty and nothing
     else matched.
     """
-    if target_format != "pptx":
+    if target_format not in {"pptx", "docx"}:
         raise NotImplementedError(
-            f"loss classification for {target_format!r} is Phase 2"
+            f"loss classification for {target_format!r} is not implemented"
         )
 
     classes: set[LossClass] = set()
@@ -207,6 +218,29 @@ def classify_loss(
     added_set = set(added)
     removed_set = set(removed)
     all_parts = changed_set | added_set | removed_set
+
+    if target_format == "docx":
+        if any(part.startswith("docProps/") for part in changed_set | removed_set):
+            classes.add(LossClass.METADATA_CHURN)
+        if any(part.startswith("word/theme/") for part in changed_set | removed_set):
+            classes.add(LossClass.THEME_PART_CHANGED)
+        if any(
+            part in {"word/styles.xml", "word/stylesWithEffects.xml"}
+            for part in changed_set | removed_set
+        ):
+            classes.add(LossClass.STYLE_PART_CHANGED)
+        if "word/numbering.xml" in changed_set | removed_set:
+            classes.add(LossClass.NUMBERING_PART_CHANGED)
+        if "word/document.xml" in changed_set | removed_set:
+            classes.add(LossClass.DOCUMENT_PART_CHANGED)
+        if any(
+            part.startswith(("word/header", "word/footer"))
+            for part in changed_set | added_set | removed_set
+        ):
+            classes.add(LossClass.HEADER_FOOTER_CHANGED)
+        if all_parts and not classes:
+            classes.add(LossClass.UNMAPPED)
+        return classes
 
     # Package-wiring changes ([Content_Types].xml, *.rels) are a side
     # effect of every other diff and don't carry independent signal —
@@ -343,7 +377,7 @@ def _stage_input(input_path: Path) -> tuple[Path, Path]:
 
 
 def observe(
-    input_pptx: Path,
+    input_path: Path,
     *,
     folder_id: str | None = None,
     subject: str | None = None,
@@ -351,7 +385,7 @@ def observe(
     keep_artifacts: bool = False,
     client: object | None = None,  # injection point for tests
 ) -> GSuiteRoundtripObservation:
-    """Roundtrip one .pptx through GSuite Slides and record the outcome.
+    """Roundtrip one PPTX or DOCX through its Google editor and record the outcome.
 
     `folder_id` falls back to `GSUITE_ORACLE_FOLDER_ID`; `subject` and
     `creds_path` follow the same pattern as
@@ -359,27 +393,46 @@ def observe(
     fake; production callers leave it None.
     """
     from openxml_audit.gsuite import (
+        DOC_MIME,
+        DOCX_MIME,
         PPTX_MIME,
         SLIDES_MIME,
         GSuiteAuthError,
         GSuiteClient,
     )
 
-    input_pptx = input_pptx.resolve()
-    if not input_pptx.exists():
+    formats = {
+        ".pptx": ("pptx", PPTX_MIME, SLIDES_MIME),
+        ".docx": ("docx", DOCX_MIME, DOC_MIME),
+    }
+    input_path = input_path.resolve()
+    format_config = formats.get(input_path.suffix.lower())
+    if not input_path.exists():
         return GSuiteRoundtripObservation(
-            source_relpath=input_pptx.name,
+            source_relpath=input_path.name,
             outcome="missing_output",
             duration_seconds=0.0,
-            notes=[f"input does not exist: {input_pptx}"],
+            target_format=(
+                format_config[0] if format_config else input_path.suffix.lstrip(".")
+            ),
+            notes=[f"input does not exist: {input_path}"],
         )
+    if format_config is None:
+        return GSuiteRoundtripObservation(
+            source_relpath=input_path.name,
+            outcome="missing_output",
+            duration_seconds=0.0,
+            notes=[f"unsupported input extension: {input_path.suffix}"],
+        )
+    target_format, ooxml_mime, native_mime = format_config
 
     resolved_folder = folder_id or os.environ.get("GSUITE_ORACLE_FOLDER_ID")
     if not resolved_folder:
         return GSuiteRoundtripObservation(
-            source_relpath=input_pptx.name,
+            source_relpath=input_path.name,
             outcome="auth_failed",
             duration_seconds=0.0,
+            target_format=target_format,
             subject=subject,
             notes=[
                 "no folder_id provided and GSUITE_ORACLE_FOLDER_ID is unset; "
@@ -389,8 +442,8 @@ def observe(
         )
 
     started = time.monotonic()
-    work_dir, original = _stage_input(input_pptx)
-    head = work_dir / f"roundtripped_{input_pptx.name}"
+    work_dir, original = _stage_input(input_path)
+    head = work_dir / f"roundtripped_{input_path.name}"
     uploaded_id: str | None = None
     native_id: str | None = None
 
@@ -402,9 +455,10 @@ def observe(
                 )
             except GSuiteAuthError as exc:
                 return GSuiteRoundtripObservation(
-                    source_relpath=input_pptx.name,
+                    source_relpath=input_path.name,
                     outcome="auth_failed",
                     duration_seconds=time.monotonic() - started,
+                    target_format=target_format,
                     subject=subject,
                     notes=[str(exc)],
                 )
@@ -413,13 +467,14 @@ def observe(
         # 1. Upload
         try:
             uploaded_id = client.upload(
-                original, parent_id=resolved_folder, mime_type=PPTX_MIME
+                original, parent_id=resolved_folder, mime_type=ooxml_mime
             )
         except Exception as exc:
             return GSuiteRoundtripObservation(
-                source_relpath=input_pptx.name,
+                source_relpath=input_path.name,
                 outcome="upload_failed",
                 duration_seconds=time.monotonic() - started,
+                target_format=target_format,
                 subject=active_subject,
                 notes=[f"upload failed: {exc}"],
             )
@@ -428,27 +483,29 @@ def observe(
         try:
             native_id = client.convert_to_native(
                 uploaded_id,
-                target_mime=SLIDES_MIME,
+                target_mime=native_mime,
                 parent_id=resolved_folder,
-                name=input_pptx.stem + "-as-slides",
+                name=f"{input_path.stem}-as-google-{target_format}",
             )
         except Exception as exc:
             return GSuiteRoundtripObservation(
-                source_relpath=input_pptx.name,
+                source_relpath=input_path.name,
                 outcome="convert_failed",
                 duration_seconds=time.monotonic() - started,
+                target_format=target_format,
                 subject=active_subject,
                 notes=[f"convert failed: {exc}"],
             )
 
         # 3. Export
         try:
-            export_bytes = client.export_to_ooxml(native_id, PPTX_MIME)
+            export_bytes = client.export_to_ooxml(native_id, ooxml_mime)
         except Exception as exc:
             return GSuiteRoundtripObservation(
-                source_relpath=input_pptx.name,
+                source_relpath=input_path.name,
                 outcome="export_failed",
                 duration_seconds=time.monotonic() - started,
+                target_format=target_format,
                 subject=active_subject,
                 notes=[f"export failed: {exc}"],
             )
@@ -456,9 +513,14 @@ def observe(
 
         # 4. Diff
         compare_dir = work_dir / "compare"
-        report = compare_pptx_packages(
-            base_path=original, head_path=head, output_dir=compare_dir
-        )
+        if target_format == "pptx":
+            report = compare_pptx_packages(
+                base_path=original, head_path=head, output_dir=compare_dir
+            )
+        else:
+            report = compare_packages(
+                base_path=original, head_path=head, output_dir=compare_dir
+            )
         changed = list(report.get("changed_files", []))
         added = list(report.get("added_files", []))
         removed = list(report.get("removed_files", []))
@@ -466,25 +528,36 @@ def observe(
         # 5. Classify — list-based rules over part names + content-aware
         # rules that read slide XML bytes.
         classes = classify_loss(
-            changed=changed, added=added, removed=removed, target_format="pptx"
+            changed=changed, added=added, removed=removed, target_format=target_format
         )
         classes |= classify_xml_loss(
-            base_path=original, head_path=head, target_format="pptx"
+            base_path=original, head_path=head, target_format=target_format
         )
+        semantic_comparison: dict[str, Any] | None = None
+        if target_format == "docx":
+            semantics = compare_docx_semantics(
+                snapshot_docx(original),
+                snapshot_docx(head),
+            )
+            semantic_comparison = semantics.to_dict()
+            if not semantics.preserved:
+                classes.add(LossClass.SEMANTIC_FEATURE_CHANGED)
 
         return GSuiteRoundtripObservation(
-            source_relpath=input_pptx.name,
+            source_relpath=input_path.name,
             outcome="lossy_conversion" if (changed or added or removed) else "preserved",
             duration_seconds=time.monotonic() - started,
-            target_format="pptx",
+            target_format=target_format,
             subject=active_subject,
             changed_parts=changed,
             added_parts=added,
             removed_parts=removed,
             loss=sorted(c.value for c in classes),
-            size_in=input_pptx.stat().st_size,
+            size_in=input_path.stat().st_size,
             size_out=head.stat().st_size,
             diff_dir=str(compare_dir) if keep_artifacts else None,
+            roundtripped_path=str(head) if keep_artifacts else None,
+            semantic_comparison=semantic_comparison,
         )
     finally:
         # 6. Cleanup Drive files (best-effort) and local stage dir.
@@ -545,7 +618,7 @@ def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument(
         "input", nargs="+", type=Path,
-        help=".pptx files to roundtrip (or directories to walk)",
+        help=".pptx/.docx files to roundtrip (or directories to walk)",
     )
     p.add_argument(
         "--output", type=Path, default=None,
@@ -573,12 +646,18 @@ def main() -> int:
     inputs: list[Path] = []
     for entry in args.input:
         if entry.is_dir():
-            inputs.extend(sorted(entry.rglob("*.pptx")))
-        elif entry.is_file() and entry.suffix.lower() == ".pptx":
+            inputs.extend(
+                sorted(
+                    path
+                    for path in entry.rglob("*")
+                    if path.suffix.lower() in {".pptx", ".docx"}
+                )
+            )
+        elif entry.is_file() and entry.suffix.lower() in {".pptx", ".docx"}:
             inputs.append(entry)
 
     if not inputs:
-        print("no .pptx inputs found", file=sys.stderr)
+        print("no .pptx/.docx inputs found", file=sys.stderr)
         return 2
 
     observations = observe_batch(

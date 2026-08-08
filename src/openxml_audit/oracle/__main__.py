@@ -7,6 +7,8 @@ Usage:
   python -m openxml_audit.oracle pptx     FILES... [--output X.json]
   python -m openxml_audit.oracle odf      FILES... [--output X.json]
   python -m openxml_audit.oracle gsuite   FILES... [--output X.json]
+  python -m openxml_audit.oracle eurooffice FILES... [--output X.json]
+  python -m openxml_audit.oracle docx-paired FILE.docx [--output X.json]
 
 Each subcommand defers to the format's existing CLI in
 `tools/oracle/`. This module is a thin dispatcher introduced in 0.6.8
@@ -24,10 +26,8 @@ corpus walk.
 
 from __future__ import annotations
 
-import argparse
 import sys
 from pathlib import Path
-
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _TOOLS_DIR = _REPO_ROOT / "tools"
@@ -80,6 +80,30 @@ def _run_gsuite(args: list[str]) -> int:
     return gsuite_main()
 
 
+def _run_eurooffice(args: list[str]) -> int:
+    _ensure_tools_on_path()
+    from tools.oracle.eurooffice_roundtrip import main as eurooffice_main
+
+    sys.argv = ["eurooffice_roundtrip.py", *args]
+    return eurooffice_main()
+
+
+def _run_docx_differential(args: list[str]) -> int:
+    _ensure_tools_on_path()
+    from tools.oracle.docx_differential_oracle import main as differential_main
+
+    sys.argv = ["docx_differential_oracle.py", *args]
+    return differential_main()
+
+
+def _run_paired_docx(args: list[str]) -> int:
+    _ensure_tools_on_path()
+    from tools.oracle.paired_docx_roundtrip import main as paired_main
+
+    sys.argv = ["paired_docx_roundtrip.py", *args]
+    return paired_main()
+
+
 def _run_preflight(args: list[str]) -> int:
     _ensure_tools_on_path()
     from tools.oracle.preflight import main as preflight_main
@@ -97,6 +121,9 @@ _DISPATCH = {
     "odf": _run_odf,
     "gsuite": _run_gsuite,
     "google": _run_gsuite,  # alias
+    "eurooffice": _run_eurooffice,
+    "docx-diff": _run_docx_differential,
+    "docx-paired": _run_paired_docx,
     "preflight": _run_preflight,
 }
 

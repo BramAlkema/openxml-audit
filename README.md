@@ -300,10 +300,11 @@ Set command templates via `--odf-toolkit-cmd` / `--opf-cmd` or env vars `ODF_TOO
 
 ## Google Workspace Roundtrip Oracle
 
-The `gsuite` engine in the oracle dispatcher rounds OOXML files
+The `gsuite` engine in the oracle dispatcher rounds PPTX and DOCX files
 through Google's import/export pipeline (upload → convert to native
-Google Slides → export back to .pptx → diff) and classifies what
-GSuite drops, transforms, or normalizes. See
+Google Slides or Docs → export to OOXML → diff) and classifies what
+Google drops, transforms, or normalizes. DOCX results also use the shared
+feature-level semantic snapshot from Spec 038. See
 [`specs/031-gsuite-roundtrip-oracle.md`](specs/031-gsuite-roundtrip-oracle.md)
 for the full design.
 
@@ -353,17 +354,31 @@ Then:
 
 ```bash
 python -m openxml_audit.oracle gsuite presentation.pptx
+python -m openxml_audit.oracle gsuite document.docx
 python -m openxml_audit.oracle gsuite ./corpus/ --output gsuite-report.json
 ```
 
-The report classifies each roundtrip across a `LossClass` taxonomy:
-`theme_loss`, `master_loss`, `style_loss`, `font_loss`,
-`media_re_encoded`, `metadata_churn`, `structural_normalization`
-(parts GSuite *added*), `content_preserved_lossy`,
-`content_changed`, `unmapped`. Multiple classes may fire per file.
+The report uses descriptive `LossClass` values such as
+`theme_part_changed`, `master_part_changed`, `style_part_changed`,
+`numbering_part_changed`, `media_re_encoded`, `metadata_churn`, and
+`structural_normalization`. DOCX adds a semantic comparison with independently
+hashed content, hierarchy, list, table, section, header/footer, field, style,
+theme, metadata, and security families. Multiple classes may fire per file.
 
 Drive uploads are deleted in `finally` after each roundtrip — the
 oracle never leaves files in your account.
+
+For a genuine EuroOffice editor save and a source-based two-target matrix:
+
+```bash
+python -m openxml_audit.oracle eurooffice document.docx --keep-artifacts
+python -m openxml_audit.oracle docx-paired document.docx --output paired.json
+```
+
+`docx-paired` checks the Google subject, owned staging folder, and credential
+path before starting either live target. It reports Google and EuroOffice as
+peers; neither editor is treated as the normative oracle. See
+[`specs/038-eurooffice-google-docx-differential-oracle.md`](specs/038-eurooffice-google-docx-differential-oracle.md).
 
 ## Open XML SDK (Standalone)
 

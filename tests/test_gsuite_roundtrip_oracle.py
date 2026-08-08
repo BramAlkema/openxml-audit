@@ -25,6 +25,9 @@ from pathlib import Path
 
 import pytest
 
+from openxml_audit.docx.oracle_starter_doc import build_minimal_docx
+from openxml_audit.gsuite import DOC_MIME, DOCX_MIME
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TOOLS = REPO_ROOT / "tools"
 if str(TOOLS) not in sys.path:
@@ -184,9 +187,23 @@ def test_classify_loss_full_presentation1_baseline():
     }
 
 
-def test_classify_loss_unsupported_format_phase_2():
+def test_classify_loss_unsupported_format():
     with pytest.raises(NotImplementedError):
-        classify_loss(changed=[], added=[], removed=[], target_format="docx")
+        classify_loss(changed=[], added=[], removed=[], target_format="xlsx")
+
+
+def test_classify_loss_docx_parts():
+    classes = classify_loss(
+        changed=["word/document.xml", "word/styles.xml"],
+        added=[],
+        removed=["docProps/app.xml"],
+        target_format="docx",
+    )
+    assert classes == {
+        LossClass.DOCUMENT_PART_CHANGED,
+        LossClass.STYLE_PART_CHANGED,
+        LossClass.METADATA_CHURN,
+    }
 
 
 # --- Content-aware classifier (defaults_inlined) ----------------------------
@@ -336,6 +353,9 @@ def test_dispatcher_has_gsuite_engine():
     assert "gsuite" in _DISPATCH
     assert "google" in _DISPATCH  # alias
     assert _DISPATCH["gsuite"] is _DISPATCH["google"]
+    assert "eurooffice" in _DISPATCH
+    assert "docx-diff" in _DISPATCH
+    assert "docx-paired" in _DISPATCH
 
 
 # --- Mocked Drive client → observe() exercises the full pipeline ------------
@@ -414,6 +434,35 @@ class _FakeClient:
         return True
 
 
+class _FakeDocxClient:
+    subject = "fake@example.com"
+
+    def __init__(self) -> None:
+        self._stash: bytes | None = None
+        self.upload_mime: str | None = None
+        self.native_mime: str | None = None
+        self.export_mime: str | None = None
+        self.deleted: list[str] = []
+
+    def upload(self, path, *, parent_id=None, mime_type=None, name=None):
+        self._stash = Path(path).read_bytes()
+        self.upload_mime = mime_type
+        return "upload-docx"
+
+    def convert_to_native(self, file_id, *, target_mime, parent_id=None, name=None):
+        self.native_mime = target_mime
+        return "native-doc"
+
+    def export_to_ooxml(self, file_id, ooxml_mime):
+        self.export_mime = ooxml_mime
+        assert self._stash is not None
+        return self._stash
+
+    def delete(self, file_id):
+        self.deleted.append(file_id)
+        return True
+
+
 def test_observe_with_fake_client_classifies_correctly(tmp_path, monkeypatch):
     monkeypatch.setenv("GSUITE_ORACLE_STAGE", str(tmp_path / "stage"))
     src = _build_synthetic_pptx(tmp_path / "synthetic.pptx")
@@ -433,9 +482,33 @@ def test_observe_with_fake_client_classifies_correctly(tmp_path, monkeypatch):
     assert set(client.deleted) == {"upload-id", "native-id"}
 
 
+def test_observe_docx_routes_through_docs_and_compares_semantics(tmp_path, monkeypatch):
+    monkeypatch.setenv("GSUITE_ORACLE_STAGE", str(tmp_path / "stage"))
+    source = tmp_path / "synthetic.docx"
+    build_minimal_docx(source)
+    client = _FakeDocxClient()
+
+    observation = observe(source, folder_id="fake-folder", client=client)
+
+    assert observation.target_format == "docx"
+    assert observation.outcome == "preserved"
+    assert observation.semantic_comparison is not None
+    assert observation.semantic_comparison["preserved"] is True
+    assert client.upload_mime == DOCX_MIME
+    assert client.native_mime == DOC_MIME
+    assert client.export_mime == DOCX_MIME
+    assert set(client.deleted) == {"upload-docx", "native-doc"}
+
+
 def test_observe_missing_input_returns_missing_output_outcome(tmp_path):
     obs = observe(tmp_path / "does-not-exist.pptx")
     assert obs.outcome == "missing_output"
+
+
+def test_observe_missing_docx_retains_target_format(tmp_path):
+    obs = observe(tmp_path / "does-not-exist.docx")
+    assert obs.outcome == "missing_output"
+    assert obs.target_format == "docx"
 
 
 def test_observe_without_folder_id_fails_fast(tmp_path, monkeypatch):
@@ -461,7 +534,7 @@ def test_cli_main_no_inputs_returns_2(tmp_path, monkeypatch, capsys):
     code = gsuite_main()
     assert code == 2
     err = capsys.readouterr().err
-    assert "no .pptx inputs found" in err
+    assert "no .pptx/.docx inputs found" in err
 
 
 # --- GSuite-required smoke test (real network) ------------------------------

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "oracle": "eurooffice-editor",
+  "captured_at": "2026-08-08",
+  "eurooffice_editor_version": "9.3.1-beta.1",
+  "browser_image": "mcr.microsoft.com/playwright:v1.62.0-noble",
+  "observations": [
+    {
+      "source_relpath": "data/corpus/tokenmoulds_v0.7.2/word/acme-us.docx",
+      "source_sha256": "900bcb1349b385871a2fb7cfac6a03003ffb998675bfc63acbff2ef4d3c7042a",
+      "inserted_sha256": "807adc59d109954ca988c807a5d33c37c019ecb626f73cd7534dbf287841584b",
+      "final_sha256": "749896a0ad07484e4995b457112b038c6454d6d176f267f61f8367668d46dd91",
+      "editor_passes": [
+        {"action": "insert", "opened": true, "dirty": true, "disconnect": "browser_exit"},
+        {"action": "remove", "opened": true, "dirty": true, "disconnect": "browser_exit"}
+      ],
+      "outcome": "semantic_drift",
+      "preserved_features": [
+        "content_blocks",
+        "heading_hierarchy",
+        "list_semantics",
+        "table_semantics",
+        "header_footer_semantics",
+        "field_codes",
+        "metadata_semantics",
+        "security_surface"
+      ],
+      "changed_features": [
+        "section_semantics",
+        "style_semantics",
+        "theme_semantics"
+      ],
+      "changed_parts": [
+        "[Content_Types].xml",
+        "docProps/app.xml",
+        "docProps/core.xml",
+        "word/_rels/document.xml.rels",
+        "word/document.xml",
+        "word/fontTable.xml",
+        "word/numbering.xml",
+        "word/settings.xml",
+        "word/styles.xml",
+        "word/theme/theme1.xml",
+        "word/webSettings.xml"
+      ],
+      "added_parts": [
+        "word/_rels/comments.xml.rels",
+        "word/_rels/endnotes.xml.rels",
+        "word/_rels/footnotes.xml.rels",
+        "word/endnotes.xml",
+        "word/footnotes.xml"
+      ],
+      "removed_parts": ["word/stylesWithEffects.xml"],
+      "validation_before": {"valid": true, "error_count": 0},
+      "validation_after": {
+        "valid": false,
+        "error_count": 251,
+        "collection_cap_reached": true
+      },
+      "remote_cleanup_verified": true
+    }
+  ]
+}

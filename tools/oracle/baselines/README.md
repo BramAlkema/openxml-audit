@@ -1,5 +1,24 @@
 # Roundtrip Oracle Baselines
 
+## 2026-08-08 — EuroOffice DOCX editor round-trip
+
+`eurooffice/2026-08-08-docx.json` is the first genuine EuroOffice editor
+baseline. The open-source `acme-us.docx` fixture completed an insert/save and
+remove/save cycle through the bundled example app; both sessions opened, both
+reported dirty through EuroOffice's document-state event, both produced a new
+stored package hash, and the remote UUID file was deleted afterward.
+
+Visible content, heading hierarchy, and the empty list/table/header/footer
+surfaces survived. Section first-page policy, style semantics, and theme font
+fallbacks changed. Strict validation regressed from zero findings to the
+configured 250-finding cap plus one security finding. This is therefore
+`semantic_drift`, despite successful load and callback saves.
+
+The baseline is curated rather than a raw report: remote UUID names, absolute
+developer paths, and volatile durations are removed; editor version, pinned
+browser image, hashes, feature verdicts, package-part changes, validation
+counts, and cleanup evidence remain.
+
 Per-format observation snapshots from running the four roundtrip oracles
 (`tools/oracle/{word,odf,pptx,xlsx}_repair_oracle.py` / `word_repair_corpus.py`)
 against curated corpora. Each subdirectory holds dated JSON reports

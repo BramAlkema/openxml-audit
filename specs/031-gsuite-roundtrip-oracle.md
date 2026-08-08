@@ -207,6 +207,12 @@ shared secret to manage.
 
 ### Phase 2 — DOCX, XLSX
 
+**2026-08-08 status:** DOCX orchestration and semantic comparison are
+implemented by Spec 038. XLSX orchestration remains pending. The DOCX route
+uses the existing MIME mapping below, the format-neutral package diff, and
+`openxml_audit.docx.semantic_snapshot`; it does not reuse PPTX-only semantic
+assumptions.
+
 Parameterize the orchestrator by format. Mime mapping:
 - docx ↔ `application/vnd.google-apps.document`
 - xlsx ↔ `application/vnd.google-apps.spreadsheet`
