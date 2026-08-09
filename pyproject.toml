@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "openxml-audit"
-version = "0.7.7"
+version = "0.7.8"
 description = "Validate OOXML and ODF files in pure Python — no .NET required"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -76,6 +76,10 @@ packages = ["src/openxml_audit"]
 [tool.hatch.build.targets.wheel.force-include]
 "data/openxml" = "openxml_audit/data/openxml"
 "data/pptx_oracle" = "openxml_audit/data/pptx_oracle"
+# The packaged dispatcher imports ``tools.oracle.*``.  Keep that implementation
+# package in the wheel as well as the thin entry point under ``openxml_audit``;
+# otherwise ``openxml-audit-oracle <engine>`` only works from a repository checkout.
+"tools/oracle" = "tools/oracle"
 
 [tool.ruff]
 target-version = "py310"

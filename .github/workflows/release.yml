@@ -44,6 +44,12 @@ jobs:
           assert schematron_registry.count_rules() > 0
           PY
 
+      - name: Smoke test packaged oracle dispatcher
+        run: |
+          for engine in word excel pptx odf gsuite preflight eurooffice; do
+            .release-venv/bin/openxml-audit-oracle "$engine" --help >/dev/null
+          done
+
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v6
         with:
