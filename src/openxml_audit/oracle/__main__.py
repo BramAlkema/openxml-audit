@@ -7,6 +7,7 @@ Usage:
   python -m openxml_audit.oracle pptx     FILES... [--output X.json]
   python -m openxml_audit.oracle odf      FILES... [--output X.json]
   python -m openxml_audit.oracle gsuite   FILES... [--output X.json]
+  python -m openxml_audit.oracle eurooffice FILES... [--output X.json]
 
 Each subcommand defers to the format's existing CLI in
 `tools/oracle/`. This module is a thin dispatcher introduced in 0.6.8
@@ -17,6 +18,11 @@ engine added in spec 031 (alias `google`) needs the optional
 domain-wide delegation configured — see
 `specs/031-gsuite-roundtrip-oracle.md`.
 
+The `eurooffice` engine (aliases `euro-office` and `euro`) exercises
+Euro-Office Document Server's conversion endpoint. It reads JWT
+credentials from environment variables only; see
+`specs/038-eurooffice-conversion-oracle.md`.
+
 Use `python -m openxml_audit.oracle preflight` to run the macOS
 permission / install check across the desktop-app engines before a
 corpus walk.
@@ -24,10 +30,8 @@ corpus walk.
 
 from __future__ import annotations
 
-import argparse
 import sys
 from pathlib import Path
-
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _TOOLS_DIR = _REPO_ROOT / "tools"
@@ -80,6 +84,14 @@ def _run_gsuite(args: list[str]) -> int:
     return gsuite_main()
 
 
+def _run_eurooffice(args: list[str]) -> int:
+    _ensure_tools_on_path()
+    from tools.oracle.eurooffice_conversion_oracle import main as eurooffice_main
+
+    sys.argv = ["eurooffice_conversion_oracle.py", *args]
+    return eurooffice_main()
+
+
 def _run_preflight(args: list[str]) -> int:
     _ensure_tools_on_path()
     from tools.oracle.preflight import main as preflight_main
@@ -97,6 +109,9 @@ _DISPATCH = {
     "odf": _run_odf,
     "gsuite": _run_gsuite,
     "google": _run_gsuite,  # alias
+    "eurooffice": _run_eurooffice,
+    "euro-office": _run_eurooffice,  # alias
+    "euro": _run_eurooffice,  # alias
     "preflight": _run_preflight,
 }
 
@@ -104,8 +119,10 @@ _DISPATCH = {
 def main() -> int:
     if len(sys.argv) < 2 or sys.argv[1] in {"-h", "--help"}:
         print(__doc__, file=sys.stderr)
-        print("\nAvailable engines: " + ", ".join(sorted(_DISPATCH.keys())),
-              file=sys.stderr)
+        print(
+            "\nAvailable engines: " + ", ".join(sorted(_DISPATCH.keys())),
+            file=sys.stderr,
+        )
         return 0 if len(sys.argv) >= 2 else 2
 
     engine = sys.argv[1].lower()

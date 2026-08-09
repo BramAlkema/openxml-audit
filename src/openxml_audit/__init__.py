@@ -60,7 +60,7 @@ from openxml_audit.parts import (
 from openxml_audit.validator import OpenXmlValidator, is_valid_pptx, validate_pptx
 from openxml_audit.verdict import AppPrediction, AppVerdict, predict
 
-__version__ = "0.7.7"
+__version__ = "0.7.8"
 
 __all__ = [
     # Main API

@@ -1,4 +1,21 @@
-# Word Roundtrip Oracle
+# Oracle Tools
+
+This directory contains the app and service-backed oracle engines used by
+`openxml-audit-oracle`. It ships in the wheel because the packaged dispatcher
+imports these modules; individual engines still have their own platform,
+application, network, and credential requirements.
+
+The Euro-Office conversion engine is service-backed and cross-platform:
+
+```bash
+openxml-audit-oracle eurooffice https://files.example.test/sample.odt
+```
+
+It reads `EUROOFFICE_ORACLE_URL` and (when enabled by the server)
+`EUROOFFICE_ORACLE_JWT_SECRET`. See
+[`specs/038-eurooffice-conversion-oracle.md`](../../specs/038-eurooffice-conversion-oracle.md).
+
+## Word Roundtrip Oracle
 
 Spec: [`specs/011-word-roundtrip-oracle.md`](../../specs/011-word-roundtrip-oracle.md)
 
@@ -7,8 +24,9 @@ Mac via osascript, opens a DOCX, saves it through Word, and returns the
 post-Word file. The diff between input and post-Word is the empirical
 oracle for any "would Word repair this?" question.
 
-The package is intentionally outside `src/openxml_audit/` — it does not
-ship in the wheel and cannot run in CI.
+The Word engine is developer-machine infrastructure: although its module ships
+for dispatcher availability, it needs Microsoft Word for Mac and cannot run in
+ordinary Linux CI.
 
 ## Why It Exists
 

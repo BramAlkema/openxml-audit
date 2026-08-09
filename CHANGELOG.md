@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.8] - 2026-08-09
+
+Euro-Office conversion evidence and a packaging repair for the public oracle
+dispatcher. PyPI installs can now run every dispatcher engine outside a source
+checkout, including the new authenticated Euro-Office conversion oracle.
+
+### Added
+- **Euro-Office conversion oracle (Spec 038)** — a dependency-free
+  `openxml_audit.eurooffice` client and `openxml-audit-oracle eurooffice`
+  engine for the current Document Server `/converter` contract. The format
+  model is pinned to Nextcloud connector 11.0.1 and document-formats 3.2.0:
+  native OOXML editing, lossy ODT/ODS/ODP-to-OOXML editing, and ODG
+  view/conversion only. JWT secrets are environment-only, returned OOXML is
+  validated, and same-format conversions receive canonical per-part diffs.
+  Reports state their limit explicitly: this proves conversion, not browser
+  editing, save callbacks, or coauthoring. The first six-file live baseline
+  records two validator-clean native conversions, three returned packages with
+  validator findings (including unchanged source findings for PPTX), and one
+  ODP conversion failure; it also exposes the live 9.3.1.37 versus upstream
+  9.3.3 deployment-version gap.
+
+### Fixed
+- **Packaged oracle dispatcher** — wheels now include the `tools.oracle`
+  implementation package used by `openxml-audit-oracle`. PyPI installs no
+  longer fail with `ModuleNotFoundError: No module named 'tools'` when an
+  engine is selected outside a repository checkout.
+
 ## [0.7.7] - 2026-07-20
 
 A reported bug that turned out to be the visible corner of a larger

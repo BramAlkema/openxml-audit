@@ -365,6 +365,58 @@ The report classifies each roundtrip across a `LossClass` taxonomy:
 Drive uploads are deleted in `finally` after each roundtrip — the
 oracle never leaves files in your account.
 
+## Euro-Office Conversion Oracle
+
+The `eurooffice` engine exercises Euro-Office Document Server's
+synchronous `/converter` endpoint, downloads the result, validates the
+returned OOXML package, and records a canonical per-part diff when the
+source and target formats match.
+
+The capability model is pinned to Nextcloud connector **11.0.1** and
+its `ONLYOFFICE/document-formats` **3.2.0** dependency:
+
+| Connector behavior | Formats | Conversion target |
+|---|---|---|
+| Native edit | DOCX/DOCM/DOTX/DOTM, XLSX/XLSM/XLTX/XLTM, PPTX/PPTM/POTX/POTM/PPSX/PPSM | Same format |
+| Lossy edit | ODT/OTT, ODS/OTS, ODP/OTP | DOCX, XLSX, PPTX |
+| View/convert only | ODG | PPTX |
+
+This distinction matters: an ODT shown as editable by the connector is
+converted to DOCX before editing, while ODG is not registered as an
+editable format. See
+[`specs/038-eurooffice-conversion-oracle.md`](specs/038-eurooffice-conversion-oracle.md)
+for the pinned sources and evidence limits.
+
+Configure the endpoint and JWT through environment variables. The
+secret deliberately has no CLI flag, keeping it out of shell history
+and process listings:
+
+```bash
+export EUROOFFICE_ORACLE_URL=https://office.example.test/
+export EUROOFFICE_ORACLE_JWT_SECRET='read-from-your-secret-store'
+
+# URL inputs can be fetched directly by Document Server.
+openxml-audit-oracle eurooffice \
+  https://files.example.test/sample.odt \
+  --output eurooffice-report.json
+
+# Local inputs require a public base URL that serves their basenames.
+export EUROOFFICE_ORACLE_SOURCE_BASE_URL=https://files.example.test/corpus/
+openxml-audit-oracle eurooffice ./corpus/ --output eurooffice-report.json
+```
+
+`euro-office` and `euro` are aliases. A successful observation proves
+the Document Server fetch/conversion path and output validity. It does
+not exercise the browser editor, Nextcloud save callback, or
+coauthoring, so it is not an end-to-end editing claim.
+
+The first live six-file snapshot is committed at
+[`tools/oracle/baselines/eurooffice/2026-08-09.json`](tools/oracle/baselines/eurooffice/2026-08-09.json).
+It records the live server's reported 9.3.1.37 build separately from the
+current 9.3.3 upstream release, plus validator-clean DOCX/XLSX conversion,
+pre-existing PPTX findings, ODF-target findings, and the observed ODP
+conversion failure.
+
 ## Open XML SDK (Standalone)
 
 Run the .NET SDK validator separately (requires .NET SDK 8.x or Docker):

@@ -1,9 +1,9 @@
 # Roundtrip Oracle Baselines
 
-Per-format observation snapshots from running the four roundtrip oracles
+Per-format observation snapshots from running the desktop roundtrip oracles
 (`tools/oracle/{word,odf,pptx,xlsx}_repair_oracle.py` / `word_repair_corpus.py`)
-against curated corpora. Each subdirectory holds dated JSON reports
-matching the schema in `RoundtripObservation`.
+and service-backed oracles against curated corpora. Each subdirectory holds
+dated JSON reports matching its engine's observation schema.
 
 ## Layout
 
@@ -14,6 +14,7 @@ tools/oracle/baselines/
   odf/<YYYY-MM-DD>.json
   pptx/<YYYY-MM-DD>.json
   xlsx/<YYYY-MM-DD>.json
+  eurooffice/<YYYY-MM-DD>.json
   word_<constraint>_pairwise.json   ← scenario-matrix oracle output
   (e.g. word_trpr_pairwise.json, word_tblpr_pairwise.json, ...)
 ```
@@ -35,11 +36,44 @@ python tools/oracle/odf_repair_oracle.py  /path/to/odf/corpus  --output ...
 python tools/oracle/word_repair_corpus.py /path/to/docx/corpus --output ...
 python tools/oracle/pptx_repair_oracle.py /path/to/pptx/corpus --output ...
 python tools/oracle/xlsx_repair_oracle.py /path/to/xlsx/corpus --output ...
+openxml-audit-oracle eurooffice https://files.example.test/corpus/... --output ...
 ```
 
 Permissions setup is required for the three Microsoft Office oracles —
 see `docs/oracle_permissions.md`. The ODF oracle uses headless soffice
-and needs no special grants.
+and needs no special grants. Euro-Office needs a reachable Document Server,
+an environment-provided JWT secret when enabled, and source URLs that tolerate
+the server's configured outbox Authorization header.
+
+## 2026-08-09 Euro-Office conversion baseline
+
+[`eurooffice/2026-08-09.json`](eurooffice/2026-08-09.json) records six
+TokenMoulds v0.7.2 `acme-us` fixtures against the live Opus95 Euro-Office
+conversion endpoint. The server reported **9.3.1.37**; the current upstream
+release pinned by the oracle is **9.3.3**, so this snapshot also records a
+deployment-version gap rather than pretending it ran the newest server build.
+
+| Source | Mode | Target | Outcome | Source errors | Target errors |
+|---|---|---|---|---:|---:|
+| DOCX | native edit | DOCX | preserved | 0 | 0 |
+| XLSX | native edit | XLSX | preserved | 0 | 0 |
+| PPTX | native edit | PPTX | invalid output | 2 | 2 |
+| ODT | lossy edit | DOCX | invalid output | n/a | 139 |
+| ODS | lossy edit | XLSX | invalid output | n/a | 6 |
+| ODP | lossy edit | PPTX | request failed (`-3`) | n/a | n/a |
+
+`preserved` means canonical XML and relationship parts were unchanged; the ZIP
+bytes and sizes did change. The PPTX's two findings were already present in the
+source, were identical in the target, and had a zero canonical part diff—the
+converter introduced no new reported finding. ODT and ODS produced downloadable
+OOXML but those targets did not pass `openxml-audit`; ODP conversion failed in
+the converter before an artifact was returned.
+
+These are conversion-endpoint observations, not claims about the Nextcloud
+browser editor or save callback. The source fixtures used a static CDN because
+the live server attaches its outbox bearer token to downloads: raw GitHub treats
+that unrelated token as invalid GitHub authentication and deliberately returns
+404, while the CDN ignores it.
 
 ## 2026-04-29 baseline run — first across all four formats
 
