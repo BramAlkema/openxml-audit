@@ -23,6 +23,7 @@ from openxml_audit.namespaces import (
     RELATIONSHIPS_METADATA_CORE,
 )
 from openxml_audit.parts import OpenXmlPart
+from openxml_audit.schema.types import BooleanTypeValidator
 
 if TYPE_CHECKING:
     from openxml_audit.context import ValidationContext
@@ -77,6 +78,8 @@ _APP_ALL_ELEMENTS = (
     | _APP_VECTOR_ELEMENTS
     | {"DocSecurity", "DigSig"}
 )
+
+_XSD_BOOLEAN = BooleanTypeValidator()
 
 # Core properties (core.xml) expected element names with namespaces
 _CORE_DC_ELEMENTS = frozenset(
@@ -286,7 +289,7 @@ class PropertiesValidator:
         self, elem: etree._Element, name: str, context: ValidationContext
     ) -> None:
         text = (elem.text or "").strip().lower()
-        if text and text not in ("true", "false"):
+        if text and not _XSD_BOOLEAN.validate(text).is_valid:
             context.add_schema_error(
                 f"Extended property '{name}' should be boolean, got '{text}'",
                 node=name,

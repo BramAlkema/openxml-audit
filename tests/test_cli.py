@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from click.testing import CliRunner
@@ -9,6 +10,7 @@ from click.testing import CliRunner
 from openxml_audit import ValidationError, ValidationResult
 from openxml_audit import cli as cli_module
 from openxml_audit.errors import FileFormat, ValidationErrorType, ValidationSeverity
+from openxml_audit.eurooffice.compatibility import TOKENOOXML_EUROOFFICE_EDITOR_PROFILE_ID
 
 
 def test_detect_validator_for_odf_extensions() -> None:
@@ -264,6 +266,117 @@ def test_cli_can_enable_ooxml_security(monkeypatch, minimal_pptx: Path) -> None:
 
     assert result.exit_code == 0, result.output
     assert calls == [(FileFormat.OFFICE_2019, True)]
+
+
+def test_cli_eurooffice_profile_forces_full_secure_scan_and_adds_json_report(
+    monkeypatch,
+    minimal_pptx: Path,
+) -> None:
+    calls: list[tuple[FileFormat, int, bool]] = []
+
+    class DummyOpenXmlValidator:
+        def __init__(
+            self,
+            file_format: FileFormat,
+            max_errors: int,
+            strict: bool,
+            security_validation: bool,
+        ) -> None:
+            del strict
+            calls.append((file_format, max_errors, security_validation))
+            self.file_format = file_format
+
+        def validate(self, path: Path) -> ValidationResult:
+            return ValidationResult(
+                is_valid=False,
+                errors=[
+                    ValidationError(
+                        error_type=ValidationErrorType.SEMANTIC,
+                        description=(
+                            "Active content content type "
+                            "'application/vnd.openxmlformats-officedocument.oleObject' "
+                            "declared for extension '.bin'"
+                        ),
+                        part_uri="/[Content_Types].xml",
+                        path="/Types[1]/Default[6]",
+                        node="Default",
+                        id="Sec_ActiveContentType",
+                    )
+                ],
+                file_path=str(path),
+                file_format=self.file_format,
+            )
+
+    monkeypatch.setattr(cli_module, "OpenXmlValidator", DummyOpenXmlValidator)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli_module.main,
+        [
+            str(minimal_pptx),
+            "--validator",
+            "ooxml",
+            "--output",
+            "json",
+            "--max-errors",
+            "1",
+            "--no-ooxml-security",
+            "--eurooffice-profile",
+            TOKENOOXML_EUROOFFICE_EDITOR_PROFILE_ID,
+            "--eurooffice-document-server-version",
+            "9.3.1.37",
+            "--eurooffice-connector-version",
+            "11.0.1",
+        ],
+    )
+
+    # Compatibility mode is additive: accepted drift is in JSON, while the
+    # existing strict exit status and raw invalid result remain unchanged.
+    assert result.exit_code == 1, result.output
+    assert calls == [(FileFormat.MICROSOFT_365, 0, True)]
+    payload = json.loads(result.output)
+    assert payload[0]["valid"] is False
+    compatibility = payload[0]["eurooffice_compatibility"]
+    assert compatibility["status"] == "accepted-known-drift"
+    assert compatibility["compatible"] is True
+    assert compatibility["raw_strict"]["error_count"] == 1
+    assert compatibility["semantic_preservation"] == "not-assessed"
+
+
+def test_cli_eurooffice_profile_requires_observed_versions(minimal_pptx: Path) -> None:
+    runner = CliRunner()
+    result = runner.invoke(
+        cli_module.main,
+        [
+            str(minimal_pptx),
+            "--eurooffice-profile",
+            TOKENOOXML_EUROOFFICE_EDITOR_PROFILE_ID,
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "requires --eurooffice-document-server-version" in result.output
+
+
+def test_cli_eurooffice_profile_rejects_permissive_policy(minimal_pptx: Path) -> None:
+    runner = CliRunner()
+    result = runner.invoke(
+        cli_module.main,
+        [
+            str(minimal_pptx),
+            "--policy",
+            "permissive",
+            "--eurooffice-profile",
+            TOKENOOXML_EUROOFFICE_EDITOR_PROFILE_ID,
+            "--eurooffice-document-server-version",
+            "9.3.1.37",
+            "--eurooffice-connector-version",
+            "11.0.1",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "require --policy=strict" in result.output
 
 
 def test_output_text_includes_warnings() -> None:

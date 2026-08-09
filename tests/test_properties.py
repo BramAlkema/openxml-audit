@@ -173,6 +173,24 @@ class TestExtendedProperties:
         descs = [e.description for e in result.errors]
         assert any("boolean" in d for d in descs), descs
 
+    def test_extended_accepts_all_xsd_boolean_lexical_forms(self, tmp_path: Path) -> None:
+        files = _base_files()
+        files["_rels/.rels"] = _RELS.format(
+            extra='<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>'
+        )
+        files["docProps/app.xml"] = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
+  <ScaleCrop>true</ScaleCrop>
+  <LinksUpToDate>false</LinksUpToDate>
+  <SharedDoc>1</SharedDoc>
+  <HyperlinksChanged>0</HyperlinksChanged>
+</Properties>"""
+        pkg = _build_pkg(tmp_path, "xsd_bool_forms.docx", files)
+        result = OpenXmlValidator(schema_validation=False).validate(pkg)
+        boolean_errors = [e.description for e in result.errors if "boolean" in e.description]
+        assert boolean_errors == []
+
     def test_extended_vector_size_mismatch(self, tmp_path: Path) -> None:
         files = _base_files()
         files["_rels/.rels"] = _RELS.format(

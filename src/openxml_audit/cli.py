@@ -10,7 +10,12 @@ from pathlib import Path
 import click
 from rich.console import Console
 
-from openxml_audit.errors import FileFormat, ValidationSeverity
+from openxml_audit.errors import FileFormat, ValidationResult, ValidationSeverity
+from openxml_audit.eurooffice.compatibility import (
+    EuroOfficeCompatibilityReport,
+    classify_eurooffice_compatibility,
+    supported_eurooffice_compatibility_profiles,
+)
 from openxml_audit.odf import OdfValidator
 from openxml_audit.validator import OpenXmlValidator
 from openxml_audit.verdict import predict
@@ -281,6 +286,29 @@ def _odf_validator_kwargs_for_level(
     default=False,
     help="Enable OOXML security validation checks.",
 )
+@click.option(
+    "--eurooffice-profile",
+    type=click.Choice(
+        supported_eurooffice_compatibility_profiles(),
+        case_sensitive=True,
+    ),
+    default=None,
+    help=(
+        "Add a version-bound EuroOffice compatibility report. This requires strict policy, "
+        "forces an unlimited OOXML security scan, and does not replace the raw strict result "
+        "or exit status. Defaults --format to microsoft365."
+    ),
+)
+@click.option(
+    "--eurooffice-document-server-version",
+    default=None,
+    help="Observed EuroOffice Document Server version for profile verification.",
+)
+@click.option(
+    "--eurooffice-connector-version",
+    default=None,
+    help="Observed Nextcloud EuroOffice connector version for profile verification.",
+)
 def main(
     path: Path,
     file_format: str | None,
@@ -294,6 +322,9 @@ def main(
     odf_schema_routes: Path | None,
     odf_verify_cryptography: bool,
     ooxml_security: bool,
+    eurooffice_profile: str | None,
+    eurooffice_document_server_version: str | None,
+    eurooffice_connector_version: str | None,
 ) -> None:
     """Validate Open XML or ODF files against their specifications.
 
@@ -301,6 +332,30 @@ def main(
     """
     requested_format = FileFormat(file_format) if file_format else None
     strict = policy == "strict"
+    if eurooffice_profile is not None and (
+        eurooffice_document_server_version is None or eurooffice_connector_version is None
+    ):
+        error_console.print(
+            "[red]Error:[/red] --eurooffice-profile requires "
+            "--eurooffice-document-server-version and --eurooffice-connector-version."
+        )
+        sys.exit(1)
+    if eurooffice_profile is None and (
+        eurooffice_document_server_version is not None or eurooffice_connector_version is not None
+    ):
+        error_console.print(
+            "[red]Error:[/red] EuroOffice version options require --eurooffice-profile."
+        )
+        sys.exit(1)
+
+    compatibility_enabled = eurooffice_profile is not None
+    if compatibility_enabled and not strict:
+        error_console.print(
+            "[red]Error:[/red] EuroOffice compatibility profiles require --policy=strict."
+        )
+        sys.exit(1)
+    if compatibility_enabled and requested_format is None:
+        requested_format = FileFormat.MICROSOFT_365
     schema_routes: Mapping[str, Mapping[str, Path]] | None = None
     if odf_schema_routes is not None:
         try:
@@ -325,9 +380,10 @@ def main(
         sys.exit(0)
 
     # Validate each file
-    results = []
+    results: list[ValidationResult] = []
     all_valid = True
     validators: dict[tuple[str, FileFormat], OpenXmlValidator | OdfValidator] = {}
+    compatibility_reports: dict[str, EuroOfficeCompatibilityReport] = {}
 
     for file_path in files:
         file_validator = validator
@@ -338,6 +394,11 @@ def main(
                     f"[red]Error:[/red] Cannot determine validator for {file_path}."
                 )
                 sys.exit(1)
+        if compatibility_enabled and file_validator != "ooxml":
+            error_console.print(
+                "[red]Error:[/red] EuroOffice compatibility profiles only support OOXML files."
+            )
+            sys.exit(1)
         try:
             format_enum = _resolve_format(requested_format, file_validator)
         except ValueError as exc:
@@ -348,8 +409,8 @@ def main(
             if file_validator == "ooxml":
                 validators[cache_key] = OpenXmlValidator(
                     file_format=format_enum,
-                    max_errors=max_errors,
-                    security_validation=ooxml_security,
+                    max_errors=0 if compatibility_enabled else max_errors,
+                    security_validation=ooxml_security or compatibility_enabled,
                     strict=strict,
                 )
             else:
@@ -366,21 +427,39 @@ def main(
                 )
         result = validators[cache_key].validate(file_path)
         results.append(result)
+        if compatibility_enabled:
+            assert eurooffice_profile is not None
+            assert eurooffice_document_server_version is not None
+            assert eurooffice_connector_version is not None
+            compatibility_reports[result.file_path] = classify_eurooffice_compatibility(
+                result,
+                profile_id=eurooffice_profile,
+                document_server_version=eurooffice_document_server_version,
+                connector_version=eurooffice_connector_version,
+                strict_validation=True,
+                security_validation=True,
+                complete_scan=True,
+            )
         if not result.is_valid:
             all_valid = False
 
     # Output results
     if output == "json":
-        _output_json(results)
+        _output_json(results, compatibility_reports=compatibility_reports)
     elif output == "xml":
-        _output_xml(results)
+        _output_xml(results, compatibility_reports=compatibility_reports)
     else:
-        _output_text(results, quiet)
+        _output_text(results, quiet, compatibility_reports=compatibility_reports)
 
     sys.exit(0 if all_valid else 1)
 
 
-def _output_text(results: list, quiet: bool) -> None:
+def _output_text(
+    results: list[ValidationResult],
+    quiet: bool,
+    *,
+    compatibility_reports: Mapping[str, EuroOfficeCompatibilityReport] | None = None,
+) -> None:
     """Output results in SDK-style plain text."""
     multi_file = len(results) > 1
     for result in results:
@@ -395,6 +474,15 @@ def _output_text(results: list, quiet: bool) -> None:
         # The headline answers the mission question ("will this open in
         # its target app?"); the SDK-style list below is the evidence.
         console.print(predict(result).headline)
+        compatibility = (compatibility_reports or {}).get(result.file_path)
+        if compatibility is not None:
+            console.print(
+                "EuroOffice compatibility: "
+                f"{compatibility.status.value} "
+                f"({compatibility.accepted_finding_count} known, "
+                f"{compatibility.unexpected_finding_count} unexpected; "
+                "semantics not assessed)"
+            )
 
         for idx, error in enumerate(errors, start=1):
             console.print(f"{idx}. {error.description}")
@@ -415,11 +503,15 @@ def _output_text(results: list, quiet: bool) -> None:
             console.print()
 
 
-def _output_json(results: list) -> None:
+def _output_json(
+    results: list[ValidationResult],
+    *,
+    compatibility_reports: Mapping[str, EuroOfficeCompatibilityReport] | None = None,
+) -> None:
     """Output results as JSON."""
     output = []
     for result in results:
-        output.append({
+        item: dict[str, object] = {
             "file": result.file_path,
             "valid": result.is_valid,
             "format": result.file_format.value,
@@ -437,12 +529,20 @@ def _output_json(results: list) -> None:
                 }
                 for e in result.errors
             ],
-        })
+        }
+        compatibility = (compatibility_reports or {}).get(result.file_path)
+        if compatibility is not None:
+            item["eurooffice_compatibility"] = compatibility.to_dict()
+        output.append(item)
 
     console.print_json(json.dumps(output, indent=2))
 
 
-def _output_xml(results: list) -> None:
+def _output_xml(
+    results: list[ValidationResult],
+    *,
+    compatibility_reports: Mapping[str, EuroOfficeCompatibilityReport] | None = None,
+) -> None:
     """Output results as XML (matching .NET SDK format)."""
     from xml.dom.minidom import parseString
     from xml.etree.ElementTree import Element, SubElement, tostring
@@ -455,6 +555,17 @@ def _output_xml(results: list) -> None:
         file_elem.set("path", str(result.file_path))
         file_elem.set("valid", str(result.is_valid).lower())
         file_elem.set("format", result.file_format.value)
+
+        compatibility = (compatibility_reports or {}).get(result.file_path)
+        if compatibility is not None:
+            compatibility_elem = SubElement(file_elem, "EuroOfficeCompatibility")
+            compatibility_elem.set("profile", compatibility.profile_id)
+            compatibility_elem.set("status", compatibility.status.value)
+            compatibility_elem.set("compatible", str(compatibility.compatible).lower())
+            compatibility_elem.set(
+                "semanticPreservation",
+                compatibility.semantic_preservation,
+            )
 
         if result.errors:
             errors_elem = SubElement(file_elem, "Errors")

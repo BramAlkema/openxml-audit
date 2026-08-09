@@ -417,6 +417,34 @@ current 9.3.3 upstream release, plus validator-clean DOCX/XLSX conversion,
 pre-existing PPTX findings, ODF-target findings, and the observed ODP
 conversion failure.
 
+### EuroOffice editor compatibility report
+
+Editor callback artifacts are a different evidence path from conversion. For
+the pinned live Document Server 9.3.1.37 and connector 11.0.1, the CLI can add
+a version-bound compatibility view to the unmodified strict result:
+
+```bash
+openxml-audit callback.docx \
+  --output json \
+  --eurooffice-profile \
+    tokenooxml-eurooffice-editor-9.3.1.37-connector-11.0.1 \
+  --eurooffice-document-server-version 9.3.1.37 \
+  --eurooffice-connector-version 11.0.1
+```
+
+This mode forces a strict, unlimited OOXML security scan and defaults the
+validation target to Microsoft 365. It adds `eurooffice_compatibility` to JSON;
+the raw `valid` value, findings, and process exit status remain strict. Known
+drift is accepted only by exact rule and bounded count. The phantom OLE `.bin`
+declaration is accepted only when the package contains no actual `.bin`
+member. Unknown versions, new findings, cap overruns, and real binary payloads
+remain non-compatible outcomes.
+
+The profile reports semantic preservation as `not-assessed`; template SHA,
+content semantics, and visual fidelity must be checked separately. See
+[`specs/039-eurooffice-editor-compatibility-profile.md`](specs/039-eurooffice-editor-compatibility-profile.md)
+for the evidence boundary and rule contract.
+
 ## Open XML SDK (Standalone)
 
 Run the .NET SDK validator separately (requires .NET SDK 8.x or Docker):

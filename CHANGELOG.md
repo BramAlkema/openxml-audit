@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.9] - 2026-08-09
+
+### Added
+- **EuroOffice editor compatibility profile (Spec 039)** — raw strict
+  validation can now be accompanied by a version-bound callback-artifact
+  verdict for Document Server 9.3.1.37 and Nextcloud connector 11.0.1. Exact
+  finding families and observed occurrence caps distinguish known serializer
+  drift from new drift without suppressing errors. The active-content quirk is
+  accepted only when ZIP inspection proves there is no real `.bin` payload;
+  unknown environments accept nothing. CLI profile mode forces strict,
+  unlimited security validation and emits a compact JSON report for workers.
+  Semantic preservation remains explicitly unassessed for separate
+  template/content quality checks.
+
+### Fixed
+- **Extended-property XSD booleans** — `0` and `1` are accepted alongside
+  `false` and `true`, preventing valid EuroOffice callback properties from
+  being reported as schema errors.
+
 ## [0.7.8] - 2026-08-09
 
 Euro-Office conversion evidence and a packaging repair for the public oracle
@@ -1051,7 +1070,8 @@ mark the new shape of the validator.
 - Integration helpers: context managers, decorators, pytest fixtures
 - Support for Office 2007 through Microsoft 365 format versions
 
-[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/BramAlkema/openxml-audit/compare/v0.7.9...HEAD
+[0.7.9]: https://github.com/BramAlkema/openxml-audit/compare/v0.7.8...v0.7.9
 [0.5.0]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.9...v0.5.0
 [0.4.3]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/BramAlkema/openxml-audit/compare/v0.4.1...v0.4.2
