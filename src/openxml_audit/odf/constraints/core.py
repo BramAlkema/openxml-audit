@@ -44,8 +44,7 @@ class CoreRootConstraint(OdfConstraint):
                     rule_id="ODFSEM001",
                     error_type=ValidationErrorType.SCHEMA,
                     description=(
-                        f"{part} root element must be office:{expected_root} "
-                        f"(found '{root.tag}')"
+                        f"{part} root element must be office:{expected_root} (found '{root.tag}')"
                     ),
                     part_uri=self._normalize_part_uri(part),
                 )

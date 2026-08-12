@@ -13,12 +13,28 @@ from openxml_audit.odf._helpers import FORM_NS, SCRIPT_NS, XLINK_NS
 from openxml_audit.odf.constraints.base import EvaluationContext, OdfConstraint, OdfSemanticRule
 
 # Form control element local names
-_CONTROL_LOCAL_NAMES = frozenset({
-    "text", "textarea", "password", "file", "formatted-text",
-    "fixed-text", "combobox", "listbox", "button", "image",
-    "checkbox", "radio", "frame", "image-frame", "hidden",
-    "grid", "value-range", "generic-control",
-})
+_CONTROL_LOCAL_NAMES = frozenset(
+    {
+        "text",
+        "textarea",
+        "password",
+        "file",
+        "formatted-text",
+        "fixed-text",
+        "combobox",
+        "listbox",
+        "button",
+        "image",
+        "checkbox",
+        "radio",
+        "frame",
+        "image-frame",
+        "hidden",
+        "grid",
+        "value-range",
+        "generic-control",
+    }
+)
 
 
 def _iter_form_controls(root: etree._Element) -> list[etree._Element]:
@@ -70,10 +86,7 @@ class FormControlNameUniqueConstraint(OdfConstraint):
                         self._error(
                             rule_id="ODFSEMFORM001",
                             error_type=ValidationErrorType.SEMANTIC,
-                            description=(
-                                f"Duplicate control name '{name}' "
-                                f"in form '{form_name}'"
-                            ),
+                            description=(f"Duplicate control name '{name}' in form '{form_name}'"),
                             part_uri="/content.xml",
                         )
                     )
@@ -106,9 +119,7 @@ class FormControlIdUniqueConstraint(OdfConstraint):
                     self._error(
                         rule_id="ODFSEMFORM002",
                         error_type=ValidationErrorType.SEMANTIC,
-                        description=(
-                            f"Duplicate form control ID '{ctrl_id}'"
-                        ),
+                        description=(f"Duplicate form control ID '{ctrl_id}'"),
                         part_uri="/content.xml",
                     )
                 )
@@ -155,8 +166,7 @@ class FormColumnRefConstraint(OdfConstraint):
                         rule_id="ODFSEMFORM003",
                         error_type=ValidationErrorType.SEMANTIC,
                         description=(
-                            f"Form grid column references control '{ref}' "
-                            "which is not defined"
+                            f"Form grid column references control '{ref}' which is not defined"
                         ),
                         part_uri="/content.xml",
                     )

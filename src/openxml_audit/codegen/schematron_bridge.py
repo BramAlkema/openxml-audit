@@ -44,10 +44,12 @@ if TYPE_CHECKING:
 
 # VML namespaces — attributes are unnamespaced in XML even when the
 # schematron data uses the element prefix (e.g. "v:id" → plain "id").
-_VML_NAMESPACES = frozenset({
-    "urn:schemas-microsoft-com:vml",
-    "urn:schemas-microsoft-com:office:office",
-})
+_VML_NAMESPACES = frozenset(
+    {
+        "urn:schemas-microsoft-com:vml",
+        "urn:schemas-microsoft-com:office:office",
+    }
+)
 
 
 def _get_namespace_map() -> dict[str, str]:
@@ -79,9 +81,7 @@ def _resolve_context_to_tag(context: str, namespace_map: dict[str, str]) -> str 
     return None
 
 
-def _split_attribute_name(
-    attr: str, namespace_map: dict[str, str]
-) -> tuple[str, str | None]:
+def _split_attribute_name(attr: str, namespace_map: dict[str, str]) -> tuple[str, str | None]:
     """Extract local name + namespace from attribute reference.
 
     Args:
@@ -129,16 +129,16 @@ def _convert_xpath_pattern(pattern: str) -> str:
     result = result.replace(r"\P{IsBasicLatin}", r"\u0080-\uffff")
 
     # XPath uses \p{L} for Unicode letters, Python uses different syntax.
-    result = re.sub(r'\\p\{L\}', r'\\w', result)
-    result = re.sub(r'\\p\{N\}', r'\\d', result)
-    result = re.sub(r'\\P\{L\}', r'\\W', result)
-    result = re.sub(r'\\P\{N\}', r'\\D', result)
-    result = re.sub(r'\\p\{[^}]+\}', r'.', result)  # Fallback for other Unicode categories
-    result = re.sub(r'\\P\{[^}]+\}', r'.', result)  # Fallback for negative Unicode categories
+    result = re.sub(r"\\p\{L\}", r"\\w", result)
+    result = re.sub(r"\\p\{N\}", r"\\d", result)
+    result = re.sub(r"\\P\{L\}", r"\\W", result)
+    result = re.sub(r"\\P\{N\}", r"\\D", result)
+    result = re.sub(r"\\p\{[^}]+\}", r".", result)  # Fallback for other Unicode categories
+    result = re.sub(r"\\P\{[^}]+\}", r".", result)  # Fallback for negative Unicode categories
 
     # XPath uses \i for XML initial name char, \c for XML name char
-    result = re.sub(r'\\i', r'[a-zA-Z_:]', result)
-    result = re.sub(r'\\c', r'[a-zA-Z0-9_:.-]', result)
+    result = re.sub(r"\\i", r"[a-zA-Z_:]", result)
+    result = re.sub(r"\\c", r"[a-zA-Z0-9_:.-]", result)
 
     # Verify the pattern compiles
     re.compile(result)
@@ -293,9 +293,7 @@ def create_constraint_from_schematron(
                 return None
             sub_constraints = []
             for sub_rule in rule.sub_rules:
-                sub_constraint = create_constraint_from_schematron(
-                    sub_rule, namespace_map
-                )
+                sub_constraint = create_constraint_from_schematron(sub_rule, namespace_map)
                 if sub_constraint is not None:
                     sub_constraints.append(sub_constraint)
             if not sub_constraints:
@@ -307,9 +305,7 @@ def create_constraint_from_schematron(
                 return None
             sub_constraints = []
             for sub_rule in rule.sub_rules:
-                sub_constraint = create_constraint_from_schematron(
-                    sub_rule, namespace_map
-                )
+                sub_constraint = create_constraint_from_schematron(sub_rule, namespace_map)
                 if sub_constraint is not None:
                     sub_constraints.append(sub_constraint)
             if not sub_constraints:
@@ -330,11 +326,7 @@ def create_constraint_from_schematron(
             )
 
         case SchematronType.CROSS_PART_COUNT:
-            if (
-                attr_local is None
-                or rule.part_path is None
-                or rule.element_xpath is None
-            ):
+            if attr_local is None or rule.part_path is None or rule.element_xpath is None:
                 return None
             return CrossPartCountConstraint(
                 attribute=attr_local,
@@ -349,9 +341,7 @@ def create_constraint_from_schematron(
             # @attr and <condition> -> if attr present, condition must hold
             if attr_local is None or not rule.sub_rules:
                 return None
-            sub_constraint = create_constraint_from_schematron(
-                rule.sub_rules[0], namespace_map
-            )
+            sub_constraint = create_constraint_from_schematron(rule.sub_rules[0], namespace_map)
             if sub_constraint is None:
                 return None
             return ConditionalConstraint(

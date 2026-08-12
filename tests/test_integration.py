@@ -35,7 +35,8 @@ class TestFullValidationPipeline:
 
         # Should complete without critical package errors
         package_errors = [
-            e for e in result.errors
+            e
+            for e in result.errors
             if e.error_type == ValidationErrorType.PACKAGE
             and e.severity == ValidationSeverity.ERROR
         ]
@@ -81,9 +82,10 @@ class TestFullValidationPipeline:
         broken_path = tmp_path / "broken-non-main-rel.pptx"
         buffer = io.BytesIO()
 
-        with zipfile.ZipFile(minimal_pptx, "r") as src, zipfile.ZipFile(
-            buffer, "w", zipfile.ZIP_DEFLATED
-        ) as dst:
+        with (
+            zipfile.ZipFile(minimal_pptx, "r") as src,
+            zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as dst,
+        ):
             for name in src.namelist():
                 if name == "ppt/slideLayouts/slideLayout1.xml":
                     continue
@@ -223,9 +225,7 @@ class TestFileFormatVersions:
             FileFormat.MICROSOFT_365,
         ],
     )
-    def test_each_file_format(
-        self, minimal_pptx: Path, file_format: FileFormat
-    ) -> None:
+    def test_each_file_format(self, minimal_pptx: Path, file_format: FileFormat) -> None:
         """Test validation works for each file format version."""
         validator = OpenXmlValidator(file_format=file_format)
         result = validator.validate(minimal_pptx)

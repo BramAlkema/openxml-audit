@@ -65,9 +65,7 @@ class TestSchematronCoverage:
         registry = get_registry()
         registry.load()
 
-        unknown_rules = [
-            r for r in registry._rules if r.rule_type == SchematronType.UNKNOWN
-        ]
+        unknown_rules = [r for r in registry._rules if r.rule_type == SchematronType.UNKNOWN]
 
         assert len(unknown_rules) == 0, (
             f"Found {len(unknown_rules)} UNKNOWN rules. "
@@ -142,9 +140,7 @@ class TestSchematronCoverage:
         converted = [row for row in rows if row["constraint"] is not None]
         no_context = [row for row in rows if row["element_tag"] is None]
         no_constraint = [
-            row
-            for row in rows
-            if row["element_tag"] is not None and row["constraint"] is None
+            row for row in rows if row["element_tag"] is not None and row["constraint"] is None
         ]
 
         by_type = Counter(row["rule_type"] for row in rows)
@@ -158,42 +154,35 @@ class TestSchematronCoverage:
         assert stats["converted"] == 948
         assert stats["skipped_no_context"] == 0
         assert stats["skipped_no_constraint"] == 0
-        assert by_type == Counter({
-            "AND_CONDITION": 1,
-            "ATTRIBUTES_PRESENT": 14,
-            "ATTRIBUTE_COMPARISON": 6,
-            "ATTRIBUTE_EQUALS": 26,
-            "ATTRIBUTE_NOT_EQUAL": 21,
-            "ATTRIBUTE_VALUE_LENGTH": 191,
-            "ATTRIBUTE_VALUE_PATTERN": 22,
-            "ATTRIBUTE_VALUE_RANGE": 236,
-            "CONDITIONAL_VALUE": 17,
-            "CROSS_PART_COUNT": 53,
-            "ELEMENT_REFERENCE": 23,
-            "OR_CONDITION": 61,
-            "RELATIONSHIP_TYPE": 64,
-            "UNIQUE_ATTRIBUTE": 213,
-        })
+        assert by_type == Counter(
+            {
+                "AND_CONDITION": 1,
+                "ATTRIBUTES_PRESENT": 14,
+                "ATTRIBUTE_COMPARISON": 6,
+                "ATTRIBUTE_EQUALS": 26,
+                "ATTRIBUTE_NOT_EQUAL": 21,
+                "ATTRIBUTE_VALUE_LENGTH": 191,
+                "ATTRIBUTE_VALUE_PATTERN": 22,
+                "ATTRIBUTE_VALUE_RANGE": 236,
+                "CONDITIONAL_VALUE": 17,
+                "CROSS_PART_COUNT": 53,
+                "ELEMENT_REFERENCE": 23,
+                "OR_CONDITION": 61,
+                "RELATIONSHIP_TYPE": 64,
+                "UNIQUE_ATTRIBUTE": 213,
+            }
+        )
         assert converted_by_type == by_type
 
     def test_shipped_schematron_bridge_forbidden_fallback_buckets_are_empty(self) -> None:
         rows = _scan_schematron_bridge_rows()
-        no_context = [
-            row
-            for row in rows
-            if row["element_tag"] is None
-        ]
+        no_context = [row for row in rows if row["element_tag"] is None]
         no_constraint = [
-            row
-            for row in rows
-            if row["element_tag"] is not None and row["constraint"] is None
+            row for row in rows if row["element_tag"] is not None and row["constraint"] is None
         ]
 
         def format_rows(items: list[dict[str, object]]) -> list[str]:
-            return [
-                f"{row['context']} [{row['app']}] {row['rule_type']}"
-                for row in items[:10]
-            ]
+            return [f"{row['context']} [{row['app']}] {row['rule_type']}" for row in items[:10]]
 
         assert no_context == [], format_rows(no_context)
         assert no_constraint == [], format_rows(no_constraint)
@@ -219,8 +208,7 @@ class TestSchematronRuleTypes:
         registry.load()
 
         range_rules = [
-            r for r in registry._rules
-            if r.rule_type == SchematronType.ATTRIBUTE_VALUE_RANGE
+            r for r in registry._rules if r.rule_type == SchematronType.ATTRIBUTE_VALUE_RANGE
         ]
 
         assert len(range_rules) > 200  # Should have 240+ rules
@@ -235,10 +223,7 @@ class TestSchematronRuleTypes:
         registry = get_registry()
         registry.load()
 
-        or_rules = [
-            r for r in registry._rules
-            if r.rule_type == SchematronType.OR_CONDITION
-        ]
+        or_rules = [r for r in registry._rules if r.rule_type == SchematronType.OR_CONDITION]
 
         assert len(or_rules) > 0
 
@@ -254,8 +239,7 @@ class TestSchematronRuleTypes:
         registry.load()
 
         conditional_rules = [
-            r for r in registry._rules
-            if r.rule_type == SchematronType.CONDITIONAL_VALUE
+            r for r in registry._rules if r.rule_type == SchematronType.CONDITIONAL_VALUE
         ]
 
         assert len(conditional_rules) > 0

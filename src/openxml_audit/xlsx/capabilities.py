@@ -61,9 +61,7 @@ def check_capability(
     return {
         "key": finding.key,
         "known": True,
-        "meets_minimum_tier": (
-            finding.meets(minimum_tier) if minimum_tier is not None else None
-        ),
+        "meets_minimum_tier": (finding.meets(minimum_tier) if minimum_tier is not None else None),
         "minimum_tier": minimum_tier.value if minimum_tier is not None else None,
         "finding": finding.to_dict(),
     }
@@ -91,15 +89,11 @@ def _parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
 
 def main(argv: Iterable[str] | None = None) -> int:
     args = _parse_args(argv)
-    minimum_tier = (
-        EvidenceTier(args.minimum_tier) if args.minimum_tier is not None else None
-    )
+    minimum_tier = EvidenceTier(args.minimum_tier) if args.minimum_tier is not None else None
 
     if args.key is None:
         payload: dict[str, Any] = {
-            "findings": [
-                finding.to_dict() for finding in list_capability_findings(args.prefix)
-            ]
+            "findings": [finding.to_dict() for finding in list_capability_findings(args.prefix)]
         }
         if args.json:
             print(json.dumps(payload, indent=2, sort_keys=True))

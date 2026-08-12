@@ -109,9 +109,7 @@ def _resolve_format(requested: FileFormat | None, validator_kind: str) -> FileFo
 def _collect_files(path: Path, recursive: bool, validator: str) -> list[Path]:
     if path.is_dir():
         if not recursive:
-            raise ValueError(
-                f"{path} is a directory. Use --recursive to validate all files."
-            )
+            raise ValueError(f"{path} is a directory. Use --recursive to validate all files.")
         if validator == "ooxml":
             extensions = OOXML_EXTENSIONS
         elif validator == "odf":
@@ -144,9 +142,7 @@ def _load_odf_schema_routes(path: Path) -> Mapping[str, Mapping[str, Path]]:
         if not isinstance(version, str) or not version.strip():
             raise ValueError("ODF schema route versions must be non-empty strings.")
         if not isinstance(raw_mapping, dict):
-            raise ValueError(
-                f"ODF schema routes for version '{version}' must be a JSON object."
-            )
+            raise ValueError(f"ODF schema routes for version '{version}' must be a JSON object.")
 
         resolved_mapping: dict[str, Path] = {}
         for pattern, raw_schema in raw_mapping.items():

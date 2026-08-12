@@ -25,8 +25,7 @@ DEFAULT_RUNTIME_IMAGE = "eclipse-temurin:17-jre"
 def _require_executable(name: str) -> None:
     if shutil.which(name) is None:
         raise RuntimeError(
-            f"Required executable '{name}' was not found in PATH. "
-            "Install it and retry."
+            f"Required executable '{name}' was not found in PATH. Install it and retry."
         )
 
 
@@ -131,9 +130,7 @@ def _clone_repo(repo: str, ref: str, target_dir: Path) -> None:
     if target_dir.exists():
         shutil.rmtree(target_dir)
     target_dir.parent.mkdir(parents=True, exist_ok=True)
-    _run_checked(
-        ["git", "clone", "--depth", "1", "--branch", ref, repo, str(target_dir)]
-    )
+    _run_checked(["git", "clone", "--depth", "1", "--branch", ref, repo, str(target_dir)])
 
 
 def _select_odf_toolkit_jar(toolkit_root: Path) -> Path:
@@ -151,10 +148,7 @@ def _select_odf_toolkit_jar(toolkit_root: Path) -> Path:
             and "original-" not in path.name
         )
     if not candidates:
-        raise FileNotFoundError(
-            "Unable to locate ODF Toolkit validator jar in "
-            f"{target_dir}"
-        )
+        raise FileNotFoundError(f"Unable to locate ODF Toolkit validator jar in {target_dir}")
     return candidates[-1]
 
 
@@ -177,10 +171,7 @@ def _select_opf_launcher(opf_root: Path) -> tuple[str, Path]:
     if jar_candidates:
         return ("jar", jar_candidates[-1])
 
-    raise FileNotFoundError(
-        "Unable to locate OPF validator launcher script or jar in "
-        f"{opf_root}"
-    )
+    raise FileNotFoundError(f"Unable to locate OPF validator launcher script or jar in {opf_root}")
 
 
 def _join_shell_tokens(tokens: list[str]) -> str:
@@ -231,9 +222,7 @@ def _build_opf_command_template(
     if runtime_mode == "local":
         if launcher_type == "script":
             return _join_shell_tokens([str(launcher_path), "-o", "JSON", "{file}"])
-        return _join_shell_tokens(
-            ["java", "-jar", str(launcher_path), "-o", "JSON", "{file}"]
-        )
+        return _join_shell_tokens(["java", "-jar", str(launcher_path), "-o", "JSON", "{file}"])
 
     container_launcher = _container_tool_path(target, launcher_path)
     tokens = [
@@ -349,9 +338,7 @@ def _build_opf_validator(
     # only works when executed from the checkout root. Docker mode handles this
     # with `-w /tool`; local script mode must set the process working directory
     # explicitly or every invocation fails with "Unable to access jarfile".
-    working_dir = (
-        str(target) if runtime_mode == "local" and launcher_type == "script" else ""
-    )
+    working_dir = str(target) if runtime_mode == "local" and launcher_type == "script" else ""
     return {
         "repo": selected_repo,
         "ref": ref,
@@ -423,8 +410,7 @@ def main() -> int:
         type=str,
         default=DEFAULT_RUNTIME_IMAGE,
         help=(
-            "Docker runtime image when --runtime-mode=docker "
-            f"(default: {DEFAULT_RUNTIME_IMAGE})"
+            f"Docker runtime image when --runtime-mode=docker (default: {DEFAULT_RUNTIME_IMAGE})"
         ),
     )
     parser.add_argument(

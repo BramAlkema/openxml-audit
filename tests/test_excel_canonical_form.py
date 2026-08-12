@@ -11,7 +11,6 @@ canonicalization) get their own tests when shipped.
 
 from __future__ import annotations
 
-import io
 import zipfile
 from pathlib import Path
 
@@ -19,7 +18,6 @@ import pytest
 
 from openxml_audit import FileFormat, OpenXmlValidator
 from openxml_audit.errors import SourceClass
-
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -54,7 +52,7 @@ def _build_xlsx(
                 if shared_strings_xml is not None
                 else b""
             )
-            + b'</Types>'
+            + b"</Types>"
         ),
         "_rels/.rels": (
             b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -62,14 +60,14 @@ def _build_xlsx(
             b'<Relationship Id="rId1" '
             b'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
             b'Target="xl/workbook.xml"/>'
-            b'</Relationships>'
+            b"</Relationships>"
         ),
         "xl/workbook.xml": (
             b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             b'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
             b'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
             b'<sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets>'
-            b'</workbook>'
+            b"</workbook>"
         ),
         "xl/_rels/workbook.xml.rels": (
             b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -84,7 +82,7 @@ def _build_xlsx(
                 if shared_strings_xml is not None
                 else b""
             )
-            + b'</Relationships>'
+            + b"</Relationships>"
         ),
         "xl/worksheets/sheet1.xml": sheet_xml,
     }
@@ -102,41 +100,41 @@ def _build_xlsx(
 _SHEET_WITH_INLINE_STRINGS = (
     b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
     b'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-    b'<sheetData>'
+    b"<sheetData>"
     b'<row r="1"><c r="A1" t="inlineStr"><is><t>Header</t></is></c></row>'
     b'<row r="2"><c r="A2" t="inlineStr"><is><t>Q1</t></is></c></row>'
     b'<row r="3"><c r="A3" t="inlineStr"><is><t>Q2</t></is></c></row>'
-    b'</sheetData>'
-    b'</worksheet>'
+    b"</sheetData>"
+    b"</worksheet>"
 )
 
 _SHEET_WITH_SHARED_STRING_REFS = (
     b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
     b'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-    b'<sheetData>'
+    b"<sheetData>"
     b'<row r="1"><c r="A1" t="s"><v>0</v></c></row>'
     b'<row r="2"><c r="A2" t="s"><v>1</v></c></row>'
-    b'</sheetData>'
-    b'</worksheet>'
+    b"</sheetData>"
+    b"</worksheet>"
 )
 
 _SHEET_NO_STRING_CELLS = (
     b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
     b'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-    b'<sheetData>'
+    b"<sheetData>"
     b'<row r="1"><c r="A1"><v>42</v></c></row>'
     b'<row r="2"><c r="A2"><v>3.14</v></c></row>'
-    b'</sheetData>'
-    b'</worksheet>'
+    b"</sheetData>"
+    b"</worksheet>"
 )
 
 _POPULATED_SHARED_STRINGS = (
     b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
     b'<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
     b'count="2" uniqueCount="2">'
-    b'<si><t>Header</t></si>'
-    b'<si><t>Q1</t></si>'
-    b'</sst>'
+    b"<si><t>Header</t></si>"
+    b"<si><t>Q1</t></si>"
+    b"</sst>"
 )
 
 _EMPTY_SHARED_STRINGS = (

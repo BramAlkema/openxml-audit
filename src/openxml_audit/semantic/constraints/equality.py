@@ -26,14 +26,8 @@ class AttributeEqualsConstraint(SemanticConstraint):
     expected_value: str
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
-        attr_name = (
-            f"{{{self.namespace}}}{self.attribute}"
-            if self.namespace
-            else self.attribute
-        )
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
+        attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
             return True  # Attribute not present, nothing to validate
@@ -41,8 +35,7 @@ class AttributeEqualsConstraint(SemanticConstraint):
         value = element.attrib[attr_name]
         if value != self.expected_value:
             context.add_semantic_error(
-                f"Attribute '{self.attribute}' must equal '{self.expected_value}', "
-                f"got '{value}'",
+                f"Attribute '{self.attribute}' must equal '{self.expected_value}', got '{value}'",
                 node=self.attribute,
             )
             return False
@@ -63,14 +56,8 @@ class AttributeNotEqualConstraint(SemanticConstraint):
     forbidden_value: str
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
-        attr_name = (
-            f"{{{self.namespace}}}{self.attribute}"
-            if self.namespace
-            else self.attribute
-        )
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
+        attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
             return True  # Attribute not present, nothing to validate
@@ -98,18 +85,12 @@ class AttributesPresentConstraint(SemanticConstraint):
     namespace: str | None = None
     all_required: bool = True  # If True, all must be present; if False, at least one
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         present = []
         missing = []
 
         for attr in self.attributes:
-            attr_name = (
-                f"{{{self.namespace}}}{attr}"
-                if self.namespace
-                else attr
-            )
+            attr_name = f"{{{self.namespace}}}{attr}" if self.namespace else attr
             if attr_name in element.attrib:
                 present.append(attr)
             else:
@@ -146,14 +127,8 @@ class AttributeComparisonConstraint(SemanticConstraint):
     operator: str  # "<", "<=", ">", ">=", "=", "!="
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
-        attr_name = (
-            f"{{{self.namespace}}}{self.attribute}"
-            if self.namespace
-            else self.attribute
-        )
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
+        attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
         other_name = (
             f"{{{self.namespace}}}{self.other_attribute}"
             if self.namespace

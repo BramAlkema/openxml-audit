@@ -31,9 +31,14 @@ if TYPE_CHECKING:
 CT_STYLES_WITH_EFFECTS = "application/vnd.ms-word.stylesWithEffects+xml"
 
 # Style types per ECMA-376 §17.7.4.17
-_VALID_STYLE_TYPES = frozenset({
-    "paragraph", "character", "table", "numbering",
-})
+_VALID_STYLE_TYPES = frozenset(
+    {
+        "paragraph",
+        "character",
+        "table",
+        "numbering",
+    }
+)
 
 
 class StylesWithEffectsValidator:
@@ -69,8 +74,7 @@ class StylesWithEffectsValidator:
         ct = package.content_types.get_content_type(uri)
         if ct and ct != CT_STYLES_WITH_EFFECTS:
             context.add_schema_error(
-                f"stylesWithEffects content type should be "
-                f"'{CT_STYLES_WITH_EFFECTS}', got '{ct}'",
+                f"stylesWithEffects content type should be '{CT_STYLES_WITH_EFFECTS}', got '{ct}'",
                 node="ContentType",
             )
 
@@ -93,9 +97,7 @@ class StylesWithEffectsValidator:
         self._validate_consistency_with_styles(xml, package, context)
         return list(context.errors)
 
-    def _validate_styles(
-        self, xml: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_styles(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate individual style entries in stylesWithEffects."""
         seen_ids: set[str] = set()
 
@@ -123,8 +125,7 @@ class StylesWithEffectsValidator:
             # type must be valid
             if style_type and style_type not in _VALID_STYLE_TYPES:
                 context.add_schema_error(
-                    f"stylesWithEffects: style '{style_id}' has invalid "
-                    f"type '{style_type}'",
+                    f"stylesWithEffects: style '{style_id}' has invalid type '{style_type}'",
                     node="type",
                 )
 
@@ -134,8 +135,7 @@ class StylesWithEffectsValidator:
                 ref = based_on.get(f"{{{WORDPROCESSINGML}}}val", "").strip()
                 if not ref:
                     context.add_schema_error(
-                        f"stylesWithEffects: style '{style_id}' has empty "
-                        "basedOn reference",
+                        f"stylesWithEffects: style '{style_id}' has empty basedOn reference",
                         node="basedOn",
                     )
 
@@ -208,9 +208,7 @@ class StylesWithEffectsValidator:
 
         self._compare_doc_defaults(styles_xml, effects_xml, context)
 
-    def _collect_styles_by_id(
-        self, root: etree._Element
-    ) -> dict[str, etree._Element]:
+    def _collect_styles_by_id(self, root: etree._Element) -> dict[str, etree._Element]:
         result: dict[str, etree._Element] = {}
         for style in root.findall("w:style", self._ns):
             sid = style.get(f"{{{WORDPROCESSINGML}}}styleId", "").strip()
@@ -235,9 +233,7 @@ class StylesWithEffectsValidator:
             missing = "stylesWithEffects" if styles_dd is not None else "styles.xml"
             context.add_error(
                 error_type=ValidationErrorType.SEMANTIC,
-                description=(
-                    f"docDefaults present in {present} but missing from {missing}"
-                ),
+                description=(f"docDefaults present in {present} but missing from {missing}"),
                 node="docDefaults",
                 severity=ValidationSeverity.ERROR,
                 source_class=SourceClass.WORD_APP_COMPAT,
@@ -255,6 +251,7 @@ class StylesWithEffectsValidator:
                 severity=ValidationSeverity.ERROR,
                 source_class=SourceClass.WORD_APP_COMPAT,
             )
+
 
 def _canonicalize(elem: etree._Element) -> bytes:
     """Return a canonical byte form of `elem` for content-equality checks.

@@ -105,9 +105,7 @@ class PackageBuilder:
             override = etree.SubElement(root, f"{{{CONTENT_TYPES}}}Override")
             override.set("PartName", part_uri)
             override.set("ContentType", content_type)
-        return etree.tostring(
-            root, xml_declaration=True, encoding="UTF-8", standalone=True
-        )
+        return etree.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
 
 
 def _build_relationships_xml(rels: list[_Relationship]) -> bytes:
@@ -118,6 +116,4 @@ def _build_relationships_xml(rels: list[_Relationship]) -> bytes:
         elem.set("Id", rel.id)
         elem.set("Type", rel.type)
         elem.set("Target", rel.target)
-    return etree.tostring(
-        root, xml_declaration=True, encoding="UTF-8", standalone=True
-    )
+    return etree.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)

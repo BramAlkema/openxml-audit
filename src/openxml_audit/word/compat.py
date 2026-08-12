@@ -257,9 +257,7 @@ def find_first_out_of_order(
 class WordCompatValidator:
     """Run Word-app-compat ordering checks over a Word document part."""
 
-    def validate(
-        self, part: DocumentPart, context: ValidationContext
-    ) -> list[ValidationError]:
+    def validate(self, part: DocumentPart, context: ValidationContext) -> list[ValidationError]:
         """Walk `part` and emit a WARNING for every property element whose
         children violate the canonical ordering."""
         xml = part.xml
@@ -284,20 +282,14 @@ class WordCompatValidator:
         constraint: ChildSequence,
         context: ValidationContext,
     ) -> None:
-        observed_tags = [
-            child.tag for child in elem if isinstance(child.tag, str)
-        ]
+        observed_tags = [child.tag for child in elem if isinstance(child.tag, str)]
         result = find_first_out_of_order(observed_tags, constraint.children)
         if result is None:
             return
 
         offending_idx, blocking_idx = result
         offending = _local_name(observed_tags[offending_idx])
-        blocking = (
-            _local_name(observed_tags[blocking_idx])
-            if blocking_idx >= 0
-            else "(start)"
-        )
+        blocking = _local_name(observed_tags[blocking_idx]) if blocking_idx >= 0 else "(start)"
         context.add_error(
             error_type=ValidationErrorType.SEMANTIC,
             description=(

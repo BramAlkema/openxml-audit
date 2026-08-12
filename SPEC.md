@@ -58,8 +58,7 @@ Main entry point for validation.
 
 ```python
 class OpenXmlValidator:
-    def __init__(self, file_format: FileFormat = FileFormat.Office2019):
-        ...
+    def __init__(self, file_format: FileFormat = FileFormat.Office2019): ...
 
     def validate(self, path: str | Path) -> list[ValidationError]:
         """Validate a PPTX file and return all errors."""
@@ -76,8 +75,7 @@ Handles OPC (Open Packaging Conventions) - PPTX is a ZIP with XML.
 
 ```python
 class OpenXmlPackage:
-    def __init__(self, path: str | Path):
-        ...
+    def __init__(self, path: str | Path): ...
 
     @property
     def content_types(self) -> ContentTypes:
@@ -213,15 +211,16 @@ class FileFormat(Enum):
 class ValidationError:
     error_type: ValidationErrorType
     description: str
-    path: str          # XPath to element
-    part: str          # Part URI (e.g., "/ppt/slides/slide1.xml")
-    node: str | None   # Element/attribute name
+    path: str  # XPath to element
+    part: str  # Part URI (e.g., "/ppt/slides/slide1.xml")
+    node: str | None  # Element/attribute name
     related_node: str | None
 
+
 class ValidationErrorType(Enum):
-    SCHEMA = "schema"           # Schema violation
-    SEMANTIC = "semantic"       # Semantic constraint violation
-    PACKAGE = "package"         # OPC package error
+    SCHEMA = "schema"  # Schema violation
+    SEMANTIC = "semantic"  # Semantic constraint violation
+    PACKAGE = "package"  # OPC package error
     RELATIONSHIP = "relationship"
     MARKUP_COMPATIBILITY = "markup_compatibility"
 ```

@@ -706,8 +706,7 @@ def _apply_particle_compat_overrides(
     ):
         c_nv_choice = content_model.children[1]
         if all(
-            isinstance(child, ElementParticle)
-            and child.local_name in {"cNvSpPr", "cNvCnPr"}
+            isinstance(child, ElementParticle) and child.local_name in {"cNvSpPr", "cNvCnPr"}
             for child in c_nv_choice.children
         ):
             # Google Docs/Word exports can place the shape/connector non-visual

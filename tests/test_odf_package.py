@@ -94,8 +94,7 @@ class TestOdfPackage:
             errors = package.validate_structure()
 
         assert any(
-            "Manifest entry 'content.xml' was not found in package" in e.description
-            for e in errors
+            "Manifest entry 'content.xml' was not found in package" in e.description for e in errors
         )
 
     def test_duplicate_manifest_entries_are_reported(
@@ -106,8 +105,7 @@ class TestOdfPackage:
             errors = package.validate_structure()
 
         assert any(
-            "Duplicate manifest file-entry path 'content.xml'" in e.description
-            for e in errors
+            "Duplicate manifest file-entry path 'content.xml'" in e.description for e in errors
         )
 
     def test_missing_root_manifest_entry_is_reported(self, odf_missing_root_entry: Path) -> None:
@@ -124,8 +122,7 @@ class TestOdfPackage:
             errors = package.validate_structure()
 
         assert any(
-            "Root manifest media-type does not match mimetype" in e.description
-            for e in errors
+            "Root manifest media-type does not match mimetype" in e.description for e in errors
         )
 
     def test_unlisted_xml_part_is_error_in_strict_mode(self, odf_unlisted_xml_part: Path) -> None:
@@ -166,8 +163,7 @@ class TestOdfPackage:
             errors = package.validate_structure(strict=True)
 
         assert any(
-            "Manifest entry 'styles.xml' was not found in package" in e.description
-            for e in errors
+            "Manifest entry 'styles.xml' was not found in package" in e.description for e in errors
         )
 
     def test_signature_manifest_missing_part_is_reported(

@@ -870,9 +870,7 @@ def odf_text_user_field_get_unresolved(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_text_table_empty(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/text_table_empty", filename="table_empty.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/text_table_empty", filename="table_empty.odt")
 
 
 # ── M2: Spreadsheet fixtures ────────────────────────────────────────────
@@ -880,9 +878,7 @@ def odf_text_table_empty(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_spreadsheet_no_tables(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/spreadsheet_no_tables", filename="no_tables.ods"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/spreadsheet_no_tables", filename="no_tables.ods")
 
 
 @pytest.fixture
@@ -1016,9 +1012,7 @@ def odf_presentation_notes_bad_ref(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_presentation_bad_class(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/presentation_bad_class", filename="class_bad.odp"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/presentation_bad_class", filename="class_bad.odp")
 
 
 # ── M3: Style chain fixtures ────────────────────────────────────────────
@@ -1026,23 +1020,17 @@ def odf_presentation_bad_class(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_style_cycle(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/style_cycle", filename="style_cycle.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/style_cycle", filename="style_cycle.odt")
 
 
 @pytest.fixture
 def odf_style_orphaned_auto(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/style_orphaned_auto", filename="orphaned_auto.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/style_orphaned_auto", filename="orphaned_auto.odt")
 
 
 @pytest.fixture
 def odf_style_no_default(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/style_no_default", filename="no_default.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/style_no_default", filename="no_default.odt")
 
 
 @pytest.fixture
@@ -1068,16 +1056,12 @@ def odf_style_family_mismatch(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_style_name_empty(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/style_name_empty", filename="name_empty.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/style_name_empty", filename="name_empty.odt")
 
 
 @pytest.fixture
 def odf_style_duplicate_name(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/style_duplicate_name", filename="dup_name.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/style_duplicate_name", filename="dup_name.odt")
 
 
 @pytest.fixture
@@ -1089,9 +1073,7 @@ def odf_style_deep_inheritance(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_style_next_unresolved(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/style_next_unresolved", filename="next_bad.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/style_next_unresolved", filename="next_bad.odt")
 
 
 @pytest.fixture
@@ -1113,9 +1095,7 @@ def odf_style_font_name_undeclared(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_version_missing_attr(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/version_missing_attr", filename="ver_missing.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/version_missing_attr", filename="ver_missing.odt")
 
 
 @pytest.fixture
@@ -1127,9 +1107,7 @@ def odf_version_inconsistent(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_version_rdf_pre12(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/version_rdf_pre12", filename="rdf_pre12.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/version_rdf_pre12", filename="rdf_pre12.odt")
 
 
 @pytest.fixture
@@ -1141,9 +1119,7 @@ def odf_version_named_expr_pre12(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_version_signature_pre12(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/version_signature_pre12", filename="sig_pre12.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/version_signature_pre12", filename="sig_pre12.odt")
 
 
 @pytest.fixture
@@ -1185,9 +1161,7 @@ def odf_draw_shape_no_position(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_draw_group_deep_nesting(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/draw_group_deep_nesting", filename="draw_deep.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/draw_group_deep_nesting", filename="draw_deep.odt")
 
 
 @pytest.fixture
@@ -1268,9 +1242,7 @@ def odf_chart_missing_plot_area(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def odf_chart_no_axis(tmp_path: Path) -> Path:
-    return _build_odf_fixture(
-        tmp_path, "invalid/chart_no_axis", filename="chart_no_axis.odt"
-    )
+    return _build_odf_fixture(tmp_path, "invalid/chart_no_axis", filename="chart_no_axis.odt")
 
 
 @pytest.fixture

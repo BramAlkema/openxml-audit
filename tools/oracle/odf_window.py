@@ -197,9 +197,7 @@ def roundtrip(
             return_code=proc.returncode,
             stderr=proc.stderr,
             stdout=proc.stdout,
-            notes=notes + [
-                f"soffice exited 0 but expected output {expected_output} is absent"
-            ],
+            notes=notes + [f"soffice exited 0 but expected output {expected_output} is absent"],
         )
 
     return SofficeRunResult(

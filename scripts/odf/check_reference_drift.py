@@ -398,8 +398,8 @@ def _build_markdown(
                     f"(baseline {row['baseline']}, current {row['current']})"
                 )
 
-        regressed_reference = tool.get("families", {}).get("only_reference", {}).get(
-            "regressed", []
+        regressed_reference = (
+            tool.get("families", {}).get("only_reference", {}).get("regressed", [])
         )
         if isinstance(regressed_reference, list) and regressed_reference:
             lines.append("")
@@ -511,9 +511,7 @@ def main() -> int:
 
     tool_names = _collect_tool_names(baseline_report, current_report)
     required_tools = [
-        tool
-        for tool in policy.get("required_tools", [])
-        if isinstance(tool, str) and tool.strip()
+        tool for tool in policy.get("required_tools", []) if isinstance(tool, str) and tool.strip()
     ]
     if required_tools:
         tool_names = sorted(set(tool_names) | set(required_tools))

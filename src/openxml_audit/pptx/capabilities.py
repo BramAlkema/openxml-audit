@@ -22,8 +22,7 @@ _FINDINGS = (
     CapabilityFinding(
         key="pptx.anim.effect.entr.fade",
         summary=(
-            "Entrance fade filter authored as native "
-            "<p:animEffect transition='in' filter='fade'>."
+            "Entrance fade filter authored as native <p:animEffect transition='in' filter='fade'>."
         ),
         evidence_tiers=(
             EvidenceTier.SCHEMA_VALID,
@@ -121,9 +120,7 @@ def check_capability(
     return {
         "key": finding.key,
         "known": True,
-        "meets_minimum_tier": (
-            finding.meets(minimum_tier) if minimum_tier is not None else None
-        ),
+        "meets_minimum_tier": (finding.meets(minimum_tier) if minimum_tier is not None else None),
         "minimum_tier": minimum_tier.value if minimum_tier is not None else None,
         "finding": finding.to_dict(),
     }
@@ -181,9 +178,7 @@ def _render_text(payload: dict[str, Any]) -> str:
 
 def main(argv: Iterable[str] | None = None) -> int:
     args = _parse_args(argv)
-    minimum_tier = (
-        EvidenceTier(args.minimum_tier) if args.minimum_tier is not None else None
-    )
+    minimum_tier = EvidenceTier(args.minimum_tier) if args.minimum_tier is not None else None
 
     if args.key is None:
         payload: dict[str, Any] = {

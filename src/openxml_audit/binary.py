@@ -26,13 +26,13 @@ class BinaryValidationResult:
     severity: ValidationSeverity = ValidationSeverity.ERROR
 
 
-JPEG_MAGIC = (b"\xFF\xD8\xFF",)
+JPEG_MAGIC = (b"\xff\xd8\xff",)
 PNG_MAGIC = (b"\x89PNG\r\n\x1a\n",)
 GIF_MAGIC = (b"GIF87a", b"GIF89a")
 BMP_MAGIC = (b"BM",)
 TIFF_MAGIC = (b"II*\x00", b"MM\x00*")
-OLE_MAGIC = (b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1",)
-WMF_PLACEABLE_MAGIC = b"\xD7\xCD\xC6\x9A"
+OLE_MAGIC = (b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1",)
+WMF_PLACEABLE_MAGIC = b"\xd7\xcd\xc6\x9a"
 FONT_MAGIC = (b"\x00\x01\x00\x00", b"OTTO", b"ttcf", b"true", b"typ1")
 
 FONT_CONTENT_TYPES = (
@@ -41,9 +41,7 @@ FONT_CONTENT_TYPES = (
     "application/x-font-opentype",
     "application/x-fontdata",
 )
-OBFUSCATED_FONT_CONTENT_TYPES = (
-    "application/vnd.openxmlformats-officedocument.obfuscatedFont",
-)
+OBFUSCATED_FONT_CONTENT_TYPES = ("application/vnd.openxmlformats-officedocument.obfuscatedFont",)
 FONT_EXTENSIONS = (".ttf", ".otf", ".ttc", ".otc", ".fntdata", ".odttf")
 OBFUSCATED_FONT_EXTENSIONS = (".odttf",)
 
@@ -118,12 +116,8 @@ def _get_extension(part_uri: str) -> str:
 
 def _is_font_candidate(content_type: str | None, part_uri: str) -> bool:
     ext = _get_extension(part_uri)
-    if (
-        content_type
-        and (
-            content_type in FONT_CONTENT_TYPES
-            or content_type in OBFUSCATED_FONT_CONTENT_TYPES
-        )
+    if content_type and (
+        content_type in FONT_CONTENT_TYPES or content_type in OBFUSCATED_FONT_CONTENT_TYPES
     ):
         return True
     return ext in FONT_EXTENSIONS

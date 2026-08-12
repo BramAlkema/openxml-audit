@@ -46,6 +46,7 @@ def verify_loaders() -> bool:
     try:
         # Clear any cached registry
         from openxml_audit.codegen import schema_loader, schematron_loader
+
         schema_loader._registry = None
         schematron_loader._registry = None
 
@@ -95,6 +96,7 @@ def verify_loaders() -> bool:
     except Exception as e:
         print(f"Error verifying loaders: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -117,11 +119,10 @@ def run_tests() -> bool:
 
 def main() -> None:
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Update openxml_audit from Open XML SDK"
-    )
+    parser = argparse.ArgumentParser(description="Update openxml_audit from Open XML SDK")
     parser.add_argument(
-        "--force", "-f",
+        "--force",
+        "-f",
         action="store_true",
         help="Force re-download even if up to date",
     )

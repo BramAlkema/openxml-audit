@@ -92,14 +92,18 @@ class TestRelationshipCollection:
 
         rels = RelationshipCollection.from_xml(xml)
 
-        slide_rels = list(rels.get_by_type(
-            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide"
-        ))
+        slide_rels = list(
+            rels.get_by_type(
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide"
+            )
+        )
         assert len(slide_rels) == 2
 
-        master_rels = list(rels.get_by_type(
-            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster"
-        ))
+        master_rels = list(
+            rels.get_by_type(
+                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster"
+            )
+        )
         assert len(master_rels) == 1
 
     def test_resolve_target(self) -> None:

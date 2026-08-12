@@ -128,8 +128,7 @@ def test_oracle_starter_deck_includes_native_width_scale_semantics(tmp_path) -> 
 
     root = etree.fromstring(slide_xml.encode("utf-8"))
     by_values = [
-        (node.get("x"), node.get("y"))
-        for node in root.xpath(".//p:animScale/p:by", namespaces=NS)
+        (node.get("x"), node.get("y")) for node in root.xpath(".//p:animScale/p:by", namespaces=NS)
     ]
     assert ("33333", "100000") in by_values
     assert ("-66667", "0") in by_values

@@ -7,16 +7,16 @@ from the advisory SDK comparison; include them in the future self-parity gate).
 
 from __future__ import annotations
 
-from openxml_audit.context import ElementContext, ValidationContext
+from lxml import etree
+
+from openxml_audit.context import ValidationContext
 from openxml_audit.errors import (
     SourceClass,
     ValidationError,
     ValidationErrorType,
-    ValidationSeverity,
 )
 from openxml_audit.namespaces import WORDPROCESSINGML
 from openxml_audit.word.compat import WordCompatValidator
-from lxml import etree
 
 
 def _build_trpr_with_reordered_children() -> etree._Element:

@@ -29,9 +29,7 @@ class SlideValidator:
         }
         self._rel_ns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
-    def validate(
-        self, part: SlidePart, context: ValidationContext
-    ) -> list[ValidationError]:
+    def validate(self, part: SlidePart, context: ValidationContext) -> list[ValidationError]:
         """Validate a slide part.
 
         Args:
@@ -91,9 +89,7 @@ class SlideValidator:
 
         self._validate_shape_tree(spTree, context)
 
-    def _validate_shape_tree(
-        self, spTree: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_shape_tree(self, spTree: etree._Element, context: ValidationContext) -> None:
         """Validate the shape tree structure."""
         # Validate group shape properties
         nvGrpSpPr = spTree.find("p:nvGrpSpPr", self._ns)
@@ -121,9 +117,7 @@ class SlideValidator:
                 if local_name in ("sp", "grpSp", "graphicFrame", "cxnSp", "pic"):
                     self._validate_shape(child, local_name, seen_ids, context)
 
-    def _validate_nv_grp_sp_pr(
-        self, nvGrpSpPr: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_nv_grp_sp_pr(self, nvGrpSpPr: etree._Element, context: ValidationContext) -> None:
         """Validate non-visual group shape properties."""
         cNvPr = nvGrpSpPr.find("p:cNvPr", self._ns)
         if cNvPr is None:
@@ -208,9 +202,7 @@ class SlideValidator:
         if shape_type == "sp":
             self._validate_text_body(shape, context)
 
-    def _validate_text_body(
-        self, shape: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_text_body(self, shape: etree._Element, context: ValidationContext) -> None:
         """Validate shape text body."""
         txBody = shape.find("p:txBody", self._ns)
         if txBody is None:
@@ -230,9 +222,7 @@ class SlideValidator:
                 "txBody must have at least one paragraph (a:p)",
             )
 
-    def _validate_clr_map_ovr(
-        self, xml: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_clr_map_ovr(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate color map override."""
         clrMapOvr = xml.find("p:clrMapOvr", self._ns)
         if clrMapOvr is None:
@@ -247,11 +237,11 @@ class SlideValidator:
                 "clrMapOvr must have masterClrMapping or overrideClrMapping",
             )
 
-    def _validate_layout_relationship(
-        self, part: SlidePart, context: ValidationContext
-    ) -> None:
+    def _validate_layout_relationship(self, part: SlidePart, context: ValidationContext) -> None:
         """Validate slide has a layout relationship."""
-        layout_type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"
+        layout_type = (
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"
+        )
 
         layout_rels = list(part.relationships.get_by_type(layout_type))
         if not layout_rels:
@@ -264,9 +254,7 @@ class SlideValidator:
             )
 
 
-def validate_slide(
-    part: SlidePart, context: ValidationContext
-) -> list[ValidationError]:
+def validate_slide(part: SlidePart, context: ValidationContext) -> list[ValidationError]:
     """Validate a slide part.
 
     Args:

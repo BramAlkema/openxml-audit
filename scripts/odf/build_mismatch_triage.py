@@ -58,9 +58,7 @@ def _build_markdown(compare_report: dict[str, Any], run_report: dict[str, Any] |
         lines.append(f"- Sample count: {run_report.get('sample_count', 0)}")
         lines.append(f"- Sample categories: {_sample_category_counts(run_report)}")
         lines.append(f"- Sample profiles: {_sample_profile_counts(run_report)}")
-        lines.append(
-            f"- Python issue categories: {run_report.get('python_issue_categories', {})}"
-        )
+        lines.append(f"- Python issue categories: {run_report.get('python_issue_categories', {})}")
     lines.append("")
 
     actions: list[str] = []
@@ -100,9 +98,7 @@ def _build_markdown(compare_report: dict[str, Any], run_report: dict[str, Any] |
     if isinstance(cross_tool, dict):
         only_python = cross_tool.get("only_python")
         if isinstance(only_python, list) and only_python:
-            actions.append(
-                "Prioritize top grouped only-python families for false-positive triage."
-            )
+            actions.append("Prioritize top grouped only-python families for false-positive triage.")
         only_reference = cross_tool.get("only_reference")
         if isinstance(only_reference, list) and only_reference:
             actions.append(
@@ -125,9 +121,7 @@ def _build_markdown(compare_report: dict[str, Any], run_report: dict[str, Any] |
             f"- Samples compared/skipped: {tool.get('samples_compared', 0)} / "
             f"{tool.get('samples_skipped', 0)}"
         )
-        lines.append(
-            f"- Reference status counts: {tool.get('reference_status_counts', {})}"
-        )
+        lines.append(f"- Reference status counts: {tool.get('reference_status_counts', {})}")
         mismatch_categories = tool.get("mismatch_categories", {})
         lines.append(
             "- Mismatch categories: "

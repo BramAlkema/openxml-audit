@@ -21,11 +21,15 @@ from pathlib import Path
 from lxml import etree
 
 from openxml_audit.package_diff import (
-    canonicalize_xml as _canonicalize_xml,
     compare_package_parts as _compare_package_parts,
+)
+from openxml_audit.package_diff import (
     load_package_parts as _load_package_parts,
-    pretty_part_text as _pretty_part_text,
+)
+from openxml_audit.package_diff import (
     sanitize_part_name as _sanitize_part_name,
+)
+from openxml_audit.package_diff import (
     write_part_diff as _write_part_diff,
 )
 from openxml_audit.pptx.oracle import (
@@ -169,7 +173,7 @@ def compare_pptx_packages(
     diff_dir.mkdir(parents=True, exist_ok=True)
 
     changed_files = part_diff["changed"]
-    for part_name in changed_files[:max(0, max_diff_files)]:
+    for part_name in changed_files[: max(0, max_diff_files)]:
         diff_path = diff_dir / f"{_sanitize_part_name(part_name)}.diff"
         _write_part_diff(
             part_name=part_name,
@@ -320,14 +324,8 @@ def _collect_timing_changes(
     base_snapshot: dict[str, object],
     head_snapshot: dict[str, object],
 ) -> list[dict[str, object]]:
-    base_slides = {
-        slide["slide_file"]: slide
-        for slide in base_snapshot["slides"]
-    }
-    head_slides = {
-        slide["slide_file"]: slide
-        for slide in head_snapshot["slides"]
-    }
+    base_slides = {slide["slide_file"]: slide for slide in base_snapshot["slides"]}
+    head_slides = {slide["slide_file"]: slide for slide in head_snapshot["slides"]}
 
     changes = []
     for slide_file in sorted(set(base_slides) | set(head_slides)):
@@ -407,9 +405,7 @@ def _write_diff_report(*, report: dict[str, object], output_path: Path) -> None:
     lines.extend(["", "## Timing Changes", ""])
     for entry in report["timing_changes"]:
         labels = ", ".join(entry["labels"]) if entry["labels"] else "-"
-        lines.append(
-            f"- `{entry['slide_file']}`: `{entry['status']}` ({labels})"
-        )
+        lines.append(f"- `{entry['slide_file']}`: `{entry['status']}` ({labels})")
     if not report["timing_changes"]:
         lines.append("- None")
 

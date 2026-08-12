@@ -68,9 +68,7 @@ class TestDrawingConstraints:
             for e in result.errors
         )
 
-    def test_draw_3d_scene_empty_reports_warning(
-        self, odf_draw_3d_scene_empty: Path
-    ) -> None:
+    def test_draw_3d_scene_empty_reports_warning(self, odf_draw_3d_scene_empty: Path) -> None:
         result = OdfValidator().validate(odf_draw_3d_scene_empty)
         assert any(
             e.error_type == ValidationErrorType.SEMANTIC
@@ -145,9 +143,7 @@ class TestFormConstraints:
 class TestChartConstraints:
     """Chart constraint tests (ODFSEMCHART001-004)."""
 
-    def test_chart_missing_plot_area_reports_error(
-        self, odf_chart_missing_plot_area: Path
-    ) -> None:
+    def test_chart_missing_plot_area_reports_error(self, odf_chart_missing_plot_area: Path) -> None:
         result = OdfValidator().validate(odf_chart_missing_plot_area)
         assert any(
             e.error_type == ValidationErrorType.SEMANTIC
@@ -156,9 +152,7 @@ class TestChartConstraints:
             for e in result.errors
         )
 
-    def test_chart_no_axis_reports_warning(
-        self, odf_chart_no_axis: Path
-    ) -> None:
+    def test_chart_no_axis_reports_warning(self, odf_chart_no_axis: Path) -> None:
         result = OdfValidator().validate(odf_chart_no_axis)
         assert any(
             e.error_type == ValidationErrorType.SEMANTIC
@@ -197,15 +191,9 @@ class TestM6Regression:
     def test_valid_odt_no_drawing_errors(self, minimal_odt: Path) -> None:
         result = OdfValidator().validate(minimal_odt)
         m6_ids = {"ODFSEMDRAW", "ODFSEMFORM", "ODFSEMCHART"}
-        assert not any(
-            any(e.id.startswith(prefix) for prefix in m6_ids)
-            for e in result.errors
-        )
+        assert not any(any(e.id.startswith(prefix) for prefix in m6_ids) for e in result.errors)
 
     def test_valid_ods_no_m6_errors(self, minimal_ods: Path) -> None:
         result = OdfValidator(semantic_validation=True).validate(minimal_ods)
         m6_ids = {"ODFSEMDRAW", "ODFSEMFORM", "ODFSEMCHART"}
-        assert not any(
-            any(e.id.startswith(prefix) for prefix in m6_ids)
-            for e in result.errors
-        )
+        assert not any(any(e.id.startswith(prefix) for prefix in m6_ids) for e in result.errors)

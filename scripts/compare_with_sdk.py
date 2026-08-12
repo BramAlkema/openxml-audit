@@ -109,9 +109,7 @@ def _docker_runner(paths: list[Path]) -> list[dict]:
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(
-            "docker validator failed:\n"
-            f"stdout:\n{result.stdout}\n"
-            f"stderr:\n{result.stderr}"
+            f"docker validator failed:\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
         )
     return json.loads(result.stdout) if result.stdout.strip() else []
 
@@ -122,9 +120,7 @@ def _local_runner(pptx_path: Path) -> list[dict]:
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(
-            "dotnet validator failed:\n"
-            f"stdout:\n{result.stdout}\n"
-            f"stderr:\n{result.stderr}"
+            f"dotnet validator failed:\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
         )
     return json.loads(result.stdout) if result.stdout.strip() else []
 

@@ -24,9 +24,7 @@ class OrConstraint(SemanticConstraint):
     constraints: list[SemanticConstraint] = field(default_factory=list)
     error_message: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         if not self.constraints:
             return True
 
@@ -50,9 +48,7 @@ class OrConstraint(SemanticConstraint):
         if self.error_message:
             context.add_semantic_error(self.error_message)
         else:
-            context.add_semantic_error(
-                "None of the alternative conditions are satisfied"
-            )
+            context.add_semantic_error("None of the alternative conditions are satisfied")
         return False
 
 
@@ -66,9 +62,7 @@ class AndConstraint(SemanticConstraint):
 
     constraints: list[SemanticConstraint] = field(default_factory=list)
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         if not self.constraints:
             return True
 
@@ -95,9 +89,7 @@ class ConditionalConstraint(SemanticConstraint):
     constraint: SemanticConstraint
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = (
             f"{{{self.namespace}}}{self.trigger_attribute}"
             if self.namespace

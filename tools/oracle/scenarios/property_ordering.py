@@ -79,9 +79,7 @@ def pairwise_swap_scenarios(matrix: OrderingMatrix) -> list[ScenarioSpec]:
             ordered[i], ordered[j] = ordered[j], ordered[i]
             scenarios.append(
                 ScenarioSpec(
-                    id=slugify_scenario_id(
-                        matrix.parent_local, "swap", canonical[i], canonical[j]
-                    ),
+                    id=slugify_scenario_id(matrix.parent_local, "swap", canonical[i], canonical[j]),
                     parent_local=matrix.parent_local,
                     input_children=tuple(ordered),
                     description=(
@@ -140,9 +138,7 @@ TRPR_CHILD_ATTRS: dict[str, dict[str, str]] = {
 }
 
 
-def materialize_trpr_scenario(
-    spec: ScenarioSpec, matrix: OrderingMatrix, dest: Path
-) -> Path:
+def materialize_trpr_scenario(spec: ScenarioSpec, matrix: OrderingMatrix, dest: Path) -> Path:
     """Embed a synthetic w:trPr inside a one-row table on a python-docx
     Document. Children get attributes from `matrix.child_attrs` so Word
     opens the file cleanly."""
@@ -168,8 +164,18 @@ TRPR_MATRIX = OrderingMatrix(
     parent_local="trPr",
     spec_section="ECMA-376 §17.4.79",
     canonical_children=(
-        "cnfStyle", "divId", "gridBefore", "gridAfter", "wBefore", "wAfter",
-        "trHeight", "hidden", "cantSplit", "tblHeader", "tblCellSpacing", "jc",
+        "cnfStyle",
+        "divId",
+        "gridBefore",
+        "gridAfter",
+        "wBefore",
+        "wAfter",
+        "trHeight",
+        "hidden",
+        "cantSplit",
+        "tblHeader",
+        "tblCellSpacing",
+        "jc",
     ),
     child_attrs=TRPR_CHILD_ATTRS,
     materialize=materialize_trpr_scenario,
@@ -210,26 +216,24 @@ def trpr_full_reverse(canonical: tuple[str, ...]) -> ScenarioSpec:
 # --- CT_TblPr --------------------------------------------------------------
 
 TBLPR_CHILD_ATTRS: dict[str, dict[str, str]] = {
-    "tblStyle": {"val": "Normal"},          # references a styleId; Normal is universally present
-    "tblOverlap": {"val": "never"},          # ST_TblOverlap: never|overlap
-    "bidiVisual": {},                         # OnOff optional
+    "tblStyle": {"val": "Normal"},  # references a styleId; Normal is universally present
+    "tblOverlap": {"val": "never"},  # ST_TblOverlap: never|overlap
+    "bidiVisual": {},  # OnOff optional
     "tblW": {"w": "0", "type": "auto"},
-    "jc": {"val": "center"},                 # ST_JcTable
+    "jc": {"val": "center"},  # ST_JcTable
     "tblCellSpacing": {"w": "0", "type": "dxa"},
     "tblInd": {"w": "0", "type": "dxa"},
-    "tblBorders": {},                         # container with optional children
+    "tblBorders": {},  # container with optional children
     "shd": {"val": "clear", "color": "auto", "fill": "auto"},
-    "tblLayout": {"type": "autofit"},        # ST_TblLayoutType
-    "tblCellMar": {},                         # container
-    "tblLook": {"val": "0000"},               # 16-bit hex bitstring
+    "tblLayout": {"type": "autofit"},  # ST_TblLayoutType
+    "tblCellMar": {},  # container
+    "tblLook": {"val": "0000"},  # 16-bit hex bitstring
     "tblCaption": {"val": "test"},
     "tblDescription": {"val": "test"},
 }
 
 
-def materialize_tblpr_scenario(
-    spec: ScenarioSpec, matrix: OrderingMatrix, dest: Path
-) -> Path:
+def materialize_tblpr_scenario(spec: ScenarioSpec, matrix: OrderingMatrix, dest: Path) -> Path:
     """Embed a synthetic w:tblPr at the start of a table body on a
     python-docx Document. Children get attributes from `matrix.child_attrs`."""
     doc = Document()
@@ -256,9 +260,20 @@ TBLPR_MATRIX = OrderingMatrix(
     parent_local="tblPr",
     spec_section="ECMA-376 §17.4.60",
     canonical_children=(
-        "tblStyle", "tblOverlap", "bidiVisual", "tblW", "jc", "tblCellSpacing",
-        "tblInd", "tblBorders", "shd", "tblLayout", "tblCellMar", "tblLook",
-        "tblCaption", "tblDescription",
+        "tblStyle",
+        "tblOverlap",
+        "bidiVisual",
+        "tblW",
+        "jc",
+        "tblCellSpacing",
+        "tblInd",
+        "tblBorders",
+        "shd",
+        "tblLayout",
+        "tblCellMar",
+        "tblLook",
+        "tblCaption",
+        "tblDescription",
     ),
     child_attrs=TBLPR_CHILD_ATTRS,
     materialize=materialize_tblpr_scenario,
@@ -271,22 +286,20 @@ TCPR_CHILD_ATTRS: dict[str, dict[str, str]] = {
     "cnfStyle": {"val": "000000000000"},
     "tcW": {"w": "0", "type": "auto"},
     "gridSpan": {"val": "1"},
-    "hMerge": {"val": "continue"},           # ST_Merge
+    "hMerge": {"val": "continue"},  # ST_Merge
     "vMerge": {"val": "continue"},
     "tcBorders": {},
     "shd": {"val": "clear", "color": "auto", "fill": "auto"},
     "noWrap": {},
     "tcMar": {},
-    "textDirection": {"val": "lrTb"},        # ST_TextDirection
+    "textDirection": {"val": "lrTb"},  # ST_TextDirection
     "tcFitText": {},
-    "vAlign": {"val": "top"},                # ST_VerticalJc
+    "vAlign": {"val": "top"},  # ST_VerticalJc
     "hideMark": {},
 }
 
 
-def materialize_tcpr_scenario(
-    spec: ScenarioSpec, matrix: OrderingMatrix, dest: Path
-) -> Path:
+def materialize_tcpr_scenario(spec: ScenarioSpec, matrix: OrderingMatrix, dest: Path) -> Path:
     """Embed a synthetic w:tcPr at the start of a table cell on a
     python-docx Document."""
     doc = Document()
@@ -313,8 +326,18 @@ TCPR_MATRIX = OrderingMatrix(
     parent_local="tcPr",
     spec_section="ECMA-376 §17.4.70",
     canonical_children=(
-        "cnfStyle", "tcW", "gridSpan", "hMerge", "vMerge", "tcBorders",
-        "shd", "noWrap", "tcMar", "textDirection", "tcFitText", "vAlign",
+        "cnfStyle",
+        "tcW",
+        "gridSpan",
+        "hMerge",
+        "vMerge",
+        "tcBorders",
+        "shd",
+        "noWrap",
+        "tcMar",
+        "textDirection",
+        "tcFitText",
+        "vAlign",
         "hideMark",
     ),
     child_attrs=TCPR_CHILD_ATTRS,
@@ -327,15 +350,20 @@ TCPR_MATRIX = OrderingMatrix(
 SECTPR_CHILD_ATTRS: dict[str, dict[str, str]] = {
     "footnotePr": {},
     "endnotePr": {},
-    "type": {"val": "nextPage"},             # ST_SectionMark
-    "pgSz": {"w": "12240", "h": "15840"},    # US Letter
+    "type": {"val": "nextPage"},  # ST_SectionMark
+    "pgSz": {"w": "12240", "h": "15840"},  # US Letter
     "pgMar": {
-        "top": "1440", "right": "1440", "bottom": "1440", "left": "1440",
-        "header": "720", "footer": "720", "gutter": "0",
+        "top": "1440",
+        "right": "1440",
+        "bottom": "1440",
+        "left": "1440",
+        "header": "720",
+        "footer": "720",
+        "gutter": "0",
     },
     "pgBorders": {},
-    "lnNumType": {"countBy": "1"},           # ST_DecimalNumber-typed
-    "pgNumType": {"fmt": "decimal"},         # ST_NumberFormat
+    "lnNumType": {"countBy": "1"},  # ST_DecimalNumber-typed
+    "pgNumType": {"fmt": "decimal"},  # ST_NumberFormat
     "cols": {"num": "1", "space": "720"},
     "formProt": {"val": "false"},
     "vAlign": {"val": "top"},
@@ -349,9 +377,7 @@ SECTPR_CHILD_ATTRS: dict[str, dict[str, str]] = {
 }
 
 
-def materialize_sectpr_scenario(
-    spec: ScenarioSpec, matrix: OrderingMatrix, dest: Path
-) -> Path:
+def materialize_sectpr_scenario(spec: ScenarioSpec, matrix: OrderingMatrix, dest: Path) -> Path:
     """Replace the body's sectPr (python-docx adds a default one) with a
     synthetic one whose children appear in the requested order."""
     doc = Document()
@@ -378,9 +404,24 @@ SECTPR_MATRIX = OrderingMatrix(
     parent_local="sectPr",
     spec_section="ECMA-376 §17.6.18",
     canonical_children=(
-        "footnotePr", "endnotePr", "type", "pgSz", "pgMar", "paperSrc",
-        "pgBorders", "lnNumType", "pgNumType", "cols", "formProt", "vAlign",
-        "noEndnote", "titlePg", "textDirection", "bidi", "rtlGutter", "docGrid",
+        "footnotePr",
+        "endnotePr",
+        "type",
+        "pgSz",
+        "pgMar",
+        "paperSrc",
+        "pgBorders",
+        "lnNumType",
+        "pgNumType",
+        "cols",
+        "formProt",
+        "vAlign",
+        "noEndnote",
+        "titlePg",
+        "textDirection",
+        "bidi",
+        "rtlGutter",
+        "docGrid",
     ),
     child_attrs=SECTPR_CHILD_ATTRS,
     materialize=materialize_sectpr_scenario,

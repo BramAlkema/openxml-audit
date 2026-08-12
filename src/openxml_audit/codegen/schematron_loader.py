@@ -204,10 +204,10 @@ def _classify_rule(rule: ParsedSchematron) -> None:
 
     # Pattern for attribute names (including prefixed and hyphenated names)
     # Matches: attr, prefix:attr, prefix:attr-name
-    attr_pattern = r'[\w:-]+'
+    attr_pattern = r"[\w:-]+"
 
     # Pattern for numbers including scientific notation (e.g., -1.7E308) and f suffix
-    num_pattern = r'[\d.eE+-]+f?'
+    num_pattern = r"[\d.eE+-]+f?"
 
     # Pattern: @attr > 0 and @attr < 0x80000000
     # SDK uses this for 8-hex-digit IDs (e.g., w14:paraId/textId). Treat as
@@ -225,36 +225,36 @@ def _classify_rule(rule: ParsedSchematron) -> None:
 
     # Pattern: @attr >= N and @attr <= M (attribute value range)
     range_match = re.match(
-        rf'^@({attr_pattern})\s*>=?\s*({num_pattern})\s+and\s+@\1\s*<=?\s*({num_pattern})$',
+        rf"^@({attr_pattern})\s*>=?\s*({num_pattern})\s+and\s+@\1\s*<=?\s*({num_pattern})$",
         test,
     )
     if range_match:
         rule.rule_type = SchematronType.ATTRIBUTE_VALUE_RANGE
         rule.attribute = range_match.group(1)
-        rule.min_value = float(range_match.group(2).rstrip('f'))
-        rule.max_value = float(range_match.group(3).rstrip('f'))
+        rule.min_value = float(range_match.group(2).rstrip("f"))
+        rule.max_value = float(range_match.group(3).rstrip("f"))
         return
 
     # Pattern: @attr <= N (single upper bound)
-    upper_match = re.match(rf'@(\w+:?\w*)\s*<=?\s*({num_pattern})$', test)
+    upper_match = re.match(rf"@(\w+:?\w*)\s*<=?\s*({num_pattern})$", test)
     if upper_match:
         rule.rule_type = SchematronType.ATTRIBUTE_VALUE_RANGE
         rule.attribute = upper_match.group(1)
-        rule.max_value = float(upper_match.group(2).rstrip('f'))
+        rule.max_value = float(upper_match.group(2).rstrip("f"))
         return
 
     # Pattern: @attr >= N (single lower bound)
-    lower_match = re.match(rf'@(\w+:?\w*)\s*>=?\s*({num_pattern})$', test)
+    lower_match = re.match(rf"@(\w+:?\w*)\s*>=?\s*({num_pattern})$", test)
     if lower_match:
         rule.rule_type = SchematronType.ATTRIBUTE_VALUE_RANGE
         rule.attribute = lower_match.group(1)
-        rule.min_value = float(lower_match.group(2).rstrip('f'))
+        rule.min_value = float(lower_match.group(2).rstrip("f"))
         return
 
     # Pattern: string-length(@attr) <= N or >= N and <= M
     strlen_match = re.match(
-        r'string-length\(@(\w+:?\w*)\)\s*>=?\s*(\d+)\s+and\s+string-length\(@\1\)\s*<=?\s*(\d+)',
-        test
+        r"string-length\(@(\w+:?\w*)\)\s*>=?\s*(\d+)\s+and\s+string-length\(@\1\)\s*<=?\s*(\d+)",
+        test,
     )
     if strlen_match:
         rule.rule_type = SchematronType.ATTRIBUTE_VALUE_LENGTH
@@ -263,7 +263,7 @@ def _classify_rule(rule: ParsedSchematron) -> None:
         rule.max_length = int(strlen_match.group(3))
         return
 
-    strlen_max_match = re.match(r'string-length\(@(\w+:?\w*)\)\s*<=?\s*(\d+)', test)
+    strlen_max_match = re.match(r"string-length\(@(\w+:?\w*)\)\s*<=?\s*(\d+)", test)
     if strlen_max_match:
         rule.rule_type = SchematronType.ATTRIBUTE_VALUE_LENGTH
         rule.attribute = strlen_max_match.group(1)
@@ -271,7 +271,7 @@ def _classify_rule(rule: ParsedSchematron) -> None:
         return
 
     # Pattern: string-length(@attr) >= N (min-only length)
-    strlen_min_match = re.match(r'string-length\(@(\w+:?\w*)\)\s*>=?\s*(\d+)$', test)
+    strlen_min_match = re.match(r"string-length\(@(\w+:?\w*)\)\s*>=?\s*(\d+)$", test)
     if strlen_min_match:
         rule.rule_type = SchematronType.ATTRIBUTE_VALUE_LENGTH
         rule.attribute = strlen_min_match.group(1)
@@ -355,9 +355,7 @@ def _classify_rule(rule: ParsedSchematron) -> None:
         return
 
     # Pattern: @attr < @other or @attr <= @other (attribute comparison)
-    comparison_match = re.match(
-        r"@(\w+:?\w*)\s*(<=?|>=?)\s*@(\w+:?\w*)$", test
-    )
+    comparison_match = re.match(r"@(\w+:?\w*)\s*(<=?|>=?)\s*@(\w+:?\w*)$", test)
     if comparison_match:
         rule.rule_type = SchematronType.ATTRIBUTE_COMPARISON
         rule.attribute = comparison_match.group(1)
@@ -386,7 +384,7 @@ def _classify_rule(rule: ParsedSchematron) -> None:
                 return
 
     # Pattern: @attr (single attribute must be present)
-    single_attr = re.match(r'^@(\w+:?\w*)$', test)
+    single_attr = re.match(r"^@(\w+:?\w*)$", test)
     if single_attr:
         rule.rule_type = SchematronType.ATTRIBUTES_PRESENT
         rule.required_attributes = [single_attr.group(1)]
@@ -394,23 +392,21 @@ def _classify_rule(rule: ParsedSchematron) -> None:
 
     # Pattern: @a and @b (attributes must both be present)
     # Simple case: only @attr references connected by 'and'
-    attrs_present = re.match(r'^(@\w+:?\w*)(\s+and\s+@\w+:?\w*)+$', test)
+    attrs_present = re.match(r"^(@\w+:?\w*)(\s+and\s+@\w+:?\w*)+$", test)
     if attrs_present:
         rule.rule_type = SchematronType.ATTRIBUTES_PRESENT
-        rule.required_attributes = re.findall(r'@(\w+:?\w*)', test)
+        rule.required_attributes = re.findall(r"@(\w+:?\w*)", test)
         return
 
     # Pattern: @attr and <condition> (conditional - if attr present, condition must hold)
     # This catches: @a and @b = value, @a and @b != value, @a and (@b = x or @b = y)
-    conditional_match = re.match(r'^@(\w+:?\w*)\s+and\s+(.+)$', test)
+    conditional_match = re.match(r"^@(\w+:?\w*)\s+and\s+(.+)$", test)
     if conditional_match:
         rule.rule_type = SchematronType.CONDITIONAL_VALUE
         rule.attribute = conditional_match.group(1)
         # Parse the condition as a sub-rule
         condition_test = _strip_wrapping_parentheses(conditional_match.group(2))
-        sub_rule = ParsedSchematron(
-            context=rule.context, test=condition_test.strip(), app=rule.app
-        )
+        sub_rule = ParsedSchematron(context=rule.context, test=condition_test.strip(), app=rule.app)
         _classify_rule(sub_rule)
         rule.sub_rules.append(sub_rule)
         return
@@ -432,7 +428,7 @@ def _classify_rule(rule: ParsedSchematron) -> None:
     # Pattern: @attr < count(document('Part:...')//xpath) + N (cross-part count)
     cross_part = re.match(
         r"@(\w+:?\w*)\s*<\s*count\(document\(['\"]Part:([^'\"]+)['\"]\)//([^)]+)\)\s*\+\s*(\d+)",
-        test
+        test,
     )
     if cross_part:
         rule.rule_type = SchematronType.CROSS_PART_COUNT
@@ -491,10 +487,7 @@ class SchematronRegistry:
         return self._by_context.get(context, [])
 
     def get_rules_for_element(
-        self,
-        prefix: str,
-        local_name: str,
-        app: str = "All"
+        self, prefix: str, local_name: str, app: str = "All"
     ) -> list[ParsedSchematron]:
         """Get applicable rules for an element."""
         self.load()
@@ -534,9 +527,7 @@ class SchematronRegistry:
         """Get statistics about loaded schematrons."""
         self.load()
         counts = self.count_by_type()
-        interpretable = sum(
-            c for t, c in counts.items() if t != SchematronType.UNKNOWN
-        )
+        interpretable = sum(c for t, c in counts.items() if t != SchematronType.UNKNOWN)
         return {
             "total": len(self._rules),
             "interpretable": interpretable,

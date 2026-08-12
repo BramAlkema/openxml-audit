@@ -46,9 +46,7 @@ class VersionAttributePresentConstraint(OdfConstraint):
                     self._error(
                         rule_id="ODFSEMVER001",
                         error_type=ValidationErrorType.SEMANTIC,
-                        description=(
-                            f"{part} root element is missing office:version attribute"
-                        ),
+                        description=(f"{part} root element is missing office:version attribute"),
                         part_uri=self._normalize_part_uri(part),
                         severity=ValidationSeverity.WARNING,
                     )
@@ -87,16 +85,13 @@ class VersionConsistencyConstraint(OdfConstraint):
             return errors
 
         unique = sorted(set(versions.values()))
-        parts_detail = ", ".join(
-            f"{part}={ver}" for part, ver in sorted(versions.items())
-        )
+        parts_detail = ", ".join(f"{part}={ver}" for part, ver in sorted(versions.items()))
         errors.append(
             self._error(
                 rule_id="ODFSEMVER002",
                 error_type=ValidationErrorType.SEMANTIC,
                 description=(
-                    f"Inconsistent ODF versions detected ({', '.join(unique)}): "
-                    f"{parts_detail}"
+                    f"Inconsistent ODF versions detected ({', '.join(unique)}): {parts_detail}"
                 ),
                 part_uri="/content.xml",
                 severity=ValidationSeverity.WARNING,
@@ -178,10 +173,7 @@ class NamedExpressionsVersionConstraint(OdfConstraint):
             if not isinstance(child.tag, str):
                 continue
             qname = etree.QName(child)
-            if (
-                qname.namespace == TABLE_NS
-                and qname.localname == "named-expressions"
-            ):
+            if qname.namespace == TABLE_NS and qname.localname == "named-expressions":
                 errors.append(
                     self._error(
                         rule_id="ODFSEMVER004",

@@ -277,7 +277,7 @@ def _apply_native_timing_overrides(
     if repeat_duration_ms is not None:
         repeat_duration = str(max(1, repeat_duration_ms))
         targets = [node for node in par.iter(f"{{{NS_P}}}cTn") if node.get("repeatCount")]
-        for target in (targets or [ctn]):
+        for target in targets or [ctn]:
             target.set("repeatDur", repeat_duration)
 
     if not end_triggers:

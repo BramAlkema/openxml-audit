@@ -84,9 +84,7 @@ def test_unique_attribute_index_is_rebuilt_per_part() -> None:
 
 
 def test_mc_ignorable_empty_is_ignored() -> None:
-    element = etree.fromstring(
-        f'<a xmlns:mc="{MC}" mc:Ignorable=""/>'.encode()
-    )
+    element = etree.fromstring(f'<a xmlns:mc="{MC}" mc:Ignorable=""/>'.encode())
     context = ValidationContext(max_errors=0)
     validator = SemanticValidator()
 
@@ -97,13 +95,11 @@ def test_mc_ignorable_empty_is_ignored() -> None:
 
 def test_word_id_refs_are_deduplicated_by_value() -> None:
     xml = etree.fromstring(
-
-            b'<w:p xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-            b'<w:commentRangeStart w:id="1"/>'
-            b'<w:r><w:commentReference w:id="1"/></w:r>'
-            b'<w:commentRangeEnd w:id="1"/>'
-            b"</w:p>"
-
+        b'<w:p xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        b'<w:commentRangeStart w:id="1"/>'
+        b'<w:r><w:commentReference w:id="1"/></w:r>'
+        b'<w:commentRangeEnd w:id="1"/>'
+        b"</w:p>"
     )
     validator = OpenXmlValidator(schema_validation=False, semantic_validation=False)
 
@@ -140,12 +136,7 @@ def test_relationship_scan_does_not_duplicate_missing_target_errors() -> None:
 
 
 def test_relationship_exist_constraint_ignores_empty_relationship_id() -> None:
-    element = etree.fromstring(
-        (
-            f'<a xmlns:r="{OFFICE_DOC_RELATIONSHIPS}" '
-            'r:blip=""/>'
-        ).encode()
-    )
+    element = etree.fromstring((f'<a xmlns:r="{OFFICE_DOC_RELATIONSHIPS}" r:blip=""/>').encode())
     constraint = RelationshipExistConstraint(attribute="blip", namespace=OFFICE_DOC_RELATIONSHIPS)
     part = SimpleNamespace(
         relationships=SimpleNamespace(get_by_id=lambda _rel_id: None),

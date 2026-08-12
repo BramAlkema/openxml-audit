@@ -14,14 +14,15 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 from oracle.xlsx_repair_oracle import (  # noqa: E402
+    _FINGERPRINTED_PREFIXES,
     PartFingerprint,
     RoundtripObservation,
-    _FINGERPRINTED_PREFIXES,
     _fingerprint_xlsx,
     _is_fingerprinted_part,
     _stage_root,
     _to_jsonable,
 )
+
 from openxml_audit.xlsx import osa as xlsx_osa  # noqa: E402
 
 
@@ -33,14 +34,15 @@ def _live_office_opt_in() -> bool:
     """Live Excel visibly hijacks the screen — require explicit opt-in
     via env var so `pytest tests/` is silent by default."""
     import os
+
     return os.environ.get("RUN_LIVE_OFFICE_TESTS", "").strip().lower() in {"1", "true", "yes"}
 
 
 REQUIRES_EXCEL = pytest.mark.skipif(
     not (_excel_available() and _live_office_opt_in()),
     reason="Excel oracle tests skipped — set RUN_LIVE_OFFICE_TESTS=1 "
-           "to enable (and Microsoft Excel must be installed; tests will "
-           "visibly open and close workbooks)",
+    "to enable (and Microsoft Excel must be installed; tests will "
+    "visibly open and close workbooks)",
 )
 
 
@@ -113,11 +115,13 @@ def test_fingerprint_xlsx_returns_empty_for_missing_file(tmp_path: Path) -> None
 
 def test_to_jsonable_summary_counts_outcomes_and_dialogs() -> None:
     obs = [
-        RoundtripObservation(source_relpath="a.xlsx", outcome="preserved",
-                             duration_seconds=1.0),
+        RoundtripObservation(source_relpath="a.xlsx", outcome="preserved", duration_seconds=1.0),
         RoundtripObservation(
-            source_relpath="b.xlsx", outcome="repaired", duration_seconds=2.0,
-            repair_dialog_seen=True, repair_dialog_text="found a problem",
+            source_relpath="b.xlsx",
+            outcome="repaired",
+            duration_seconds=2.0,
+            repair_dialog_seen=True,
+            repair_dialog_text="found a problem",
             changed_parts=["xl/worksheets/sheet1.xml"],
         ),
     ]

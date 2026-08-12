@@ -12,8 +12,6 @@ import json
 import zipfile
 from pathlib import Path
 
-import pytest
-
 from openxml_audit.package_diff import (
     canonicalize_xml,
     compare_package_parts,
@@ -51,12 +49,15 @@ def test_canonicalize_xml_falls_back_on_parse_error() -> None:
 
 
 def test_load_package_parts_default_filter_picks_xml_and_rels(tmp_path: Path) -> None:
-    pkg = _build_pkg(tmp_path / "p.zip", {
-        "[Content_Types].xml": b"<x/>",
-        "_rels/.rels": b"<r/>",
-        "media/img.png": b"\x89PNG fake",
-        "data.bin": b"\x00\x01",
-    })
+    pkg = _build_pkg(
+        tmp_path / "p.zip",
+        {
+            "[Content_Types].xml": b"<x/>",
+            "_rels/.rels": b"<r/>",
+            "media/img.png": b"\x89PNG fake",
+            "data.bin": b"\x00\x01",
+        },
+    )
     parts = load_package_parts(pkg)
     assert "[Content_Types].xml" in parts
     assert "_rels/.rels" in parts
@@ -68,11 +69,14 @@ def test_load_package_parts_default_filter_picks_xml_and_rels(tmp_path: Path) ->
 
 
 def test_load_package_parts_honors_custom_filter(tmp_path: Path) -> None:
-    pkg = _build_pkg(tmp_path / "p.zip", {
-        "[Content_Types].xml": b"<x/>",
-        "ppt/presentation.xml": b"<p/>",
-        "ppt/slides/slide1.xml": b"<s/>",
-    })
+    pkg = _build_pkg(
+        tmp_path / "p.zip",
+        {
+            "[Content_Types].xml": b"<x/>",
+            "ppt/presentation.xml": b"<p/>",
+            "ppt/slides/slide1.xml": b"<s/>",
+        },
+    )
     parts = load_package_parts(pkg, parts_filter=lambda n: n.startswith("ppt/slides/"))
     assert list(parts) == ["ppt/slides/slide1.xml"]
 
@@ -85,7 +89,7 @@ def test_compare_package_parts_classifies_changed_added_removed() -> None:
     }
     head = {
         "a.xml": {"raw": b"<a/>", "canonical": b"<a/>"},
-        "b.xml": {"raw": b"<b CHANGED='yes'/>", "canonical": b"<b CHANGED=\"yes\"/>"},
+        "b.xml": {"raw": b"<b CHANGED='yes'/>", "canonical": b'<b CHANGED="yes"/>'},
         "added.xml": {"raw": b"<n/>", "canonical": b"<n/>"},
     }
     diff = compare_package_parts(base, head)
@@ -95,7 +99,7 @@ def test_compare_package_parts_classifies_changed_added_removed() -> None:
 
 
 def test_pretty_part_text_pretty_prints_xml() -> None:
-    raw = b'<root><a/><b/></root>'
+    raw = b"<root><a/><b/></root>"
     pretty = pretty_part_text(raw)
     # Pretty-printed: each child on its own line.
     assert "\n" in pretty
@@ -131,16 +135,22 @@ def test_write_part_diff_produces_unified_diff(tmp_path: Path) -> None:
 
 
 def test_compare_packages_end_to_end_writes_report_and_diffs(tmp_path: Path) -> None:
-    base = _build_pkg(tmp_path / "base.zip", {
-        "doc.xml": b'<?xml version="1.0"?><doc><p>a</p></doc>',
-        "shared.xml": b'<?xml version="1.0"?><x/>',
-        "going_away.xml": b'<?xml version="1.0"?><z/>',
-    })
-    head = _build_pkg(tmp_path / "head.zip", {
-        "doc.xml": b'<?xml version="1.0"?><doc><p>b</p></doc>',
-        "shared.xml": b'<?xml version="1.0"?><x/>',
-        "new.xml": b'<?xml version="1.0"?><n/>',
-    })
+    base = _build_pkg(
+        tmp_path / "base.zip",
+        {
+            "doc.xml": b'<?xml version="1.0"?><doc><p>a</p></doc>',
+            "shared.xml": b'<?xml version="1.0"?><x/>',
+            "going_away.xml": b'<?xml version="1.0"?><z/>',
+        },
+    )
+    head = _build_pkg(
+        tmp_path / "head.zip",
+        {
+            "doc.xml": b'<?xml version="1.0"?><doc><p>b</p></doc>',
+            "shared.xml": b'<?xml version="1.0"?><x/>',
+            "new.xml": b'<?xml version="1.0"?><n/>',
+        },
+    )
     out = tmp_path / "compare"
     report = compare_packages(base_path=base, head_path=head, output_dir=out)
     assert report["changed_files"] == ["doc.xml"]
@@ -163,13 +173,19 @@ def test_compare_packages_canonicalization_ignores_whitespace_only_changes(
     whitespace on save, the diff should NOT flag those parts as changed.
     A dual-format check that exercises the canonicalize-before-compare
     path rather than just byte equality."""
-    base = _build_pkg(tmp_path / "base.zip", {
-        "doc.xml": b'<?xml version="1.0"?><root><a><b/></a></root>',
-    })
-    head = _build_pkg(tmp_path / "head.zip", {
-        # Same XML, but with whitespace and pretty-printing.
-        "doc.xml": b'<?xml version="1.0"?>\n<root>\n  <a>\n    <b/>\n  </a>\n</root>\n',
-    })
+    base = _build_pkg(
+        tmp_path / "base.zip",
+        {
+            "doc.xml": b'<?xml version="1.0"?><root><a><b/></a></root>',
+        },
+    )
+    head = _build_pkg(
+        tmp_path / "head.zip",
+        {
+            # Same XML, but with whitespace and pretty-printing.
+            "doc.xml": b'<?xml version="1.0"?>\n<root>\n  <a>\n    <b/>\n  </a>\n</root>\n',
+        },
+    )
     out = tmp_path / "compare"
     report = compare_packages(base_path=base, head_path=head, output_dir=out)
     assert report["changed_files"] == []

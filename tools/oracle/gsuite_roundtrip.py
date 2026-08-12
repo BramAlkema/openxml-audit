@@ -92,8 +92,8 @@ class LossClass(str, Enum):
 
 
 _OUTCOMES = Literal[
-    "preserved",          # zero diff (rare for GSuite — usually impossible)
-    "lossy_conversion",   # GSuite returned a result; diff is non-zero
+    "preserved",  # zero diff (rare for GSuite — usually impossible)
+    "lossy_conversion",  # GSuite returned a result; diff is non-zero
     "upload_failed",
     "convert_failed",
     "export_failed",
@@ -138,9 +138,7 @@ class GSuiteRoundtripObservation:
 # values, so these self-closing tags disappear from the roundtripped slide.
 # (We only count self-closing forms — `<p:spPr/>` not `<p:spPr></p:spPr>` —
 # because the open/close form already implies content.)
-_INHERITED_EMPTY_TAG_RE = re.compile(
-    r"<(?:p:spPr|p:cNvSpPr|a:bodyPr|a:pPr|a:xfrm)\s*/>"
-)
+_INHERITED_EMPTY_TAG_RE = re.compile(r"<(?:p:spPr|p:cNvSpPr|a:bodyPr|a:pPr|a:xfrm)\s*/>")
 # Threshold: at least this many empties in the source must vanish in the
 # head before we call it inlining (avoids firing on incidental cleanup).
 _DEFAULTS_INLINED_MIN_DROP = 2
@@ -198,9 +196,7 @@ def classify_loss(
     else matched.
     """
     if target_format != "pptx":
-        raise NotImplementedError(
-            f"loss classification for {target_format!r} is Phase 2"
-        )
+        raise NotImplementedError(f"loss classification for {target_format!r} is Phase 2")
 
     classes: set[LossClass] = set()
     changed_set = set(changed)
@@ -300,11 +296,13 @@ def classify_xml_loss(
 
     try:
         base_slides = sorted(
-            n for n in base_zip.namelist()
+            n
+            for n in base_zip.namelist()
             if n.startswith("ppt/slides/slide") and n.endswith(".xml")
         )
         head_slides = sorted(
-            n for n in head_zip.namelist()
+            n
+            for n in head_zip.namelist()
             if n.startswith("ppt/slides/slide") and n.endswith(".xml")
         )
 
@@ -397,9 +395,7 @@ def observe(
     try:
         if client is None:
             try:
-                client = GSuiteClient.from_service_account(
-                    creds_path=creds_path, subject=subject
-                )
+                client = GSuiteClient.from_service_account(creds_path=creds_path, subject=subject)
             except GSuiteAuthError as exc:
                 return GSuiteRoundtripObservation(
                     source_relpath=input_pptx.name,
@@ -412,9 +408,7 @@ def observe(
 
         # 1. Upload
         try:
-            uploaded_id = client.upload(
-                original, parent_id=resolved_folder, mime_type=PPTX_MIME
-            )
+            uploaded_id = client.upload(original, parent_id=resolved_folder, mime_type=PPTX_MIME)
         except Exception as exc:
             return GSuiteRoundtripObservation(
                 source_relpath=input_pptx.name,
@@ -456,21 +450,15 @@ def observe(
 
         # 4. Diff
         compare_dir = work_dir / "compare"
-        report = compare_pptx_packages(
-            base_path=original, head_path=head, output_dir=compare_dir
-        )
+        report = compare_pptx_packages(base_path=original, head_path=head, output_dir=compare_dir)
         changed = list(report.get("changed_files", []))
         added = list(report.get("added_files", []))
         removed = list(report.get("removed_files", []))
 
         # 5. Classify — list-based rules over part names + content-aware
         # rules that read slide XML bytes.
-        classes = classify_loss(
-            changed=changed, added=added, removed=removed, target_format="pptx"
-        )
-        classes |= classify_xml_loss(
-            base_path=original, head_path=head, target_format="pptx"
-        )
+        classes = classify_loss(changed=changed, added=added, removed=removed, target_format="pptx")
+        classes |= classify_xml_loss(base_path=original, head_path=head, target_format="pptx")
 
         return GSuiteRoundtripObservation(
             source_relpath=input_pptx.name,
@@ -544,28 +532,37 @@ def _to_jsonable(observations: list[GSuiteRoundtripObservation]) -> dict:
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument(
-        "input", nargs="+", type=Path,
+        "input",
+        nargs="+",
+        type=Path,
         help=".pptx files to roundtrip (or directories to walk)",
     )
     p.add_argument(
-        "--output", type=Path, default=None,
+        "--output",
+        type=Path,
+        default=None,
         help="optional path to write the JSON observation report",
     )
     p.add_argument(
-        "--subject", default=None,
+        "--subject",
+        default=None,
         help="Workspace user to impersonate; defaults to GSUITE_ORACLE_SUBJECT env var",
     )
     p.add_argument(
-        "--folder-id", default=None,
+        "--folder-id",
+        default=None,
         help="Drive folder ID for staging; defaults to GSUITE_ORACLE_FOLDER_ID env var",
     )
     p.add_argument(
-        "--creds", type=Path, default=None,
+        "--creds",
+        type=Path,
+        default=None,
         help="path to service account JSON; defaults to GSUITE_ORACLE_CREDS env var "
-             "or ~/.config/openxml-audit/google_service_account.json",
+        "or ~/.config/openxml-audit/google_service_account.json",
     )
     p.add_argument(
-        "--keep-artifacts", action="store_true",
+        "--keep-artifacts",
+        action="store_true",
         help="leave staging dirs in place for inspection",
     )
     args = p.parse_args()
@@ -606,14 +603,16 @@ def main() -> int:
     )
     if s["loss_class_counts"]:
         print(
-            "  loss classes: " + ", ".join(
-                f"{k}={v}" for k, v in sorted(s["loss_class_counts"].items())
-            ),
+            "  loss classes: "
+            + ", ".join(f"{k}={v}" for k, v in sorted(s["loss_class_counts"].items())),
             file=sys.stderr,
         )
     hard = (
-        s["upload_failed"] + s["convert_failed"] + s["export_failed"]
-        + s["auth_failed"] + s["missing_output"]
+        s["upload_failed"]
+        + s["convert_failed"]
+        + s["export_failed"]
+        + s["auth_failed"]
+        + s["missing_output"]
     )
     return 1 if hard > 0 else 0
 

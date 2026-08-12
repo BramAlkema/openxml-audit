@@ -49,9 +49,7 @@ class SemanticValidator:
             self._constraints[element_tag] = []
         self._constraints[element_tag].append(constraint)
 
-    def validate_part(
-        self, part: OpenXmlPart, context: ValidationContext
-    ) -> list[ValidationError]:
+    def validate_part(self, part: OpenXmlPart, context: ValidationContext) -> list[ValidationError]:
         """Validate a part against semantic constraints.
 
         Args:
@@ -136,9 +134,7 @@ class SemanticValidator:
                     error_id="Sem_MissingRelationshipReference",
                 )
 
-    def _validate_mc_ignorable(
-        self, element: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_mc_ignorable(self, element: etree._Element, context: ValidationContext) -> None:
         ignorable = element.get(f"{{{MC}}}Ignorable")
         if ignorable is None:
             return
@@ -189,9 +185,7 @@ class SemanticValidator:
                 ns_versions[ns] = min_fmt
         self._namespace_versions = ns_versions
 
-    def _resolve_mce(
-        self, alt: etree._Element, file_format: FileFormat
-    ) -> list[etree._Element]:
+    def _resolve_mce(self, alt: etree._Element, file_format: FileFormat) -> list[etree._Element]:
         """Resolve mc:AlternateContent to the appropriate branch.
 
         At Office2010, the SDK resolves MCE: if a Choice's required namespaces

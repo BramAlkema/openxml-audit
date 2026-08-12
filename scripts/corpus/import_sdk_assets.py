@@ -396,8 +396,7 @@ def main() -> int:
         action="append",
         default=[],
         help=(
-            "Directory under SDK assets root to include (repeatable). "
-            "Default: include all assets."
+            "Directory under SDK assets root to include (repeatable). Default: include all assets."
         ),
     )
     parser.add_argument(
@@ -468,7 +467,9 @@ def main() -> int:
         "dry_run": args.dry_run,
     }
     matched_expectation_files = sum(
-        1 for file_entry in manifest["files"] if file_entry["expectations"]  # type: ignore[index]
+        1
+        for file_entry in manifest["files"]
+        if file_entry["expectations"]  # type: ignore[index]
     )
     manifest["matched_expectation_files"] = matched_expectation_files
 

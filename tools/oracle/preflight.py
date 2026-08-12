@@ -65,9 +65,7 @@ def _check_office_app(
     issues: list[str] = []
 
     if platform.system() != "Darwin":
-        issues.append(
-            f"Not running on macOS — the {engine} roundtrip oracle is macOS-only."
-        )
+        issues.append(f"Not running on macOS — the {engine} roundtrip oracle is macOS-only.")
         return PreflightStatus(ok=False, issues=issues, engine=engine)
 
     if shutil.which("osascript") is None:

@@ -108,9 +108,10 @@ class ChildSequence:
     entries (every WML property child is xs:minOccurs=0 in practice), but
     they may not reorder them.
     """
-    parent_tag: str           # Clark-notation: "{...wordprocessingml...}trPr"
-    spec_section: str         # ECMA-376 reference: "§17.4.79"
-    children: tuple[str, ...] # local names in canonical order
+
+    parent_tag: str  # Clark-notation: "{...wordprocessingml...}trPr"
+    spec_section: str  # ECMA-376 reference: "§17.4.79"
+    children: tuple[str, ...]  # local names in canonical order
 ```
 
 The constraint table is a flat tuple of `ChildSequence` instances, one per supported complex type. The validator looks up the parent tag at runtime; types not in the table are not checked.

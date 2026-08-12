@@ -129,10 +129,9 @@ class OdfRelaxNgRouter:
             best_match_schema: Path | None = None
             best_match_len = -1
             for pattern, schema_path in mapping.items():
-                if (
-                    (fnmatch(normalized_part, pattern) or fnmatch(prefixed_part, pattern))
-                    and len(pattern) > best_match_len
-                ):
+                if (fnmatch(normalized_part, pattern) or fnmatch(prefixed_part, pattern)) and len(
+                    pattern
+                ) > best_match_len:
                     best_match_pattern = pattern
                     best_match_schema = schema_path
                     best_match_len = len(pattern)
@@ -229,21 +228,15 @@ class OdfRelaxNgResolver:
                 continue
             href = (candidate.get("href") or "").strip()
             if not href:
-                errors.append(
-                    f"Relax NG reference in '{schema_path}' has empty href attribute"
-                )
+                errors.append(f"Relax NG reference in '{schema_path}' has empty href attribute")
                 continue
 
             target = self._resolve_reference(schema_path.parent, href)
             if target is None:
-                errors.append(
-                    f"Unsupported Relax NG reference URI '{href}' in '{schema_path}'"
-                )
+                errors.append(f"Unsupported Relax NG reference URI '{href}' in '{schema_path}'")
                 continue
             if not target.exists():
-                errors.append(
-                    f"Unresolvable Relax NG reference '{href}' from '{schema_path}'"
-                )
+                errors.append(f"Unresolvable Relax NG reference '{href}' from '{schema_path}'")
                 continue
             self._walk_references(
                 schema_path=target,

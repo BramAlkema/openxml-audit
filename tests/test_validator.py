@@ -47,9 +47,7 @@ class TestOpenXmlValidator:
         # A well-formed minimal PPTX should be valid
         # (allowing for minor schema issues in our test fixture)
 
-    def test_validate_returns_errors(
-        self, invalid_pptx_missing_presentation: Path
-    ) -> None:
+    def test_validate_returns_errors(self, invalid_pptx_missing_presentation: Path) -> None:
         """Test validation returns errors for invalid PPTX."""
         validator = OpenXmlValidator()
 
@@ -89,9 +87,7 @@ class TestOpenXmlValidator:
         result = validator.validate(minimal_pptx)
 
         # Should not exceed max_errors (counting only ERROR severity)
-        error_count = sum(
-            1 for e in result.errors if e.severity == ValidationSeverity.ERROR
-        )
+        error_count = sum(1 for e in result.errors if e.severity == ValidationSeverity.ERROR)
         assert error_count <= 1
 
     def test_max_errors_zero_unlimited(self, minimal_pptx: Path) -> None:
@@ -150,9 +146,7 @@ class TestOpenXmlValidator:
             relationships=[],
             list_parts=lambda: ["/word/document.xml"],
             get_part_relationships=(
-                lambda source_uri: [rel]
-                if source_uri == "/word/document.xml"
-                else []
+                lambda source_uri: [rel] if source_uri == "/word/document.xml" else []
             ),
             has_part=lambda target_uri: target_uri == "/word/document.xml",
         )
@@ -171,9 +165,7 @@ class TestValidationResult:
         result = validator.validate(minimal_pptx)
 
         # error_count should match number of ERROR severity items
-        expected = sum(
-            1 for e in result.errors if e.severity == ValidationSeverity.ERROR
-        )
+        expected = sum(1 for e in result.errors if e.severity == ValidationSeverity.ERROR)
         assert result.error_count == expected
 
     def test_warning_count(self, minimal_pptx: Path) -> None:
@@ -181,9 +173,7 @@ class TestValidationResult:
         validator = OpenXmlValidator()
         result = validator.validate(minimal_pptx)
 
-        expected = sum(
-            1 for e in result.errors if e.severity == ValidationSeverity.WARNING
-        )
+        expected = sum(1 for e in result.errors if e.severity == ValidationSeverity.WARNING)
         assert result.warning_count == expected
 
 
@@ -233,9 +223,7 @@ class TestPresentationAppCompatParts:
         "tableStyles": "/ppt/tableStyles.xml",
     }
 
-    def _strip(
-        self, src: Path, dst: Path, labels: tuple[str, ...]
-    ) -> None:
+    def _strip(self, src: Path, dst: Path, labels: tuple[str, ...]) -> None:
         """Copy `src` to `dst`, omitting the given app-compat parts and their
         content-type and relationship entries. Mirrors the issue's repro: the
         package becomes internally self-consistent."""
@@ -248,9 +236,7 @@ class TestPresentationAppCompatParts:
         zip_paths = {n.lstrip("/") for n in part_names}
 
         with zipfile.ZipFile(src) as zin:
-            files = {
-                n: zin.read(n) for n in zin.namelist() if n not in zip_paths
-            }
+            files = {n: zin.read(n) for n in zin.namelist() if n not in zip_paths}
 
         ct_ns = {"ct": "http://schemas.openxmlformats.org/package/2006/content-types"}
         ct = etree.fromstring(files["[Content_Types].xml"])
@@ -275,16 +261,12 @@ class TestPresentationAppCompatParts:
             for name, data in files.items():
                 zout.writestr(name, data)
 
-    def test_minimal_pptx_passes_app_compat_check(
-        self, minimal_pptx: Path
-    ) -> None:
+    def test_minimal_pptx_passes_app_compat_check(self, minimal_pptx: Path) -> None:
         """The minimal fixture ships with all optional app rels + parts present."""
         result = OpenXmlValidator().validate(minimal_pptx)
         descriptions = [e.description for e in result.errors]
         for label in ("presProps", "viewProps", "tableStyles"):
-            assert not any(
-                "missing" in d and label in d for d in descriptions
-            ), descriptions
+            assert not any("missing" in d and label in d for d in descriptions), descriptions
 
     def test_one_missing_app_compat_part_fires_error(
         self, minimal_pptx: Path, tmp_path: Path
@@ -295,8 +277,7 @@ class TestPresentationAppCompatParts:
 
         result = OpenXmlValidator().validate(broken)
         matching = [
-            e for e in result.errors
-            if "missing" in e.description and "presProps" in e.description
+            e for e in result.errors if "missing" in e.description and "presProps" in e.description
         ]
         assert matching, [e.description for e in result.errors]
         assert all(e.severity == ValidationSeverity.ERROR for e in matching)
@@ -335,8 +316,7 @@ class TestPresentationAppCompatParts:
                 for e in result.errors
             ), (label, [e.description for e in result.errors])
         assert not any(
-            "missing" in e.description and "tableStyles" in e.description
-            for e in result.errors
+            "missing" in e.description and "tableStyles" in e.description for e in result.errors
         ), [e.description for e in result.errors]
 
     def test_unrelated_check_still_catches_dangling_rel(
@@ -348,10 +328,7 @@ class TestPresentationAppCompatParts:
 
         dst = tmp_path / "dangling-rel.pptx"
         with zipfile.ZipFile(minimal_pptx) as zin:
-            files = {
-                n: zin.read(n) for n in zin.namelist()
-                if n != "ppt/presProps.xml"
-            }
+            files = {n: zin.read(n) for n in zin.namelist() if n != "ppt/presProps.xml"}
         with zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED) as zout:
             for name, data in files.items():
                 zout.writestr(name, data)
@@ -361,7 +338,6 @@ class TestPresentationAppCompatParts:
         # The rel still exists, so the new app-compat check should NOT fire
         # for presProps; the relationship-target check carries the load.
         new_check_hits = [
-            e for e in result.errors
-            if "missing presProps relationship" in e.description
+            e for e in result.errors if "missing presProps relationship" in e.description
         ]
         assert new_check_hits == [], [e.description for e in new_check_hits]

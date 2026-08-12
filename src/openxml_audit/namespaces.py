@@ -36,31 +36,17 @@ SPREADSHEETML = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 
 # PresentationML relationship types
 REL_SLIDE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide"
-REL_SLIDE_LAYOUT = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"
-)
-REL_SLIDE_MASTER = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster"
-)
-REL_NOTES_SLIDE = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide"
-)
-REL_NOTES_MASTER = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesMaster"
-)
+REL_SLIDE_LAYOUT = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"
+REL_SLIDE_MASTER = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster"
+REL_NOTES_SLIDE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide"
+REL_NOTES_MASTER = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesMaster"
 REL_HANDOUT_MASTER = (
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/handoutMaster"
 )
 REL_THEME = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme"
-REL_PRES_PROPS = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/presProps"
-)
-REL_VIEW_PROPS = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/viewProps"
-)
-REL_TABLE_STYLES = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/tableStyles"
-)
+REL_PRES_PROPS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/presProps"
+REL_VIEW_PROPS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/viewProps"
+REL_TABLE_STYLES = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/tableStyles"
 REL_HEADER = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/header"
 REL_FOOTER = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer"
 REL_COMMENTS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments"
@@ -71,28 +57,18 @@ REL_CUSTOM_XML_PROPS = (
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps"
 )
 REL_STYLES = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"
-REL_STYLES_WITH_EFFECTS = (
-    "http://schemas.microsoft.com/office/2007/relationships/stylesWithEffects"
-)
+REL_STYLES_WITH_EFFECTS = "http://schemas.microsoft.com/office/2007/relationships/stylesWithEffects"
 REL_SETTINGS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings"
-REL_WEB_SETTINGS = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings"
-)
+REL_WEB_SETTINGS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings"
 REL_FONT = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/font"
 REL_FONT_TABLE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable"
 REL_NUMBERING = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering"
 REL_SHARED_STRINGS = (
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings"
 )
-REL_WORKSHEET = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"
-)
-REL_CHARTSHEET = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet"
-)
-REL_DIALOGSHEET = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/dialogsheet"
-)
+REL_WORKSHEET = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"
+REL_CHARTSHEET = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet"
+REL_DIALOGSHEET = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/dialogsheet"
 REL_MACRO_SHEET = "http://schemas.microsoft.com/office/2006/relationships/xlMacrosheet"
 
 # DrawingML namespaces
@@ -121,14 +97,10 @@ DCMITYPE = "http://purl.org/dc/dcmitype/"
 XSI = "http://www.w3.org/2001/XMLSchema-instance"
 
 # Extended Properties (App)
-EXTENDED_PROPERTIES = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
-)
+EXTENDED_PROPERTIES = "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
 
 # Custom Properties
-CUSTOM_PROPERTIES = (
-    "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
-)
+CUSTOM_PROPERTIES = "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
 
 # VML (Vector Markup Language)
 VML = "urn:schemas-microsoft-com:vml"

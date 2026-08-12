@@ -24,9 +24,7 @@ class DocumentValidator:
         self._rel_ns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
         self._compat = WordCompatValidator()
 
-    def validate(
-        self, part: DocumentPart, context: ValidationContext
-    ) -> list[ValidationError]:
+    def validate(self, part: DocumentPart, context: ValidationContext) -> list[ValidationError]:
         """Validate a Word document part."""
         context.set_part(part)
         errors: list[ValidationError] = []

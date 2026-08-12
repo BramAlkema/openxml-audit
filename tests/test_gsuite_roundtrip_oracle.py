@@ -45,7 +45,9 @@ from oracle.gsuite_roundtrip import (  # noqa: E402
 
 def test_classify_loss_metadata_churn_only():
     classes = classify_loss(
-        changed=["docProps/app.xml"], added=[], removed=["docProps/core.xml"],
+        changed=["docProps/app.xml"],
+        added=[],
+        removed=["docProps/core.xml"],
     )
     assert classes == {LossClass.METADATA_CHURN}
 
@@ -89,28 +91,36 @@ def test_classify_loss_notes_added_is_normalization():
 
 def test_classify_loss_table_styles_removed():
     classes = classify_loss(
-        changed=[], added=[], removed=["ppt/tableStyles.xml"],
+        changed=[],
+        added=[],
+        removed=["ppt/tableStyles.xml"],
     )
     assert classes == {LossClass.STYLE_PART_REMOVED}
 
 
 def test_classify_loss_fonts_removed():
     classes = classify_loss(
-        changed=[], added=[], removed=["ppt/fonts/font1.fntdata"],
+        changed=[],
+        added=[],
+        removed=["ppt/fonts/font1.fntdata"],
     )
     assert classes == {LossClass.FONT_PART_REMOVED}
 
 
 def test_classify_loss_media_changed_is_re_encoded():
     classes = classify_loss(
-        changed=["ppt/media/image1.png"], added=[], removed=[],
+        changed=["ppt/media/image1.png"],
+        added=[],
+        removed=[],
     )
     assert classes == {LossClass.MEDIA_RE_ENCODED}
 
 
 def test_classify_loss_slide_change_is_slide_part_changed():
     classes = classify_loss(
-        changed=["ppt/slides/slide1.xml"], added=[], removed=[],
+        changed=["ppt/slides/slide1.xml"],
+        added=[],
+        removed=[],
     )
     assert classes == {LossClass.SLIDE_PART_CHANGED}
 
@@ -120,7 +130,9 @@ def test_classify_loss_package_wiring_only_does_not_loss_classify():
     # the loss buckets — these are package-wiring artifacts. Falls
     # through to UNMAPPED so the diff isn't silently lost.
     classes = classify_loss(
-        changed=["[Content_Types].xml", "_rels/.rels"], added=[], removed=[],
+        changed=["[Content_Types].xml", "_rels/.rels"],
+        added=[],
+        removed=[],
     )
     assert classes == {LossClass.UNMAPPED}
 
@@ -284,10 +296,14 @@ def test_classify_xml_loss_pptx_pair(tmp_path):
 def test_classify_xml_loss_unsupported_format_returns_empty():
     """docx/xlsx are Phase 2 — silent no-op rather than raising, so
     the orchestrator can union it unconditionally."""
-    assert classify_xml_loss(
-        base_path=Path("/dev/null"), head_path=Path("/dev/null"),
-        target_format="docx",
-    ) == set()
+    assert (
+        classify_xml_loss(
+            base_path=Path("/dev/null"),
+            head_path=Path("/dev/null"),
+            target_format="docx",
+        )
+        == set()
+    )
 
 
 # --- Observation shape + JSON rollup ----------------------------------------
@@ -295,7 +311,9 @@ def test_classify_xml_loss_unsupported_format_returns_empty():
 
 def test_observation_dataclass_defaults():
     obs = GSuiteRoundtripObservation(
-        source_relpath="x.pptx", outcome="lossy_conversion", duration_seconds=1.0,
+        source_relpath="x.pptx",
+        outcome="lossy_conversion",
+        duration_seconds=1.0,
     )
     assert obs.target_format == "pptx"
     assert obs.subject is None
@@ -306,15 +324,20 @@ def test_observation_dataclass_defaults():
 def test_to_jsonable_summary_counts_outcomes_and_loss():
     obs = [
         GSuiteRoundtripObservation(
-            source_relpath="a.pptx", outcome="lossy_conversion",
-            duration_seconds=1.0, loss=["theme_part_changed", "master_part_changed"],
+            source_relpath="a.pptx",
+            outcome="lossy_conversion",
+            duration_seconds=1.0,
+            loss=["theme_part_changed", "master_part_changed"],
         ),
         GSuiteRoundtripObservation(
-            source_relpath="b.pptx", outcome="lossy_conversion",
-            duration_seconds=1.0, loss=["theme_part_changed"],
+            source_relpath="b.pptx",
+            outcome="lossy_conversion",
+            duration_seconds=1.0,
+            loss=["theme_part_changed"],
         ),
         GSuiteRoundtripObservation(
-            source_relpath="c.pptx", outcome="auth_failed",
+            source_relpath="c.pptx",
+            outcome="auth_failed",
             duration_seconds=0.1,
         ),
     ]
@@ -324,7 +347,8 @@ def test_to_jsonable_summary_counts_outcomes_and_loss():
     assert report["summary"]["lossy_conversion"] == 2
     assert report["summary"]["auth_failed"] == 1
     assert report["summary"]["loss_class_counts"] == {
-        "theme_part_changed": 2, "master_part_changed": 1,
+        "theme_part_changed": 2,
+        "master_part_changed": 1,
     }
 
 
@@ -333,6 +357,7 @@ def test_to_jsonable_summary_counts_outcomes_and_loss():
 
 def test_dispatcher_has_gsuite_engine():
     from openxml_audit.oracle.__main__ import _DISPATCH  # noqa: PLC0415
+
     assert "gsuite" in _DISPATCH
     assert "google" in _DISPATCH  # alias
     assert _DISPATCH["gsuite"] is _DISPATCH["google"]

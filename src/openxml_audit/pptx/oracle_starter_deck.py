@@ -1485,10 +1485,7 @@ def _native_width_scale_oracle_slide(presentation) -> SlideArtifact:
         build_entries=[
             BuildEntry(shape_id=good.shape_id, grp_id=good_grp_id),
             BuildEntry(shape_id=bad.shape_id, grp_id=bad_grp_id),
-            *(
-                BuildEntry(shape_id=segmented.shape_id, grp_id=grp_id)
-                for grp_id in segment_grp_ids
-            ),
+            *(BuildEntry(shape_id=segmented.shape_id, grp_id=grp_id) for grp_id in segment_grp_ids),
         ],
     )
     return SlideArtifact(timing_xml=timing_xml)

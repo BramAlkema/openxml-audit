@@ -134,9 +134,7 @@ def evaluate_gate(
 
     failures: list[str] = []
     if new_count > max_new_families:
-        failures.append(
-            f"new families exceeded threshold: {new_count} > {max_new_families}"
-        )
+        failures.append(f"new families exceeded threshold: {new_count} > {max_new_families}")
     if missing_count > max_missing_families:
         failures.append(
             f"missing families exceeded threshold: {missing_count} > {max_missing_families}"
@@ -170,8 +168,10 @@ def render_summary_md(report: CompareReport) -> str:
     lines.append(f"- current total findings:  {report.current_total}")
     lines.append(f"- new families:     {len(report.new_families)}")
     lines.append(f"- missing families: {len(report.missing_families)}")
-    lines.append(f"- count drift:      {len(report.count_drift)} families "
-                 f"(|Δ| total = {sum(abs(d.delta) for d in report.count_drift)})")
+    lines.append(
+        f"- count drift:      {len(report.count_drift)} families "
+        f"(|Δ| total = {sum(abs(d.delta) for d in report.count_drift)})"
+    )
     lines.append("")
     if report.gate:
         lines.append(f"**Gate verdict:** {'PASS' if report.gate.get('ok') else 'FAIL'}")
@@ -207,20 +207,42 @@ def render_summary_md(report: CompareReport) -> str:
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--baseline", required=True, type=Path,
-                   help="path to the committed self-parity baseline JSON")
-    p.add_argument("--current", required=True, type=Path,
-                   help="path to the freshly-generated current snapshot JSON")
-    p.add_argument("--output", type=Path, default=None,
-                   help="optional path to write the comparison JSON")
-    p.add_argument("--summary", type=Path, default=None,
-                   help="optional path to write a markdown summary")
-    p.add_argument("--max-new-families", type=int, default=0,
-                   help="hard fail if new families exceed this (default 0)")
-    p.add_argument("--max-missing-families", type=int, default=0,
-                   help="hard fail if missing families exceed this (default 0)")
-    p.add_argument("--max-count-drift-total", type=int, default=0,
-                   help="hard fail if total |Δ| of count drift exceeds this (default 0)")
+    p.add_argument(
+        "--baseline",
+        required=True,
+        type=Path,
+        help="path to the committed self-parity baseline JSON",
+    )
+    p.add_argument(
+        "--current",
+        required=True,
+        type=Path,
+        help="path to the freshly-generated current snapshot JSON",
+    )
+    p.add_argument(
+        "--output", type=Path, default=None, help="optional path to write the comparison JSON"
+    )
+    p.add_argument(
+        "--summary", type=Path, default=None, help="optional path to write a markdown summary"
+    )
+    p.add_argument(
+        "--max-new-families",
+        type=int,
+        default=0,
+        help="hard fail if new families exceed this (default 0)",
+    )
+    p.add_argument(
+        "--max-missing-families",
+        type=int,
+        default=0,
+        help="hard fail if missing families exceed this (default 0)",
+    )
+    p.add_argument(
+        "--max-count-drift-total",
+        type=int,
+        default=0,
+        help="hard fail if total |Δ| of count drift exceeds this (default 0)",
+    )
     args = p.parse_args()
 
     if not args.baseline.exists():

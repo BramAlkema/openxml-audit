@@ -128,9 +128,7 @@ class SpreadsheetColumnCountConstraint(OdfConstraint):
             table_name = table.get(f"{{{TABLE_NS}}}name", "").strip()
             col_count = 0
             for col in table.iterchildren(f"{{{TABLE_NS}}}table-column"):
-                repeat = col.get(
-                    f"{{{TABLE_NS}}}number-columns-repeated", "1"
-                ).strip()
+                repeat = col.get(f"{{{TABLE_NS}}}number-columns-repeated", "1").strip()
                 try:
                     col_count += int(repeat)
                 except ValueError:
@@ -145,9 +143,7 @@ class SpreadsheetColumnCountConstraint(OdfConstraint):
                     f"{{{TABLE_NS}}}table-cell",
                     f"{{{TABLE_NS}}}covered-table-cell",
                 ):
-                    repeat = cell.get(
-                        f"{{{TABLE_NS}}}number-columns-repeated", "1"
-                    ).strip()
+                    repeat = cell.get(f"{{{TABLE_NS}}}number-columns-repeated", "1").strip()
                     try:
                         cell_count += int(repeat)
                     except ValueError:
@@ -385,9 +381,7 @@ class CellValidationRefConstraint(OdfConstraint):
                 self._error(
                     rule_id="ODFSEMSS008",
                     error_type=ValidationErrorType.SEMANTIC,
-                    description=(
-                        f"Cell references validation '{ref}' which is not defined"
-                    ),
+                    description=(f"Cell references validation '{ref}' which is not defined"),
                     part_uri="/content.xml",
                 )
             )
@@ -436,8 +430,7 @@ class RepeatCountConstraint(OdfConstraint):
                             rule_id="ODFSEMSS009",
                             error_type=ValidationErrorType.SEMANTIC,
                             description=(
-                                f"Invalid repeat count '{val}' on "
-                                f"{etree.QName(elem).localname}"
+                                f"Invalid repeat count '{val}' on {etree.QName(elem).localname}"
                             ),
                             part_uri="/content.xml",
                         )
@@ -484,9 +477,7 @@ class ColumnStyleRefConstraint(OdfConstraint):
                 self._error(
                     rule_id="ODFSEMSS010",
                     error_type=ValidationErrorType.SEMANTIC,
-                    description=(
-                        f"Column default cell style '{ref}' is not defined"
-                    ),
+                    description=(f"Column default cell style '{ref}' is not defined"),
                     part_uri="/content.xml",
                 )
             )
@@ -568,9 +559,7 @@ class ConditionalStyleRefConstraint(OdfConstraint):
                 self._error(
                     rule_id="ODFSEMSS012",
                     error_type=ValidationErrorType.SEMANTIC,
-                    description=(
-                        f"Conditional style '{ref}' is not defined"
-                    ),
+                    description=(f"Conditional style '{ref}' is not defined"),
                     part_uri="/content.xml",
                 )
             )
@@ -611,8 +600,7 @@ class FilterFieldConstraint(OdfConstraint):
                         rule_id="ODFSEMSS013",
                         error_type=ValidationErrorType.SEMANTIC,
                         description=(
-                            f"Filter field-number '{field}' is not a "
-                            "valid non-negative integer"
+                            f"Filter field-number '{field}' is not a valid non-negative integer"
                         ),
                         part_uri="/content.xml",
                     )

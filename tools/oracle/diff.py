@@ -34,10 +34,7 @@ def extract_first(docx_path: str, parent_local: str, namespace: str) -> list[str
     root = etree.fromstring(doc)
     parent_clark = f"{{{namespace}}}{parent_local}"
     for elem in root.iter(parent_clark):
-        return [
-            _local_name(child.tag) for child in elem
-            if isinstance(child.tag, str)
-        ]
+        return [_local_name(child.tag) for child in elem if isinstance(child.tag, str)]
     return None
 
 

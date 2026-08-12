@@ -173,9 +173,7 @@ def test_in_order_trpr_produces_no_warning(tmp_path: Path) -> None:
     pkg = _build_docx(tmp_path, "in_order.docx", body)
 
     result = OpenXmlValidator(schema_validation=False).validate(pkg)
-    matches = [
-        e for e in result.errors if "trPr child" in e.description
-    ]
+    matches = [e for e in result.errors if "trPr child" in e.description]
     assert matches == [], [e.description for e in matches]
 
 
@@ -186,16 +184,13 @@ def test_issue_3_repro_fires_warning(tmp_path: Path) -> None:
 
     result = OpenXmlValidator(schema_validation=False).validate(pkg)
     matches = [
-        e for e in result.errors
-        if "trPr child" in e.description and "cantSplit" in e.description
+        e for e in result.errors if "trPr child" in e.description and "cantSplit" in e.description
     ]
     assert matches, [e.description for e in result.errors]
-    assert all(e.severity == ValidationSeverity.WARNING for e in matches), (
-        [(e.severity, e.description) for e in matches]
-    )
-    assert any("§17.4.79" in e.description for e in matches), (
-        [e.description for e in matches]
-    )
+    assert all(e.severity == ValidationSeverity.WARNING for e in matches), [
+        (e.severity, e.description) for e in matches
+    ]
+    assert any("§17.4.79" in e.description for e in matches), [e.description for e in matches]
     assert any("tblHeader" in e.description for e in matches)
 
 
@@ -287,7 +282,8 @@ def test_phase2_in_order_inputs_pass(tmp_path: Path) -> None:
     pkg = _build_docx(tmp_path, "phase2_clean.docx", body)
     result = OpenXmlValidator(schema_validation=False).validate(pkg)
     matches = [
-        e for e in result.errors
+        e
+        for e in result.errors
         if any(prop in e.description for prop in ("tblPr child", "tcPr child", "sectPr child"))
     ]
     assert matches == [], [e.description for e in matches]
@@ -297,9 +293,9 @@ def test_unknown_child_in_trpr_is_not_flagged(tmp_path: Path) -> None:
     """Children not in CT_TrPr canonical (e.g., extension elements) are
     silently skipped — ordering checks are scoped to known children."""
     body = _trpr(
-        '<w:cantSplit/>'
+        "<w:cantSplit/>"
         '<w:extLst><w:ext xmlns:custom="urn:x" custom:foo="1"/></w:extLst>'
-        '<w:tblHeader/>'
+        "<w:tblHeader/>"
     )
     pkg = _build_docx(tmp_path, "unknown.docx", body)
 

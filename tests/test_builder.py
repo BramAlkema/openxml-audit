@@ -34,7 +34,8 @@ def test_builder_produces_content_types_with_defaults_and_overrides() -> None:
 def test_builder_emits_package_rels_at_canonical_path() -> None:
     builder = PackageBuilder()
     builder.add_relationship(
-        "/", "rId1",
+        "/",
+        "rId1",
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
         "word/document.xml",
     )
@@ -55,7 +56,8 @@ def test_builder_emits_package_rels_at_canonical_path() -> None:
 def test_builder_emits_part_rels_at_canonical_path() -> None:
     builder = PackageBuilder()
     builder.add_relationship(
-        "/xl/workbook.xml", "rId1",
+        "/xl/workbook.xml",
+        "rId1",
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
         "worksheets/sheet1.xml",
     )

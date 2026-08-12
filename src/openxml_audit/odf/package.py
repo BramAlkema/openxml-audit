@@ -109,24 +109,21 @@ class OdfPackage(ZipPackage):
                 algorithm_name = ""
                 key_derivation_name = ""
                 if encryption_data is not None:
-                    checksum_type = (
-                        encryption_data.get(f"{{{ns['manifest']}}}checksum-type", "")
-                        .strip()
-                    )
+                    checksum_type = encryption_data.get(
+                        f"{{{ns['manifest']}}}checksum-type", ""
+                    ).strip()
                     checksum = encryption_data.get(f"{{{ns['manifest']}}}checksum", "").strip()
                     algorithm = encryption_data.find("manifest:algorithm", ns)
                     key_derivation = encryption_data.find("manifest:key-derivation", ns)
                     if algorithm is not None:
-                        algorithm_name = (
-                            algorithm.get(f"{{{ns['manifest']}}}algorithm-name", "").strip()
-                        )
+                        algorithm_name = algorithm.get(
+                            f"{{{ns['manifest']}}}algorithm-name", ""
+                        ).strip()
                     if key_derivation is not None:
-                        key_derivation_name = (
-                            key_derivation.get(
-                                f"{{{ns['manifest']}}}key-derivation-name",
-                                "",
-                            ).strip()
-                        )
+                        key_derivation_name = key_derivation.get(
+                            f"{{{ns['manifest']}}}key-derivation-name",
+                            "",
+                        ).strip()
                 entries.append(
                     OdfManifestEntry(
                         full_path=full_path,
@@ -237,9 +234,7 @@ class OdfPackage(ZipPackage):
             )
 
         root_entries = [
-            entry
-            for entry in manifest
-            if self._normalize_manifest_path(entry.full_path) == "/"
+            entry for entry in manifest if self._normalize_manifest_path(entry.full_path) == "/"
         ]
         if not root_entries:
             errors.append(

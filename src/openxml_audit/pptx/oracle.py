@@ -196,12 +196,7 @@ def _pattern_signature(pattern: EffectPattern) -> str:
 def _pattern_family_signature(pattern: EffectPattern) -> str:
     child_sig = "+".join(pattern.child_tags) or "none"
     attr_sig = ",".join(pattern.attr_names) or "-"
-    return (
-        f"{pattern.node_type or 'none'}|"
-        f"{pattern.preset_class or 'none'}|"
-        f"{child_sig}|"
-        f"{attr_sig}"
-    )
+    return f"{pattern.node_type or 'none'}|{pattern.preset_class or 'none'}|{child_sig}|{attr_sig}"
 
 
 def _summarize_effect_patterns(
@@ -267,9 +262,7 @@ def _summarize_slide(slide_file: str, slide_xml_text: bytes) -> SlideOracle:
         has_build_list=bool(slide_xml.xpath(".//p:timing/p:bldLst", namespaces=NS)),
         tag_counts=dict(tag_counts),
         effect_patterns=(
-            _summarize_effect_patterns(slide_xml, slide_file)
-            if timing is not None
-            else []
+            _summarize_effect_patterns(slide_xml, slide_file) if timing is not None else []
         ),
     )
 
@@ -330,9 +323,7 @@ def _build_pattern_index(
     for deck in decks:
         for slide in deck.slides:
             for pattern in slide.effect_patterns:
-                signature = (
-                    pattern.family_signature if use_family_signature else pattern.signature
-                )
+                signature = pattern.family_signature if use_family_signature else pattern.signature
                 grouped[signature].append(
                     {
                         "deck": deck.deck_name,

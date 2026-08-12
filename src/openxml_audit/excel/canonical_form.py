@@ -115,7 +115,8 @@ def _list_worksheet_parts(package: OpenXmlPackage) -> list[str]:
     and any non-standard names a writer may use.
     """
     return sorted(
-        uri for uri in package.list_parts()
+        uri
+        for uri in package.list_parts()
         if uri.startswith("/" + _WORKSHEET_PREFIX) or uri.startswith(_WORKSHEET_PREFIX)
         if uri.endswith(".xml")
     )
@@ -172,20 +173,22 @@ class ExcelCanonicalFormValidator:
             # through context.add_error (which reads part_uri from
             # context.part). One finding per worksheet, each tagged with
             # its own URI so users can navigate to the affected sheet.
-            context.errors.append(ValidationError(
-                error_type=ValidationErrorType.SEMANTIC,
-                description=(
-                    f"Worksheet {sheet_name} has {count} inline-string cell(s) "
-                    "(`<c t=\"inlineStr\">`) but the package has no populated "
-                    "`xl/sharedStrings.xml`. Excel will move every inline string "
-                    "to a freshly-created shared-strings table on the next save, "
-                    "rewriting both the worksheet and adding the SST part. "
-                    "Emit shared strings instead of inlineStr cells to avoid "
-                    "the silent rewrite."
-                ),
-                part_uri=uri if uri.startswith("/") else "/" + uri,
-                node="c",
-                severity=ValidationSeverity.WARNING,
-                id="Excel_InlineStrCells",
-                source_class=SourceClass.EXCEL_APP_COMPAT,
-            ))
+            context.errors.append(
+                ValidationError(
+                    error_type=ValidationErrorType.SEMANTIC,
+                    description=(
+                        f"Worksheet {sheet_name} has {count} inline-string cell(s) "
+                        '(`<c t="inlineStr">`) but the package has no populated '
+                        "`xl/sharedStrings.xml`. Excel will move every inline string "
+                        "to a freshly-created shared-strings table on the next save, "
+                        "rewriting both the worksheet and adding the SST part. "
+                        "Emit shared strings instead of inlineStr cells to avoid "
+                        "the silent rewrite."
+                    ),
+                    part_uri=uri if uri.startswith("/") else "/" + uri,
+                    node="c",
+                    severity=ValidationSeverity.WARNING,
+                    id="Excel_InlineStrCells",
+                    source_class=SourceClass.EXCEL_APP_COMPAT,
+                )
+            )

@@ -104,9 +104,7 @@ class MasterValidator:
         errors.extend(context.errors)
         return errors
 
-    def _validate_master_root(
-        self, xml: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_master_root(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate the slide master root element."""
         expected_tag = f"{{{PRESENTATIONML}}}sldMaster"
         if xml.tag != expected_tag:
@@ -114,9 +112,7 @@ class MasterValidator:
                 f"Root element should be 'sldMaster', got '{xml.tag}'",
             )
 
-    def _validate_layout_root(
-        self, xml: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_layout_root(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate the slide layout root element."""
         expected_tag = f"{{{PRESENTATIONML}}}sldLayout"
         if xml.tag != expected_tag:
@@ -128,15 +124,42 @@ class MasterValidator:
         layout_type = xml.get("type")
         if layout_type:
             valid_types = {
-                "title", "tx", "twoColTx", "tbl", "txAndChart",
-                "chartAndTx", "dgm", "chart", "txAndClipArt",
-                "clipArtAndTx", "titleOnly", "blank", "txAndObj",
-                "objAndTx", "objOnly", "obj", "txAndMedia",
-                "mediaAndTx", "objOverTx", "txOverObj", "txAndTwoObj",
-                "twoObjAndTx", "twoObjOverTx", "fourObj", "vertTx",
-                "clipArtAndVertTx", "vertTitleAndTx", "vertTitleAndTxOverChart",
-                "twoObj", "objAndTwoObj", "twoObjAndObj", "cust",
-                "secHead", "twoTxTwoObj", "objTx", "picTx",
+                "title",
+                "tx",
+                "twoColTx",
+                "tbl",
+                "txAndChart",
+                "chartAndTx",
+                "dgm",
+                "chart",
+                "txAndClipArt",
+                "clipArtAndTx",
+                "titleOnly",
+                "blank",
+                "txAndObj",
+                "objAndTx",
+                "objOnly",
+                "obj",
+                "txAndMedia",
+                "mediaAndTx",
+                "objOverTx",
+                "txOverObj",
+                "txAndTwoObj",
+                "twoObjAndTx",
+                "twoObjOverTx",
+                "fourObj",
+                "vertTx",
+                "clipArtAndVertTx",
+                "vertTitleAndTx",
+                "vertTitleAndTxOverChart",
+                "twoObj",
+                "objAndTwoObj",
+                "twoObjAndObj",
+                "cust",
+                "secHead",
+                "twoTxTwoObj",
+                "objTx",
+                "picTx",
             }
             if layout_type not in valid_types:
                 context.add_semantic_error(
@@ -179,9 +202,7 @@ class MasterValidator:
                 "spTree missing required grpSpPr element",
             )
 
-    def _validate_clr_map(
-        self, xml: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_clr_map(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate color map in slide master."""
         clrMap = xml.find("p:clrMap", self._ns)
         if clrMap is None:
@@ -192,9 +213,18 @@ class MasterValidator:
 
         # Required color map attributes
         required_attrs = [
-            "bg1", "tx1", "bg2", "tx2",
-            "accent1", "accent2", "accent3", "accent4",
-            "accent5", "accent6", "hlink", "folHlink",
+            "bg1",
+            "tx1",
+            "bg2",
+            "tx2",
+            "accent1",
+            "accent2",
+            "accent3",
+            "accent4",
+            "accent5",
+            "accent6",
+            "hlink",
+            "folHlink",
         ]
 
         for attr in required_attrs:
@@ -204,9 +234,7 @@ class MasterValidator:
                     node=attr,
                 )
 
-    def _validate_clr_map_ovr(
-        self, xml: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_clr_map_ovr(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate color map override in slide layout."""
         clrMapOvr = xml.find("p:clrMapOvr", self._ns)
         if clrMapOvr is None:
@@ -243,7 +271,9 @@ class MasterValidator:
             return
 
         seen_ids: set[str] = set()
-        layout_rel_type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"
+        layout_rel_type = (
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"
+        )
 
         for layoutId in layoutIds:
             # Check for duplicate IDs
@@ -297,7 +327,9 @@ class MasterValidator:
         self, part: SlideLayoutPart, context: ValidationContext
     ) -> None:
         """Validate slide layout has a master relationship."""
-        master_type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster"
+        master_type = (
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster"
+        )
 
         master_rels = list(part.relationships.get_by_type(master_type))
         if not master_rels:
@@ -309,9 +341,7 @@ class MasterValidator:
                 f"Slide layout has {len(master_rels)} slideMaster relationships, expected 1",
             )
 
-    def _validate_tx_styles(
-        self, xml: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_tx_styles(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate text styles in slide master."""
         txStyles = xml.find("p:txStyles", self._ns)
         if txStyles is None:

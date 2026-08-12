@@ -310,28 +310,37 @@ from svg2ooxml.drawingml.animation.oracle import (
 oracle = default_oracle()
 
 # Layer 1 — preset-specific slot (round-trips through Animation Pane)
-par = oracle.instantiate("entr/filter_effect", shape_id="2", par_id=5,
-                          duration_ms=1500, FILTER="wipe(down)",
-                          PRESET_ID=22, PRESET_SUBTYPE=4,
-                          SET_BEHAVIOR_ID=6, EFFECT_BEHAVIOR_ID=7)
+par = oracle.instantiate(
+    "entr/filter_effect",
+    shape_id="2",
+    par_id=5,
+    duration_ms=1500,
+    FILTER="wipe(down)",
+    PRESET_ID=22,
+    PRESET_SUBTYPE=4,
+    SET_BEHAVIOR_ID=6,
+    EFFECT_BEHAVIOR_ID=7,
+)
 
 # Layer 2 — universal compound (primary path for SMIL→PPT)
 par = oracle.instantiate_compound(
-    shape_id="2", par_id=5, duration_ms=3000,
+    shape_id="2",
+    par_id=5,
+    duration_ms=3000,
     behaviors=[
         BehaviorFragment("transparency", {...}),
-        BehaviorFragment("rotate",       {...}),
-        BehaviorFragment("motion",       {...}),
+        BehaviorFragment("rotate", {...}),
+        BehaviorFragment("motion", {...}),
     ],
 )
 
 # Vocabulary SSOTs
-filters = oracle.filter_vocabulary()        # tuple[FilterEntry, ...]
-entry   = oracle.filter_entry("wipe(down)") # by-value lookup
-attrs   = oracle.attrname_vocabulary()      # tuple[AttrNameEntry, ...]
-oracle.is_valid_attrname("fill.opacity")    # False — in dead_paths.xml
-dead    = oracle.dead_paths()               # tuple[DeadPath, ...]
-dp      = oracle.dead_path("anim-fill-opacity")
+filters = oracle.filter_vocabulary()  # tuple[FilterEntry, ...]
+entry = oracle.filter_entry("wipe(down)")  # by-value lookup
+attrs = oracle.attrname_vocabulary()  # tuple[AttrNameEntry, ...]
+oracle.is_valid_attrname("fill.opacity")  # False — in dead_paths.xml
+dead = oracle.dead_paths()  # tuple[DeadPath, ...]
+dp = oracle.dead_path("anim-fill-opacity")
 ```
 
 ## Companion Claude skill

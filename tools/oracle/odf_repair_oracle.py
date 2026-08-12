@@ -45,6 +45,7 @@ TOOLS = REPO_ROOT / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
+from openxml_audit.package_diff import compare_packages  # noqa: E402
 from oracle.odf_window import (  # noqa: E402  (path setup must happen first)
     SofficeNotFoundError,
     SofficeRunResult,
@@ -52,14 +53,13 @@ from oracle.odf_window import (  # noqa: E402  (path setup must happen first)
     roundtrip,
 )
 
-from openxml_audit.package_diff import compare_packages  # noqa: E402
-
-
 _CANONICAL_PARTS = ("content.xml", "styles.xml", "meta.xml", "settings.xml")
 
 
 def _is_canonical_odf_part(name: str) -> bool:
     return name in _CANONICAL_PARTS
+
+
 _FORMAT_BY_EXT = {
     ".odt": "odt",
     ".ods": "ods",
@@ -85,7 +85,7 @@ class RoundtripObservation:
     target_format: str
     outcome: Literal[
         "preserved",  # input parts and output parts are byte-identical
-        "repaired",   # output parts differ from input (cosmetic or substantive)
+        "repaired",  # output parts differ from input (cosmetic or substantive)
         "crash",
         "timeout",
         "open_failed",
@@ -119,20 +119,20 @@ def _fingerprint_parts(odf_path: Path) -> list[PartFingerprint]:
             if name not in names:
                 continue
             data = zf.read(name)
-            fingerprints.append(PartFingerprint(
-                name=name,
-                sha256=hashlib.sha256(data).hexdigest(),
-                size_bytes=len(data),
-            ))
+            fingerprints.append(
+                PartFingerprint(
+                    name=name,
+                    sha256=hashlib.sha256(data).hexdigest(),
+                    size_bytes=len(data),
+                )
+            )
     return fingerprints
 
 
 def _detect_format(input_path: Path) -> str:
     fmt = _FORMAT_BY_EXT.get(input_path.suffix.lower())
     if fmt is None:
-        raise ValueError(
-            f"unsupported ODF extension '{input_path.suffix}' for {input_path}"
-        )
+        raise ValueError(f"unsupported ODF extension '{input_path.suffix}' for {input_path}")
     return fmt
 
 
@@ -251,7 +251,8 @@ def observe_batch(
         work_dir = work_root / f"{index:04d}-{input_path.stem}"
         try:
             obs = observe(
-                input_path, work_dir,
+                input_path,
+                work_dir,
                 timeout_seconds=timeout_seconds,
                 keep_artifacts=keep_artifacts,
             )
@@ -285,16 +286,32 @@ def _to_jsonable(observations: list[RoundtripObservation]) -> dict:
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("input", nargs="+", type=Path,
-                   help="ODF files to roundtrip (or directories to walk)")
-    p.add_argument("--work-root", type=Path, default=Path("/tmp/odf_oracle_runs"),
-                   help="root directory for soffice output (default /tmp/...)")
-    p.add_argument("--output", type=Path, default=None,
-                   help="optional path to write the JSON observation report")
-    p.add_argument("--timeout", type=float, default=60.0,
-                   help="per-file soffice timeout in seconds (default 60)")
-    p.add_argument("--keep-artifacts", action="store_true",
-                   help="leave per-file work dirs in place for inspection")
+    p.add_argument(
+        "input", nargs="+", type=Path, help="ODF files to roundtrip (or directories to walk)"
+    )
+    p.add_argument(
+        "--work-root",
+        type=Path,
+        default=Path("/tmp/odf_oracle_runs"),
+        help="root directory for soffice output (default /tmp/...)",
+    )
+    p.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="optional path to write the JSON observation report",
+    )
+    p.add_argument(
+        "--timeout",
+        type=float,
+        default=60.0,
+        help="per-file soffice timeout in seconds (default 60)",
+    )
+    p.add_argument(
+        "--keep-artifacts",
+        action="store_true",
+        help="leave per-file work dirs in place for inspection",
+    )
     args = p.parse_args()
 
     try:
@@ -306,10 +323,13 @@ def main() -> int:
     inputs: list[Path] = []
     for entry in args.input:
         if entry.is_dir():
-            inputs.extend(sorted(
-                p for p in entry.rglob("*")
-                if p.is_file() and p.suffix.lower() in _FORMAT_BY_EXT
-            ))
+            inputs.extend(
+                sorted(
+                    p
+                    for p in entry.rglob("*")
+                    if p.is_file() and p.suffix.lower() in _FORMAT_BY_EXT
+                )
+            )
         elif entry.is_file():
             inputs.append(entry)
 
@@ -319,7 +339,8 @@ def main() -> int:
 
     args.work_root.mkdir(parents=True, exist_ok=True)
     observations = observe_batch(
-        inputs, args.work_root,
+        inputs,
+        args.work_root,
         timeout_seconds=args.timeout,
         keep_artifacts=args.keep_artifacts,
     )
@@ -341,7 +362,9 @@ def main() -> int:
     )
     # Exit nonzero if anything errored hard, but not on `repaired` —
     # that's data, not a failure.
-    hard_errors = summary["crash"] + summary["timeout"] + summary["open_failed"] + summary["missing_output"]
+    hard_errors = (
+        summary["crash"] + summary["timeout"] + summary["open_failed"] + summary["missing_output"]
+    )
     return 1 if hard_errors > 0 else 0
 
 

@@ -61,6 +61,7 @@ def create_pptx_semantic_validator() -> SemanticValidator:
 
     # Load all interpretable schematron rules
     from openxml_audit.codegen.schematron_bridge import load_sdk_constraints
+
     for element_tag, constraint in load_sdk_constraints():
         validator.register_constraint(element_tag, constraint)
 
@@ -117,6 +118,7 @@ def create_pptx_semantic_validator() -> SemanticValidator:
 @dataclass
 class OrConstraint(SemanticConstraint):
     """One of the sub-constraints must pass."""
+
     constraints: list[SemanticConstraint]
 
     def validate(self, element, context) -> bool:
@@ -126,7 +128,7 @@ class OrConstraint(SemanticConstraint):
 **Parser enhancement:**
 ```python
 def parse_or_condition(test: str) -> OrConstraint:
-    parts = re.split(r'\s+or\s+', test, flags=re.IGNORECASE)
+    parts = re.split(r"\s+or\s+", test, flags=re.IGNORECASE)
     return OrConstraint([parse_condition(p) for p in parts])
 ```
 
@@ -159,6 +161,7 @@ class AttributeNotEqualConstraint(SemanticConstraint):
 @dataclass
 class AndConstraint(SemanticConstraint):
     """All sub-constraints must pass."""
+
     constraints: list[SemanticConstraint]
 ```
 
@@ -175,6 +178,7 @@ class AndConstraint(SemanticConstraint):
 @dataclass
 class CrossPartCountConstraint(SemanticConstraint):
     """Validate attribute against count from another part."""
+
     attribute: str
     target_part: str  # e.g., "WorkbookPart/CellMetadataPart"
     target_xpath: str  # e.g., "//x:cellMetadata/x:bk"
@@ -234,6 +238,7 @@ Create a test that verifies all 948 rules are active:
 ```python
 def test_all_schematrons_covered():
     from openxml_audit.codegen import get_schematron_registry
+
     reg = get_schematron_registry()
 
     # All rules should be convertible

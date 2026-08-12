@@ -23,7 +23,7 @@ def test_patch_slide_xml_with_timing_replaces_existing_node() -> None:
 </p:sld>"""
     timing_xml = (
         '<p:timing xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">'
-        '<p:tnLst><p:par/></p:tnLst></p:timing>'
+        "<p:tnLst><p:par/></p:tnLst></p:timing>"
     )
 
     patched = patch_slide_xml_with_timing(slide_xml, timing_xml)
@@ -47,7 +47,7 @@ def test_inject_timing_map_into_pptx_patches_target_slide(tmp_path: Path) -> Non
     _write_minimal_pptx(pptx_path)
     timing_xml = (
         '<p:timing xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">'
-        '<p:tnLst><p:par/></p:tnLst></p:timing>'
+        "<p:tnLst><p:par/></p:tnLst></p:timing>"
     )
 
     inject_timing_map_into_pptx(pptx_path, {1: timing_xml})
@@ -77,7 +77,7 @@ def test_save_oracle_presentation_uses_scaffold_then_patches_timing(tmp_path: Pa
     output_path = tmp_path / "oracle.pptx"
     timing_xml = (
         '<p:timing xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">'
-        '<p:tnLst><p:par/></p:tnLst></p:timing>'
+        "<p:tnLst><p:par/></p:tnLst></p:timing>"
     )
 
     deck_path = save_oracle_presentation(

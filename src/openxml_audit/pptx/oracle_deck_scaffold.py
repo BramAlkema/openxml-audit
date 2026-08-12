@@ -82,17 +82,17 @@ def inject_timing_map_into_pptx(
     temp_dir = Path(tempfile.mkdtemp(prefix=temp_prefix))
     temp_pptx = temp_dir / pptx_path.name
     try:
-        with zipfile.ZipFile(pptx_path, "r") as source, zipfile.ZipFile(
-            temp_pptx,
-            "w",
-            compression=zipfile.ZIP_DEFLATED,
-        ) as target:
+        with (
+            zipfile.ZipFile(pptx_path, "r") as source,
+            zipfile.ZipFile(
+                temp_pptx,
+                "w",
+                compression=zipfile.ZIP_DEFLATED,
+            ) as target,
+        ):
             for info in source.infolist():
                 payload = source.read(info.filename)
-                if (
-                    info.filename.startswith("ppt/slides/slide")
-                    and info.filename.endswith(".xml")
-                ):
+                if info.filename.startswith("ppt/slides/slide") and info.filename.endswith(".xml"):
                     slide_name = Path(info.filename).stem
                     slide_number = int(slide_name.replace("slide", ""))
                     timing_xml = timing_by_slide_number.get(slide_number)

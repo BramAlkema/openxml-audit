@@ -36,8 +36,7 @@ RULES: tuple[OdfSecurityRule, ...] = (
         id="ODFSEC002",
         family="signature",
         description=(
-            "Signature package root must be document-signatures "
-            "in ODF signature namespace."
+            "Signature package root must be document-signatures in ODF signature namespace."
         ),
     ),
     OdfSecurityRule(
@@ -245,10 +244,7 @@ class OdfSecurityValidator:
             return errors
 
         qname = etree.QName(signatures_root)
-        if (
-            qname.namespace != SIGNATURE_PKG_NS
-            or qname.localname != "document-signatures"
-        ):
+        if qname.namespace != SIGNATURE_PKG_NS or qname.localname != "document-signatures":
             errors.append(
                 self._error(
                     rule_id="ODFSEC002",
@@ -278,9 +274,7 @@ class OdfSecurityValidator:
 
         for signature in signatures:
             signed_info = signature.find(f"{{{XMLDSIG_NS}}}SignedInfo")
-            references = signature.findall(
-                f"{{{XMLDSIG_NS}}}SignedInfo/{{{XMLDSIG_NS}}}Reference"
-            )
+            references = signature.findall(f"{{{XMLDSIG_NS}}}SignedInfo/{{{XMLDSIG_NS}}}Reference")
             if signed_info is None or not references:
                 errors.append(
                     self._error(
@@ -318,8 +312,7 @@ class OdfSecurityValidator:
                     self._error(
                         rule_id="ODFSEC102",
                         description=(
-                            f"Encrypted manifest entry '{path}' is missing "
-                            "manifest:algorithm-name"
+                            f"Encrypted manifest entry '{path}' is missing manifest:algorithm-name"
                         ),
                         part_uri=part_uri,
                     )

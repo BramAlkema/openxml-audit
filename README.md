@@ -540,15 +540,18 @@ def test_my_presentation(assert_valid_pptx, tmp_path):
     generate_pptx(output)
     assert_valid_pptx(output)  # fails with detailed errors if invalid
 
+
 def test_my_document(assert_valid_docx, tmp_path):
     output = tmp_path / "output.docx"
     generate_docx(output)
     assert_valid_docx(output)
 
+
 def test_my_spreadsheet(assert_valid_xlsx, tmp_path):
     output = tmp_path / "output.xlsx"
     generate_xlsx(output)
     assert_valid_xlsx(output)
+
 
 def test_odf_file(assert_valid_odf, tmp_path):
     output = tmp_path / "output.odt"
@@ -580,12 +583,15 @@ with validation_context(raise_on_invalid=True) as validator:
 # Decorator — validate after save
 from openxml_audit import validate_on_save
 
+
 @validate_on_save(raise_on_invalid=True)
 def create_presentation(output_path: str) -> None:
     Presentation().save(output_path)
 
+
 # Decorator — require valid input
 from openxml_audit import require_valid_pptx
+
 
 @require_valid_pptx()
 def process(input_path: str) -> dict: ...
@@ -596,12 +602,21 @@ def process(input_path: str) -> dict: ...
 ### `OpenXmlValidator` / `OdfValidator`
 
 ```python
-OpenXmlValidator(file_format=FileFormat.OFFICE_2019, max_errors=1000,
-                 schema_validation=True, semantic_validation=True)
+OpenXmlValidator(
+    file_format=FileFormat.OFFICE_2019,
+    max_errors=1000,
+    schema_validation=True,
+    semantic_validation=True,
+)
 
-OdfValidator(file_format=FileFormat.ODF_1_3, max_errors=1000,
-             schema_validation=True, semantic_validation=True,
-             security_validation=False, strict=True)
+OdfValidator(
+    file_format=FileFormat.ODF_1_3,
+    max_errors=1000,
+    schema_validation=True,
+    semantic_validation=True,
+    security_validation=False,
+    strict=True,
+)
 ```
 
 Both expose:

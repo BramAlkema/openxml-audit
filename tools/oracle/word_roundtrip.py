@@ -119,9 +119,7 @@ def _wait_for_document_open(
     )
 
 
-def _try_dismiss_repair_dialog(
-    *, accept: bool
-) -> tuple[bool, str | None]:
+def _try_dismiss_repair_dialog(*, accept: bool) -> tuple[bool, str | None]:
     """Look for Word's repair dialog and dismiss it. Returns (was_seen, text)."""
     text = word_window.find_repair_dialog_text()
     if text is None:
@@ -213,8 +211,7 @@ def roundtrip(
                 repair_text = text
                 if not accept_repair:
                     raise RoundtripError(
-                        f"Repair dialog seen and rejected by caller. "
-                        f"Dialog text: {text!r}"
+                        f"Repair dialog seen and rejected by caller. Dialog text: {text!r}"
                     )
         if word_window.is_document_open(staged):
             seen_open = True
@@ -240,9 +237,7 @@ def roundtrip(
     elapsed = time.monotonic() - started
 
     if not staged.exists():
-        raise RoundtripError(
-            f"Close-with-save returned but the working copy is missing: {staged}"
-        )
+        raise RoundtripError(f"Close-with-save returned but the working copy is missing: {staged}")
 
     # If the caller wanted the output relocated, copy the now-post-Word
     # working file to the requested output path.

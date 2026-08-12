@@ -66,7 +66,6 @@ from typing import Literal
 from openxml_audit.package_diff import compare_packages
 from openxml_audit.xlsx import osa as xlsx_osa
 
-
 _DEFAULT_STAGE_PARENT = Path.home() / "Documents" / ".xlsx_oracle_runs"
 
 # OOXML parts we fingerprint for the oracle's diff. Skips media
@@ -169,11 +168,13 @@ def _fingerprint_xlsx(xlsx_path: Path) -> list[PartFingerprint]:
             if not _is_fingerprinted_part(name):
                 continue
             data = zf.read(name)
-            fingerprints.append(PartFingerprint(
-                name=name,
-                sha256=hashlib.sha256(data).hexdigest(),
-                size_bytes=len(data),
-            ))
+            fingerprints.append(
+                PartFingerprint(
+                    name=name,
+                    sha256=hashlib.sha256(data).hexdigest(),
+                    size_bytes=len(data),
+                )
+            )
     return fingerprints
 
 
@@ -265,8 +266,7 @@ def observe(
                 repair_dialog_text=repair_text,
                 repair_dialog_button_clicked=repair_button_clicked,
                 notes=[
-                    f"Excel did not register {staged.name!r} as open "
-                    f"within {timeout_seconds:.0f}s"
+                    f"Excel did not register {staged.name!r} as open within {timeout_seconds:.0f}s"
                 ],
             )
 
@@ -359,8 +359,7 @@ def observe_batch(
     keep_artifacts: bool = False,
 ) -> list[RoundtripObservation]:
     return [
-        observe(p, timeout_seconds=timeout_seconds, keep_artifacts=keep_artifacts)
-        for p in inputs
+        observe(p, timeout_seconds=timeout_seconds, keep_artifacts=keep_artifacts) for p in inputs
     ]
 
 
@@ -383,15 +382,24 @@ def _to_jsonable(observations: list[RoundtripObservation]) -> dict:
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("input", nargs="+", type=Path,
-                   help=".xlsx/.xltx/.xlsm files to roundtrip "
-                        "(or directories to walk)")
-    p.add_argument("--output", type=Path, default=None,
-                   help="optional path to write the JSON observation report")
-    p.add_argument("--timeout", type=float, default=60.0,
-                   help="per-file Excel timeout in seconds (default 60)")
-    p.add_argument("--keep-artifacts", action="store_true",
-                   help="leave staging dirs in place for inspection")
+    p.add_argument(
+        "input",
+        nargs="+",
+        type=Path,
+        help=".xlsx/.xltx/.xlsm files to roundtrip (or directories to walk)",
+    )
+    p.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="optional path to write the JSON observation report",
+    )
+    p.add_argument(
+        "--timeout", type=float, default=60.0, help="per-file Excel timeout in seconds (default 60)"
+    )
+    p.add_argument(
+        "--keep-artifacts", action="store_true", help="leave staging dirs in place for inspection"
+    )
     args = p.parse_args()
 
     if not xlsx_osa.EXCEL_APP_BUNDLE.exists():
@@ -404,10 +412,13 @@ def main() -> int:
     inputs: list[Path] = []
     for entry in args.input:
         if entry.is_dir():
-            inputs.extend(sorted(
-                p for p in entry.rglob("*")
-                if p.is_file() and p.suffix.lower() in _SUPPORTED_EXTS
-            ))
+            inputs.extend(
+                sorted(
+                    p
+                    for p in entry.rglob("*")
+                    if p.is_file() and p.suffix.lower() in _SUPPORTED_EXTS
+                )
+            )
         elif entry.is_file() and entry.suffix.lower() in _SUPPORTED_EXTS:
             inputs.append(entry)
 
@@ -416,7 +427,9 @@ def main() -> int:
         return 2
 
     observations = observe_batch(
-        inputs, timeout_seconds=args.timeout, keep_artifacts=args.keep_artifacts,
+        inputs,
+        timeout_seconds=args.timeout,
+        keep_artifacts=args.keep_artifacts,
     )
     report = _to_jsonable(observations)
 
@@ -435,7 +448,9 @@ def main() -> int:
         f"repair_dialog_seen={summary['repair_dialog_seen']}",
         file=sys.stderr,
     )
-    hard = summary["crash"] + summary["timeout"] + summary["open_failed"] + summary["missing_output"]
+    hard = (
+        summary["crash"] + summary["timeout"] + summary["open_failed"] + summary["missing_output"]
+    )
     return 1 if hard > 0 else 0
 
 

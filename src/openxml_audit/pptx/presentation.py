@@ -32,9 +32,7 @@ class PresentationValidator:
         self._ns = {"p": PRESENTATIONML}
         self._rel_ns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
-    def validate(
-        self, part: PresentationPart, context: ValidationContext
-    ) -> list[ValidationError]:
+    def validate(self, part: PresentationPart, context: ValidationContext) -> list[ValidationError]:
         """Validate a presentation part.
 
         Args:
@@ -232,9 +230,7 @@ class PresentationValidator:
                 "Only one handout master allowed",
             )
 
-    def _validate_slide_size(
-        self, xml: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_slide_size(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate slide size element."""
         slide_size = xml.find("p:sldSz", self._ns)
         if slide_size is None:
@@ -298,9 +294,7 @@ class PresentationValidator:
                     source_class=SourceClass.POWERPOINT_APP_COMPAT,
                 )
 
-    def _validate_notes_size(
-        self, xml: etree._Element, context: ValidationContext
-    ) -> None:
+    def _validate_notes_size(self, xml: etree._Element, context: ValidationContext) -> None:
         """Validate notes size element."""
         notes_size = xml.find("p:notesSz", self._ns)
         if notes_size is None:

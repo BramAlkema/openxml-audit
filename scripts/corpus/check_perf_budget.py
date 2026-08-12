@@ -53,8 +53,7 @@ def _build_summary(result: dict[str, Any], failures: list[str]) -> str:
         f"(limit {limits['max_seconds_per_check']:.6f}s)",
         f"- Seconds per validation run: {actual['seconds_per_validation']:.6f}s "
         f"(limit {limits['max_seconds_per_validation']:.6f}s)",
-        f"- Checks total: {actual['checks_total']} "
-        f"(minimum {limits['min_checks_total']})",
+        f"- Checks total: {actual['checks_total']} (minimum {limits['min_checks_total']})",
         f"- Validation runs: {actual['validation_runs']}",
     ]
     if failures:
@@ -135,9 +134,7 @@ def main() -> int:
     if duration_seconds < 0:
         failures.append("Snapshot report missing valid duration_seconds.")
     if checks_total < min_checks_total:
-        failures.append(
-            f"checks_total below minimum: {checks_total} < {min_checks_total}."
-        )
+        failures.append(f"checks_total below minimum: {checks_total} < {min_checks_total}.")
     if max_duration_seconds > 0 and duration_seconds > max_duration_seconds:
         failures.append(
             "duration_seconds exceeded limit: "

@@ -149,9 +149,9 @@ def main() -> int:
                         "sample_id": sample_id,
                         "profile": profile,
                         "category": category,
-                        "expected": expected if expected is not None else (
-                            "0 (valid)" if profile == "valid" else ">0 (invalid)"
-                        ),
+                        "expected": expected
+                        if expected is not None
+                        else ("0 (valid)" if profile == "valid" else ">0 (invalid)"),
                         "actual_error_count": error_count,
                         "errors": [e.description for e in result.errors[:10]],
                     }

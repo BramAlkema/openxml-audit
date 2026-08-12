@@ -67,9 +67,7 @@ ASSERT_EQUAL_VAR_COUNT_RE = re.compile(
     r"Assert\.Equal\(\s*(-?\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\.Count\(\)\s*\)"
 )
 ASSERT_NOTNULL_VAR_RE = re.compile(r"Assert\.NotNull\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)")
-ASSERT_EMPTY_DIRECT_RE = re.compile(
-    r"Assert\.Empty\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\.Validate\s*\("
-)
+ASSERT_EMPTY_DIRECT_RE = re.compile(r"Assert\.Empty\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\.Validate\s*\(")
 ASSERT_SINGLE_DIRECT_RE = re.compile(
     r"Assert\.Single\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\.Validate\s*\("
 )
@@ -547,11 +545,7 @@ def _extract_from_method(
             expected_count=0,
         )
 
-    if (
-        has_empty_validate
-        and single_file is not None
-        and len(normalized_versions) == 1
-    ):
+    if has_empty_validate and single_file is not None and len(normalized_versions) == 1:
         add_expectation(
             single_file,
             kind="assert_empty_single_version",
@@ -560,11 +554,7 @@ def _extract_from_method(
         )
 
     allowed_match = ASSERT_TRUE_ALLOWED_COUNTS_RE.search(method.body)
-    if (
-        allowed_match is not None
-        and single_file is not None
-        and len(normalized_versions) >= 1
-    ):
+    if allowed_match is not None and single_file is not None and len(normalized_versions) >= 1:
         a = int(allowed_match.group(1))
         b = int(allowed_match.group(2))
         add_expectation(

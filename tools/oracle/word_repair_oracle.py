@@ -83,9 +83,7 @@ def _run_scenario(
         docx_path = scenario_dir / f"{spec.id}.docx"
         materialize(spec, matrix, docx_path)
         result = roundtrip(docx_path, timeout=60.0)
-        input_children = extract_first(
-            str(result.input_path), spec.parent_local, WORDPROCESSINGML
-        )
+        input_children = extract_first(str(result.input_path), spec.parent_local, WORDPROCESSINGML)
         output_children = extract_first(
             str(result.output_path), spec.parent_local, WORDPROCESSINGML
         )
@@ -133,8 +131,10 @@ def run_matrix_oracle(matrix: OrderingMatrix, *, output_path: Path | None = None
     """Run the full scenario matrix for one constraint type and emit JSON."""
     scenarios = all_scenarios(matrix)
     work_root = (
-        Path.home() / "Documents" / ".word_oracle_runs" /
-        f"{matrix.parent_local}-batch-{uuid.uuid4().hex[:8]}"
+        Path.home()
+        / "Documents"
+        / ".word_oracle_runs"
+        / f"{matrix.parent_local}-batch-{uuid.uuid4().hex[:8]}"
     )
     work_root.mkdir(parents=True, exist_ok=False)
 
@@ -145,14 +145,12 @@ def run_matrix_oracle(matrix: OrderingMatrix, *, output_path: Path | None = None
 
     results: list[ScenarioResult] = []
     for i, spec in enumerate(scenarios, 1):
-        print(
-            f"  [{i}/{len(scenarios)}] {spec.id} ...", file=sys.stderr, end="", flush=True
-        )
+        print(f"  [{i}/{len(scenarios)}] {spec.id} ...", file=sys.stderr, end="", flush=True)
         result = _run_scenario(spec, matrix, work_root, matrix.materialize)
         results.append(result)
-        marker = {
-            "preserved": "·", "repaired": "!", "missing": "?", "engine_error": "X"
-        }[result.verdict]
+        marker = {"preserved": "·", "repaired": "!", "missing": "?", "engine_error": "X"}[
+            result.verdict
+        ]
         dialog = " (dialog)" if result.repair_dialog_seen else ""
         print(f" {marker}{dialog} {result.elapsed_seconds:.1f}s", file=sys.stderr)
 
@@ -168,9 +166,7 @@ def run_matrix_oracle(matrix: OrderingMatrix, *, output_path: Path | None = None
         "scenarios": [asdict(r) for r in results],
     }
 
-    target = output_path or (
-        BASELINES_DIR / f"word_{matrix.parent_local.lower()}_pairwise.json"
-    )
+    target = output_path or (BASELINES_DIR / f"word_{matrix.parent_local.lower()}_pairwise.json")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(json.dumps(report, indent=2) + "\n")
     print(f"\nWrote {target}", file=sys.stderr)

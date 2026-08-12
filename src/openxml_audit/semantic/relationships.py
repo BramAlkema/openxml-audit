@@ -26,9 +26,7 @@ class RelationshipExistConstraint(SemanticConstraint):
     namespace: str | None = None
     relationship_type: str | None = None  # Optional: require specific relationship type
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
@@ -74,9 +72,7 @@ class RelationshipTypeConstraint(SemanticConstraint):
     expected_type: str
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = (
             f"{{{self.namespace}}}{self.relationship_id_attribute}"
             if self.namespace
@@ -115,9 +111,7 @@ class RelationshipTargetExistsConstraint(SemanticConstraint):
     relationship_id_attribute: str
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = (
             f"{{{self.namespace}}}{self.relationship_id_attribute}"
             if self.namespace

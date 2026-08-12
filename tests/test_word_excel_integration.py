@@ -106,7 +106,6 @@ def test_xlsx_missing_shared_strings_reports_error(
 
     assert not result.is_valid
     assert any(
-        e.error_type == ValidationErrorType.SEMANTIC
-        and "sharedStrings" in e.description
+        e.error_type == ValidationErrorType.SEMANTIC and "sharedStrings" in e.description
         for e in result.errors
     )

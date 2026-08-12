@@ -40,7 +40,6 @@ from openxml_audit.package_diff import compare_packages
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from tools.oracle.word_roundtrip import RoundtripError, roundtrip  # noqa: E402
 
-
 # Canonical OOXML parts to fingerprint. Same shape as
 # xlsx_repair_oracle / odf_repair_oracle: skip media, thumbnails, and
 # computed-on-save rebuilds.
@@ -64,7 +63,8 @@ _FINGERPRINTED_PREFIXES = (
 
 def _is_fingerprinted_part(name: str) -> bool:
     return any(
-        name == prefix or (prefix.endswith("/") and name.startswith(prefix))
+        name == prefix
+        or (prefix.endswith("/") and name.startswith(prefix))
         or (not prefix.endswith("/") and prefix.endswith(".xml") and name == prefix)
         or (not prefix.endswith("/") and not prefix.endswith(".xml") and name.startswith(prefix))
         for prefix in _FINGERPRINTED_PREFIXES
@@ -111,11 +111,13 @@ def _fingerprint_docx(path: Path) -> list[PartFingerprint]:
             if not _is_fingerprinted_part(name):
                 continue
             data = zf.read(name)
-            fingerprints.append(PartFingerprint(
-                name=name,
-                sha256=hashlib.sha256(data).hexdigest(),
-                size_bytes=len(data),
-            ))
+            fingerprints.append(
+                PartFingerprint(
+                    name=name,
+                    sha256=hashlib.sha256(data).hexdigest(),
+                    size_bytes=len(data),
+                )
+            )
     return fingerprints
 
 
@@ -143,8 +145,12 @@ def observe(
         msg = str(exc).lower()
         if "did not register" in msg or "did not open" in msg:
             outcome: Literal[
-                "preserved", "repaired", "crash", "timeout",
-                "open_failed", "missing_output",
+                "preserved",
+                "repaired",
+                "crash",
+                "timeout",
+                "open_failed",
+                "missing_output",
             ] = "open_failed"
         elif "timed out" in msg or "timeout" in msg:
             outcome = "timeout"
@@ -214,8 +220,7 @@ def observe_batch(
     keep_artifacts: bool = False,
 ) -> list[RoundtripObservation]:
     return [
-        observe(p, timeout_seconds=timeout_seconds, keep_artifacts=keep_artifacts)
-        for p in inputs
+        observe(p, timeout_seconds=timeout_seconds, keep_artifacts=keep_artifacts) for p in inputs
     ]
 
 
@@ -238,14 +243,18 @@ def _to_jsonable(observations: list[RoundtripObservation]) -> dict:
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("input", nargs="+", type=Path,
-                   help=".docx files to roundtrip (or directories to walk)")
-    p.add_argument("--output", type=Path, default=None,
-                   help="path to write the JSON observation report")
-    p.add_argument("--timeout", type=float, default=60.0,
-                   help="per-file Word timeout in seconds (default 60)")
-    p.add_argument("--keep-artifacts", action="store_true",
-                   help="leave staging dirs in place for inspection")
+    p.add_argument(
+        "input", nargs="+", type=Path, help=".docx files to roundtrip (or directories to walk)"
+    )
+    p.add_argument(
+        "--output", type=Path, default=None, help="path to write the JSON observation report"
+    )
+    p.add_argument(
+        "--timeout", type=float, default=60.0, help="per-file Word timeout in seconds (default 60)"
+    )
+    p.add_argument(
+        "--keep-artifacts", action="store_true", help="leave staging dirs in place for inspection"
+    )
     args = p.parse_args()
 
     if not docx_osa.WORD_APP_BUNDLE.exists():
@@ -267,7 +276,9 @@ def main() -> int:
         return 2
 
     observations = observe_batch(
-        inputs, timeout_seconds=args.timeout, keep_artifacts=args.keep_artifacts,
+        inputs,
+        timeout_seconds=args.timeout,
+        keep_artifacts=args.keep_artifacts,
     )
     report = _to_jsonable(observations)
 
@@ -286,7 +297,9 @@ def main() -> int:
         f"repair_dialog_seen={summary['repair_dialog_seen']}",
         file=sys.stderr,
     )
-    hard = summary["crash"] + summary["timeout"] + summary["open_failed"] + summary["missing_output"]
+    hard = (
+        summary["crash"] + summary["timeout"] + summary["open_failed"] + summary["missing_output"]
+    )
     return 1 if hard > 0 else 0
 
 

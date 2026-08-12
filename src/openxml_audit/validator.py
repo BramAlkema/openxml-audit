@@ -96,9 +96,7 @@ class DocumentProfile:
     """Validation profile for a specific Open XML document kind."""
 
     kind: DocumentKind
-    structure_validators: tuple[
-        Callable[[OpenXmlPackage], list[ValidationError]], ...
-    ] = ()
+    structure_validators: tuple[Callable[[OpenXmlPackage], list[ValidationError]], ...] = ()
     semantic_validator: Callable[[OpenXmlPackage], list[ValidationError]] | None = None
     specific_validator: Callable[[OpenXmlPackage], list[ValidationError]] | None = None
 
@@ -164,9 +162,7 @@ class OpenXmlValidator:
         self._presentation_validator = PresentationValidator()
         self._slide_validator = SlideValidator()
         self._theme_validator = ThemeValidator()
-        self._supertheme_validator = SuperthemeValidator(
-            theme_validator=self._theme_validator
-        )
+        self._supertheme_validator = SuperthemeValidator(theme_validator=self._theme_validator)
         self._master_validator = MasterValidator()
         self._document_validator = DocumentValidator()
         self._styles_with_effects_validator = StylesWithEffectsValidator()
@@ -374,9 +370,7 @@ class OpenXmlValidator:
         errors.extend(context.errors)
         return errors
 
-    def _validate_presentation_structure(
-        self, package: OpenXmlPackage
-    ) -> list[ValidationError]:
+    def _validate_presentation_structure(self, package: OpenXmlPackage) -> list[ValidationError]:
         """Validate the presentation.xml structure."""
         errors: list[ValidationError] = []
 
@@ -482,9 +476,11 @@ class OpenXmlValidator:
                 continue
 
             # Check slide has a layout relationship
-            layout_rels = list(slide.relationships.get_by_type(
-                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"
-            ))
+            layout_rels = list(
+                slide.relationships.get_by_type(
+                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout"
+                )
+            )
             if not layout_rels:
                 errors.append(
                     ValidationError(
@@ -954,9 +950,7 @@ class OpenXmlValidator:
 
     def _spreadsheet_relationship_content_types(self) -> dict[str, tuple[str, ...]]:
         return {
-            REL_STYLES: (
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml",
-            ),
+            REL_STYLES: ("application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml",),
             REL_THEME: ("application/vnd.openxmlformats-officedocument.theme+xml",),
             REL_SHARED_STRINGS: (
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml",
@@ -1198,13 +1192,11 @@ class OpenXmlValidator:
         ext = context.package.path.suffix.lower()
         expected = {
             ".docx": (
-                "application/vnd.openxmlformats-officedocument."
-                "wordprocessingml.document.main+xml"
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"
             ),
             ".docm": "application/vnd.ms-word.document.macroEnabled.main+xml",
             ".dotx": (
-                "application/vnd.openxmlformats-officedocument."
-                "wordprocessingml.template.main+xml"
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml"
             ),
             ".dotm": "application/vnd.ms-word.template.macroEnabled.main+xml",
         }.get(ext)
@@ -1228,18 +1220,15 @@ class OpenXmlValidator:
         ext = context.package.path.suffix.lower()
         expected = {
             ".pptx": (
-                "application/vnd.openxmlformats-officedocument."
-                "presentationml.presentation.main+xml"
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"
             ),
             ".pptm": "application/vnd.ms-powerpoint.presentation.macroEnabled.main+xml",
             ".potx": (
-                "application/vnd.openxmlformats-officedocument."
-                "presentationml.template.main+xml"
+                "application/vnd.openxmlformats-officedocument.presentationml.template.main+xml"
             ),
             ".potm": "application/vnd.ms-powerpoint.template.macroEnabled.main+xml",
             ".ppsx": (
-                "application/vnd.openxmlformats-officedocument."
-                "presentationml.slideshow.main+xml"
+                "application/vnd.openxmlformats-officedocument.presentationml.slideshow.main+xml"
             ),
             ".ppsm": "application/vnd.ms-powerpoint.slideshow.macroEnabled.main+xml",
             ".ppam": "application/vnd.ms-powerpoint.addin.macroEnabled.main+xml",
@@ -1266,8 +1255,7 @@ class OpenXmlValidator:
             ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
             ".xlsm": "application/vnd.ms-excel.sheet.macroEnabled.main+xml",
             ".xltx": (
-                "application/vnd.openxmlformats-officedocument."
-                "spreadsheetml.template.main+xml"
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml"
             ),
             ".xltm": "application/vnd.ms-excel.template.macroEnabled.main+xml",
         }.get(ext)
@@ -1558,10 +1546,7 @@ class OpenXmlValidator:
                     context.set_part(OpenXmlPart(package, part_uri))
                     context.add_error(
                         error_type=ValidationErrorType.SEMANTIC,
-                        description=(
-                            f"duplicate wp:docPr id {doc_pr_id}; "
-                            f"first seen in {origin}"
-                        ),
+                        description=(f"duplicate wp:docPr id {doc_pr_id}; first seen in {origin}"),
                         node="docPr",
                         severity=ValidationSeverity.WARNING,
                         error_id="Sem_DuplicateDocPrId",
@@ -1645,9 +1630,7 @@ class OpenXmlValidator:
         if not main_doc_uri:
             return errors
 
-        self._validate_presentation_main_content_type(
-            OpenXmlPart(package, main_doc_uri), context
-        )
+        self._validate_presentation_main_content_type(OpenXmlPart(package, main_doc_uri), context)
 
         # Validate presentation.xml
         presentation = PresentationPart(package, main_doc_uri)
@@ -1668,7 +1651,9 @@ class OpenXmlValidator:
                     break
 
                 # Validate theme for this master
-                theme_rel_type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme"
+                theme_rel_type = (
+                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme"
+                )
                 for theme_rel in master.relationships.get_by_type(theme_rel_type):
                     theme_target = theme_rel.resolve_target(target)
                     if theme_target and package.has_part(theme_target):
