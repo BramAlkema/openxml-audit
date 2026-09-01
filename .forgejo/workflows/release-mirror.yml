@@ -1,0 +1,58 @@
+name: Mirror release to GitHub publisher
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-mirror-${{ forgejo.ref }}
+  cancel-in-progress: false
+
+jobs:
+  mirror-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical Forgejo release
+        uses: https://data.forgejo.org/actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: https://data.forgejo.org/actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+
+      - name: Configure repository-scoped GitHub deploy key
+        env:
+          GITHUB_RELEASE_DEPLOY_KEY: ${{ secrets.GITHUB_RELEASE_DEPLOY_KEY }}
+        run: |
+          set -eu
+          if [ -z "${GITHUB_RELEASE_DEPLOY_KEY:-}" ]; then
+            echo "GITHUB_RELEASE_DEPLOY_KEY is not configured" >&2
+            exit 1
+          fi
+          umask 077
+          install -d "$RUNNER_TEMP/openxml-audit-release-ssh"
+          printf '%s\n' "$GITHUB_RELEASE_DEPLOY_KEY" \
+            > "$RUNNER_TEMP/openxml-audit-release-ssh/id_ed25519"
+          cat > "$RUNNER_TEMP/openxml-audit-release-ssh/known_hosts" <<'EOF'
+          github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+          EOF
+
+      - name: Mirror main and immutable release tag
+        env:
+          GIT_SSH_COMMAND: >-
+            ssh
+            -i ${{ runner.temp }}/openxml-audit-release-ssh/id_ed25519
+            -o IdentitiesOnly=yes
+            -o StrictHostKeyChecking=yes
+            -o UserKnownHostsFile=${{ runner.temp }}/openxml-audit-release-ssh/known_hosts
+        run: python scripts/release_mirror.py
+
+      - name: Remove temporary SSH material
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/openxml-audit-release-ssh"

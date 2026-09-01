@@ -520,15 +520,18 @@ Ready-to-run scripts in [`examples/`](examples/):
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
+| `.forgejo/workflows/release-mirror.yml` | Forgejo tag push (`v*`) | Validate the canonical release and mirror only `main` + tag to GitHub |
 | `parity-gate.yml` | PR / push | Enforce OOXML parity + perf budget against SDK baseline |
 | `calibrate-parity.yml` | Weekly / dispatch | Calibrate against Open XML SDK upstream |
 | `sdk-update.yml` | Quarterly / dispatch | Track upstream SDK version changes |
 | `odf-reference-calibration.yml` | Dispatch | Run ODF reference validators and drift checks |
 | `validate-inputs.yml` | Push to `inputs/` | Validate dropped files with both Python and .NET SDK |
-| `release.yml` | Tag push (`v*`) | Build and publish to PyPI |
+| `release.yml` | Mirrored GitHub tag (`v*`) | Build once, publish to PyPI with OIDC, and create the GitHub Release |
 | `pages.yml` | Push to `main` | Deploy documentation site |
 
 OOXML parity details: `docs/parity_contract.md`. ODF reference contract: `docs/odf_validation_contract.md`.
+The canonical Forgejo-to-PyPI release path is documented in
+[`docs/release_process.md`](docs/release_process.md).
 
 ## pytest Plugin
 
