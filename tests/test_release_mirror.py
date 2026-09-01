@@ -147,7 +147,7 @@ def test_forgejo_workflow_is_release_only_and_uses_scoped_ssh_secret() -> None:
 
     assert '      - "v*"' in workflow
     assert "branches:" not in workflow
-    assert "GITHUB_RELEASE_DEPLOY_KEY" in workflow
+    assert "RELEASE_MIRROR_DEPLOY_KEY" in workflow
     assert "PYPI_API_TOKEN" not in workflow
     assert "--force" not in workflow
     assert "--mirror" not in workflow

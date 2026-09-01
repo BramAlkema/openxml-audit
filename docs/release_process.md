@@ -16,7 +16,7 @@ Forgejo main + annotated vX.Y.Z tag
 
 - GitHub has a write-enabled deploy key named `Forgejo NUC release mirror`. Its private
   key is stored only as the Forgejo repository Actions secret
-  `GITHUB_RELEASE_DEPLOY_KEY`.
+  `RELEASE_MIRROR_DEPLOY_KEY`.
 - Only `.github/workflows/release.yml` is enabled on GitHub. CI, security, and docs jobs
   run on Forgejo or remain disabled on the downstream mirror.
 - PyPI's Trusted Publisher remains bound to GitHub repository
