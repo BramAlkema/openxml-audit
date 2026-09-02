@@ -21,11 +21,15 @@ from pathlib import Path
 from lxml import etree
 
 from openxml_audit.package_diff import (
-    canonicalize_xml as _canonicalize_xml,
     compare_package_parts as _compare_package_parts,
+)
+from openxml_audit.package_diff import (
     load_package_parts as _load_package_parts,
-    pretty_part_text as _pretty_part_text,
+)
+from openxml_audit.package_diff import (
     sanitize_part_name as _sanitize_part_name,
+)
+from openxml_audit.package_diff import (
     write_part_diff as _write_part_diff,
 )
 from openxml_audit.pptx.oracle import (
@@ -309,9 +313,8 @@ def _iter_slide_timing_nodes(slide_xml: etree._Element) -> list[tuple[str, etree
 
 
 # Per-part diff primitives now live in openxml_audit.package_diff —
-# imported above as _load_package_parts / _canonicalize_xml /
-# _compare_package_parts / _write_part_diff / _pretty_part_text /
-# _sanitize_part_name. Existing PPTX consumers keep working through
+# imported above as _load_package_parts / _compare_package_parts /
+# _write_part_diff / _sanitize_part_name. Existing PPTX consumers keep working through
 # the same private names; the canonical-c14n + diff logic itself is
 # now shared with the XLSX / ODF / Word oracles.
 

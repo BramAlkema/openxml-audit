@@ -9,7 +9,6 @@ from lxml import etree
 from openxml_audit.context import ElementContext
 from openxml_audit.errors import ValidationError
 from openxml_audit.namespaces import REL_FOOTER, REL_HEADER, WORDPROCESSINGML
-from openxml_audit.word.compat import WordCompatValidator
 
 if TYPE_CHECKING:
     from openxml_audit.context import ValidationContext
@@ -22,7 +21,6 @@ class DocumentValidator:
     def __init__(self) -> None:
         self._ns = {"w": WORDPROCESSINGML}
         self._rel_ns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-        self._compat = WordCompatValidator()
 
     def validate(
         self, part: DocumentPart, context: ValidationContext
@@ -39,7 +37,6 @@ class DocumentValidator:
             self._validate_root(xml, context)
             self._validate_body(xml, context)
             self._validate_header_footer_refs(xml, part, context)
-            self._compat.validate(part, context)
 
         errors.extend(context.errors)
         return errors

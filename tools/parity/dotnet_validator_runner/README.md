@@ -1,6 +1,6 @@
 # `openxml-validator-runner` — .NET SDK runtime parity tool
 
-Walks an OOXML corpus, invokes the `OpenXmlValidator` from `DocumentFormat.OpenXml` v3.4.1 at every requested `FileFormatVersion`, and emits per-file JSON results. Built for [Spec 013 Open Question 8](../../../specs/013-validator-output-sovereign-gates.md) — the "live SDK runtime as advisory anchor" approach to parity.
+Walks an OOXML corpus, invokes the `OpenXmlValidator` from `DocumentFormat.OpenXml` v3.5.1 at every requested `FileFormatVersion`, and emits per-file JSON results. Built for [Spec 013 Open Question 8](../../../specs/013-validator-output-sovereign-gates.md) — the "live SDK runtime as advisory anchor" approach to parity.
 
 ## Why this exists
 
@@ -14,7 +14,7 @@ Running the SDK's `OpenXmlValidator` directly against the same corpus eliminates
 dotnet build tools/parity/dotnet_validator_runner/OpenXmlValidatorRunner.csproj -c Release
 ```
 
-CI uses `actions/setup-dotnet@v5` with `dotnet-version: "8.0.x"` (already wired in `.github/workflows/calibrate-parity.yml`). The project targets `net6.0` for portability; runs on .NET 6/7/8 with `--roll-forward Major`.
+CI uses a commit-pinned Forgejo `setup-dotnet` action with `dotnet-version: "8.0.x"` (wired in `.forgejo/workflows/calibrate-parity.yml`). The project targets `net8.0`, matching the supported SDK installed by the canonical Forgejo workflow.
 
 ## Run
 
@@ -32,7 +32,7 @@ If `--version` is omitted, all five default versions run.
 ```json
 {
   "generated_at_utc": "2026-04-29T00:00:00Z",
-  "sdk_package_version": "3.4.1.0",
+  "sdk_package_version": "3.5.1.0",
   "validator_versions": ["Office2007", ...],
   "input_root": "/tmp/parity-corpus/files",
   "file_count": 886,

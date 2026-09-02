@@ -5,8 +5,8 @@ Usage:
     # Check only (no changes)
     python scripts/check_sdk_update.py --check
 
-    # Update all pinned references from v3.4.1 to v3.5.0
-    python scripts/check_sdk_update.py --from v3.4.1 --to v3.5.0
+    # Update all pinned references from v3.5.1 to v3.6.0
+    python scripts/check_sdk_update.py --from v3.5.1 --to v3.6.0
 
     # Auto-detect latest release and update
     python scripts/check_sdk_update.py --auto
@@ -17,7 +17,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import shutil
 import sys
 import urllib.request
 from pathlib import Path
@@ -28,8 +27,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # Files containing pinned SDK version references.
 PINNED_FILES = [
-    ".github/workflows/calibrate-parity.yml",
-    ".github/workflows/parity-gate.yml",
+    ".forgejo/workflows/calibrate-parity.yml",
+    ".forgejo/workflows/parity-gate.yml",
     "docs/parity_contract.md",
     "scripts/corpus/run_parity_snapshot.py",
     "scripts/corpus/check_perf_budget.py",
@@ -37,7 +36,11 @@ PINNED_FILES = [
     "scripts/sync_openxml_data.py",
 ]
 
-BASELINE_DIR = PROJECT_ROOT / "data" / "corpus" / "parity_baseline"
+PINNED_PACKAGE_FILES = [
+    "scripts/sdk_check/sdk_check.csproj",
+    "scripts/sdk_compare/OpenXmlSdkValidator.csproj",
+    "tools/parity/dotnet_validator_runner/OpenXmlValidatorRunner.csproj",
+]
 
 
 def fetch_latest_release() -> str:
@@ -53,7 +56,7 @@ def fetch_latest_release() -> str:
 
 def find_current_version() -> str | None:
     """Detect the currently pinned SDK version from calibrate-parity.yml."""
-    path = PROJECT_ROOT / ".github/workflows/calibrate-parity.yml"
+    path = PROJECT_ROOT / ".forgejo/workflows/calibrate-parity.yml"
     if not path.exists():
         return None
     text = path.read_text(encoding="utf-8")
@@ -74,21 +77,6 @@ def update_file(path: Path, old_version: str, new_version: str) -> int:
     path.write_text(updated, encoding="utf-8")
     print(f"  {path.relative_to(PROJECT_ROOT)}: {count} replacement(s)")
     return count
-
-
-def copy_baseline(old_version: str, new_version: str) -> bool:
-    """Copy baseline directory to new version as starting point."""
-    old_dir = BASELINE_DIR / old_version
-    new_dir = BASELINE_DIR / new_version
-    if not old_dir.exists():
-        print(f"  SKIP baseline copy: {old_dir} not found")
-        return False
-    if new_dir.exists():
-        print(f"  Baseline {new_version} already exists, skipping copy")
-        return False
-    shutil.copytree(old_dir, new_dir)
-    print(f"  Copied baseline {old_version} -> {new_version}")
-    return True
 
 
 def check_only() -> int:
@@ -119,14 +107,19 @@ def run_update(old_version: str, new_version: str) -> int:
     total = 0
     for rel_path in PINNED_FILES:
         total += update_file(PROJECT_ROOT / rel_path, old_version, new_version)
-
-    copy_baseline(old_version, new_version)
+    for rel_path in PINNED_PACKAGE_FILES:
+        total += update_file(
+            PROJECT_ROOT / rel_path,
+            old_version.removeprefix("v"),
+            new_version.removeprefix("v"),
+        )
 
     print(f"\nDone. {total} replacement(s) across pinned files.")
     print("Next steps:")
-    print("  1. Run calibrate-parity workflow against new version")
-    print("  2. Review parity snapshot and update waivers if needed")
-    print("  3. Commit and open PR")
+    print("  1. Sync data/openxml from the new immutable SDK tag")
+    print("  2. Regenerate the corpus manifest and parity baseline; never copy the old baseline")
+    print("  3. Run the .NET runners and full Python test suite")
+    print("  4. Review parity drift and update waivers only with an explicit rationale")
     return 0
 
 
@@ -134,8 +127,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Check/apply Open XML SDK version bumps.")
     parser.add_argument("--check", action="store_true", help="Check for updates only")
     parser.add_argument("--auto", action="store_true", help="Auto-detect latest and update")
-    parser.add_argument("--from", dest="from_version", help="Current version (e.g. v3.4.1)")
-    parser.add_argument("--to", dest="to_version", help="Target version (e.g. v3.5.0)")
+    parser.add_argument("--from", dest="from_version", help="Current version (e.g. v3.5.1)")
+    parser.add_argument("--to", dest="to_version", help="Target version (e.g. v3.6.0)")
     args = parser.parse_args()
 
     if args.check:

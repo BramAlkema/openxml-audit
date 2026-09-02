@@ -23,7 +23,7 @@ from openxml_audit.parity_normalization import (  # noqa: E402
 )
 
 DEFAULT_MANIFEST = Path("data/corpus/sdk_seed/manifest.json")
-DEFAULT_OUTPUT = Path("data/corpus/parity_baseline/v3.4.1/parity_snapshot.json")
+DEFAULT_OUTPUT = Path("data/corpus/parity_baseline/v3.5.1/parity_snapshot.json")
 
 VERSION_MAP = {
     "Office2007": FileFormat.OFFICE_2007,

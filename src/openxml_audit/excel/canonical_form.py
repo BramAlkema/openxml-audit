@@ -156,7 +156,6 @@ class ExcelCanonicalFormValidator:
             # path; Excel won't rewrite. Skip the check.
             return
 
-        ns = {"s": SPREADSHEETML}
         for uri in _list_worksheet_parts(package):
             try:
                 xml = package.get_part_xml(uri)

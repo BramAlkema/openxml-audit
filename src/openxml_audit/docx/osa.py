@@ -14,8 +14,6 @@ back-compat with consumers that imported it directly.
 
 from __future__ import annotations
 
-import json
-import shlex
 import subprocess
 from pathlib import Path
 

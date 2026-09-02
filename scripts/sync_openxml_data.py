@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Configuration
 SDK_REPO = "dotnet/Open-XML-SDK"
-SDK_REF = "v3.4.1"
+SDK_REF = "v3.5.1"
 SDK_RAW_BASE_URL = f"https://raw.githubusercontent.com/{SDK_REPO}"
 SDK_API_URL = f"https://api.github.com/repos/{SDK_REPO}"
 

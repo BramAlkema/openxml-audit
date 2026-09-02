@@ -1,8 +1,8 @@
 {
-  "generated_at_utc": "2026-03-08T20:43:59.963595+00:00",
-  "sdk_root": "/private/tmp/openxml-sdk-upstream",
-  "assets_root": "/private/tmp/openxml-sdk-upstream/test/DocumentFormat.OpenXml.Tests.Assets/assets",
-  "output_root": "/Users/ynse/projects/openxml-audit/data/corpus/sdk_seed",
+  "generated_at_utc": "2026-09-02T00:29:56.223236+00:00",
+  "sdk_root": "https://github.com/dotnet/Open-XML-SDK.git#v3.5.1@3139fdfd27414548a41555f7848d5728f6e71a42",
+  "assets_root": "test/DocumentFormat.OpenXml.Tests.Assets/assets",
+  "output_root": "data/corpus/sdk_seed",
   "copied_files": 887,
   "total_files": 887,
   "files": [
@@ -7377,7 +7377,7 @@
             "Office2013"
           ],
           "scenario": "base",
-          "expected_error_count": 2,
+          "expected_error_count": 1,
           "source_tests": [
             {
               "file": "DocxTests01.cs",
@@ -7409,8 +7409,7 @@
               "name": "W020_GetAttribute",
               "line": 695
             }
-          ],
-          "adjusted_for_app_compat": "Spec 012: validator emits +1 vs SDK expectation; baseline is now self-parity, not SDK-parity"
+          ]
         },
         {
           "kind": "inline_version_count",
@@ -7418,20 +7417,34 @@
             "Office2007"
           ],
           "scenario": "base",
-          "expected_error_count": 416,
+          "expected_error_count": 415,
           "source_tests": [
             {
               "file": "DocxTests01.cs",
               "name": "W003_DocxValidation",
               "line": 1224
             }
-          ],
-          "adjusted_for_app_compat": "Spec 012: validator emits +1 vs SDK expectation; baseline is now self-parity, not SDK-parity"
+          ]
         },
         {
           "kind": "inline_version_count",
           "validator_versions": [
             "Office2010"
+          ],
+          "scenario": "base",
+          "expected_error_count": 0,
+          "source_tests": [
+            {
+              "file": "DocxTests01.cs",
+              "name": "W003_DocxValidation",
+              "line": 1224
+            }
+          ]
+        },
+        {
+          "kind": "inline_version_count",
+          "validator_versions": [
+            "Office2013"
           ],
           "scenario": "base",
           "expected_error_count": 1,
@@ -7441,24 +7454,7 @@
               "name": "W003_DocxValidation",
               "line": 1224
             }
-          ],
-          "adjusted_for_app_compat": "Spec 012: validator emits +1 vs SDK expectation; baseline is now self-parity, not SDK-parity"
-        },
-        {
-          "kind": "inline_version_count",
-          "validator_versions": [
-            "Office2013"
-          ],
-          "scenario": "base",
-          "expected_error_count": 2,
-          "source_tests": [
-            {
-              "file": "DocxTests01.cs",
-              "name": "W003_DocxValidation",
-              "line": 1224
-            }
-          ],
-          "adjusted_for_app_compat": "Spec 012: validator emits +1 vs SDK expectation; baseline is now self-parity, not SDK-parity"
+          ]
         },
         {
           "kind": "validate_invocation",
@@ -9862,8 +9858,8 @@
   },
   "matched_expectation_files": 37,
   "expectation_extraction": {
-    "generated_at_utc": "2026-03-09T00:20:29.960647+00:00",
-    "sdk_root": "/private/tmp/openxml-sdk-upstream",
+    "generated_at_utc": "2026-09-02T00:31:13.389435+00:00",
+    "sdk_root": "https://github.com/dotnet/Open-XML-SDK.git#v3.5.1@3139fdfd27414548a41555f7848d5728f6e71a42",
     "script": "scripts/corpus/extract_sdk_expectations.py"
   }
 }

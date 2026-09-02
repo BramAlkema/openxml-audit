@@ -17,7 +17,7 @@ Usage:
     python scripts/parity/run_self_parity_snapshot.py \\
         --manifest data/corpus/sdk_seed/manifest.json \\
         --files-root /tmp/parity-corpus/files \\
-        --output data/corpus/self_parity_baseline/v0.7.1/snapshot.json
+        --output data/corpus/self_parity_baseline/v0.8.0/snapshot.json
 """
 
 from __future__ import annotations
