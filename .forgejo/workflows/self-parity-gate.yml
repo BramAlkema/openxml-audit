@@ -1,0 +1,126 @@
+name: Self-parity gate
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/parity/**"
+      - "scripts/corpus/import_sdk_assets.py"
+      - "data/corpus/sdk_seed/manifest.json"
+      - "data/corpus/self_parity_baseline/**"
+      - ".forgejo/workflows/self-parity-gate.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - "scripts/parity/**"
+      - "scripts/corpus/import_sdk_assets.py"
+      - "data/corpus/sdk_seed/manifest.json"
+      - "data/corpus/self_parity_baseline/**"
+      - ".forgejo/workflows/self-parity-gate.yml"
+  workflow_dispatch:
+    inputs:
+      corpus_archive_url:
+        description: "Optional parity corpus tar.zst URL; overrides the repository variable."
+        required: false
+        default: ""
+
+concurrency:
+  group: self-parity-${{ forgejo.ref }}
+  cancel-in-progress: true
+
+jobs:
+  self-parity:
+    runs-on: ubuntu-latest
+    env:
+      SDK_REF: v3.5.1
+      SDK_REPO: https://github.com/dotnet/Open-XML-SDK.git
+      BASELINE_SNAPSHOT: data/corpus/self_parity_baseline/v0.8.0/snapshot.json
+      CURRENT_SNAPSHOT: reports/self_parity_current.json
+      COMPARE_REPORT: reports/self_parity_compare.json
+      SUMMARY_REPORT: /tmp/self_parity_compare.md
+      CORPUS_ARCHIVE_URL: ${{ forgejo.event.inputs.corpus_archive_url || vars.PARITY_CORPUS_ARCHIVE_URL }}
+    steps:
+      - name: Checkout
+        uses: https://data.forgejo.org/actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up Python
+        uses: https://data.forgejo.org/actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Resolve corpus files root
+        id: corpus
+        run: |
+          set -euo pipefail
+          workspace="${FORGEJO_WORKSPACE:-$GITHUB_WORKSPACE}"
+          local_root="$workspace/data/corpus/sdk_seed/files"
+
+          if [ -d "$local_root" ]; then
+            echo "files_root=$local_root" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -n "${CORPUS_ARCHIVE_URL:-}" ]; then
+            corpus_root="/tmp/openxml-parity-corpus"
+            archive_path="/tmp/openxml-parity-corpus.tar.zst"
+            rm -rf "$corpus_root"
+            mkdir -p "$corpus_root"
+            curl -fsSL "$CORPUS_ARCHIVE_URL" -o "$archive_path"
+            tar --zstd -xf "$archive_path" -C "$corpus_root"
+            if [ ! -d "$corpus_root/files" ]; then
+              echo "Configured corpus archive has no top-level files/ directory" >&2
+              exit 2
+            fi
+            echo "files_root=$corpus_root/files" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          sdk_root="/tmp/openxml-sdk-upstream"
+          corpus_root="/tmp/openxml-sdk-seed"
+          rm -rf "$sdk_root" "$corpus_root"
+          git clone --depth 1 --branch "$SDK_REF" "$SDK_REPO" "$sdk_root"
+          python scripts/corpus/import_sdk_assets.py \
+            --sdk-root "$sdk_root" \
+            --output-root "$corpus_root"
+          echo "files_root=$corpus_root/files" >> "$GITHUB_OUTPUT"
+
+      - name: Run self-parity snapshot
+        run: |
+          mkdir -p reports
+          python scripts/parity/run_self_parity_snapshot.py \
+            --manifest data/corpus/sdk_seed/manifest.json \
+            --files-root "${{ steps.corpus.outputs.files_root }}" \
+            --output "$CURRENT_SNAPSHOT"
+
+      - name: Enforce committed self-parity baseline
+        run: |
+          python scripts/parity/compare_self_parity.py \
+            --baseline "$BASELINE_SNAPSHOT" \
+            --current "$CURRENT_SNAPSHOT" \
+            --output "$COMPARE_REPORT" \
+            --summary "$SUMMARY_REPORT" \
+            --max-new-families 0 \
+            --max-missing-families 0 \
+            --max-count-drift-total 0
+
+      - name: Workflow summary
+        if: always()
+        run: |
+          {
+            echo "# Self-parity gate"
+            echo ""
+            echo "**Blocking in 0.8.0.** Validator-output drift must be reviewed and re-baselined explicitly."
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ -f "$SUMMARY_REPORT" ]; then
+            cat "$SUMMARY_REPORT" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No self-parity summary produced." >> "$GITHUB_STEP_SUMMARY"
+          fi

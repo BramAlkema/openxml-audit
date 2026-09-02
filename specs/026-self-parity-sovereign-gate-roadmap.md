@@ -2,10 +2,9 @@
 
 ## Status
 
-Proposed (April 29, 2026). Umbrella spec covering the four-step path
-from 0.7.0 (cutover) to 0.8.0 (self-parity gate becomes the blocking
-contract). Each step ships in its own patch release with its own
-focused spec; this document is the roadmap they ladder up to.
+Implemented in 0.8.0 (September 2, 2026). Self-parity is the blocking
+Forgejo status check on canonical `main`; the .NET SDK v3.5.1 comparison
+remains advisory as an external calibration signal.
 
 ## Problem
 
@@ -165,12 +164,11 @@ permanent-advisory
 
 Policy flip. The substance was 0.7.1; this release commits to it.
 
-1. **Promote `self-parity-gate.yml`** by removing
+1. **Promote `.forgejo/workflows/self-parity-gate.yml`** by removing
    `continue-on-error: true` from the comparison step. The
    workflow now fails the build on regression.
-2. **Branch protection on `main`**: add the self-parity gate to
-   required status checks. (Manual GitHub UI step, called out in
-   the release PR description like Spec 012's was.)
+2. **Forgejo branch protection on `main`**: require the `self-parity`
+   status check in the canonical repository.
 3. **Decide SDK gate's long-term role** (Spec 013 OQ5):
    - **Option K (keep advisory)**: `parity-gate.yml` continues
      running as an informational third signal alongside the
@@ -182,9 +180,9 @@ Policy flip. The substance was 0.7.1; this release commits to it.
      voice in Spec 012 advocated this once self-parity + oracle
      were real.
    The 0.8.0 release CHANGELOG records the choice with rationale.
-   Recommendation: **Option K** for at least one minor release
-   so the trend signal stays available; **revisit at 0.9.0**
-   once the oracle gate's design is settled.
+   Decision: **Option K** for the 0.8 release line so the trend signal
+   stays available; **revisit at 0.9.0** once the oracle gate's design
+   is settled.
 4. **Rewrite `docs/parity_contract.md` "Gate Roles" section**:
    self-parity is sovereign, SDK is informational (or retired,
    per the choice above), oracle observations are the

@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 DEFAULT_REPORT = Path("reports/parity_current.json")
-DEFAULT_BUDGET = Path("data/corpus/parity_baseline/v3.4.1/perf_budget.json")
+DEFAULT_BUDGET = Path("data/corpus/parity_baseline/v3.5.1/perf_budget.json")
 DEFAULT_OUTPUT = Path("reports/parity_perf.json")
 
 

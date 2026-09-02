@@ -7,50 +7,12 @@ from the advisory SDK comparison; include them in the future self-parity gate).
 
 from __future__ import annotations
 
-from openxml_audit.context import ElementContext, ValidationContext
+from openxml_audit.context import ValidationContext
 from openxml_audit.errors import (
     SourceClass,
     ValidationError,
     ValidationErrorType,
-    ValidationSeverity,
 )
-from openxml_audit.namespaces import WORDPROCESSINGML
-from openxml_audit.word.compat import WordCompatValidator
-from lxml import etree
-
-
-def _build_trpr_with_reordered_children() -> etree._Element:
-    """trPr where cantSplit appears after tblHeader (issue #3 repro)."""
-    nsmap = {"w": WORDPROCESSINGML}
-    body = etree.Element(f"{{{WORDPROCESSINGML}}}body", nsmap=nsmap)
-    tbl = etree.SubElement(body, f"{{{WORDPROCESSINGML}}}tbl")
-    tr = etree.SubElement(tbl, f"{{{WORDPROCESSINGML}}}tr")
-    trpr = etree.SubElement(tr, f"{{{WORDPROCESSINGML}}}trPr")
-    etree.SubElement(trpr, f"{{{WORDPROCESSINGML}}}tblHeader")
-    etree.SubElement(trpr, f"{{{WORDPROCESSINGML}}}cantSplit")
-    return etree.ElementTree(body).getroot()
-
-
-class _FakePart:
-    """Minimal stand-in for DocumentPart sufficient for compat.validate()."""
-
-    def __init__(self, xml: etree._Element) -> None:
-        self.xml = xml
-
-
-def test_word_compat_emits_word_app_compat() -> None:
-    """compat.WordCompatValidator tags ordering findings as WORD_APP_COMPAT."""
-    body = _build_trpr_with_reordered_children()
-    context = ValidationContext()
-    validator = WordCompatValidator()
-
-    errors = validator.validate(_FakePart(body), context)
-
-    assert len(errors) >= 1, "expected at least one ordering finding"
-    for err in errors:
-        assert err.source_class is SourceClass.WORD_APP_COMPAT, (
-            f"Word compat finding should be WORD_APP_COMPAT, got {err.source_class}"
-        )
 
 
 def test_validation_error_default_is_sdk_proxy() -> None:

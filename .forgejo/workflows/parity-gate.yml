@@ -1,4 +1,4 @@
-name: Parity gate (SDK advisory + perf blocking)
+name: SDK parity advisory
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - "src/**"
       - "scripts/corpus/**"
       - "data/corpus/**"
-      - ".github/workflows/parity-gate.yml"
+      - ".forgejo/workflows/parity-gate.yml"
   push:
     branches:
       - main
@@ -14,78 +14,73 @@ on:
       - "src/**"
       - "scripts/corpus/**"
       - "data/corpus/**"
-      - ".github/workflows/parity-gate.yml"
+      - ".forgejo/workflows/parity-gate.yml"
   workflow_dispatch:
     inputs:
       corpus_archive_url:
-        description: "Optional URL for parity corpus tar.zst (overrides repo variable)."
+        description: "Optional parity corpus tar.zst URL; overrides the repository variable."
         required: false
         default: ""
 
+concurrency:
+  group: sdk-parity-${{ forgejo.ref }}
+  cancel-in-progress: true
+
 jobs:
-  parity:
+  sdk-parity:
     runs-on: ubuntu-latest
     env:
-      SDK_REF: v3.4.1
+      SDK_REF: v3.5.1
       SDK_REPO: https://github.com/dotnet/Open-XML-SDK.git
-      BASELINE_SNAPSHOT: data/corpus/parity_baseline/v3.4.1/parity_snapshot.json
-      WAIVERS_FILE: data/corpus/parity_baseline/v3.4.1/waivers.json
-      PERF_BUDGET_FILE: data/corpus/parity_baseline/v3.4.1/perf_budget.json
+      BASELINE_SNAPSHOT: data/corpus/parity_baseline/v3.5.1/parity_snapshot.json
+      WAIVERS_FILE: data/corpus/parity_baseline/v3.5.1/waivers.json
+      PERF_BUDGET_FILE: data/corpus/parity_baseline/v3.5.1/perf_budget.json
       CURRENT_SNAPSHOT: reports/parity_current.json
       COMPARE_REPORT: reports/parity_compare.json
       SUMMARY_REPORT: /tmp/parity_compare.md
       PERF_SUMMARY_REPORT: /tmp/parity_perf.md
-      CORPUS_ARCHIVE_URL: ${{ github.event.inputs.corpus_archive_url || vars.PARITY_CORPUS_ARCHIVE_URL }}
+      CORPUS_ARCHIVE_URL: ${{ forgejo.event.inputs.corpus_archive_url || vars.PARITY_CORPUS_ARCHIVE_URL }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: https://data.forgejo.org/actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: https://data.forgejo.org/actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install package
         run: |
           python -m pip install --upgrade pip
           pip install -e .
 
-      - name: Prepare reports directory
-        run: mkdir -p reports
-
       - name: Resolve corpus files root
         id: corpus
         run: |
           set -euo pipefail
+          workspace="${FORGEJO_WORKSPACE:-$GITHUB_WORKSPACE}"
+          local_root="$workspace/data/corpus/sdk_seed/files"
 
-          # 1. Local files checked into the repo
-          local_root="$GITHUB_WORKSPACE/data/corpus/sdk_seed/files"
           if [ -d "$local_root" ]; then
-            echo "Using local corpus files at $local_root"
             echo "files_root=$local_root" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # 2. Pre-built archive from repo variable
           if [ -n "${CORPUS_ARCHIVE_URL:-}" ]; then
-            work_root="/tmp/openxml-parity-corpus"
+            corpus_root="/tmp/openxml-parity-corpus"
             archive_path="/tmp/openxml-parity-corpus.tar.zst"
-            rm -rf "$work_root"
-            mkdir -p "$work_root"
-            echo "Downloading corpus archive from configured URL"
+            rm -rf "$corpus_root"
+            mkdir -p "$corpus_root"
             curl -fsSL "$CORPUS_ARCHIVE_URL" -o "$archive_path"
-            tar --zstd -xf "$archive_path" -C "$work_root"
-            files_root="$work_root/files"
-            if [ ! -d "$files_root" ]; then
-              echo "::error::Corpus archive does not contain expected 'files/' directory."
+            tar --zstd -xf "$archive_path" -C "$corpus_root"
+            if [ ! -d "$corpus_root/files" ]; then
+              echo "Configured corpus archive has no top-level files/ directory" >&2
               exit 2
             fi
-            echo "files_root=$files_root" >> "$GITHUB_OUTPUT"
+            echo "files_root=$corpus_root/files" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # 3. Build corpus from upstream SDK
-          echo "Building corpus from upstream SDK ($SDK_REF)"
           sdk_root="/tmp/openxml-sdk-upstream"
           corpus_root="/tmp/openxml-sdk-seed"
           rm -rf "$sdk_root" "$corpus_root"
@@ -95,19 +90,15 @@ jobs:
             --output-root "$corpus_root"
           echo "files_root=$corpus_root/files" >> "$GITHUB_OUTPUT"
 
-      - name: Run parity snapshot
+      - name: Run SDK parity snapshot
         run: |
+          mkdir -p reports
           python scripts/corpus/run_parity_snapshot.py \
             --manifest data/corpus/sdk_seed/manifest.json \
             --files-root "${{ steps.corpus.outputs.files_root }}" \
             --output "$CURRENT_SNAPSHOT"
 
-      - name: Compare against baseline (ADVISORY — Spec 012)
-        # Per spec 012, SDK parity comparison is advisory: the threshold flags
-        # are still computed and surfaced in the step summary for trend
-        # visibility, but a failure here does NOT fail the workflow. The
-        # sovereign blocking gates (self-parity + Word/PowerPoint/Excel oracle)
-        # are deferred to spec 013. Perf budget below remains blocking.
+      - name: Compare with SDK baseline (advisory)
         continue-on-error: true
         run: |
           python scripts/corpus/compare_to_baseline.py \
@@ -129,35 +120,20 @@ jobs:
             --output reports/parity_perf.json \
             --summary "$PERF_SUMMARY_REPORT"
 
-      - name: Upload parity reports
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: parity-gate-reports
-          path: reports
-
       - name: Workflow summary
         if: always()
         run: |
           {
-            echo "# Parity gate"
+            echo "# SDK parity advisory"
             echo ""
-            echo "**SDK comparison: advisory** — drift against the .NET Open XML SDK v3.4.1 baseline is informational. Track trend over time; do not treat individual diffs as build failures. Sovereign blocking gates are deferred to spec 013 (self-parity + Word/PowerPoint/Excel roundtrip oracle)."
-            echo ""
-            echo "**Perf budget: blocking** — runtime budget against \`perf_budget.json\` still fails the build."
-            echo ""
-            echo "---"
+            echo "SDK v3.5.1 drift is informational; self-parity is the sovereign blocking gate."
+            echo "The performance budget remains blocking."
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
           if [ -f "$SUMMARY_REPORT" ]; then
             cat "$SUMMARY_REPORT" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "No parity summary produced." >> "$GITHUB_STEP_SUMMARY"
           fi
           if [ -f "$PERF_SUMMARY_REPORT" ]; then
             echo "" >> "$GITHUB_STEP_SUMMARY"
             cat "$PERF_SUMMARY_REPORT" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "No parity performance summary produced." >> "$GITHUB_STEP_SUMMARY"
           fi

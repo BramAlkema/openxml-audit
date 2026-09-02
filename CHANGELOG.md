@@ -7,6 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-02
+
+The sovereignty cutover. Forgejo is now the canonical repository and
+self-parity, rather than an external SDK, is the required regression contract.
+GitHub remains a release-only downstream so its OIDC publisher can continue to
+deliver immutable releases to PyPI.
+
+### Added
+- **Blocking self-parity gate (Spec 026)** — the Forgejo-native gate validates
+  all 887 SDK corpus files and compares every normalized finding family and
+  count against the committed 0.8.0 baseline. The baseline records 18,299
+  findings across 1,370 families; any new, missing, or count-drifted family
+  now fails the required `self-parity` status check.
+- **Fail-closed Forgejo release bridge** — annotated version tags on canonical
+  Forgejo `main` are validated, then only `main` and that immutable tag are
+  fast-forwarded to GitHub. GitHub's release workflow builds once, publishes
+  to PyPI with Trusted Publishing, and creates the GitHub Release. The bridge
+  never mirrors all refs, force-pushes, or stores a PyPI token.
+
+### Changed
+- **Open XML SDK 3.5.1 calibration** — synced the pinned SDK schemas at commit
+  `3139fdfd27414548a41555f7848d5728f6e71a42`, regenerated the 887-file corpus
+  manifest, moved all three .NET helpers to `DocumentFormat.OpenXml` 3.5.1 and
+  .NET 8, and produced a fresh advisory baseline: 77/77 checks match with no
+  waiver. The 3.5.1 schema adds the current chart/ChartEx metadata, including
+  chart-space feature and fallback-image attributes.
+- **SDK parity stays advisory through 0.8.x.** It remains an external trend
+  signal and its performance budget remains blocking; self-parity owns output
+  regressions. Retirement is reconsidered at 0.9.0 after the oracle-gate
+  design is settled.
+- Canonical CI workflows now live under `.forgejo/workflows/` with
+  commit-pinned actions and a deterministic v3.5.1 corpus fallback. The
+  required gate no longer depends on an unpublished corpus variable.
+
+### Removed
+- **WordprocessingML property-order warnings (GitHub issue #3).** Word for Mac
+  Microsoft 365 16.89.1 preserved all 396 generated `trPr`, `tblPr`, `tcPr`,
+  and `sectPr` ordering scenarios without a repair dialog or XML rewrite,
+  including the reported `tblHeader`/`cantSplit` order and full reversals. The
+  runtime warning produced 226 corpus false positives across two families and
+  is retired. Its mining proxy, generators, and versioned oracle baselines
+  remain available for research; reintroduction requires a package plus exact
+  Word build/platform and reproducible oracle evidence.
+
+### Fixed
+- The SDK update helper now updates every .NET package pin and requires schema,
+  manifest, and baseline regeneration instead of copying the previous SDK
+  baseline under a new version.
+- Focused source cleanup removes the six existing Ruff violations; `ruff check
+  src/` is clean without the 127-file mechanical rewrite proposed by the
+  Janitor PR.
+
+### Notes
+- The self-parity rebaseline adds four required-attribute families (nine
+  findings) accumulated since 0.7.1 and removes the two disproved ordering
+  families (226 findings); no shared-family counts drifted.
+- Supported Python versions remain 3.10–3.13. Changing workflow runner labels
+  alone is not Python 3.14 compatibility evidence, so the blanket automated
+  runtime bump is not part of this release.
+
 ## [0.7.9] - 2026-08-09
 
 ### Added

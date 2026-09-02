@@ -2,30 +2,31 @@
 
 This document defines the comparison contract and CI gate behavior used by parity workflows.
 
-## Gate Roles (as of Spec 012, April 2026)
+## Gate Roles (as of 0.8.0, September 2026)
 
-The repo's mission per `CLAUDE.md` is "validate OOXML files to determine if they will open successfully in their target apps." Specs 010 and 011 deliberately ship divergence from the .NET Open XML SDK because the SDK accepts files Word rejects. The parity-gate roles reflect that:
+The repo's mission per `CLAUDE.md` is "validate OOXML files to determine if they will open successfully in their target apps." Self-parity owns regression detection; the SDK and app oracles provide different external evidence.
 
 | Gate | Role | Status |
 |---|---|---|
-| **SDK parity comparison** (`compare_to_baseline.py`) | Advisory — trend visibility on validator output drift against SDK v3.4.1 | **NON-BLOCKING** in `.github/workflows/parity-gate.yml` (`continue-on-error: true` on the comparison step). Runs every push/PR; surfaces in workflow summary; does not fail the build. |
+| **Self-parity** (`compare_self_parity.py`) | Sovereign validator-output regression contract | **BLOCKING** in `.forgejo/workflows/self-parity-gate.yml` and required on canonical Forgejo `main`. |
+| **SDK parity comparison** (`compare_to_baseline.py`) | Advisory trend visibility against SDK v3.5.1 | **NON-BLOCKING** in `.forgejo/workflows/parity-gate.yml`; runs on relevant pushes/PRs and surfaces drift in the summary. |
 | **Perf budget** (`check_perf_budget.py`) | Runtime regression guard | **BLOCKING** — perf-budget violations still fail CI. |
-| **Self-parity** (validator output vs our last green output) | Catches our own regressions, keyed on our output rather than SDK's | DEFERRED to Spec 013 (`specs/013-validator-output-sovereign-gates.md`). |
-| **Word/PowerPoint/Excel roundtrip oracle** | Sovereign for app-survival claims | DEFERRED to Spec 011 + Spec 013. |
+| **Word/PowerPoint/Excel roundtrip oracles** | Versioned evidence for app-survival claims | Not yet a required status check; each claim remains bounded to its recorded app build and platform. |
 
 The strict-no-drift *measurement* policy (max 0 mismatch growth, 0 new families, 0pp match-rate drop) is unchanged — the comparison still uses those thresholds when deciding what to surface in the summary. The change is what happens when those thresholds are exceeded: the build no longer fails. SDK divergence is now a trend signal, not a gate.
 
-When the SDK reference is bumped (separate spec), the advisory snapshot must be re-extracted so the trend stays meaningful.
+SDK v3.5.1 remains advisory through the 0.8 release line. Revisit retirement at 0.9.0 after the oracle-gate design is settled. Every SDK bump must re-sync schema data, regenerate the corpus manifest, rebuild all .NET runners, and produce a fresh advisory baseline; copying the prior baseline is prohibited.
 
 ## Scope
 
 - Applies to OOXML parity calibration and PR parity-drift gating.
-- Baseline target: `Open XML SDK v3.4.1`.
+- Baseline target: `Open XML SDK v3.5.1`.
 - Baseline artifacts:
   - `data/corpus/sdk_seed/manifest.json`
-  - `data/corpus/parity_baseline/v3.4.1/parity_snapshot.json`
-  - `data/corpus/parity_baseline/v3.4.1/perf_budget.json`
-  - `data/corpus/parity_baseline/v3.4.1/waivers.json`
+  - `data/corpus/parity_baseline/v3.5.1/parity_snapshot.json`
+  - `data/corpus/parity_baseline/v3.5.1/perf_budget.json`
+  - `data/corpus/parity_baseline/v3.5.1/waivers.json`
+  - `data/corpus/self_parity_baseline/v0.8.0/snapshot.json`
 
 ## Snapshot Schema
 
@@ -92,20 +93,24 @@ Default *measurement* policy is strict no-drift (advisory; see "Gate Roles" abov
 
 These thresholds determine what the comparator surfaces as drift; they no longer determine whether the build passes. Per Spec 012, the SDK comparison is non-blocking.
 
-## PR Gate Behavior
+## Forgejo PR Gate Behavior
 
-Workflow: `.github/workflows/parity-gate.yml`
+Workflows:
+
+- `.forgejo/workflows/self-parity-gate.yml` — blocking, no drift allowed.
+- `.forgejo/workflows/parity-gate.yml` — SDK comparison advisory; performance budget blocking.
 
 - Runs snapshot with current code.
 - Compares to baseline via `compare_to_baseline.py` (advisory; see "Gate Roles").
 - Enforces runtime budget via `check_perf_budget.py` (blocking).
 - Uploads reports and step summary.
-- Fails PR only on perf-budget violations. SDK comparison drift is surfaced in the step summary but does not fail the build.
+- Fails the PR on self-parity drift or a performance-budget violation. SDK comparison drift is surfaced but does not fail the build.
 
 Corpus source for gate:
 
 - Local `data/corpus/sdk_seed/files/` if present.
-- Otherwise downloads archive from repository variable `PARITY_CORPUS_ARCHIVE_URL`.
+- Otherwise downloads an archive from repository variable `PARITY_CORPUS_ARCHIVE_URL`.
+- If the variable is unset, clones the immutable SDK v3.5.1 tag and materializes the corpus locally. The required gate therefore does not depend on an unpublished repository variable.
 
 Archive requirement:
 
@@ -113,7 +118,7 @@ Archive requirement:
 
 ## Performance Guard
 
-Performance budget is defined in `data/corpus/parity_baseline/v3.4.1/perf_budget.json`.
+Performance budget is defined in `data/corpus/parity_baseline/v3.5.1/perf_budget.json`.
 
 `scripts/corpus/check_perf_budget.py` validates:
 
@@ -126,7 +131,7 @@ Default policy is fail-on-regression against these limits in PR CI.
 
 ## Waiver Process
 
-Waivers are declared in `data/corpus/parity_baseline/v3.4.1/waivers.json`.
+Waivers are declared in `data/corpus/parity_baseline/v3.5.1/waivers.json`.
 
 Required fields per waiver:
 
@@ -168,3 +173,4 @@ Example:
 
 - SDK validation remains available for calibration and deep investigations.
 - Daily development and PR CI must not depend on local SDK installation.
+- SDK comparison remains advisory through 0.8.x and is reconsidered at 0.9.0.

@@ -2,11 +2,42 @@
 
 ## Status
 
-Proposed (April 28, 2026). Phase 1 shipped; phase ordering revised after empirical scan of TokenMoulds corpus (April 28, 2026).
+Retired in 0.8.0 (September 2, 2026). The XSD-derived ordering proxy remains
+available to research tooling, but it is no longer part of runtime validation.
+
+## 0.8.0 Resolution
+
+The original report supplied an ordering example but no reproducible Word
+build, platform, or package after follow-up. We therefore built a Word oracle
+instead of promoting the anecdote into a stronger rule. Word for Mac Microsoft
+365 16.89.1 preserved every generated scenario without a repair dialog or XML
+change:
+
+| Property type | Scenarios preserved | Repaired | Dialogs |
+|---|---:|---:|---:|
+| `CT_TrPr` | 68/68 | 0 | 0 |
+| `CT_TblPr` | 93/93 | 0 | 0 |
+| `CT_TcPr` | 80/80 | 0 | 0 |
+| `CT_SectPr` | 155/155 | 0 | 0 |
+| **Total** | **396/396** | **0** | **0** |
+
+That includes the issue #3 `tblHeader`/`cantSplit` order and full reversals of
+each tested sequence. The runtime warning therefore asserted Word behaviour
+that the project could not reproduce and created a large false-positive
+surface. 0.8.0 removes it from `DocumentValidator`; the proxy table, mining
+script, generators, and versioned oracle baselines are retained as evidence.
+
+Reintroduction requires a minimal affected package plus the exact Word build
+and platform, followed by a versioned oracle result that demonstrates a stable
+repair boundary. XSD ordering alone is insufficient.
 
 ## Problem
 
-Word's "unreadable content" repair dialog fires when child elements inside certain WordprocessingML property complex types appear in an order that ECMA-376 forbids — even though the .NET Open XML SDK considers the same files valid. `openxml-audit` currently inherits the SDK's loose model and misses this class of file corruption.
+This section records the original, now-disproved runtime hypothesis. It is
+retained for decision history and must not be read as current validator
+behaviour.
+
+The hypothesis was that Word's "unreadable content" repair dialog fires when child elements inside certain WordprocessingML property complex types appear in an order that ECMA-376 forbids — even though the .NET Open XML SDK considers the same files valid.
 
 The trigger is a deliberate divergence between the spec and the SDK's runtime model:
 

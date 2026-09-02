@@ -19,8 +19,6 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from parity.compare_self_parity import (  # noqa: E402
-    CompareReport,
-    FamilyDiff,
     compare,
     evaluate_gate,
     render_summary_md,
@@ -159,12 +157,12 @@ def test_render_summary_md_includes_verdict_and_diffs() -> None:
 
 
 def test_baseline_against_self_passes_via_real_baseline() -> None:
-    """The committed v0.7.1 baseline must compare clean against itself.
+    """The committed v0.8.0 baseline must compare clean against itself.
     This locks the schema shape and prevents accidental field renames
     from breaking the comparator silently."""
-    baseline_path = REPO_ROOT / "data/corpus/self_parity_baseline/v0.7.1/snapshot.json"
+    baseline_path = REPO_ROOT / "data/corpus/self_parity_baseline/v0.8.0/snapshot.json"
     if not baseline_path.exists():
-        pytest.skip("v0.7.1 baseline not committed yet")
+        pytest.skip("v0.8.0 baseline not committed yet")
     baseline = json.loads(baseline_path.read_text())
     report = compare(baseline, baseline)
     assert report.new_families == []

@@ -8,7 +8,6 @@
 [![Downloads](https://img.shields.io/pypi/dm/openxml-audit)](https://pypi.org/project/openxml-audit/)
 [![Python](https://img.shields.io/pypi/pyversions/openxml-audit)](https://pypi.org/project/openxml-audit/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![CI](https://github.com/BramAlkema/openxml-audit/actions/workflows/parity-gate.yml/badge.svg)](https://github.com/BramAlkema/openxml-audit/actions/workflows/parity-gate.yml)
 [![SDK Parity](https://img.shields.io/badge/SDK%20parity-100%25-brightgreen)](docs/parity_contract.md)
 [![ODF Parity](https://img.shields.io/badge/ODF%20parity-100%25-brightgreen)](docs/odf_validation_contract.md)
 [![pytest](https://img.shields.io/badge/pytest-plugin-orange)](https://pypi.org/project/openxml-audit/)
@@ -40,7 +39,7 @@ check_capability("pptx.anim.effect.entr.fade", minimum_tier=EvidenceTier.LOADABL
 
 ## Features
 
-- **OOXML Validation**: Package structure, schema, semantic, properties, and format-specific checks for PPTX/DOCX/XLSX — 100% parity with Open XML SDK v3.4.1 without the .NET dependency
+- **OOXML Validation**: Package structure, schema, semantic, properties, and format-specific checks for PPTX/DOCX/XLSX — calibrated against Open XML SDK v3.5.1 without the .NET dependency
 - **ODF Validation**: Staged conformance levels — foundation, schema-core (Relax NG), semantic-core, and security-core for ODT/ODS/ODP
 - **Evidence ladder**: Validation is the floor tier. Curated PPTX corpora (`docs/pptx_oracle/`) verify loadability, roundtrip preservation, and runtime behavior above it — for features like animation/timing where "schema-valid" isn't enough
 - **Fast**: 1.2x the .NET SDK cold, 2.2x warm — validates a 798K DOCX in 101ms
@@ -520,14 +519,11 @@ Ready-to-run scripts in [`examples/`](examples/):
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
+| `.forgejo/workflows/self-parity-gate.yml` | Forgejo PR / `main` push | Block validator-output drift against the committed 0.8.0 baseline |
+| `.forgejo/workflows/parity-gate.yml` | Forgejo PR / `main` push | Report SDK v3.5.1 drift and enforce the performance budget |
+| `.forgejo/workflows/calibrate-parity.yml` | Weekly / dispatch | Calibrate against the immutable Open XML SDK v3.5.1 release |
 | `.forgejo/workflows/release-mirror.yml` | Forgejo tag push (`v*`) | Validate the canonical release and mirror only `main` + tag to GitHub |
-| `parity-gate.yml` | PR / push | Enforce OOXML parity + perf budget against SDK baseline |
-| `calibrate-parity.yml` | Weekly / dispatch | Calibrate against Open XML SDK upstream |
-| `sdk-update.yml` | Quarterly / dispatch | Track upstream SDK version changes |
-| `odf-reference-calibration.yml` | Dispatch | Run ODF reference validators and drift checks |
-| `validate-inputs.yml` | Push to `inputs/` | Validate dropped files with both Python and .NET SDK |
-| `release.yml` | Mirrored GitHub tag (`v*`) | Build once, publish to PyPI with OIDC, and create the GitHub Release |
-| `pages.yml` | Push to `main` | Deploy documentation site |
+| `.github/workflows/release.yml` | Mirrored GitHub tag (`v*`) | Build once, publish to PyPI with OIDC, and create the GitHub Release |
 
 OOXML parity details: `docs/parity_contract.md`. ODF reference contract: `docs/odf_validation_contract.md`.
 The canonical Forgejo-to-PyPI release path is documented in

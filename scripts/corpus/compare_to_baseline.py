@@ -10,10 +10,10 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-DEFAULT_BASELINE = Path("data/corpus/parity_baseline/v3.4.1/parity_snapshot.json")
+DEFAULT_BASELINE = Path("data/corpus/parity_baseline/v3.5.1/parity_snapshot.json")
 DEFAULT_CURRENT = Path("reports/parity_snapshot.json")
 DEFAULT_OUTPUT = Path("reports/parity_compare.json")
-DEFAULT_WAIVERS = Path("data/corpus/parity_baseline/v3.4.1/waivers.json")
+DEFAULT_WAIVERS = Path("data/corpus/parity_baseline/v3.5.1/waivers.json")
 
 WAIVER_KINDS = {
     "new_mismatch_family",

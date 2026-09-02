@@ -1,4 +1,4 @@
-"""Tests for the Word compatibility ordering check (spec 010, Phase 1)."""
+"""Tests for the retired Spec 010 ordering proxy and issue #3 regression."""
 
 from __future__ import annotations
 
@@ -6,10 +6,7 @@ import io
 import zipfile
 from pathlib import Path
 
-import pytest
-
 from openxml_audit import OpenXmlValidator
-from openxml_audit.errors import ValidationSeverity
 from openxml_audit.word.compat import (
     CONSTRAINT_TABLE,
     ChildSequence,
@@ -167,164 +164,11 @@ def _trpr(children_xml: str) -> str:
 </w:tbl>"""
 
 
-def test_in_order_trpr_produces_no_warning(tmp_path: Path) -> None:
-    """cantSplit before tblHeader matches ECMA-376 §17.4.79 — no warning."""
-    body = _trpr("<w:cantSplit/><w:tblHeader/>")
-    pkg = _build_docx(tmp_path, "in_order.docx", body)
-
-    result = OpenXmlValidator(schema_validation=False).validate(pkg)
-    matches = [
-        e for e in result.errors if "trPr child" in e.description
-    ]
-    assert matches == [], [e.description for e in matches]
-
-
-def test_issue_3_repro_fires_warning(tmp_path: Path) -> None:
-    """Issue #3 exact repro: tblHeader before cantSplit triggers a WARNING."""
+def test_issue_3_repro_produces_no_false_positive(tmp_path: Path) -> None:
+    """The exact issue #3 order is preserved by Word and must not be warned on."""
     body = _trpr("<w:tblHeader/><w:cantSplit/>")
     pkg = _build_docx(tmp_path, "out_of_order.docx", body)
 
     result = OpenXmlValidator(schema_validation=False).validate(pkg)
-    matches = [
-        e for e in result.errors
-        if "trPr child" in e.description and "cantSplit" in e.description
-    ]
-    assert matches, [e.description for e in result.errors]
-    assert all(e.severity == ValidationSeverity.WARNING for e in matches), (
-        [(e.severity, e.description) for e in matches]
-    )
-    assert any("§17.4.79" in e.description for e in matches), (
-        [e.description for e in matches]
-    )
-    assert any("tblHeader" in e.description for e in matches)
-
-
-def test_tblpr_reorder_fires_warning(tmp_path: Path) -> None:
-    """Phase 2: tblPr — placing tblBorders before tblW (which precedes it
-    canonically) should fire WARNING."""
-    body = """\
-<w:tbl>
-  <w:tblPr>
-    <w:tblBorders/>
-    <w:tblW w:w="0" w:type="auto"/>
-  </w:tblPr>
-  <w:tr><w:tc><w:p/></w:tc></w:tr>
-</w:tbl>"""
-    pkg = _build_docx(tmp_path, "tblpr_reorder.docx", body)
-    result = OpenXmlValidator(schema_validation=False).validate(pkg)
-    matches = [e for e in result.errors if "tblPr child" in e.description]
-    assert matches, [e.description for e in result.errors]
-    assert all(e.severity == ValidationSeverity.WARNING for e in matches)
-    assert any("§17.4.60" in e.description for e in matches)
-
-
-def test_tcpr_reorder_fires_warning(tmp_path: Path) -> None:
-    """Phase 2: tcPr — shd before tcBorders is a reordering."""
-    body = """\
-<w:tbl>
-  <w:tr>
-    <w:tc>
-      <w:tcPr>
-        <w:shd w:val="clear"/>
-        <w:tcBorders/>
-      </w:tcPr>
-      <w:p/>
-    </w:tc>
-  </w:tr>
-</w:tbl>"""
-    pkg = _build_docx(tmp_path, "tcpr_reorder.docx", body)
-    result = OpenXmlValidator(schema_validation=False).validate(pkg)
-    matches = [e for e in result.errors if "tcPr child" in e.description]
-    assert matches, [e.description for e in result.errors]
-    assert any("tcBorders" in e.description for e in matches)
-    assert any("§17.4.70" in e.description for e in matches)
-
-
-def test_sectpr_reorder_fires_warning(tmp_path: Path) -> None:
-    """Phase 2: sectPr — pgMar before pgSz is a reordering."""
-    body = """\
-<w:p>
-  <w:pPr>
-    <w:sectPr>
-      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="0" w:footer="0" w:gutter="0"/>
-      <w:pgSz w:w="12240" w:h="15840"/>
-    </w:sectPr>
-  </w:pPr>
-</w:p>"""
-    pkg = _build_docx(tmp_path, "sectpr_reorder.docx", body)
-    result = OpenXmlValidator(schema_validation=False).validate(pkg)
-    matches = [e for e in result.errors if "sectPr child" in e.description]
-    assert matches, [e.description for e in result.errors]
-    assert any("pgSz" in e.description for e in matches)
-
-
-def test_phase2_in_order_inputs_pass(tmp_path: Path) -> None:
-    """In-order tblPr/tcPr/sectPr children produce no Phase 2 warnings."""
-    body = """\
-<w:p>
-  <w:pPr>
-    <w:sectPr>
-      <w:pgSz w:w="12240" w:h="15840"/>
-      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="0" w:footer="0" w:gutter="0"/>
-    </w:sectPr>
-  </w:pPr>
-</w:p>
-<w:tbl>
-  <w:tblPr>
-    <w:tblW w:w="0" w:type="auto"/>
-    <w:tblBorders/>
-  </w:tblPr>
-  <w:tr>
-    <w:tc>
-      <w:tcPr>
-        <w:tcBorders/>
-        <w:shd w:val="clear"/>
-      </w:tcPr>
-      <w:p/>
-    </w:tc>
-  </w:tr>
-</w:tbl>"""
-    pkg = _build_docx(tmp_path, "phase2_clean.docx", body)
-    result = OpenXmlValidator(schema_validation=False).validate(pkg)
-    matches = [
-        e for e in result.errors
-        if any(prop in e.description for prop in ("tblPr child", "tcPr child", "sectPr child"))
-    ]
-    assert matches == [], [e.description for e in matches]
-
-
-def test_unknown_child_in_trpr_is_not_flagged(tmp_path: Path) -> None:
-    """Children not in CT_TrPr canonical (e.g., extension elements) are
-    silently skipped — ordering checks are scoped to known children."""
-    body = _trpr(
-        '<w:cantSplit/>'
-        '<w:extLst><w:ext xmlns:custom="urn:x" custom:foo="1"/></w:extLst>'
-        '<w:tblHeader/>'
-    )
-    pkg = _build_docx(tmp_path, "unknown.docx", body)
-
-    result = OpenXmlValidator(schema_validation=False).validate(pkg)
-    matches = [e for e in result.errors if "trPr child" in e.description]
-    assert matches == [], [e.description for e in matches]
-
-
-@pytest.mark.skipif(
-    pytest.importorskip("docx", reason="python-docx not installed") is None,
-    reason="python-docx not available",
-)
-def test_python_docx_default_produces_no_ordering_warnings(tmp_path: Path) -> None:
-    """Regression control: a default python-docx document with a table must
-    not trigger any Phase 1 ordering warnings (false-positive guard)."""
-    from docx import Document
-
-    p = tmp_path / "python_docx.docx"
-    doc = Document()
-    table = doc.add_table(rows=2, cols=2)
-    # Touch row properties so trPr definitely appears
-    for row in table.rows:
-        row.height_rule = 1  # exact height — adds trHeight to trPr
-    doc.save(str(p))
-
-    result = OpenXmlValidator(schema_validation=False).validate(p)
     matches = [e for e in result.errors if "trPr child" in e.description]
     assert matches == [], [e.description for e in matches]

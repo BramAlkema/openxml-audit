@@ -1,0 +1,37 @@
+{
+  "generated_at_utc": "2026-09-02T00:33:30.917510+00:00",
+  "manifest": "/private/tmp/openxml-audit-release-bridge/data/corpus/sdk_seed/manifest.json",
+  "files_root": "/private/tmp/openxml-sdk-seed-v3.5.1/files",
+  "strict": true,
+  "allow_missing_files": false,
+  "include_mutation_expectations": false,
+  "skipped_mutation_expectations": 33,
+  "duration_seconds": 10.993936,
+  "checks_collected": 112,
+  "checks_total": 77,
+  "checks_matched": 77,
+  "checks_mismatched": 0,
+  "checks_missing_files": 0,
+  "match_rate_percent": 100.0,
+  "validation_runs": 55,
+  "by_kind": {
+    "assert_empty_single_version": 3,
+    "assert_empty_validator": 29,
+    "assert_equal_validator_count": 1,
+    "assert_single_validator": 4,
+    "helper_allowed_counts": 1,
+    "inline_file_assert_empty": 32,
+    "inline_file_count": 1,
+    "inline_version_assert_empty": 3,
+    "inline_version_count": 3,
+    "validate_invocation": 35
+  },
+  "by_version": {
+    "Office2007": 15,
+    "Office2010": 12,
+    "Office2013": 53,
+    "Office2016": 36
+  },
+  "mismatch_examples": [],
+  "mismatch_families": []
+}
