@@ -149,14 +149,11 @@ class GSuiteClient:
             from google.oauth2 import service_account
         except ImportError as exc:
             raise GSuiteAuthError(
-                "google-auth not installed. Run "
-                '`pip install -e ".[gsuite]"` to install it.'
+                'google-auth not installed. Run `pip install -e ".[gsuite]"` to install it.'
             ) from exc
 
         path = Path(
-            creds_path
-            or os.environ.get("GSUITE_ORACLE_CREDS")
-            or DEFAULT_CREDS_PATH
+            creds_path or os.environ.get("GSUITE_ORACLE_CREDS") or DEFAULT_CREDS_PATH
         ).expanduser()
         if not path.exists():
             raise GSuiteAuthError(
@@ -321,10 +318,7 @@ class GSuiteClient:
         package with added structure (notes masters, extra theme
         variants) and stripped metadata.
         """
-        url = (
-            f"{_DRIVE_API}/files/{file_id}/export"
-            f"?mimeType={urllib.parse.quote(ooxml_mime)}"
-        )
+        url = f"{_DRIVE_API}/files/{file_id}/export?mimeType={urllib.parse.quote(ooxml_mime)}"
         return self._request("GET", url, decode_json=False)
 
     def delete(self, file_id: str) -> bool:
@@ -393,9 +387,7 @@ def _mime_for_suffix(suffix: str) -> str:
     }
     mime = mapping.get(suffix.lower())
     if mime is None:
-        raise GSuiteError(
-            f"no default mime for suffix {suffix!r}; pass mime_type explicitly"
-        )
+        raise GSuiteError(f"no default mime for suffix {suffix!r}; pass mime_type explicitly")
     return mime
 
 

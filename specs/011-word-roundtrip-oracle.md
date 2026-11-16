@@ -108,8 +108,10 @@ class RoundtripResult:
     repair_dialog_text: str | None
     elapsed_seconds: float
 
-def roundtrip(input_docx: Path, *, output_dir: Path | None = None,
-              timeout: float = 60.0) -> RoundtripResult: ...
+
+def roundtrip(
+    input_docx: Path, *, output_dir: Path | None = None, timeout: float = 60.0
+) -> RoundtripResult: ...
 ```
 
 Default behavior: stage input in a temp dir, open in Word, dismiss repair dialog as Yes if present, Save through Word, return the saved path along with structured metadata.

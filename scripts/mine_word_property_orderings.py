@@ -47,7 +47,13 @@ W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 # constrains and ones we don't yet — mining is exploratory and the report
 # tells us which next.
 MINED_TYPES = (
-    "trPr", "pPr", "rPr", "sectPr", "tblPr", "tcPr", "tblPrEx",
+    "trPr",
+    "pPr",
+    "rPr",
+    "sectPr",
+    "tblPr",
+    "tcPr",
+    "tblPrEx",
 )
 
 
@@ -69,9 +75,7 @@ def _iter_word_xml_parts(zf: zipfile.ZipFile) -> Iterable[tuple[str, bytes]]:
             continue
 
 
-def _iter_property_subtrees(
-    root: etree._Element, prop_local: str
-) -> Iterable[etree._Element]:
+def _iter_property_subtrees(root: etree._Element, prop_local: str) -> Iterable[etree._Element]:
     yield from root.iter(f"{{{W}}}{prop_local}")
 
 
@@ -97,10 +101,7 @@ def mine_corpus(paths: list[Path]) -> dict[str, Counter]:
                     continue
                 for prop_local in MINED_TYPES:
                     for elem in _iter_property_subtrees(root, prop_local):
-                        children = tuple(
-                            child.tag for child in elem
-                            if isinstance(child.tag, str)
-                        )
+                        children = tuple(child.tag for child in elem if isinstance(child.tag, str))
                         if children:
                             observed[prop_local][children] += 1
 
@@ -176,7 +177,7 @@ def empirical_canonical_per_type(
             for tag in tags:
                 seen.add(tag)
             for i, a in enumerate(tags):
-                for b in tags[i + 1:]:
+                for b in tags[i + 1 :]:
                     if a == b:
                         continue
                     pair_before[(a, b)] += count
@@ -186,7 +187,7 @@ def empirical_canonical_per_type(
         ambiguous: list[tuple[str, str, int, int]] = []
         children = sorted(seen)
         for i, a in enumerate(children):
-            for b in children[i + 1:]:
+            for b in children[i + 1 :]:
                 ab = pair_before[(a, b)]
                 ba = pair_before[(b, a)]
                 if ab + ba == 0:
@@ -256,10 +257,7 @@ def main() -> int:
             paths.extend(entry.rglob("*.dotx"))
         elif entry.is_file():
             paths.append(entry)
-    paths = [
-        p for p in paths
-        if not any(ex in str(p) for ex in args.exclude)
-    ]
+    paths = [p for p in paths if not any(ex in str(p) for ex in args.exclude)]
 
     if not paths:
         print("error: no DOCX/DOTX files found", file=sys.stderr)

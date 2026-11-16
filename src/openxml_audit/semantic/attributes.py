@@ -21,9 +21,7 @@ class SemanticConstraint(ABC):
     """Base class for semantic constraints."""
 
     @abstractmethod
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         """Validate the constraint against an element.
 
         Args:
@@ -51,9 +49,7 @@ class AttributeMinMaxConstraint(SemanticConstraint):
     max_inclusive: bool = True
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
@@ -119,9 +115,7 @@ class AttributeValuePatternConstraint(SemanticConstraint):
     def __post_init__(self) -> None:
         self._compiled = re.compile(self.pattern)
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
@@ -130,8 +124,7 @@ class AttributeValuePatternConstraint(SemanticConstraint):
         value = element.attrib[attr_name]
         if not self._compiled.match(value):
             msg = self.error_message or (
-                f"Attribute '{self.attribute}' value '{value}' does not match "
-                "required pattern"
+                f"Attribute '{self.attribute}' value '{value}' does not match required pattern"
             )
             context.add_semantic_error(msg, node=self.attribute)
             return False
@@ -146,9 +139,7 @@ class AttributeMutualExclusive(SemanticConstraint):
     attributes: list[str]
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         present = []
         for attr in self.attributes:
             attr_name = f"{{{self.namespace}}}{attr}" if self.namespace else attr
@@ -173,9 +164,7 @@ class AttributeRequiredConditionToValue(SemanticConstraint):
     condition_value: str
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         cond_name = (
             f"{{{self.namespace}}}{self.condition_attribute}"
             if self.namespace
@@ -210,9 +199,7 @@ class AttributeValueLengthConstraint(SemanticConstraint):
     max_length: int | None = None
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
@@ -248,9 +235,7 @@ class AttributeValueInSetConstraint(SemanticConstraint):
     namespace: str | None = None
     error_message: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
@@ -258,10 +243,7 @@ class AttributeValueInSetConstraint(SemanticConstraint):
 
         value = element.attrib[attr_name]
         if value not in self.allowed_values:
-            msg = (
-                self.error_message
-                or f"Attribute '{self.attribute}' has invalid value '{value}'"
-            )
+            msg = self.error_message or f"Attribute '{self.attribute}' has invalid value '{value}'"
             context.add_semantic_error(msg, node=self.attribute)
             return False
 
@@ -277,9 +259,7 @@ class AttributeValueRangeConstraint(SemanticConstraint):
     max_attribute: str | None = None
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
@@ -341,9 +321,7 @@ class AttributeValueSetConstraint(SemanticConstraint):
     allowed_values: set[str]
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
@@ -369,12 +347,8 @@ class AttributeValueLessEqualToAnother(SemanticConstraint):
     other_attribute: str
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
-        attr_name = (
-            f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
-        )
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
+        attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
         other_name = (
             f"{{{self.namespace}}}{self.other_attribute}"
             if self.namespace

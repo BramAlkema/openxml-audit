@@ -139,9 +139,7 @@ def validate_on_save(
                 validation_result = validator.validate(output_path)
 
                 if not validation_result.is_valid and raise_on_invalid:
-                    error_summary = "; ".join(
-                        e.description for e in validation_result.errors[:3]
-                    )
+                    error_summary = "; ".join(e.description for e in validation_result.errors[:3])
                     if len(validation_result.errors) > 3:
                         error_summary += f"... (+{len(validation_result.errors) - 3} more)"
                     raise ValueError(f"Generated invalid PPTX: {error_summary}")
@@ -202,9 +200,7 @@ def require_valid_pptx(
                 validation_result = validator.validate(input_path)
 
                 if not validation_result.is_valid:
-                    error_summary = "; ".join(
-                        e.description for e in validation_result.errors[:3]
-                    )
+                    error_summary = "; ".join(e.description for e in validation_result.errors[:3])
                     if len(validation_result.errors) > 3:
                         error_summary += f"... (+{len(validation_result.errors) - 3} more)"
                     raise ValueError(f"Invalid input PPTX: {error_summary}")
@@ -217,6 +213,7 @@ def require_valid_pptx(
 
 
 # pytest fixtures (import these in conftest.py)
+
 
 def pytest_openxml_audit():
     """pytest fixture providing a validator instance.

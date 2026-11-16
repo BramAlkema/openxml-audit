@@ -51,11 +51,14 @@ def test_valid_ole_signature() -> None:
 
 def test_invalid_ole_signature() -> None:
     data = load_fixture_bytes("binary", "invalid.ole")
-    assert validate_binary_content(
-        "application/vnd.openxmlformats-officedocument.oleObject",
-        "/word/embeddings/oleObject1.bin",
-        data,
-    ) is not None
+    assert (
+        validate_binary_content(
+            "application/vnd.openxmlformats-officedocument.oleObject",
+            "/word/embeddings/oleObject1.bin",
+            data,
+        )
+        is not None
+    )
 
 
 def test_valid_ttf_signature() -> None:

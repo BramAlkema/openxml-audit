@@ -289,9 +289,7 @@ class SoundHrefConstraint(OdfConstraint):
                     self._error(
                         rule_id="ODFSEMPRES006",
                         error_type=ValidationErrorType.SEMANTIC,
-                        description=(
-                            f"Sound href '{href}' does not resolve in package"
-                        ),
+                        description=(f"Sound href '{href}' does not resolve in package"),
                         part_uri="/content.xml",
                     )
                 )
@@ -408,8 +406,7 @@ class HeaderFooterDeclRefConstraint(OdfConstraint):
                         rule_id="ODFSEMPRES008",
                         error_type=ValidationErrorType.SEMANTIC,
                         description=(
-                            f"Page references {kind} declaration '{ref}' "
-                            "which is not defined"
+                            f"Page references {kind} declaration '{ref}' which is not defined"
                         ),
                         part_uri="/content.xml",
                     )
@@ -512,9 +509,7 @@ class AnimationTargetConstraint(OdfConstraint):
                 self._error(
                     rule_id="ODFSEMPRES010",
                     error_type=ValidationErrorType.SEMANTIC,
-                    description=(
-                        f"Animation targets element '{target}' which does not exist"
-                    ),
+                    description=(f"Animation targets element '{target}' which does not exist"),
                     part_uri="/content.xml",
                 )
             )
@@ -524,9 +519,13 @@ class AnimationTargetConstraint(OdfConstraint):
 class TransitionTypeConstraint(OdfConstraint):
     """ODFSEMPRES011: Slide transition type must be a valid value."""
 
-    VALID_TYPES = frozenset({
-        "manual", "automatic", "semi-automatic",
-    })
+    VALID_TYPES = frozenset(
+        {
+            "manual",
+            "automatic",
+            "semi-automatic",
+        }
+    )
 
     @property
     def rule(self) -> OdfSemanticRule:
@@ -546,9 +545,7 @@ class TransitionTypeConstraint(OdfConstraint):
             return errors
 
         for page in content.xpath(".//draw:page", namespaces={"draw": DRAW_NS}):
-            trans_type = page.get(
-                f"{{{PRESENTATION_NS}}}transition-type", ""
-            ).strip()
+            trans_type = page.get(f"{{{PRESENTATION_NS}}}transition-type", "").strip()
             if not trans_type:
                 continue
             if trans_type not in self.VALID_TYPES:
@@ -614,8 +611,7 @@ class NotesPageRefConstraint(OdfConstraint):
                         rule_id="ODFSEMPRES012",
                         error_type=ValidationErrorType.SEMANTIC,
                         description=(
-                            f"Notes page '{page_ref}' does not correspond to "
-                            "an existing draw:page"
+                            f"Notes page '{page_ref}' does not correspond to an existing draw:page"
                         ),
                         part_uri="/styles.xml",
                     )
@@ -626,11 +622,26 @@ class NotesPageRefConstraint(OdfConstraint):
 class PresentationClassConstraint(OdfConstraint):
     """ODFSEMPRES013: presentation:class attribute must be a valid value."""
 
-    VALID_CLASSES = frozenset({
-        "title", "outline", "subtitle", "text", "graphic", "object",
-        "chart", "table", "orgchart", "page", "notes", "handout",
-        "header", "footer", "date-time", "page-number",
-    })
+    VALID_CLASSES = frozenset(
+        {
+            "title",
+            "outline",
+            "subtitle",
+            "text",
+            "graphic",
+            "object",
+            "chart",
+            "table",
+            "orgchart",
+            "page",
+            "notes",
+            "handout",
+            "header",
+            "footer",
+            "date-time",
+            "page-number",
+        }
+    )
 
     @property
     def rule(self) -> OdfSemanticRule:

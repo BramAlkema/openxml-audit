@@ -202,10 +202,7 @@ def test_schema_validator_reports_later_version_attributes_as_undeclared_in_olde
     cases = [
         (
             etree.fromstring(
-                (
-                    f'<w:tblLook xmlns:w="{WORDPROCESSINGML}" '
-                    'w:val="0A" w:firstRow="1"/>'
-                ).encode()
+                (f'<w:tblLook xmlns:w="{WORDPROCESSINGML}" w:val="0A" w:firstRow="1"/>').encode()
             ),
             "firstRow",
         ),
@@ -221,8 +218,7 @@ def test_schema_validator_reports_later_version_attributes_as_undeclared_in_olde
         (
             etree.fromstring(
                 (
-                    f'<x:comment xmlns:x="{SPREADSHEETML}" '
-                    'ref="A1" authorId="0" shapeId="1"/>'
+                    f'<x:comment xmlns:x="{SPREADSHEETML}" ref="A1" authorId="0" shapeId="1"/>'
                 ).encode()
             ),
             "shapeId",
@@ -281,7 +277,7 @@ def test_wordprocessing_shape_allows_google_c_nv_pr_order() -> None:
             "<wps:cNvSpPr/>"
             '<wps:cNvPr id="3" name="Shape 3"/>'
             "<wps:spPr>"
-            "<a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"1\" cy=\"1\"/></a:xfrm>"
+            '<a:xfrm><a:off x="0" y="0"/><a:ext cx="1" cy="1"/></a:xfrm>'
             '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
             "</wps:spPr>"
             "<wps:bodyPr/>"
@@ -305,7 +301,7 @@ def test_wordprocessing_shape_still_allows_sdk_metadata_c_nv_pr_order() -> None:
             '<wps:cNvPr id="3" name="Shape 3"/>'
             "<wps:cNvSpPr/>"
             "<wps:spPr>"
-            "<a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"1\" cy=\"1\"/></a:xfrm>"
+            '<a:xfrm><a:off x="0" y="0"/><a:ext cx="1" cy="1"/></a:xfrm>'
             '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
             "</wps:spPr>"
             "<wps:bodyPr/>"
@@ -453,7 +449,7 @@ def test_chart_style_and_overlap_value_ranges_match_sdk_types() -> None:
 
 def test_spreadsheet_control_rejects_office2010_only_child_in_office2007() -> None:
     control = etree.fromstring(
-        b'<x:control '
+        b"<x:control "
         b'xmlns:x="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
         b'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
         b'shapeId="1" r:id="rId1">'

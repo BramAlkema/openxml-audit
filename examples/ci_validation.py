@@ -91,8 +91,7 @@ def main() -> None:
     if args.parallel > 1:
         with ProcessPoolExecutor(max_workers=args.parallel) as pool:
             futures = {
-                pool.submit(validate_file, str(p), file_format, args.max_errors): p
-                for p in files
+                pool.submit(validate_file, str(p), file_format, args.max_errors): p for p in files
             }
             for future in as_completed(futures):
                 name, is_valid, error_count, errors = future.result()

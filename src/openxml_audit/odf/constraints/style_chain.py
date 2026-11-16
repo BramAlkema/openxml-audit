@@ -137,9 +137,7 @@ class StyleCycleConstraint(OdfConstraint):
                     self._error(
                         rule_id="ODFSEMCHAIN001",
                         error_type=ValidationErrorType.SEMANTIC,
-                        description=(
-                            f"Style inheritance cycle detected involving '{current}'"
-                        ),
+                        description=(f"Style inheritance cycle detected involving '{current}'"),
                         part_uri="/content.xml",
                     )
                 )
@@ -186,9 +184,7 @@ class OrphanedAutoStyleConstraint(OdfConstraint):
                 self._error(
                     rule_id="ODFSEMCHAIN002",
                     error_type=ValidationErrorType.SEMANTIC,
-                    description=(
-                        f"Automatic style '{name}' is declared but never referenced"
-                    ),
+                    description=(f"Automatic style '{name}' is declared but never referenced"),
                     part_uri="/content.xml",
                     severity=ValidationSeverity.WARNING,
                 )
@@ -348,7 +344,10 @@ class MasterPageHeaderFooterConstraint(OdfConstraint):
                     continue
                 cq = etree.QName(child)
                 if cq.namespace == STYLE_NS and cq.localname in (
-                    "header", "footer", "header-left", "footer-left",
+                    "header",
+                    "footer",
+                    "header-left",
+                    "footer-left",
                 ):
                     has_header_footer = True
                     break
@@ -458,9 +457,7 @@ class StyleNameEmptyConstraint(OdfConstraint):
                     self._error(
                         rule_id="ODFSEMCHAIN007",
                         error_type=ValidationErrorType.SEMANTIC,
-                        description=(
-                            f"style:style in {part} has empty or missing style:name"
-                        ),
+                        description=(f"style:style in {part} has empty or missing style:name"),
                         part_uri=self._normalize_part_uri(part),
                     )
                 )
@@ -550,8 +547,7 @@ class DeepInheritanceConstraint(OdfConstraint):
                         rule_id="ODFSEMCHAIN009",
                         error_type=ValidationErrorType.SEMANTIC,
                         description=(
-                            f"Style '{name}' has inheritance depth {depth} "
-                            f"(max {self.MAX_DEPTH})"
+                            f"Style '{name}' has inheritance depth {depth} (max {self.MAX_DEPTH})"
                         ),
                         part_uri="/content.xml",
                         severity=ValidationSeverity.WARNING,

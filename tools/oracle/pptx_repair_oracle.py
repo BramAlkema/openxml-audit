@@ -48,7 +48,6 @@ from typing import Literal
 from openxml_audit.pptx import osa as pptx_osa
 from openxml_audit.pptx.lab import compare_pptx_packages
 
-
 _DEFAULT_STAGE_PARENT = Path.home() / "Documents" / ".pptx_oracle_runs"
 
 
@@ -59,7 +58,7 @@ class RoundtripObservation:
     source_relpath: str
     outcome: Literal[
         "preserved",  # 0 changed/added/removed parts in the package diff
-        "repaired",   # >=1 changed/added/removed parts
+        "repaired",  # >=1 changed/added/removed parts
         "crash",
         "timeout",
         "open_failed",
@@ -279,8 +278,7 @@ def observe_batch(
     keep_artifacts: bool = False,
 ) -> list[RoundtripObservation]:
     return [
-        observe(p, timeout_seconds=timeout_seconds, keep_artifacts=keep_artifacts)
-        for p in inputs
+        observe(p, timeout_seconds=timeout_seconds, keep_artifacts=keep_artifacts) for p in inputs
     ]
 
 
@@ -303,20 +301,29 @@ def _to_jsonable(observations: list[RoundtripObservation]) -> dict:
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("input", nargs="+", type=Path,
-                   help=".pptx files to roundtrip (or directories to walk)")
-    p.add_argument("--output", type=Path, default=None,
-                   help="optional path to write the JSON observation report")
-    p.add_argument("--timeout", type=float, default=60.0,
-                   help="per-file PowerPoint timeout in seconds (default 60)")
-    p.add_argument("--keep-artifacts", action="store_true",
-                   help="leave staging dirs in place for inspection")
+    p.add_argument(
+        "input", nargs="+", type=Path, help=".pptx files to roundtrip (or directories to walk)"
+    )
+    p.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="optional path to write the JSON observation report",
+    )
+    p.add_argument(
+        "--timeout",
+        type=float,
+        default=60.0,
+        help="per-file PowerPoint timeout in seconds (default 60)",
+    )
+    p.add_argument(
+        "--keep-artifacts", action="store_true", help="leave staging dirs in place for inspection"
+    )
     args = p.parse_args()
 
     if not pptx_osa.POWERPOINT_APP_BUNDLE.exists():
         print(
-            "Microsoft PowerPoint not installed at "
-            f"{pptx_osa.POWERPOINT_APP_BUNDLE}",
+            f"Microsoft PowerPoint not installed at {pptx_osa.POWERPOINT_APP_BUNDLE}",
             file=sys.stderr,
         )
         return 2
@@ -333,7 +340,9 @@ def main() -> int:
         return 2
 
     observations = observe_batch(
-        inputs, timeout_seconds=args.timeout, keep_artifacts=args.keep_artifacts,
+        inputs,
+        timeout_seconds=args.timeout,
+        keep_artifacts=args.keep_artifacts,
     )
     report = _to_jsonable(observations)
 
@@ -352,7 +361,9 @@ def main() -> int:
         f"repair_dialog_seen={summary['repair_dialog_seen']}",
         file=sys.stderr,
     )
-    hard = summary["crash"] + summary["timeout"] + summary["open_failed"] + summary["missing_output"]
+    hard = (
+        summary["crash"] + summary["timeout"] + summary["open_failed"] + summary["missing_output"]
+    )
     return 1 if hard > 0 else 0
 
 

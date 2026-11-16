@@ -56,10 +56,12 @@ def _make_snapshot(entries: list[tuple[str, int, str]]) -> dict:
 
 
 def test_compare_reports_zero_drift_when_snapshots_identical() -> None:
-    snap = _make_snapshot([
-        ("Sch_X|schema|/word/document.xml|/document[1]|attr", 5, "sdk_proxy"),
-        ("Sem_Y|semantic|/word/document.xml|/document[1]|word_compat", 2, "word_app_compat"),
-    ])
+    snap = _make_snapshot(
+        [
+            ("Sch_X|schema|/word/document.xml|/document[1]|attr", 5, "sdk_proxy"),
+            ("Sem_Y|semantic|/word/document.xml|/document[1]|word_compat", 2, "word_app_compat"),
+        ]
+    )
     report = compare(snap, snap)
     assert report.new_families == []
     assert report.missing_families == []

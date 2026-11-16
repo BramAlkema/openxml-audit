@@ -33,8 +33,7 @@ class TestStringTypeValidator:
         result = validator.validate("ab")
         assert not result.is_valid
         assert (
-            "minimum" in result.error_message.lower()
-            or "less than" in result.error_message.lower()
+            "minimum" in result.error_message.lower() or "less than" in result.error_message.lower()
         )
 
     def test_max_length(self) -> None:
@@ -47,8 +46,7 @@ class TestStringTypeValidator:
         result = validator.validate("hello!")
         assert not result.is_valid
         assert (
-            "maximum" in result.error_message.lower()
-            or "exceeds" in result.error_message.lower()
+            "maximum" in result.error_message.lower() or "exceeds" in result.error_message.lower()
         )
 
     def test_pattern(self) -> None:
