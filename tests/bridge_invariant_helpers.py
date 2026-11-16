@@ -132,7 +132,7 @@ def extract_enum_type_names(sdk_type: str) -> tuple[str, ...]:
     enum_types: list[str] = []
     start = sdk_type.find(_ENUM_MARKER)
     while start != -1:
-        inner = sdk_type[start + len(_ENUM_MARKER):]
+        inner = sdk_type[start + len(_ENUM_MARKER) :]
         depth = 1
         value: list[str] = []
         for char in inner:
@@ -236,10 +236,7 @@ def collect_live_enum_type_owners() -> dict[str, tuple[str, ...]]:
     for use in collect_live_enum_attribute_uses():
         for enum_type in use.enum_type_names:
             owners[enum_type].add(use.owner)
-    return {
-        enum_type: tuple(sorted(enum_owners))
-        for enum_type, enum_owners in owners.items()
-    }
+    return {enum_type: tuple(sorted(enum_owners)) for enum_type, enum_owners in owners.items()}
 
 
 def get_attribute_for_use(
@@ -254,8 +251,7 @@ def get_attribute_for_use(
     elem = registry.get_type(use.element_type_name)
     if elem is None:
         raise AssertionError(
-            "Unknown SDK element type in invariant helper: "
-            f"{use.element_type_name}"
+            f"Unknown SDK element type in invariant helper: {use.element_type_name}"
         )
 
     for attr in elem.attributes:
@@ -340,10 +336,7 @@ def partition_live_number_validator_uses() -> Counter[str]:
                 partitions["min_bounded"] += 1
             if item_validator.max_value is not None:
                 partitions["max_bounded"] += 1
-            if (
-                item_validator.min_value is not None
-                and Decimal(str(item_validator.min_value)) >= 0
-            ):
+            if item_validator.min_value is not None and Decimal(str(item_validator.min_value)) >= 0:
                 partitions["nonnegative"] += 1
 
     return partitions
@@ -594,14 +587,11 @@ def runtime_has_string_pattern(
 def runtime_has_specialized_string_validator(
     validator: XsdTypeValidator | None,
     validator_type: (
-        type[QNameTypeValidator]
-        | type[NCNameTypeValidator]
-        | type[AnyURITypeValidator]
+        type[QNameTypeValidator] | type[NCNameTypeValidator] | type[AnyURITypeValidator]
     ),
 ) -> bool:
     return any(
-        isinstance(branch, validator_type)
-        for branch in flatten_runtime_validators(validator)
+        isinstance(branch, validator_type) for branch in flatten_runtime_validators(validator)
     )
 
 

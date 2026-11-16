@@ -59,9 +59,7 @@ class SuperthemeValidator:
     def __init__(self, theme_validator: ThemeValidator | None = None) -> None:
         self._theme_validator = theme_validator
 
-    def find_variant_manager(
-        self, package: OpenXmlPackage
-    ) -> str | None:
+    def find_variant_manager(self, package: OpenXmlPackage) -> str | None:
         """Find the themeVariantManager part URI via package relationships."""
         for rel in package.relationships:
             if rel.type == REL_THEME_VARIANT_MANAGER:
@@ -125,9 +123,7 @@ class SuperthemeValidator:
 
         # Validate each variant
         for i, variant in enumerate(variants):
-            self._validate_variant(
-                variant, i, manager_uri, manager_rels, package, context, ns
-            )
+            self._validate_variant(variant, i, manager_uri, manager_rels, package, context, ns)
 
         errors.extend(context.errors)
         return errors
@@ -216,9 +212,7 @@ class SuperthemeValidator:
 
         # Validate variant theme if ThemeValidator available
         if self._theme_validator is not None and target:
-            self._validate_variant_theme(
-                target, package, context, label
-            )
+            self._validate_variant_theme(target, package, context, label)
 
     def _validate_variant_theme(
         self,
@@ -233,7 +227,8 @@ class SuperthemeValidator:
         # pointing to theme/theme1.xml
         variant_part = OpenXmlPart(package, variant_presentation_uri)
         theme_rels = [
-            r for r in variant_part.relationships
+            r
+            for r in variant_part.relationships
             if r.type == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme"
         ]
         if not theme_rels:

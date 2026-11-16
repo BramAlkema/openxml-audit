@@ -105,10 +105,7 @@ def assert_valid_odf(request: pytest.FixtureRequest) -> Callable[[Path | str], N
             lines = [f"  - {e.description}" for e in result.errors[:10]]
             if len(result.errors) > 10:
                 lines.append(f"  ... (+{len(result.errors) - 10} more)")
-            message = (
-                f"ODF validation failed ({result.error_count} errors):\n"
-                + "\n".join(lines)
-            )
+            message = f"ODF validation failed ({result.error_count} errors):\n" + "\n".join(lines)
             pytest.fail(message)
 
     return _assert

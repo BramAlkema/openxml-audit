@@ -7,10 +7,7 @@ from pathlib import Path
 from types import ModuleType
 
 SCRIPT_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "scripts"
-    / "odf"
-    / "run_reference_validators.py"
+    Path(__file__).resolve().parents[1] / "scripts" / "odf" / "run_reference_validators.py"
 )
 
 
@@ -122,9 +119,7 @@ def test_run_reference_runner_runs_command_in_configured_working_dir(
 
     def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
         captured["cwd"] = kwargs.get("cwd")
-        return subprocess.CompletedProcess(
-            args=args[0], returncode=0, stdout="{}", stderr=""
-        )
+        return subprocess.CompletedProcess(args=args[0], returncode=0, stdout="{}", stderr="")
 
     monkeypatch.setattr(module.subprocess, "run", fake_run)
 
@@ -142,9 +137,7 @@ def test_run_reference_runner_runs_command_in_configured_working_dir(
     assert result["status"] == "ok"
 
 
-def test_run_reference_runner_defaults_to_no_working_dir(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_run_reference_runner_defaults_to_no_working_dir(tmp_path: Path, monkeypatch) -> None:
     module = _load_runner_module()
     sample = tmp_path / "sample.odt"
     sample.write_text("stub", encoding="utf-8")
@@ -153,9 +146,7 @@ def test_run_reference_runner_defaults_to_no_working_dir(
 
     def fake_run(*args, **kwargs):  # type: ignore[no-untyped-def]
         captured["cwd"] = kwargs.get("cwd", "MISSING")
-        return subprocess.CompletedProcess(
-            args=args[0], returncode=0, stdout="{}", stderr=""
-        )
+        return subprocess.CompletedProcess(args=args[0], returncode=0, stdout="{}", stderr="")
 
     monkeypatch.setattr(module.subprocess, "run", fake_run)
 
@@ -213,9 +204,7 @@ def test_reference_issue_keys_are_stable_across_staging_directories(
         sample_dir.mkdir(parents=True)
         staged = sample_dir / "invalid_mimetype.odt"
         staged.write_bytes(b"")
-        message = (
-            f"{staged}/mimetype: Error: mimetype is not an ODFMediaTypes mimetype."
-        )
+        message = f"{staged}/mimetype: Error: mimetype is not an ODFMediaTypes mimetype."
         rows = module._reference_issue_rows("odf_toolkit", [message], staged)
         return [row["comparison_key"] for row in rows]
 

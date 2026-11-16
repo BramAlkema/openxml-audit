@@ -51,7 +51,6 @@ from openxml_audit.osa import (  # noqa: F401
     osascript_jxa,
 )
 
-
 # Internal alias used by historical callers.
 _applescript_quote = applescript_quote
 

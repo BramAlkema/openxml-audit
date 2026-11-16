@@ -59,25 +59,25 @@ def _build_minimal_odt(target: Path) -> Path:
     mimetype = b"application/vnd.oasis.opendocument.text"
     content_xml = (
         b'<?xml version="1.0" encoding="UTF-8"?>'
-        b'<office:document-content '
+        b"<office:document-content "
         b'xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" '
         b'xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" '
         b'office:version="1.3">'
-        b'<office:body><office:text>'
-        b'<text:p>hello</text:p>'
-        b'</office:text></office:body>'
-        b'</office:document-content>'
+        b"<office:body><office:text>"
+        b"<text:p>hello</text:p>"
+        b"</office:text></office:body>"
+        b"</office:document-content>"
     )
     manifest_xml = (
         b'<?xml version="1.0" encoding="UTF-8"?>'
-        b'<manifest:manifest '
+        b"<manifest:manifest "
         b'xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" '
         b'manifest:version="1.3">'
         b'<manifest:file-entry manifest:full-path="/" '
         b'manifest:media-type="application/vnd.oasis.opendocument.text"/>'
         b'<manifest:file-entry manifest:full-path="content.xml" '
         b'manifest:media-type="text/xml"/>'
-        b'</manifest:manifest>'
+        b"</manifest:manifest>"
     )
     with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr(zipfile.ZipInfo("mimetype"), mimetype, compress_type=zipfile.ZIP_STORED)
@@ -120,12 +120,15 @@ def test_fingerprint_parts_returns_empty_for_missing_file(tmp_path: Path) -> Non
 
 def test_to_jsonable_summary_counts_outcomes() -> None:
     obs = [
-        RoundtripObservation(source_relpath="a.odt", target_format="odt",
-                             outcome="preserved", duration_seconds=1.0),
-        RoundtripObservation(source_relpath="b.odt", target_format="odt",
-                             outcome="repaired", duration_seconds=2.0),
-        RoundtripObservation(source_relpath="c.odt", target_format="odt",
-                             outcome="crash", duration_seconds=0.5),
+        RoundtripObservation(
+            source_relpath="a.odt", target_format="odt", outcome="preserved", duration_seconds=1.0
+        ),
+        RoundtripObservation(
+            source_relpath="b.odt", target_format="odt", outcome="repaired", duration_seconds=2.0
+        ),
+        RoundtripObservation(
+            source_relpath="c.odt", target_format="odt", outcome="crash", duration_seconds=0.5
+        ),
     ]
     payload = _to_jsonable(obs)
     assert payload["schema_version"] == 1

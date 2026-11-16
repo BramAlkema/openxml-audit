@@ -104,9 +104,7 @@ class ChartSeriesDataRangeConstraint(OdfConstraint):
             if plot_area is None:
                 continue
             for series in plot_area.iter(f"{{{CHART_NS}}}series"):
-                range_addr = series.get(
-                    f"{{{CHART_NS}}}values-cell-range-address", ""
-                ).strip()
+                range_addr = series.get(f"{{{CHART_NS}}}values-cell-range-address", "").strip()
                 # If the attribute is present but empty, that's an error
                 if (
                     series.get(f"{{{CHART_NS}}}values-cell-range-address") is not None
@@ -117,8 +115,7 @@ class ChartSeriesDataRangeConstraint(OdfConstraint):
                             rule_id="ODFSEMCHART003",
                             error_type=ValidationErrorType.SEMANTIC,
                             description=(
-                                "chart:series has empty "
-                                "chart:values-cell-range-address attribute"
+                                "chart:series has empty chart:values-cell-range-address attribute"
                             ),
                             part_uri=self._normalize_part_uri(part_name),
                         )

@@ -34,9 +34,7 @@ class WorkbookValidator:
             REL_MACRO_SHEET,
         }
 
-    def validate(
-        self, part: WorkbookPart, context: ValidationContext
-    ) -> list[ValidationError]:
+    def validate(self, part: WorkbookPart, context: ValidationContext) -> list[ValidationError]:
         """Validate a workbook part."""
         context.set_part(part)
         errors: list[ValidationError] = []

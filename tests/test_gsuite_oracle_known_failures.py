@@ -34,9 +34,7 @@ FIXTURES = REPO_ROOT / "data" / "corpus" / "gsuite_known_failures" / "pptx"
 
 
 def _gsuite_configured() -> bool:
-    creds_default = (
-        Path.home() / ".config" / "openxml-audit" / "google_service_account.json"
-    )
+    creds_default = Path.home() / ".config" / "openxml-audit" / "google_service_account.json"
     has_creds = bool(os.environ.get("GSUITE_ORACLE_CREDS")) or creds_default.exists()
     return (
         has_creds
@@ -47,8 +45,7 @@ def _gsuite_configured() -> bool:
 
 REQUIRES_GSUITE = pytest.mark.skipif(
     not _gsuite_configured(),
-    reason="GSuite oracle requires creds + GSUITE_ORACLE_SUBJECT + "
-           "GSUITE_ORACLE_FOLDER_ID",
+    reason="GSuite oracle requires creds + GSUITE_ORACLE_SUBJECT + GSUITE_ORACLE_FOLDER_ID",
 )
 
 
@@ -63,7 +60,7 @@ def test_bad_fixture_has_stroke_zero_attribute():
     with zipfile.ZipFile(bad) as z:
         slide = z.read("ppt/slides/slide1.xml").decode("utf-8")
     actual = slide.count('stroke="0"')
-    assert actual == 33, f"expected 33 stroke=\"0\" attrs; got {actual}"
+    assert actual == 33, f'expected 33 stroke="0" attrs; got {actual}'
 
 
 def test_good_fixture_does_not_have_stroke_zero_attribute():
@@ -72,7 +69,7 @@ def test_good_fixture_does_not_have_stroke_zero_attribute():
     assert good.exists(), f"missing fixture: {good}"
     with zipfile.ZipFile(good) as z:
         slide = z.read("ppt/slides/slide1.xml").decode("utf-8")
-    assert 'stroke="0"' not in slide, "good fixture should not contain stroke=\"0\""
+    assert 'stroke="0"' not in slide, 'good fixture should not contain stroke="0"'
 
 
 def test_fixtures_have_same_shape_count():

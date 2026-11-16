@@ -447,7 +447,7 @@ def get_xsd_type_name(sdk_type: str) -> str:
 def _extract_wrapped_sdk_type_name(sdk_type: str, wrapper_name: str) -> str | None:
     wrapper = f"{wrapper_name}<"
     if sdk_type.startswith(wrapper) and sdk_type.endswith(">"):
-        return sdk_type[len(wrapper):-1]
+        return sdk_type[len(wrapper) : -1]
     return None
 
 
@@ -510,8 +510,7 @@ def get_enum_values(enum_type_name: str) -> list[str] | None:
     )
 
 
-def _load_schema_enum_values(
-) -> tuple[
+def _load_schema_enum_values() -> tuple[
     dict[str, list[str]],
     dict[str, list[str]],
     dict[str, list[tuple[str, list[str]]]],
@@ -561,9 +560,7 @@ def _load_schema_enum_values(
 
     _schema_enum_values_by_type = values_by_type
     _schema_enum_values_by_name = {
-        name: values
-        for name, values in values_by_name.items()
-        if values is not None
+        name: values for name, values in values_by_name.items() if values is not None
     }
     _schema_enum_candidates_by_name = candidates_by_name
     return (

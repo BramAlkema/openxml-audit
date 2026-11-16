@@ -58,7 +58,6 @@ def _base_files() -> dict[str, str]:
 
 
 class TestCoreProperties:
-
     def test_valid_core_properties(self, tmp_path: Path) -> None:
         files = _base_files()
         files["_rels/.rels"] = _RELS.format(
@@ -81,7 +80,11 @@ class TestCoreProperties:
 </cp:coreProperties>"""
         pkg = _build_pkg(tmp_path, "valid_core.docx", files)
         result = OpenXmlValidator(schema_validation=False).validate(pkg)
-        core_errors = [e for e in result.errors if "core" in e.description.lower() or "coreProperties" in e.description]
+        core_errors = [
+            e
+            for e in result.errors
+            if "core" in e.description.lower() or "coreProperties" in e.description
+        ]
         assert core_errors == [], [e.description for e in core_errors]
 
     def test_core_bad_root(self, tmp_path: Path) -> None:
@@ -120,7 +123,6 @@ class TestCoreProperties:
 
 
 class TestExtendedProperties:
-
     def test_valid_extended_properties(self, tmp_path: Path) -> None:
         files = _base_files()
         files["_rels/.rels"] = _RELS.format(
@@ -140,7 +142,11 @@ class TestExtendedProperties:
 </Properties>"""
         pkg = _build_pkg(tmp_path, "valid_app.docx", files)
         result = OpenXmlValidator(schema_validation=False).validate(pkg)
-        app_errors = [e for e in result.errors if "extended" in e.description.lower() or "Extended" in e.description]
+        app_errors = [
+            e
+            for e in result.errors
+            if "extended" in e.description.lower() or "Extended" in e.description
+        ]
         assert app_errors == [], [e.description for e in app_errors]
 
     def test_extended_bad_int(self, tmp_path: Path) -> None:
@@ -213,7 +219,6 @@ class TestExtendedProperties:
 
 
 class TestCustomProperties:
-
     def test_valid_custom_properties(self, tmp_path: Path) -> None:
         files = _base_files()
         files["_rels/.rels"] = _RELS.format(
@@ -229,7 +234,11 @@ class TestCustomProperties:
 </Properties>"""
         pkg = _build_pkg(tmp_path, "valid_custom.docx", files)
         result = OpenXmlValidator(schema_validation=False).validate(pkg)
-        custom_errors = [e for e in result.errors if "custom" in e.description.lower() or "Custom" in e.description]
+        custom_errors = [
+            e
+            for e in result.errors
+            if "custom" in e.description.lower() or "Custom" in e.description
+        ]
         assert custom_errors == [], [e.description for e in custom_errors]
 
     def test_custom_duplicate_name(self, tmp_path: Path) -> None:
@@ -288,7 +297,6 @@ class TestCustomProperties:
 
 
 class TestStylesWithEffects:
-
     def _word_files_with_swe(self, swe_xml: str, styles_xml: str | None = None) -> dict[str, str]:
         doc_rels = """\
 <?xml version="1.0" encoding="UTF-8"?>
@@ -379,9 +387,9 @@ class TestStylesWithEffects:
         result = OpenXmlValidator(schema_validation=False).validate(pkg)
         matching = [e for e in result.errors if "OrphanStyle" in e.description]
         assert matching, [e.description for e in result.errors]
-        assert all(
-            e.severity == ValidationSeverity.ERROR for e in matching
-        ), [(e.severity, e.description) for e in matching]
+        assert all(e.severity == ValidationSeverity.ERROR for e in matching), [
+            (e.severity, e.description) for e in matching
+        ]
 
     def test_swe_styles_missing_from_effects(self, tmp_path: Path) -> None:
         """Styles in styles.xml but not in stylesWithEffects are an ERROR.
@@ -408,13 +416,14 @@ class TestStylesWithEffects:
         pkg = _build_pkg(tmp_path, "missing_in_swe.docx", files)
         result = OpenXmlValidator(schema_validation=False).validate(pkg)
         matching = [
-            e for e in result.errors
+            e
+            for e in result.errors
             if "stylesWithEffects" in e.description and "Hyperlink" in e.description
         ]
         assert matching, [e.description for e in result.errors]
-        assert all(
-            e.severity == ValidationSeverity.ERROR for e in matching
-        ), [(e.severity, e.description) for e in matching]
+        assert all(e.severity == ValidationSeverity.ERROR for e in matching), [
+            (e.severity, e.description) for e in matching
+        ]
         assert any("Header" in e.description for e in matching)
 
     def test_swe_doc_defaults_differ(self, tmp_path: Path) -> None:
@@ -465,7 +474,8 @@ class TestStylesWithEffects:
         pkg = _build_pkg(tmp_path, "doc_defaults_one_sided.docx", files)
         result = OpenXmlValidator(schema_validation=False).validate(pkg)
         matching = [
-            e for e in result.errors
+            e
+            for e in result.errors
             if "docDefaults" in e.description and "missing" in e.description
         ]
         assert matching, [e.description for e in result.errors]
@@ -487,10 +497,16 @@ class TestStylesWithEffects:
         pkg = _build_pkg(tmp_path, "consistent.docx", files)
         result = OpenXmlValidator(schema_validation=False).validate(pkg)
         consistency_errors = [
-            e for e in result.errors
+            e
+            for e in result.errors
             if any(
                 marker in e.description
-                for marker in ("docDefaults", "differ", "not in styles.xml", "not in stylesWithEffects")
+                for marker in (
+                    "docDefaults",
+                    "differ",
+                    "not in styles.xml",
+                    "not in stylesWithEffects",
+                )
             )
         ]
         assert consistency_errors == [], [e.description for e in consistency_errors]

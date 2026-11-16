@@ -54,9 +54,7 @@ class ContentTypes:
         return self.defaults.get(ext)
 
     @classmethod
-    def from_xml(
-        cls, xml_content: bytes
-    ) -> tuple[ContentTypes, list[str]]:
+    def from_xml(cls, xml_content: bytes) -> tuple[ContentTypes, list[str]]:
         """Parse [Content_Types].xml content.
 
         Returns a tuple of (ContentTypes, list of warning messages).
@@ -72,9 +70,7 @@ class ContentTypes:
         ns = {"ct": CONTENT_TYPES}
 
         # Detect escaped XML elements in text content (e.g. &lt;Override ...&gt;)
-        all_text = (root.text or "") + "".join(
-            child.tail or "" for child in root
-        )
+        all_text = (root.text or "") + "".join(child.tail or "" for child in root)
         if "<Override " in all_text or "<Default " in all_text:
             warnings.append(
                 "[Content_Types].xml contains escaped XML markup as text "

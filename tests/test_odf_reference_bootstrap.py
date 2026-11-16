@@ -5,10 +5,7 @@ from pathlib import Path
 from types import ModuleType
 
 SCRIPT_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "scripts"
-    / "odf"
-    / "bootstrap_reference_validators.py"
+    Path(__file__).resolve().parents[1] / "scripts" / "odf" / "bootstrap_reference_validators.py"
 )
 
 

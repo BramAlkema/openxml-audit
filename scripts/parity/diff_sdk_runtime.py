@@ -35,16 +35,15 @@ _NS_PREFIX_RE = re.compile(r"/[a-zA-Z][a-zA-Z0-9]*:")
 def strip_ns_prefixes(path: str) -> str:
     return _NS_PREFIX_RE.sub("/", path) if path else path
 
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC = REPO_ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from openxml_audit.errors import ValidationError, ValidationErrorType
+from openxml_audit.errors import FileFormat, ValidationError, ValidationErrorType
 from openxml_audit.parity_normalization import normalize_error_tuple
 from openxml_audit.validator import OpenXmlValidator
-from openxml_audit.errors import FileFormat
-
 
 PY_FORMAT_BY_NAME = {
     "Office2007": FileFormat.OFFICE_2007,
@@ -116,28 +115,35 @@ def diff_one(file_path: Path, relpath: str, sdk_versions: list[dict]) -> list[Fa
             for k in (set(py_keys) & set(sdk_keys))
             if py_keys[k] != sdk_keys[k]
         }
-        deltas.append(FamilyDelta(
-            file=relpath,
-            version=version,
-            py_count=sum(py_keys.values()),
-            sdk_count=sum(sdk_keys.values()),
-            only_py=only_py,
-            only_sdk=only_sdk,
-            common_count_diffs=common_diffs,
-        ))
+        deltas.append(
+            FamilyDelta(
+                file=relpath,
+                version=version,
+                py_count=sum(py_keys.values()),
+                sdk_count=sum(sdk_keys.values()),
+                only_py=only_py,
+                only_sdk=only_sdk,
+                common_count_diffs=common_diffs,
+            )
+        )
     return deltas
 
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--sdk-runtime", required=True, type=Path,
-                   help="path to SDK runtime snapshot JSON")
-    p.add_argument("--files-root", required=True, type=Path,
-                   help="corpus root (same as the one passed to the .NET runner)")
-    p.add_argument("--filter", default=None,
-                   help="optional substring filter on source_relpath")
-    p.add_argument("--only-deltas", action="store_true",
-                   help="only print files that have at least one delta")
+    p.add_argument(
+        "--sdk-runtime", required=True, type=Path, help="path to SDK runtime snapshot JSON"
+    )
+    p.add_argument(
+        "--files-root",
+        required=True,
+        type=Path,
+        help="corpus root (same as the one passed to the .NET runner)",
+    )
+    p.add_argument("--filter", default=None, help="optional substring filter on source_relpath")
+    p.add_argument(
+        "--only-deltas", action="store_true", help="only print files that have at least one delta"
+    )
     args = p.parse_args()
 
     snap = load_sdk_runtime(args.sdk_runtime)
@@ -153,10 +159,7 @@ def main() -> int:
             print(f"SKIP {relpath}: not found at {file_path}")
             continue
         deltas = diff_one(file_path, relpath, f["validations"])
-        any_delta = any(
-            d.only_py or d.only_sdk or d.common_count_diffs
-            for d in deltas
-        )
+        any_delta = any(d.only_py or d.only_sdk or d.common_count_diffs for d in deltas)
         if args.only_deltas and not any_delta:
             continue
         if any_delta:

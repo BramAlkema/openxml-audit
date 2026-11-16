@@ -171,9 +171,7 @@ class EmbeddedObjectRefConstraint(OdfConstraint):
                     self._error(
                         rule_id="ODFSEMREF004",
                         error_type=ValidationErrorType.SEMANTIC,
-                        description=(
-                            f"Embedded object href '{href}' does not resolve in package"
-                        ),
+                        description=(f"Embedded object href '{href}' does not resolve in package"),
                         part_uri="/content.xml",
                     )
                 )
@@ -212,9 +210,7 @@ class ImageRefConstraint(OdfConstraint):
                     self._error(
                         rule_id="ODFSEMREF005",
                         error_type=ValidationErrorType.SEMANTIC,
-                        description=(
-                            f"Image href '{href}' does not resolve in package"
-                        ),
+                        description=(f"Image href '{href}' does not resolve in package"),
                         part_uri="/content.xml",
                     )
                 )

@@ -96,16 +96,12 @@ def test_output_missing_parent_reports_missing() -> None:
 
 
 def test_added_child_repaired() -> None:
-    result = diff_property_fragment(
-        "trPr", ["cantSplit"], ["cantSplit", "tblHeader"]
-    )
+    result = diff_property_fragment("trPr", ["cantSplit"], ["cantSplit", "tblHeader"])
     assert result.verdict == "repaired"
 
 
 def test_removed_child_repaired() -> None:
-    result = diff_property_fragment(
-        "trPr", ["cantSplit", "tblHeader"], ["cantSplit"]
-    )
+    result = diff_property_fragment("trPr", ["cantSplit", "tblHeader"], ["cantSplit"])
     assert result.verdict == "repaired"
 
 
@@ -113,9 +109,7 @@ def test_removed_child_repaired() -> None:
 
 
 def test_extract_first_returns_children_in_order(tmp_path: Path) -> None:
-    docx = _build_docx_with_trpr(
-        tmp_path, "extract.docx", "<w:cantSplit/><w:tblHeader/>"
-    )
+    docx = _build_docx_with_trpr(tmp_path, "extract.docx", "<w:cantSplit/><w:tblHeader/>")
     children = extract_first(str(docx), "trPr", W)
     assert children == ["cantSplit", "tblHeader"]
 
