@@ -301,10 +301,7 @@ def main() -> int:
         "--waivers",
         type=Path,
         default=DEFAULT_WAIVERS,
-        help=(
-            "Optional waiver file path "
-            f"(default: {DEFAULT_WAIVERS}, ignored if missing)."
-        ),
+        help=(f"Optional waiver file path (default: {DEFAULT_WAIVERS}, ignored if missing)."),
     )
     parser.add_argument(
         "--max-mismatch-growth",
@@ -434,8 +431,7 @@ def main() -> int:
         waiver = _find_waiver(waivers, "mismatch_growth")
         if waiver is not None:
             waived_failures.append(
-                "Mismatch growth waiver applied "
-                f"(owner={waiver.owner}, expires={waiver.expires})."
+                f"Mismatch growth waiver applied (owner={waiver.owner}, expires={waiver.expires})."
             )
         else:
             failures.append(
@@ -451,8 +447,7 @@ def main() -> int:
         waiver = _find_waiver(waivers, "match_rate_drop")
         if waiver is not None:
             waived_failures.append(
-                "Match-rate drop waiver applied "
-                f"(owner={waiver.owner}, expires={waiver.expires})."
+                f"Match-rate drop waiver applied (owner={waiver.owner}, expires={waiver.expires})."
             )
         else:
             failures.append(
@@ -463,8 +458,7 @@ def main() -> int:
         waiver = _find_waiver(waivers, "missing_files")
         if waiver is not None:
             waived_failures.append(
-                "Missing-files waiver applied "
-                f"(owner={waiver.owner}, expires={waiver.expires})."
+                f"Missing-files waiver applied (owner={waiver.owner}, expires={waiver.expires})."
             )
         else:
             failures.append(
@@ -475,8 +469,7 @@ def main() -> int:
         waiver = _find_waiver(waivers, "check_total_drop")
         if waiver is not None:
             waived_failures.append(
-                "Check-total-drop waiver applied "
-                f"(owner={waiver.owner}, expires={waiver.expires})."
+                f"Check-total-drop waiver applied (owner={waiver.owner}, expires={waiver.expires})."
             )
         else:
             failures.append(
@@ -487,8 +480,7 @@ def main() -> int:
         waiver = _find_waiver(waivers, "strict_mode")
         if waiver is not None:
             waived_failures.append(
-                "Strict-mode waiver applied "
-                f"(owner={waiver.owner}, expires={waiver.expires})."
+                f"Strict-mode waiver applied (owner={waiver.owner}, expires={waiver.expires})."
             )
         else:
             failures.append(

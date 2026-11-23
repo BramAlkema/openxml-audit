@@ -43,7 +43,6 @@ import zipfile
 from pathlib import Path
 from typing import Literal
 
-
 # Per-format content-type / mimetype transformations.
 #
 # OOXML: the [Content_Types].xml lists Override entries by part name.
@@ -73,12 +72,18 @@ _OOXML_CT_SWAPS = {
 }
 
 _ODF_MIMETYPE_SWAPS = {
-    "odt": (b"application/vnd.oasis.opendocument.text-template",
-            b"application/vnd.oasis.opendocument.text"),
-    "ods": (b"application/vnd.oasis.opendocument.spreadsheet-template",
-            b"application/vnd.oasis.opendocument.spreadsheet"),
-    "odp": (b"application/vnd.oasis.opendocument.presentation-template",
-            b"application/vnd.oasis.opendocument.presentation"),
+    "odt": (
+        b"application/vnd.oasis.opendocument.text-template",
+        b"application/vnd.oasis.opendocument.text",
+    ),
+    "ods": (
+        b"application/vnd.oasis.opendocument.spreadsheet-template",
+        b"application/vnd.oasis.opendocument.spreadsheet",
+    ),
+    "odp": (
+        b"application/vnd.oasis.opendocument.presentation-template",
+        b"application/vnd.oasis.opendocument.presentation",
+    ),
 }
 
 
@@ -122,8 +127,7 @@ def _swap_odf_mimetype(package_bytes: bytes, target: str) -> bytes:
                     # mimetype must be the first entry and stored
                     # uncompressed per the ODF spec; preserve that.
                     info_uncompressed = zipfile.ZipInfo("mimetype")
-                    dst.writestr(info_uncompressed, data,
-                                 compress_type=zipfile.ZIP_STORED)
+                    dst.writestr(info_uncompressed, data, compress_type=zipfile.ZIP_STORED)
                     continue
                 if info.filename == "META-INF/manifest.xml":
                     data = data.replace(template_mime, document_mime)
@@ -147,13 +151,13 @@ def build_minimal_ir(
     TokenMoulds tree is the canonical reference; resolved relative
     to wherever TokenMoulds is installed.
     """
-    from tokenmoulds.dtcg.generator import TokenGenerator
-    from tokenmoulds.ir.builder import build_document_ir
-
     # Resolve the font_metrics_cache path relative to TokenMoulds'
     # source tree. The package itself doesn't expose this as a
     # public path; use its module file to locate the project root.
     import tokenmoulds
+    from tokenmoulds.dtcg.generator import TokenGenerator
+    from tokenmoulds.ir.builder import build_document_ir
+
     tm_root = Path(tokenmoulds.__file__).resolve().parents[2]
     metrics_cache = tm_root / "data" / "fonts" / "cache" / "metrics.json"
     if not metrics_cache.exists():
@@ -248,8 +252,12 @@ def build_corpus(output_dir: Path) -> dict[str, list[Path]]:
     """Build the full corpus under `output_dir`. Returns a per-format
     mapping of files written."""
     written: dict[str, list[Path]] = {
-        "docx": [], "xlsx": [], "pptx": [],
-        "odt": [], "ods": [], "odp": [],
+        "docx": [],
+        "xlsx": [],
+        "pptx": [],
+        "odt": [],
+        "ods": [],
+        "odp": [],
     }
     for org_id, locale in _ORGS:
         ir = build_minimal_ir(org_id=org_id, locale=locale)
@@ -268,19 +276,23 @@ def build_corpus(output_dir: Path) -> dict[str, list[Path]]:
             try:
                 size = fn(ir, target)
                 written[ext].append(target)
-                print(f"  ✓ {target.relative_to(output_dir)} ({size:,} bytes)",
-                      file=sys.stderr)
+                print(f"  ✓ {target.relative_to(output_dir)} ({size:,} bytes)", file=sys.stderr)
             except Exception as exc:
-                print(f"  ✗ {target.relative_to(output_dir)}: {type(exc).__name__}: {exc}",
-                      file=sys.stderr)
+                print(
+                    f"  ✗ {target.relative_to(output_dir)}: {type(exc).__name__}: {exc}",
+                    file=sys.stderr,
+                )
     return written
 
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--output-dir", type=Path,
-                   default=Path("data/corpus/tokenmoulds_v0.7.2"),
-                   help="root of the generated corpus tree")
+    p.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("data/corpus/tokenmoulds_v0.7.2"),
+        help="root of the generated corpus tree",
+    )
     args = p.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -288,9 +300,10 @@ def main() -> int:
     written = build_corpus(args.output_dir)
 
     total = sum(len(v) for v in written.values())
-    print(f"\nTotal: {total} files emitted across "
-          f"{sum(1 for v in written.values() if v)} formats",
-          file=sys.stderr)
+    print(
+        f"\nTotal: {total} files emitted across {sum(1 for v in written.values() if v)} formats",
+        file=sys.stderr,
+    )
     return 0 if total > 0 else 1
 
 

@@ -40,7 +40,7 @@ def test_forgejo_self_parity_is_blocking_and_can_materialize_corpus() -> None:
 
     assert "continue-on-error" not in workflow
     assert "data/corpus/self_parity_baseline/v0.8.0/snapshot.json" in workflow
-    assert "--branch \"$SDK_REF\"" in workflow
+    assert '--branch "$SDK_REF"' in workflow
     assert "scripts/corpus/import_sdk_assets.py" in workflow
 
 

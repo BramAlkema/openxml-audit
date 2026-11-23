@@ -120,12 +120,9 @@ def test_get_enum_values_falls_back_to_schema_enum_definitions(
     monkeypatch.setattr(schema_loader, "_schema_enum_candidates_by_name", None)
 
     assert schema_loader.get_enum_values("p:ST_TLTimeIndefinite") == ["indefinite"]
-    assert (
-        schema_loader.get_enum_values(
-            "DocumentFormat.OpenXml.Presentation.IndefiniteTimeDeclarationValues"
-        )
-        == ["indefinite"]
-    )
+    assert schema_loader.get_enum_values(
+        "DocumentFormat.OpenXml.Presentation.IndefiniteTimeDeclarationValues"
+    ) == ["indefinite"]
 
 
 def test_get_enum_values_uses_dotnet_namespace_to_resolve_ambiguous_enum_names(
@@ -208,10 +205,9 @@ def test_get_enum_values_uses_dotnet_namespace_to_resolve_ambiguous_enum_names(
     assert schema_loader.get_enum_values(
         "DocumentFormat.OpenXml.Drawing.ColorSchemeIndexValues"
     ) == ["dk1", "lt1"]
-    assert (
-        schema_loader.get_enum_values("DocumentFormat.OpenXml.Wordprocessing.ColorSchemeIndexValues")
-        == ["dark1", "light1"]
-    )
+    assert schema_loader.get_enum_values(
+        "DocumentFormat.OpenXml.Wordprocessing.ColorSchemeIndexValues"
+    ) == ["dark1", "light1"]
 
 
 def test_get_enum_values_uses_dotnet_namespace_to_resolve_three_way_short_name_collisions(
@@ -264,15 +260,23 @@ def test_get_enum_values_uses_dotnet_namespace_to_resolve_three_way_short_name_c
     monkeypatch.setattr(schema_loader, "_schema_enum_values_by_name", None)
     monkeypatch.setattr(schema_loader, "_schema_enum_candidates_by_name", None)
 
-    assert schema_loader.get_enum_values(
-        "DocumentFormat.OpenXml.Wordprocessing.StyleValues"
-    ) == ["paragraph", "character", "table", "numbering"]
-    assert schema_loader.get_enum_values(
-        "DocumentFormat.OpenXml.Office2010.Word.StyleValues"
-    ) == ["normal", "warning", "error"]
-    assert schema_loader.get_enum_values(
-        "DocumentFormat.OpenXml.Math.StyleValues"
-    ) == ["p", "b", "i", "bi"]
+    assert schema_loader.get_enum_values("DocumentFormat.OpenXml.Wordprocessing.StyleValues") == [
+        "paragraph",
+        "character",
+        "table",
+        "numbering",
+    ]
+    assert schema_loader.get_enum_values("DocumentFormat.OpenXml.Office2010.Word.StyleValues") == [
+        "normal",
+        "warning",
+        "error",
+    ]
+    assert schema_loader.get_enum_values("DocumentFormat.OpenXml.Math.StyleValues") == [
+        "p",
+        "b",
+        "i",
+        "bi",
+    ]
 
 
 def test_get_enum_values_resolves_diagram_and_customui_short_name_collisions(

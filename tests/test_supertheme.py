@@ -194,9 +194,7 @@ def _supertheme_files(
             f'\n  <Override PartName="/themeVariants/variant{i}/theme/presentation.xml" '
             'ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/>'
         )
-    files["[Content_Types].xml"] = _CONTENT_TYPES_TEMPLATE.format(
-        extra_overrides=extra_ct
-    )
+    files["[Content_Types].xml"] = _CONTENT_TYPES_TEMPLATE.format(extra_overrides=extra_ct)
 
     # Variant manager XML
     if manager_content is not None:
@@ -235,9 +233,7 @@ def _supertheme_files(
         for i in range(1, variant_count + 1):
             prefix = f"themeVariants/variant{i}/theme"
             files[f"{prefix}/presentation.xml"] = _PRESENTATION_XML
-            files[f"{prefix}/_rels/presentation.xml.rels"] = (
-                _VARIANT_PRESENTATION_RELS_TEMPLATE
-            )
+            files[f"{prefix}/_rels/presentation.xml.rels"] = _VARIANT_PRESENTATION_RELS_TEMPLATE
             files[f"{prefix}/theme/theme1.xml"] = variant_theme_xml
 
     return files
@@ -256,7 +252,8 @@ class TestSuperthemeValidation:
         result = validator.validate(thmx)
         # Filter to only supertheme-relevant errors
         st_errors = [
-            e for e in result.errors
+            e
+            for e in result.errors
             if "themeVariant" in e.description or "variant" in e.description.lower()
         ]
         assert st_errors == [], [e.description for e in st_errors]
@@ -268,10 +265,7 @@ class TestSuperthemeValidation:
 
         validator = OpenXmlValidator(schema_validation=False)
         result = validator.validate(thmx)
-        st_errors = [
-            e for e in result.errors
-            if "themeVariant" in e.description
-        ]
+        st_errors = [e for e in result.errors if "themeVariant" in e.description]
         assert st_errors == []
 
     def test_missing_variant_list(self, tmp_path: Path) -> None:
@@ -311,10 +305,10 @@ class TestSuperthemeValidation:
         files = _base_pptx_files()
         # Build custom manager content with a variant missing name
         manager_content = (
-            '<t:themeVariantLst>'
+            "<t:themeVariantLst>"
             '<t:themeVariant vid="{00000001-0000-0000-0000-000000000000}" '
             'cx="12192000" cy="6858000" r:id="rId1"/>'
-            '</t:themeVariantLst>'
+            "</t:themeVariantLst>"
         )
         files.update(
             _supertheme_files(
@@ -333,10 +327,10 @@ class TestSuperthemeValidation:
         """themeVariant with invalid vid (not a GUID) should error."""
         files = _base_pptx_files()
         manager_content = (
-            '<t:themeVariantLst>'
+            "<t:themeVariantLst>"
             '<t:themeVariant name="Bad GUID" vid="not-a-guid" '
             'cx="12192000" cy="6858000" r:id="rId1"/>'
-            '</t:themeVariantLst>'
+            "</t:themeVariantLst>"
         )
         files.update(
             _supertheme_files(
@@ -355,11 +349,11 @@ class TestSuperthemeValidation:
         """themeVariant with negative cx/cy should error."""
         files = _base_pptx_files()
         manager_content = (
-            '<t:themeVariantLst>'
+            "<t:themeVariantLst>"
             '<t:themeVariant name="Bad Dims" '
             'vid="{00000001-0000-0000-0000-000000000000}" '
             'cx="-1" cy="6858000" r:id="rId1"/>'
-            '</t:themeVariantLst>'
+            "</t:themeVariantLst>"
         )
         files.update(
             _supertheme_files(
@@ -378,11 +372,11 @@ class TestSuperthemeValidation:
         """themeVariant r:id pointing to nonexistent relationship should error."""
         files = _base_pptx_files()
         manager_content = (
-            '<t:themeVariantLst>'
+            "<t:themeVariantLst>"
             '<t:themeVariant name="Orphan" '
             'vid="{00000001-0000-0000-0000-000000000000}" '
             'cx="12192000" cy="6858000" r:id="rId99"/>'
-            '</t:themeVariantLst>'
+            "</t:themeVariantLst>"
         )
         # Empty rels (no rId99)
         empty_rels = _VARIANT_MANAGER_RELS_TEMPLATE.format(rels="")

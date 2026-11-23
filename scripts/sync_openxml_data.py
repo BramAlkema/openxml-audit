@@ -188,18 +188,12 @@ def main() -> None:
     """Main entry point."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Sync Open XML SDK data files"
+    parser = argparse.ArgumentParser(description="Sync Open XML SDK data files")
+    parser.add_argument(
+        "--force", "-f", action="store_true", help="Force re-download even if up to date"
     )
     parser.add_argument(
-        "--force", "-f",
-        action="store_true",
-        help="Force re-download even if up to date"
-    )
-    parser.add_argument(
-        "--check", "-c",
-        action="store_true",
-        help="Check for updates without downloading"
+        "--check", "-c", action="store_true", help="Check for updates without downloading"
     )
     parser.add_argument(
         "--ref",

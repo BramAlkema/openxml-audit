@@ -31,9 +31,7 @@ class IndexReferenceConstraint(SemanticConstraint):
     zero_based: bool = True
     namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
@@ -105,9 +103,7 @@ class ReferenceExistConstraint(SemanticConstraint):
     namespace: str | None = None
     target_namespace: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:
@@ -121,7 +117,10 @@ class ReferenceExistConstraint(SemanticConstraint):
         # Search for element with matching ID
         try:
             xpath = f"{self.target_xpath}[@{self.id_attribute}='{ref_id}']"
-            matches = root.xpath(xpath, namespaces={"p": "http://schemas.openxmlformats.org/presentationml/2006/main"})
+            matches = root.xpath(
+                xpath,
+                namespaces={"p": "http://schemas.openxmlformats.org/presentationml/2006/main"},
+            )
             if not matches:
                 context.add_semantic_error(
                     f"Reference '{self.attribute}' value '{ref_id}' does not match any element",
@@ -149,9 +148,7 @@ class UniqueAttributeValueConstraint(SemanticConstraint):
     case_sensitive: bool = True
     element_tag: str | None = None
 
-    def validate(
-        self, element: etree._Element, context: ValidationContext
-    ) -> bool:
+    def validate(self, element: etree._Element, context: ValidationContext) -> bool:
         attr_name = f"{{{self.namespace}}}{self.attribute}" if self.namespace else self.attribute
 
         if attr_name not in element.attrib:

@@ -187,8 +187,7 @@ def list_open_document_names() -> list[str]:
     """
     try:
         out = osascript(
-            f'tell application "{WORD_PROCESS_NAME}" to '
-            "return name of every document as string",
+            f'tell application "{WORD_PROCESS_NAME}" to return name of every document as string',
             timeout=10.0,
         )
     except (RuntimeError, subprocess.TimeoutExpired):

@@ -128,8 +128,7 @@ class StringTypeValidator(XsdTypeValidator):
             return TypeValidationResult(
                 is_valid=False,
                 error_message=(
-                    f"Value '{value}' is not in allowed values: "
-                    f"{sorted(self.enumeration)}"
+                    f"Value '{value}' is not in allowed values: {sorted(self.enumeration)}"
                 ),
             )
 
@@ -425,8 +424,7 @@ class HexBinaryTypeValidator(XsdTypeValidator):
             return TypeValidationResult(
                 is_valid=False,
                 error_message=(
-                    f"hexBinary length {len(value) // 2} "
-                    f"does not match required {self.length}"
+                    f"hexBinary length {len(value) // 2} does not match required {self.length}"
                 ),
             )
 
@@ -600,9 +598,7 @@ class UnionTypeValidator(XsdTypeValidator):
 
         return TypeValidationResult(
             is_valid=False,
-            error_message=(
-                f"Value '{value}' does not match any union member type"
-            ),
+            error_message=(f"Value '{value}' does not match any union member type"),
         )
 
 

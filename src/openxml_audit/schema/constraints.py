@@ -115,15 +115,17 @@ def _create_pptx_constraints() -> ElementConstraintRegistry:
                 required=False,
             ),
         ],
-        content_model=SequenceParticle(children=[
-            ElementParticle(PRESENTATIONML, "sldMasterIdLst", min_occurs=0),
-            ElementParticle(PRESENTATIONML, "notesMasterIdLst", min_occurs=0),
-            ElementParticle(PRESENTATIONML, "handoutMasterIdLst", min_occurs=0),
-            ElementParticle(PRESENTATIONML, "sldIdLst", min_occurs=0),
-            ElementParticle(PRESENTATIONML, "sldSz", min_occurs=0),
-            ElementParticle(PRESENTATIONML, "notesSz", min_occurs=1),
-            AnyParticle(namespace_constraint="##other", min_occurs=0, max_occurs=-1),
-        ]),
+        content_model=SequenceParticle(
+            children=[
+                ElementParticle(PRESENTATIONML, "sldMasterIdLst", min_occurs=0),
+                ElementParticle(PRESENTATIONML, "notesMasterIdLst", min_occurs=0),
+                ElementParticle(PRESENTATIONML, "handoutMasterIdLst", min_occurs=0),
+                ElementParticle(PRESENTATIONML, "sldIdLst", min_occurs=0),
+                ElementParticle(PRESENTATIONML, "sldSz", min_occurs=0),
+                ElementParticle(PRESENTATIONML, "notesSz", min_occurs=1),
+                AnyParticle(namespace_constraint="##other", min_occurs=0, max_occurs=-1),
+            ]
+        ),
     )
     registry.register(presentation)
 
@@ -151,13 +153,15 @@ def _create_pptx_constraints() -> ElementConstraintRegistry:
                 required=False,
             ),
         ],
-        content_model=SequenceParticle(children=[
-            ElementParticle(PRESENTATIONML, "cSld", min_occurs=1),
-            ElementParticle(PRESENTATIONML, "clrMapOvr", min_occurs=0),
-            ElementParticle(PRESENTATIONML, "transition", min_occurs=0),
-            ElementParticle(PRESENTATIONML, "timing", min_occurs=0),
-            AnyParticle(namespace_constraint="##other", min_occurs=0, max_occurs=-1),
-        ]),
+        content_model=SequenceParticle(
+            children=[
+                ElementParticle(PRESENTATIONML, "cSld", min_occurs=1),
+                ElementParticle(PRESENTATIONML, "clrMapOvr", min_occurs=0),
+                ElementParticle(PRESENTATIONML, "transition", min_occurs=0),
+                ElementParticle(PRESENTATIONML, "timing", min_occurs=0),
+                AnyParticle(namespace_constraint="##other", min_occurs=0, max_occurs=-1),
+            ]
+        ),
     )
     registry.register(slide)
 
@@ -173,13 +177,15 @@ def _create_pptx_constraints() -> ElementConstraintRegistry:
                 required=False,
             ),
         ],
-        content_model=SequenceParticle(children=[
-            ElementParticle(PRESENTATIONML, "bg", min_occurs=0),
-            ElementParticle(PRESENTATIONML, "spTree", min_occurs=1),
-            ElementParticle(PRESENTATIONML, "custDataLst", min_occurs=0),
-            ElementParticle(PRESENTATIONML, "controls", min_occurs=0),
-            AnyParticle(namespace_constraint="##other", min_occurs=0, max_occurs=-1),
-        ]),
+        content_model=SequenceParticle(
+            children=[
+                ElementParticle(PRESENTATIONML, "bg", min_occurs=0),
+                ElementParticle(PRESENTATIONML, "spTree", min_occurs=1),
+                ElementParticle(PRESENTATIONML, "custDataLst", min_occurs=0),
+                ElementParticle(PRESENTATIONML, "controls", min_occurs=0),
+                AnyParticle(namespace_constraint="##other", min_occurs=0, max_occurs=-1),
+            ]
+        ),
     )
     registry.register(cSld)
 
@@ -187,20 +193,26 @@ def _create_pptx_constraints() -> ElementConstraintRegistry:
     spTree = ElementConstraint(
         namespace=PRESENTATIONML,
         local_name="spTree",
-        content_model=SequenceParticle(children=[
-            ElementParticle(PRESENTATIONML, "nvGrpSpPr", min_occurs=1),
-            ElementParticle(PRESENTATIONML, "grpSpPr", min_occurs=1),
-            # Choice of shape types, unbounded
-            ChoiceParticle(min_occurs=0, max_occurs=-1, children=[
-                ElementParticle(PRESENTATIONML, "sp", min_occurs=1),
-                ElementParticle(PRESENTATIONML, "grpSp", min_occurs=1),
-                ElementParticle(PRESENTATIONML, "graphicFrame", min_occurs=1),
-                ElementParticle(PRESENTATIONML, "cxnSp", min_occurs=1),
-                ElementParticle(PRESENTATIONML, "pic", min_occurs=1),
-                ElementParticle(PRESENTATIONML, "contentPart", min_occurs=1),
-            ]),
-            AnyParticle(namespace_constraint="##other", min_occurs=0, max_occurs=-1),
-        ]),
+        content_model=SequenceParticle(
+            children=[
+                ElementParticle(PRESENTATIONML, "nvGrpSpPr", min_occurs=1),
+                ElementParticle(PRESENTATIONML, "grpSpPr", min_occurs=1),
+                # Choice of shape types, unbounded
+                ChoiceParticle(
+                    min_occurs=0,
+                    max_occurs=-1,
+                    children=[
+                        ElementParticle(PRESENTATIONML, "sp", min_occurs=1),
+                        ElementParticle(PRESENTATIONML, "grpSp", min_occurs=1),
+                        ElementParticle(PRESENTATIONML, "graphicFrame", min_occurs=1),
+                        ElementParticle(PRESENTATIONML, "cxnSp", min_occurs=1),
+                        ElementParticle(PRESENTATIONML, "pic", min_occurs=1),
+                        ElementParticle(PRESENTATIONML, "contentPart", min_occurs=1),
+                    ],
+                ),
+                AnyParticle(namespace_constraint="##other", min_occurs=0, max_occurs=-1),
+            ]
+        ),
     )
     registry.register(spTree)
 
@@ -216,13 +228,15 @@ def _create_pptx_constraints() -> ElementConstraintRegistry:
                 required=False,
             ),
         ],
-        content_model=SequenceParticle(children=[
-            ElementParticle(PRESENTATIONML, "nvSpPr", min_occurs=1),
-            ElementParticle(PRESENTATIONML, "spPr", min_occurs=1),
-            ElementParticle(PRESENTATIONML, "style", min_occurs=0),
-            ElementParticle(PRESENTATIONML, "txBody", min_occurs=0),
-            AnyParticle(namespace_constraint="##other", min_occurs=0, max_occurs=-1),
-        ]),
+        content_model=SequenceParticle(
+            children=[
+                ElementParticle(PRESENTATIONML, "nvSpPr", min_occurs=1),
+                ElementParticle(PRESENTATIONML, "spPr", min_occurs=1),
+                ElementParticle(PRESENTATIONML, "style", min_occurs=0),
+                ElementParticle(PRESENTATIONML, "txBody", min_occurs=0),
+                AnyParticle(namespace_constraint="##other", min_occurs=0, max_occurs=-1),
+            ]
+        ),
     )
     registry.register(sp)
 
@@ -230,11 +244,13 @@ def _create_pptx_constraints() -> ElementConstraintRegistry:
     nvSpPr = ElementConstraint(
         namespace=PRESENTATIONML,
         local_name="nvSpPr",
-        content_model=SequenceParticle(children=[
-            ElementParticle(PRESENTATIONML, "cNvPr", min_occurs=1),
-            ElementParticle(PRESENTATIONML, "cNvSpPr", min_occurs=1),
-            ElementParticle(PRESENTATIONML, "nvPr", min_occurs=1),
-        ]),
+        content_model=SequenceParticle(
+            children=[
+                ElementParticle(PRESENTATIONML, "cNvPr", min_occurs=1),
+                ElementParticle(PRESENTATIONML, "cNvSpPr", min_occurs=1),
+                ElementParticle(PRESENTATIONML, "nvPr", min_occurs=1),
+            ]
+        ),
     )
     registry.register(nvSpPr)
 

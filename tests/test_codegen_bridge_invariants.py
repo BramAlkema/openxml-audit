@@ -834,9 +834,7 @@ def test_word_start_resolves_by_parent_not_by_attribute_count() -> None:
 
     borders = etree.fromstring(
         (
-            f'<w:pgBorders xmlns:w="{_WORD_NS}">'
-            f'<w:start w:val="single" w:sz="4"/>'
-            f"</w:pgBorders>"
+            f'<w:pgBorders xmlns:w="{_WORD_NS}"><w:start w:val="single" w:sz="4"/></w:pgBorders>'
         ).encode()
     )
     assert get_selected_candidate_class_name(borders[0]) == "StartBorder"

@@ -90,9 +90,7 @@ class TextListLevelConstraint(OdfConstraint):
                 self._error(
                     rule_id="ODFSEMTXT002",
                     error_type=ValidationErrorType.SEMANTIC,
-                    description=(
-                        f"text:list references list style '{ref}' which is not defined"
-                    ),
+                    description=(f"text:list references list style '{ref}' which is not defined"),
                     part_uri="/content.xml",
                 )
             )
@@ -136,8 +134,7 @@ class TextBookmarkRefConstraint(OdfConstraint):
                     rule_id="ODFSEMTXT003",
                     error_type=ValidationErrorType.SEMANTIC,
                     description=(
-                        f"Bookmark reference '{ref_name}' does not resolve to a "
-                        "defined bookmark"
+                        f"Bookmark reference '{ref_name}' does not resolve to a defined bookmark"
                     ),
                     part_uri="/content.xml",
                 )
@@ -182,9 +179,7 @@ class HeadingLevelSkipConstraint(OdfConstraint):
                     self._error(
                         rule_id="ODFSEMTXT004",
                         error_type=ValidationErrorType.SEMANTIC,
-                        description=(
-                            f"Heading skips from level {prev_level} to {level}"
-                        ),
+                        description=(f"Heading skips from level {prev_level} to {level}"),
                         part_uri="/content.xml",
                         severity=ValidationSeverity.WARNING,
                     )
@@ -230,9 +225,7 @@ class NoteRefConstraint(OdfConstraint):
                 self._error(
                     rule_id="ODFSEMTXT005",
                     error_type=ValidationErrorType.SEMANTIC,
-                    description=(
-                        f"Note reference '{ref_id}' does not resolve to a defined note"
-                    ),
+                    description=(f"Note reference '{ref_id}' does not resolve to a defined note"),
                     part_uri="/content.xml",
                 )
             )
@@ -434,9 +427,7 @@ class VariableGetRefConstraint(OdfConstraint):
                 self._error(
                     rule_id="ODFSEMTXT010",
                     error_type=ValidationErrorType.SEMANTIC,
-                    description=(
-                        f"Variable reference '{name}' does not resolve to a declaration"
-                    ),
+                    description=(f"Variable reference '{name}' does not resolve to a declaration"),
                     part_uri="/content.xml",
                 )
             )
@@ -563,9 +554,7 @@ class TextTableStructureConstraint(OdfConstraint):
                     self._error(
                         rule_id="ODFSEMTXT013",
                         error_type=ValidationErrorType.SEMANTIC,
-                        description=(
-                            f"Table '{name or '(unnamed)'}' has no columns or rows"
-                        ),
+                        description=(f"Table '{name or '(unnamed)'}' has no columns or rows"),
                         part_uri="/content.xml",
                     )
                 )
