@@ -20,11 +20,24 @@ from openxml_audit.odf.constraints.base import EvaluationContext, OdfConstraint,
 from openxml_audit.odf.constraints.style import collect_all_style_names
 
 # Draw shape element local names
-_SHAPE_LOCAL_NAMES = frozenset({
-    "rect", "circle", "ellipse", "line", "polyline", "polygon",
-    "path", "custom-shape", "frame", "connector", "caption",
-    "measure", "regular-polygon", "g",
-})
+_SHAPE_LOCAL_NAMES = frozenset(
+    {
+        "rect",
+        "circle",
+        "ellipse",
+        "line",
+        "polyline",
+        "polygon",
+        "path",
+        "custom-shape",
+        "frame",
+        "connector",
+        "caption",
+        "measure",
+        "regular-polygon",
+        "g",
+    }
+)
 
 # Position/size attributes (SVG namespace)
 _POSITION_ATTRS = (f"{{{SVG_NS}}}x", f"{{{SVG_NS}}}y")
@@ -210,10 +223,7 @@ class DrawCustomGeometryConstraint(OdfConstraint):
 
         geom_tag = f"{{{DRAW_NS}}}enhanced-geometry"
         for shape in content.iter(f"{{{DRAW_NS}}}custom-shape"):
-            has_geom = any(
-                isinstance(child.tag, str) and child.tag == geom_tag
-                for child in shape
-            )
+            has_geom = any(isinstance(child.tag, str) and child.tag == geom_tag for child in shape)
             if not has_geom:
                 name = shape.get(f"{{{DRAW_NS}}}name", "(unnamed)")
                 errors.append(
@@ -221,8 +231,7 @@ class DrawCustomGeometryConstraint(OdfConstraint):
                         rule_id="ODFSEMDRAW004",
                         error_type=ValidationErrorType.SEMANTIC,
                         description=(
-                            f"Custom shape '{name}' is missing "
-                            "draw:enhanced-geometry child element"
+                            f"Custom shape '{name}' is missing draw:enhanced-geometry child element"
                         ),
                         part_uri="/content.xml",
                     )
@@ -291,18 +300,19 @@ class Draw3dSceneConstraint(OdfConstraint):
         if content is None:
             return errors
 
-        dr3d_shapes = frozenset({
-            f"{{{DR3D_NS}}}cube",
-            f"{{{DR3D_NS}}}sphere",
-            f"{{{DR3D_NS}}}extrude",
-            f"{{{DR3D_NS}}}rotate",
-            f"{{{DR3D_NS}}}scene",
-        })
+        dr3d_shapes = frozenset(
+            {
+                f"{{{DR3D_NS}}}cube",
+                f"{{{DR3D_NS}}}sphere",
+                f"{{{DR3D_NS}}}extrude",
+                f"{{{DR3D_NS}}}rotate",
+                f"{{{DR3D_NS}}}scene",
+            }
+        )
 
         for scene in content.iter(f"{{{DR3D_NS}}}scene"):
             has_shape = any(
-                isinstance(child.tag, str) and child.tag in dr3d_shapes
-                for child in scene
+                isinstance(child.tag, str) and child.tag in dr3d_shapes for child in scene
             )
             if not has_shape:
                 errors.append(
@@ -348,8 +358,7 @@ class DrawStyleRefConstraint(OdfConstraint):
                         rule_id="ODFSEMDRAW007",
                         error_type=ValidationErrorType.SEMANTIC,
                         description=(
-                            f"Shape '{name}' references style '{ref}' "
-                            "which is not defined"
+                            f"Shape '{name}' references style '{ref}' which is not defined"
                         ),
                         part_uri="/content.xml",
                     )

@@ -28,6 +28,7 @@ from oracle.pptx_repair_oracle import (  # noqa: E402
     _stage_root,
     _to_jsonable,
 )
+
 from openxml_audit.pptx import osa as pptx_osa  # noqa: E402
 
 
@@ -39,14 +40,15 @@ def _live_office_opt_in() -> bool:
     """Live PowerPoint visibly hijacks the screen — require explicit
     opt-in via env var so `pytest tests/` is silent by default."""
     import os
+
     return os.environ.get("RUN_LIVE_OFFICE_TESTS", "").strip().lower() in {"1", "true", "yes"}
 
 
 REQUIRES_POWERPOINT = pytest.mark.skipif(
     not (_powerpoint_available() and _live_office_opt_in()),
     reason="PowerPoint oracle tests skipped — set RUN_LIVE_OFFICE_TESTS=1 "
-           "to enable (and Microsoft PowerPoint must be installed; tests "
-           "will visibly open and close presentations)",
+    "to enable (and Microsoft PowerPoint must be installed; tests "
+    "will visibly open and close presentations)",
 )
 
 
@@ -77,15 +79,16 @@ def _build_synthetic_pptx(target: Path) -> Path:
 
 def test_to_jsonable_summary_counts_outcomes_and_dialogs() -> None:
     obs = [
-        RoundtripObservation(source_relpath="a.pptx", outcome="preserved",
-                             duration_seconds=1.0),
+        RoundtripObservation(source_relpath="a.pptx", outcome="preserved", duration_seconds=1.0),
         RoundtripObservation(
-            source_relpath="b.pptx", outcome="repaired", duration_seconds=2.0,
-            repair_dialog_seen=True, repair_dialog_text="found a problem",
+            source_relpath="b.pptx",
+            outcome="repaired",
+            duration_seconds=2.0,
+            repair_dialog_seen=True,
+            repair_dialog_text="found a problem",
             changed_parts=["ppt/slides/slide1.xml"],
         ),
-        RoundtripObservation(source_relpath="c.pptx", outcome="open_failed",
-                             duration_seconds=0.5),
+        RoundtripObservation(source_relpath="c.pptx", outcome="open_failed", duration_seconds=0.5),
     ]
     payload = _to_jsonable(obs)
     assert payload["schema_version"] == 1

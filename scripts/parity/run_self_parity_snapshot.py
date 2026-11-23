@@ -40,7 +40,6 @@ from openxml_audit.parity_normalization import (  # noqa: E402
     normalize_error_tuple,
 )
 
-
 VERSION_MAP = {
     "Office2007": FileFormat.OFFICE_2007,
     "Office2010": FileFormat.OFFICE_2010,
@@ -165,7 +164,9 @@ def write_snapshot(
     manifest = _load_manifest(manifest_path)
     files = manifest.get("files") or []
     inventory, source_classes, runs, total = _gather_findings(
-        files, files_root, strict=strict,
+        files,
+        files_root,
+        strict=strict,
     )
 
     snapshot = SelfParitySnapshot(
@@ -205,17 +206,27 @@ def write_snapshot(
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--manifest", required=True, type=Path,
-                   help="path to corpus manifest (data/corpus/sdk_seed/manifest.json)")
-    p.add_argument("--files-root", required=True, type=Path,
-                   help="root directory containing the corpus files")
-    p.add_argument("--output", required=True, type=Path,
-                   help="path to write the self-parity snapshot JSON")
-    p.add_argument("--validator-version", default="",
-                   help="optional validator version label "
-                        "(e.g. '0.7.1'); recorded in the snapshot for traceability")
-    p.add_argument("--lax", action="store_true",
-                   help="run validator in non-strict mode (errors → warnings)")
+    p.add_argument(
+        "--manifest",
+        required=True,
+        type=Path,
+        help="path to corpus manifest (data/corpus/sdk_seed/manifest.json)",
+    )
+    p.add_argument(
+        "--files-root", required=True, type=Path, help="root directory containing the corpus files"
+    )
+    p.add_argument(
+        "--output", required=True, type=Path, help="path to write the self-parity snapshot JSON"
+    )
+    p.add_argument(
+        "--validator-version",
+        default="",
+        help="optional validator version label "
+        "(e.g. '0.7.1'); recorded in the snapshot for traceability",
+    )
+    p.add_argument(
+        "--lax", action="store_true", help="run validator in non-strict mode (errors → warnings)"
+    )
     args = p.parse_args()
 
     if not args.manifest.exists():
@@ -229,6 +240,7 @@ def main() -> int:
     if not validator_version:
         try:
             from openxml_audit import __version__
+
             validator_version = __version__
         except Exception:
             validator_version = "unknown"

@@ -20,10 +20,7 @@ __all__ = ["MINIMAL_BODY_XML", "build_minimal_docx"]
 
 _W = f"{{{WORDPROCESSINGML}}}"
 
-_CT_DOCUMENT = (
-    "application/vnd.openxmlformats-officedocument"
-    ".wordprocessingml.document.main+xml"
-)
+_CT_DOCUMENT = "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"
 _CT_RELATIONSHIPS = "application/vnd.openxmlformats-package.relationships+xml"
 _CT_XML = "application/xml"
 
@@ -69,6 +66,4 @@ def _build_document_xml(body: etree._Element | None) -> bytes:
     if body is None:
         body = etree.fromstring(MINIMAL_BODY_XML)
     document.append(body)
-    return etree.tostring(
-        document, xml_declaration=True, encoding="UTF-8", standalone=True
-    )
+    return etree.tostring(document, xml_declaration=True, encoding="UTF-8", standalone=True)

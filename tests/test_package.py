@@ -149,9 +149,7 @@ class TestOpenXmlPackage:
 
         assert any("ZIP" in e.description for e in exc_info.value.errors)
 
-    def test_missing_presentation_detected(
-        self, invalid_pptx_missing_presentation: Path
-    ) -> None:
+    def test_missing_presentation_detected(self, invalid_pptx_missing_presentation: Path) -> None:
         """Test that missing presentation.xml is detected."""
         # Invalid package doesn't necessarily raise on open - it collects errors
         with OpenXmlPackage(invalid_pptx_missing_presentation) as package:

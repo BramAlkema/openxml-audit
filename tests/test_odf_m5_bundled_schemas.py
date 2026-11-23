@@ -89,10 +89,7 @@ def test_zero_config_relaxng_valid_odt(minimal_odt: Path) -> None:
         relaxng_validation=True,
         require_schema_routes=False,
     ).validate(minimal_odt)
-    schema_errors = [
-        e for e in result.errors
-        if "Relax NG validation failed" in e.description
-    ]
+    schema_errors = [e for e in result.errors if "Relax NG validation failed" in e.description]
     assert not schema_errors
 
 
@@ -101,10 +98,7 @@ def test_zero_config_relaxng_valid_ods(minimal_ods: Path) -> None:
         relaxng_validation=True,
         require_schema_routes=False,
     ).validate(minimal_ods)
-    schema_errors = [
-        e for e in result.errors
-        if "Relax NG validation failed" in e.description
-    ]
+    schema_errors = [e for e in result.errors if "Relax NG validation failed" in e.description]
     assert not schema_errors
 
 
@@ -113,10 +107,7 @@ def test_zero_config_relaxng_valid_odp(minimal_odp: Path) -> None:
         relaxng_validation=True,
         require_schema_routes=False,
     ).validate(minimal_odp)
-    schema_errors = [
-        e for e in result.errors
-        if "Relax NG validation failed" in e.description
-    ]
+    schema_errors = [e for e in result.errors if "Relax NG validation failed" in e.description]
     assert not schema_errors
 
 
@@ -125,10 +116,7 @@ def test_zero_config_relaxng_valid_v12(minimal_odt_v12: Path) -> None:
         relaxng_validation=True,
         require_schema_routes=False,
     ).validate(minimal_odt_v12)
-    schema_errors = [
-        e for e in result.errors
-        if "Relax NG validation failed" in e.description
-    ]
+    schema_errors = [e for e in result.errors if "Relax NG validation failed" in e.description]
     assert not schema_errors
 
 
@@ -153,9 +141,9 @@ def test_zero_config_manifest_schema_valid(minimal_odt: Path) -> None:
         require_schema_routes=False,
     ).validate(minimal_odt)
     manifest_errors = [
-        e for e in result.errors
-        if e.part_uri == "/META-INF/manifest.xml"
-        and "Relax NG validation failed" in e.description
+        e
+        for e in result.errors
+        if e.part_uri == "/META-INF/manifest.xml" and "Relax NG validation failed" in e.description
     ]
     assert not manifest_errors
 
@@ -166,8 +154,5 @@ def test_zero_config_with_styles(minimal_odt_with_styles: Path) -> None:
         relaxng_validation=True,
         require_schema_routes=False,
     ).validate(minimal_odt_with_styles)
-    schema_errors = [
-        e for e in result.errors
-        if "Relax NG validation failed" in e.description
-    ]
+    schema_errors = [e for e in result.errors if "Relax NG validation failed" in e.description]
     assert not schema_errors
